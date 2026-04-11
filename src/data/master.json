@@ -1,0 +1,137 @@
+{
+    "personal": {
+        "name": "Trupal Patel",
+        "title": "Full-Stack Software Engineer",
+        "email": "trupal.work@gmail.com",
+        "phone": "+1 943 265 1855",
+        "location": "Camarillo, CA",
+        "storyText": "I am a Full-Stack Software Engineer specializing in building scalable, production-grade SaaS platforms, real-time data systems, and AI-driven applications. With a strong foundation in JavaScript, TypeScript, and modern frontend frameworks like React and Next.js, I focus on delivering high-performance, user-centric solutions backed by robust backend architectures.\n\nMy work spans across multi-tenant SaaS ecosystems, computer vision data pipelines, and enterprise analytics platforms. At Allyvia, I played a key role in engineering a multi-tenant retail operations system with deep integrations into financial systems like QuickBooks, while at AIVID.AI, I contributed to large-scale real-time monitoring platforms processing millions of data points across distributed systems.\n\nI combine strong system design thinking with hands-on engineering, enabling me to architect solutions that are both scalable and maintainable. My passion lies in solving complex problems, optimizing performance, and building systems that operate reliably at scale.",
+        "voiceSummary": "Hi, I'm Trupal Patel. I specialize in building scalable, production-grade Software as a Service platforms, real time systems, and A I driven apps. My work spans from building a multi-tenant retail system for Allyvia with complex QuickBooks integration, to contributing to real-time analytics platforms processing millions of data points at Aivid A I. I combine system design with hands-on engineering to solve complex performance problems. Connect with me on the socials page or download my resume."
+    },
+    "experiences": [
+        {
+            "slug": "allyvia",
+            "company": "Allyvia",
+            "url": "https://www.allyvia.co/",
+            "logo": "https://framerusercontent.com/images/jTSIYOTP8VdE4S1bbDigdqttM.png",
+            "role": "Software Engineer",
+            "period": "July 2025 – February 2026",
+            "achievements": [
+                "Enabled scalable onboarding of multiple organizations.",
+                "Reduced frontend code duplication through modular architecture.",
+                "Delivered secure and enterprise-grade access control.",
+                "Stabilized third-party integrations for production use."
+            ],
+            "deepDive": {
+                "systemOverview": "The system was designed as a full-stack SaaS application where each tenant (company) had isolated data, role-based access control, and configurable modules such as inventory management, CRM, employee tracking, billing, and analytics dashboards.",
+                "responsibilities": "I owned the end-to-end development of critical modules across both frontend and backend layers. On the frontend, I utilized React, TypeScript, and Material UI to build scalable and reusable components. I architected a registry-driven navigation system that dynamically rendered UI elements based on user roles and permissions. On the backend side, I worked with secure API design patterns, JWT-based authentication, and middleware-driven authorization to ensure data integrity and security across tenants.",
+                "challenges": [
+                    "Implementing multi-tenant data isolation while maintaining performance. Each tenant required strict separation of data without duplicating infrastructure unnecessarily.",
+                    "Designing a fine-grained RBAC (Role-Based Access Control) system where UI components, routes, and backend APIs all respected permission boundaries consistently.",
+                    "Integrating QuickBooks APIs, which are complex and stateful, requiring handling asynchronous workflows, webhook reliability, and data synchronization without breaking user experience."
+                ],
+                "solutions": [
+                    "Designed a permission-aware rendering system, where UI components were dynamically controlled based on decoded JWT permissions. This ensured both security and flexibility.",
+                    "Introduced a registry-based architecture for navigation and module configuration, significantly reducing code duplication and making it easier to scale new modules.",
+                    "Implemented robust webhook handlers and retry mechanisms, ensuring reliable financial data synchronization even under failure scenarios."
+                ],
+                "impact": [
+                    "Enabled scalable onboarding of multiple organizations",
+                    "Reduced frontend code duplication through modular architecture",
+                    "Delivered secure and enterprise-grade access control",
+                    "Stabilized third-party integrations for production use"
+                ]
+            }
+        },
+        {
+            "slug": "aivid-ai-swe",
+            "company": "AIVID.AI",
+            "url": "https://aivid.ai",
+            "logo": "https://aivid.ai/wp-content/uploads/2023/12/Aivid-simbol.png",
+            "role": "Software Engineer",
+            "period": "August 2024 – April 2025",
+            "achievements": [
+                "Improved analytics search performance significantly.",
+                "Enabled real-time monitoring across 200+ distinct sites.",
+                "Delivered robust event-driven alerting infrastructure.",
+                "Enhanced system scalability and background job reliability."
+            ],
+            "deepDive": {
+                "systemOverview": "The system relied heavily on Elasticsearch for analytics, Node.js for backend processing, and React with Elastic UI for real-time dashboards. Data pipelines handled continuous ingestion from computer vision systems and transformed it into actionable insights.",
+                "responsibilities": "I focused on optimizing Elasticsearch queries and building real-time dashboards that displayed large volumes of analytical data without performance degradation. I also developed automated reporting systems that triggered alerts across multiple communication channels such as email, WhatsApp, Slack, and Twilio. Additionally, I contributed to enabling RTSP-based live streaming, allowing users to visualize real-time processed video feeds.",
+                "challenges": [
+                    "Handling massive-scale data aggregation in Elasticsearch, especially when queries involved complex aggregations across millions of records.",
+                    "Ensuring real-time responsiveness of dashboards without blocking the UI thread or overwhelming the browser."
+                ],
+                "solutions": [
+                    "Optimized Elasticsearch queries by restructuring aggregations and indexing strategies, achieving a ~25% performance improvement.",
+                    "Implemented memoization and efficient state management techniques on the frontend to ensure smooth rendering of large datasets.",
+                    "Designed cron-based distributed job handlers that executed dynamic workflows and triggered webhooks reliably."
+                ],
+                "impact": [
+                    "Improved analytics performance significantly",
+                    "Enabled real-time monitoring across 200+ sites",
+                    "Delivered robust alerting infrastructure",
+                    "Enhanced system scalability and reliability"
+                ]
+            }
+        },
+        {
+            "slug": "aivid-ai-intern",
+            "company": "AIVID.AI",
+            "url": "https://aivid.ai",
+            "logo": "https://aivid.ai/wp-content/uploads/2023/12/Aivid-simbol.png",
+            "role": "Software Engineer Intern",
+            "period": "January 2023 – July 2024",
+            "achievements": [
+                "Delivered multiple production-ready analytics dashboards.",
+                "Improved UI responsiveness rendering massive JSON structures.",
+                "Strengthened internal Elasticsearch and Kibana analytics tooling."
+            ],
+            "deepDive": {
+                "systemOverview": "A framework visualizing computer vision intelligence network streams mapping AI inference metrics at scale.",
+                "responsibilities": "I developed over 35+ dashboards using React, TypeScript, and ApexCharts, focusing on visualizing complex AI-generated datasets. I also contributed to Elasticsearch and Kibana plugin development, gaining deep exposure to internal system pipelines.",
+                "challenges": [
+                    "Rendering large JSON datasets efficiently in the browser without performance bottlenecks was a major hurdle.",
+                    "Understanding and adapting to Elastic UI and Kibana’s complex architecture required rapid learning and experimentation."
+                ],
+                "solutions": [
+                    "Built modular and reusable chart components with optimized data transformations, ensuring smooth rendering even with large payloads."
+                ],
+                "impact": [
+                    "Delivered multiple production-ready dashboards",
+                    "Improved UI responsiveness and performance",
+                    "Strengthened internal analytics tooling"
+                ]
+            }
+        },
+        {
+            "slug": "infolabz",
+            "company": "InfoLabz IT Services",
+            "url": "https://infolabz.in",
+            "logo": "https://infolabz.in/photos/favicon.png",
+            "role": "React.js Intern",
+            "period": "June 2022 – July 2022",
+            "achievements": [
+                "Built strong foundational knowledge in the React ecosystem.",
+                "Gained hands-on experience with external live API integrations.",
+                "Constructed rigid state management pipelines using Redux hooks."
+            ],
+            "deepDive": {
+                "systemOverview": "Consumer-facing responsive web applications targeting real-time public data distribution.",
+                "responsibilities": "I developed a news web application and a COVID-19 live dashboard, both consuming real-time APIs and updating the UI dynamically heavily focused on React and Redux.",
+                "challenges": [
+                    "Managing asynchronous data flows cleanly on component mount boundaries.",
+                    "Maintaining global state consistency reliably as early developmental challenges."
+                ],
+                "solutions": [
+                    "Implemented structured Redux patterns and separated concerns between UI rendering limits and active data logic using React hooks."
+                ],
+                "impact": [
+                    "Built strong foundational knowledge in React ecosystem",
+                    "Gained hands-on experience with API integration and state management"
+                ]
+            }
+        }
+    ]
+}
