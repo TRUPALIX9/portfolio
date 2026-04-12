@@ -152,28 +152,28 @@ export default function NeonBreakout({ onFinished }: { onFinished: () => void })
         <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: '16px', overflow: 'hidden', position: 'relative', border: '4px solid #000', width: '100%', height: '100%', minHeight: '600px' }} className="game-console">
             <canvas ref={canvasRef} width={400} height={600} style={{ width: 'auto', height: '90vh', maxWidth: '400px', maxHeight: '600px', display: 'block' }} />
             {!playing && !gameOver && (
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(248, 250, 252, 0.95)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', zIndex: 10, padding: '2rem', textAlign: 'center' }}>
-                    <h2 style={{ color: '#000', fontSize: '2rem' }}>BREAKOUT</h2>
-                    <div style={{ background: 'rgba(0,0,0,0.05)', padding: '1rem', borderRadius: '12px', width: '100%' }}>
-                        <p style={{ fontWeight: 700, marginBottom: '0.5rem' }}>STAGES: 100</p>
-                        <p style={{ fontSize: '0.85rem', opacity: 0.8 }}>Smash mystery bricks for power-ups.</p>
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem' }}>
-                            <div style={{ fontSize: '0.70rem' }}>🖱️ 👆<br />MOVE PADDLE</div>
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(248, 250, 252, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', zIndex: 10, padding: '2rem', textAlign: 'center' }}>
+                    <h2 style={{ color: '#000', fontSize: '2rem', fontWeight: 900 }}>BREAKOUT</h2>
+                    <div style={{ background: 'rgba(0,0,0,0.05)', padding: '1.5rem', borderRadius: '16px', width: '100%', border: '1px solid rgba(0,0,0,0.1)' }}>
+                        <p style={{ fontWeight: 800, marginBottom: '0.5rem', color: '#000', letterSpacing: '0.05em' }}>STAGES: 100</p>
+                        <p style={{ fontSize: '0.9rem', opacity: 0.8, color: '#000' }}>Smash mystery bricks for power-ups.</p>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem', color: '#000' }}>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>🖱️ 👆<br />MOVE PADDLE</div>
                         </div>
                     </div>
-                    <button onClick={startGame} className="btn-primary" style={{ background: '#000', color: '#fff', width: '100%' }}>BEGIN SYSTEM CLEANSE</button>
+                    <button onClick={startGame} className="btn-primary" style={{ background: '#000', color: '#fff', width: '100%', padding: '1rem', borderRadius: '12px', fontWeight: 700 }}>BEGIN SYSTEM CLEANSE</button>
                 </div>
             )}
             {gameOver && (
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', zIndex: 10 }}>
-                    <h2 style={{ color: '#ef4444' }}>SYSTEM OVERFLOW</h2>
-                    <p style={{ color: '#fff' }}>Level: {level} • Score: {score}</p>
+                    <h2 style={{ color: '#ef4444', fontSize: '2rem', fontWeight: 800 }}>SYSTEM OVERFLOW</h2>
+                    <p style={{ color: '#fff', fontSize: '1.1rem' }}>Level: {level} • Score: {score}</p>
                     <input value={name} onChange={e => setName(e.target.value)} style={{ padding: '0.75rem', borderRadius: '8px', background: '#111', color: '#fff', border: '1px solid #333', textAlign: 'center' }} />
-                    <button onClick={submit} className="btn-primary" style={{ background: '#ef4444' }}>UPLOAD</button>
-                    <button onClick={startGame} className="btn-outline" style={{ color: '#fff' }}>RETRY</button>
+                    <button onClick={submit} className="btn-primary" style={{ background: '#ef4444', color: '#fff' }}>UPLOAD DATA</button>
+                    <button onClick={startGame} className="btn-outline" style={{ color: '#fff', border: '1px solid #fff' }}>RETRY</button>
                 </div>
             )}
-            {playing && <div style={{ position: 'absolute', top: 20, right: 20, color: '#000', fontWeight: 800 }}>Lvl {level} • {score}</div>}
+            {playing && <div style={{ position: 'absolute', top: 20, right: 20, color: '#000', fontWeight: 800, fontSize: '1.1rem' }}>Lvl {level} • {score}</div>}
         </div>
     );
 }

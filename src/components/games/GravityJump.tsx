@@ -118,27 +118,30 @@ export default function GravityJump({ onFinished }: { onFinished: () => void }) 
             <canvas ref={canvasRef} width={400} height={600} style={{ width: 'auto', height: '90vh', maxWidth: '400px', maxHeight: '600px', display: 'block' }} />
             {!playing && !gameOver && (
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(248, 250, 252, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', zIndex: 10, padding: '2rem', textAlign: 'center' }}>
-                    <h2 style={{ color: '#ef4444', fontSize: '2rem', fontWeight: 900 }}>ROCKET</h2>
-                    <div style={{ background: 'rgba(0,0,0,0.05)', padding: '1.5rem', borderRadius: '16px', width: '100%', border: '1px solid rgba(0,0,0,0.1)' }}>
+                    <h2 style={{ color: '#ef4444', fontSize: '2.5rem', fontWeight: 900 }}>ROCKET</h2>
+                    <div style={{ background: 'rgba(0,0,0,0.05)', padding: '1.5rem', borderRadius: '20px', width: '100%', border: '1px solid rgba(0,0,0,0.1)' }}>
                         <p style={{ fontWeight: 800, marginBottom: '0.5rem', color: '#000', letterSpacing: '0.05em' }}>MISSION: SURVIVAL</p>
-                        <p style={{ fontSize: '0.9rem', opacity: 0.8, color: '#000' }}>Navigate the celestial debris field.</p>
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem', color: '#000' }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>⌨️ 🖱️<br />DRAG TO STEER</div>
+                        <p style={{ fontSize: '0.95rem', opacity: 0.8, color: '#000' }}>Navigate the celestial debris field.</p>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '1.5rem', color: '#000' }}>
+                            <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>⌨️ 🖱️<br />DRAG TO STEER</div>
                         </div>
                     </div>
-                    <button onClick={startGame} className="btn-primary" style={{ background: '#ef4444', color: '#fff', width: '100%', padding: '1rem', borderRadius: '12px', fontWeight: 700 }}>LAUNCH</button>
+                    <button onClick={startGame} className="btn-primary" style={{ background: '#ef4444', color: '#fff', width: '100%', padding: '1rem', borderRadius: '12px', fontWeight: 700 }}>LAUNCH MISSION</button>
                 </div>
             )}
             {gameOver && (
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(248, 250, 252, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', zIndex: 10 }}>
-                    <h2 style={{ color: '#ef4444' }}>HULL BREACHED</h2>
-                    <p style={{ color: '#1e293b' }}>Altitude: {score}m</p>
-                    <input value={name} onChange={e => setName(e.target.value)} style={{ padding: '0.75rem', borderRadius: '8px', background: '#fff', color: '#000', border: '1px solid #cbd5e1', textAlign: 'center' }} />
-                    <button onClick={submit} className="btn-primary" style={{ background: '#ef4444' }}>Submit Score</button>
-                    <button onClick={startGame} className="btn-outline" style={{ color: '#1e293b' }}>Relaunch</button>
+                    <h2 style={{ color: '#ef4444', fontSize: '2rem', fontWeight: 800 }}>HULL BREACHED</h2>
+                    <p style={{ color: '#0f172a', fontSize: '1.2rem', fontWeight: 600 }}>Altitude: {score}m</p>
+                    <div style={{ width: '80%', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <label style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase' }}>Cpt. Name</label>
+                        <input value={name} onChange={e => setName(e.target.value)} style={{ padding: '0.75rem', borderRadius: '8px', background: '#fff', color: '#000', border: '1px solid #cbd5e1', textAlign: 'center', width: '100%' }} />
+                    </div>
+                    <button onClick={submit} className="btn-primary" style={{ background: '#ef4444', color: '#fff', width: '80%' }}>Submit Score</button>
+                    <button onClick={startGame} className="btn-outline" style={{ color: '#1e293b', border: '1px solid #1e293b', width: '80%' }}>Relaunch</button>
                 </div>
             )}
-            {playing && <div style={{ position: 'absolute', top: 20, right: 20, color: '#ef4444', fontWeight: 800, fontSize: '1.2rem' }}>{score}m</div>}
+            {playing && <div style={{ position: 'absolute', top: 20, right: 20, color: '#ef4444', fontWeight: 900, fontSize: '1.4rem' }}>{score}m</div>}
         </div>
     );
 }
