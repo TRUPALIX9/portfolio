@@ -39,7 +39,13 @@ export async function POST(req: Request) {
         // Retain Top 20
         const top20 = leaderboard.slice(0, 20);
 
-        fs.writeFileSync(filePath, JSON.stringify(top20, null, 2));
+        try {
+            fs.writeFileSync(filePath, JSON.stringify(top20, null, 2));
+        } catch (e) {
+            console.error("Vercel FS Bypass: ", e);
+            // In serverless, we return the sorted list but can't save to JSON.
+            // The frontend fallback handles persistence.
+        }
         return NextResponse.json(top20);
     } catch (e: any) {
         return NextResponse.json({ error: 'Failed to update leaderboard' }, { status: 500 });

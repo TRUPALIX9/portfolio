@@ -7,10 +7,12 @@
   --bg-tertiary: #111111;
   --text-primary: #f0f0f0;
   --text-secondary: #a0a0a0;
-  --accent-primary: #4ade80; /* vibrant green */
-  --accent-secondary: #06b6d4; /* vibrant cyan */
+  --accent-primary: #4ade80;
+  /* vibrant green */
+  --accent-secondary: #06b6d4;
+  /* vibrant cyan */
   --border-color: rgba(255, 255, 255, 0.08);
-  
+
   --font-sans: 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --nav-height: 80px;
 }
@@ -21,7 +23,8 @@
   padding: 0;
 }
 
-html, body {
+html,
+body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -155,4 +158,62 @@ button {
 .btn-outline:hover {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
+
+  .nav-links,
+  .nav-auth {
+    display: none !important;
+  }
+}
+
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 5, 5, 0.95);
+  backdrop-filter: blur(20px);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  padding: 8rem 2rem;
+  gap: 2.5rem;
+}
+
+.mobile-menu-link {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.hamburger-btn {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 110;
+}
+
+.hamburger-btn span {
+  width: 30px;
+  height: 2px;
+  background: var(--text-primary);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+  .hamburger-btn {
+    display: flex !important;
+  }
+
+  .section {
+    padding: 6rem 1.5rem;
+  }
+
+  .container {
+    padding: 0 1.5rem;
+  }
 }

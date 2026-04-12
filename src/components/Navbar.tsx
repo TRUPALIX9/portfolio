@@ -1,7 +1,8 @@
 "use client";
-import { motion } from 'framer-motion';
+import { useState, Suspense } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 const GithubIcon = ({ size = 20 }: { size?: number }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -17,8 +18,14 @@ const LinkedinIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 );
 
-export default function Navbar() {
+function NavbarContent() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const isStrict = searchParams.get('strict') === 'true';
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (isStrict) return null;
+
   const links = [
     { href: "/about", label: "About" },
     { href: "/projects", label: "Work" },
@@ -28,61 +35,102 @@ export default function Navbar() {
     { href: "/social", label: "Socials" }
   ];
 
+  const handleToggle = () => setIsOpen(!isOpen);
+
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      style={{
-        position: 'fixed',
-        top: 0, left: 0, right: 0,
-        height: 'var(--nav-height)',
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'center'
-      }}
-      className="glass"
-    >
-      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link href="/" style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: 'inherit' }}>
-          TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span>
-        </Link>
+    <>
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0,
+          height: 'var(--nav-height)',
+          zIndex: 150,
+          display: 'flex',
+          alignItems: 'center'
+        }}
+        className="glass"
+      >
+        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Link href="/" style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: 'inherit' }}>
+            TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span>
+          </Link>
 
-        <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
-          <div style={{ display: 'flex', gap: '2rem' }} className="nav-links">
-            {links.map(link => {
-              const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  style={{
-                    color: isActive ? 'var(--accent-primary)' : 'var(--text-secondary)',
-                    fontWeight: isActive ? 600 : 500,
-                    textShadow: isActive ? '0 0 12px rgba(74, 222, 128, 0.4)' : 'none',
-                    transition: 'all 0.2s',
-                    textDecoration: 'none'
-                  }}
-                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--text-primary)' }}
-                  onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--text-secondary)' }}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-            <Link href="/resume" style={{ color: 'var(--accent-primary)', fontWeight: 600, textDecoration: 'none' }}>Resume</Link>
-          </div>
+          <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '1.5rem' }} className="nav-links">
+              {links.map(link => {
+                const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    style={{
+                      color: isActive ? 'var(--accent-primary)' : 'var(--text-secondary)',
+                      fontWeight: isActive ? 600 : 500,
+                      textShadow: isActive ? '0 0 12px rgba(74, 222, 128, 0.4)' : 'none',
+                      transition: 'all 0.2s',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+              <Link href="/resume" style={{ color: 'var(--accent-primary)', fontWeight: 600, textDecoration: 'none' }}>Resume</Link>
+            </div>
 
-          <div style={{ display: 'flex', gap: '1.25rem', borderLeft: '1px solid var(--border-color)', paddingLeft: '2rem' }}>
-            <a href="https://github.com" target="_blank" rel="noreferrer" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
-              <GithubIcon size={20} />
-            </a>
-            <a href="https://linkedin.com" target="_blank" rel="noreferrer" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
-              <LinkedinIcon size={20} />
-            </a>
+            <button className="hamburger-btn" onClick={handleToggle} aria-label="Toggle Menu">
+              <span style={{ transform: isOpen ? 'rotate(45deg) translate(0, 8px)' : 'none' }}></span>
+              <span style={{ opacity: isOpen ? 0 : 1 }}></span>
+              <span style={{ transform: isOpen ? 'rotate(-45deg) translate(0, -8px)' : 'none' }}></span>
+            </button>
+
+            <div style={{ display: 'flex', gap: '1.25rem', borderLeft: '1px solid var(--border-color)', paddingLeft: '2rem' }} className="nav-auth">
+              <a href="https://github.com/TRUPALIX9" target="_blank" rel="noreferrer" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s' }}>
+                <GithubIcon size={20} />
+              </a>
+              <a href="https://linkedin.com/in/trupalix9" target="_blank" rel="noreferrer" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s' }}>
+                <LinkedinIcon size={20} />
+              </a>
+            </div>
           </div>
         </div>
-      </div>
-    </motion.nav>
+      </motion.nav>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="mobile-menu-overlay"
+          >
+            {links.map((link, i) => (
+              <motion.div
+                key={link.href}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <Link href={link.href} onClick={() => setIsOpen(false)} className="mobile-menu-link">
+                  {link.label}
+                </Link>
+              </motion.div>
+            ))}
+            <Link href="/resume" onClick={() => setIsOpen(false)} className="mobile-menu-link" style={{ color: 'var(--accent-primary)' }}>Resume</Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+export default function Navbar() {
+  return (
+    <Suspense fallback={<nav className="glass" style={{ height: 'var(--nav-height)' }} />}>
+      <NavbarContent />
+    </Suspense>
   );
 }

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 export default function EndlessGame() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const gameContainerRef = useRef<HTMLDivElement>(null);
     const [score, setScore] = useState(0);
     const [gameOver, setGameOver] = useState(false);
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
@@ -14,7 +15,15 @@ export default function EndlessGame() {
         fetch('/api/leaderboard').then(res => res.json()).then(setLeaderboard);
     }, []);
 
-    const startGame = () => {
+    const startGame = async () => {
+        if (gameContainerRef.current && gameContainerRef.current.requestFullscreen) {
+            try {
+                await gameContainerRef.current.requestFullscreen();
+            } catch (err) {
+                console.log("Fullscreen request failed", err);
+            }
+        }
+
         setPlaying(true);
         setGameOver(false);
         setScore(0);
@@ -47,22 +56,31 @@ export default function EndlessGame() {
             }
 
             const rect = canvas.getBoundingClientRect();
-            // Scale appropriately if canvas CSS is different from intrinsic width
             const scaleX = canvas.width / rect.width;
             let mappedX = (clientX - rect.left) * scaleX;
             mappedX = Math.max(playerWidth / 2, Math.min(canvas.width - playerWidth / 2, mappedX));
             playerX = mappedX;
         };
 
+        const handleKeyDown = (e: KeyboardEvent) => {
+            const step = 20;
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+                playerX = Math.max(playerWidth / 2, playerX - step);
+            }
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                playerX = Math.min(canvas.width - playerWidth / 2, playerX + step);
+            }
+        };
+
         window.addEventListener('mousemove', handleMove);
         window.addEventListener('touchmove', handleMove, { passive: false });
+        window.addEventListener('keydown', handleKeyDown);
 
         const loop = () => {
             frames++;
             if (frames % 20 === 0) {
                 const w = Math.random() * 40 + 20;
                 const x = Math.random() * (canvas.width - w);
-                // Exponential speed up
                 const speed = 3 + (currentScore / 250);
                 obstacles.push({ x, y: -50, w, h: 20, speed });
             }
@@ -73,9 +91,12 @@ export default function EndlessGame() {
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw Player Ship
+            // Draw Player Ship with Glow
             ctx.fillStyle = '#4ade80';
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#4ade80';
             ctx.fillRect(playerX - playerWidth / 2, playerY, playerWidth, playerHeight);
+            ctx.shadowBlur = 0;
 
             // Draw falling obstacles
             ctx.fillStyle = '#ef4444';
@@ -84,7 +105,6 @@ export default function EndlessGame() {
                 obs.y += obs.speed;
                 ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
 
-                // Collision Hitbox validation
                 if (
                     playerX - playerWidth / 2 < obs.x + obs.w &&
                     playerX + playerWidth / 2 > obs.x &&
@@ -96,13 +116,16 @@ export default function EndlessGame() {
                     cancelAnimationFrame(animationId);
                     window.removeEventListener('mousemove', handleMove);
                     window.removeEventListener('touchmove', handleMove);
+                    window.removeEventListener('keydown', handleKeyDown);
+
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen().catch(() => { });
+                    }
                     return;
                 }
             }
 
-            // Cleanup passed obstacles to save memory
             obstacles = obstacles.filter(o => o.y < canvas.height);
-
             animationId = requestAnimationFrame(loop);
         };
         loop();
@@ -111,23 +134,41 @@ export default function EndlessGame() {
             cancelAnimationFrame(animationId);
             window.removeEventListener('mousemove', handleMove);
             window.removeEventListener('touchmove', handleMove);
+            window.removeEventListener('keydown', handleKeyDown);
         };
     };
 
     const submitScore = async () => {
-        const res = await fetch('/api/leaderboard', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, score })
-        });
-        const data = await res.json();
-        setLeaderboard(data);
-        setSubmitted(true);
+        try {
+            const res = await fetch('/api/leaderboard', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, score })
+            });
+            if (!res.ok) throw new Error("Failed to save to server");
+            const data = await res.json();
+            setLeaderboard(data);
+            setSubmitted(true);
+        } catch (err) {
+            console.error(err);
+            // Fallback to local high score for the user if server fails (Vercel limitation)
+            const localLeaderboard = JSON.parse(localStorage.getItem('portfolio_leaderboard') || '[]');
+            localLeaderboard.push({ name, score, date: new Date().toISOString() });
+            localLeaderboard.sort((a: any, b: any) => b.score - a.score);
+            const top20 = localLeaderboard.slice(0, 20);
+            localStorage.setItem('portfolio_leaderboard', JSON.stringify(top20));
+            setLeaderboard(top20);
+            setSubmitted(true);
+            alert("Note: Global leaderboard is unavailable in this environment. Your high score has been saved locally.");
+        }
     };
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '800px', margin: '0 auto', gap: '2rem' }}>
-            <div style={{ position: 'relative', width: '100%', maxWidth: '400px', margin: '0 auto', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '16px', overflow: 'hidden', touchAction: 'none' }}>
+            <div
+                ref={gameContainerRef}
+                style={{ position: 'relative', width: '100%', maxWidth: '400px', margin: '0 auto', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '16px', overflow: 'hidden', touchAction: 'none' }}
+            >
                 <canvas
                     ref={canvasRef}
                     width={400}
