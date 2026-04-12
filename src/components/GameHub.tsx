@@ -38,6 +38,11 @@ export default function GameHub() {
         { id: 'breakout', title: 'Breakout', icon: '🧱', desc: 'Kinetic energy', color: '#10b981' }
     ];
 
+    const handleGameFinished = () => {
+        fetchLeaderboard();
+        setSelectedGame(null);
+    };
+
     const filteredLeaderboard = selectedGame
         ? leaderboard.filter(e => e.game === selectedGame)
         : leaderboard;
@@ -58,7 +63,7 @@ export default function GameHub() {
 
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
                             gap: '1.5rem',
                             marginBottom: '4rem'
                         }} className="game-grid-3x2">
@@ -67,64 +72,63 @@ export default function GameHub() {
                                     key={game.id}
                                     whileHover={{ scale: 1.02, y: -5 }}
                                     className="glass-card"
-                                    style={{ padding: '1.5rem', cursor: 'pointer', border: `1px solid ${game.color}33`, position: 'relative' }}
+                                    style={{ padding: '1.25rem', cursor: 'pointer', border: `1px solid ${game.color}22`, overflow: 'hidden' }}
                                     onClick={() => setSelectedGame(game.id as GameType)}
                                 >
                                     <GamePreview type={game.id as any} />
-
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <div>
-                                            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.25rem', color: game.color }}>{game.icon} {game.title}</h3>
-                                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{game.desc}</p>
+                                            <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff' }}>{game.icon} {game.title}</h3>
+                                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>{game.desc}</p>
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
-                                            <span style={{ display: 'block', fontSize: '0.6rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Record</span>
-                                            <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff' }}>{getHighScore(game.id)}</span>
+                                            <span style={{ display: 'block', fontSize: '1.1rem', fontWeight: 900, color: game.color }}>{getHighScore(game.id)}</span>
                                         </div>
                                     </div>
                                 </motion.div>
                             ))}
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '3rem' }} className="game-stage-layout">
-                            <div className="glass-card" style={{ padding: '1.5rem' }}>
-                                <h3 style={{ fontSize: '1rem', color: 'var(--accent-primary)', marginBottom: '1rem' }}>🎮 Quick Start Guide</h3>
-                                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                                    Navigate between iconic arcade genres transformed for the web. Each game features <b>Progressive Difficulty</b>—the longer you survive, the more intense the system becomes.
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+                            <div className="glass-card" style={{ padding: '2rem', borderLeft: '4px solid var(--accent-primary)' }}>
+                                <h3 style={{ fontSize: '1.1rem', color: '#fff', marginBottom: '0.75rem' }}>🎮 Mission Briefing</h3>
+                                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                                    Navigate between iconic arcade genres rebuilt for the modern web. Every module features <b>Progressive Difficulty</b>—survive the initial burst to face the high-speed system overload.
                                 </p>
                             </div>
-                            <div className="glass-card" style={{ padding: '1.5rem' }}>
-                                <h3 style={{ fontSize: '1rem', color: 'var(--accent-primary)', marginBottom: '1rem' }}>🏆 Global Ranking</h3>
-                                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                                    Your data is processed in real-time. Only the top 5 legends in each category earn a permanent slot in the Hall of Fame.
+                            <div className="glass-card" style={{ padding: '2rem', borderLeft: '4px solid var(--accent-secondary)' }}>
+                                <h3 style={{ fontSize: '1.1rem', color: '#fff', marginBottom: '0.75rem' }}>🏆 Global Data Sync</h3>
+                                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                                    Your scores are processed in real-time. Only the top tactical operators in each category earn a permanent slot in the <b>Hall of Fame</b>.
                                 </p>
                             </div>
                         </div>
 
-                        <div className="glass-card" style={{ padding: '2.5rem' }}>
-                            <h2 className="heading-md" style={{ textAlign: 'center', marginBottom: '3rem', fontSize: '1.5rem' }}>Hall of Fame</h2>
+                        <div className="glass-card" style={{ padding: '3rem 2rem', background: 'rgba(255,255,255,0.01)' }}>
+                            <h2 style={{ textAlign: 'center', marginBottom: '4rem', fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.02em' }}>HALL OF <span className="gradient-text">FAME</span></h2>
                             <div style={{
                                 display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                                gap: '2.5rem'
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                gap: '3rem'
                             }}>
                                 {games.map(game => (
-                                    <div key={game.id} style={{ borderLeft: `2px solid ${game.color}44`, paddingLeft: '1.5rem' }}>
-                                        <h3 style={{ fontSize: '0.8rem', color: game.color, textTransform: 'uppercase', marginBottom: '1.25rem', letterSpacing: '0.1em' }}>
+                                    <div key={game.id}>
+                                        <h3 style={{ fontSize: '0.8rem', color: game.color, textTransform: 'uppercase', marginBottom: '1.5rem', letterSpacing: '0.15em', fontWeight: 800 }}>
                                             {game.title}
                                         </h3>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                             {leaderboard
                                                 .filter(e => e.game === game.id)
+                                                .sort((a, b) => b.score - a.score)
                                                 .slice(0, 5)
                                                 .map((entry, i) => (
                                                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                                                        <span style={{ opacity: 0.8 }}>{entry.name}</span>
-                                                        <span style={{ fontWeight: 700 }}>{entry.score}</span>
+                                                        <span style={{ color: i === 0 ? '#fff' : 'var(--text-secondary)', fontWeight: i === 0 ? 700 : 400 }}>{entry.name}</span>
+                                                        <span style={{ fontWeight: 800, color: i === 0 ? game.color : '#fff' }}>{entry.score}</span>
                                                     </div>
                                                 ))}
                                             {leaderboard.filter(e => e.game === game.id).length === 0 && (
-                                                <span style={{ fontSize: '0.75rem', opacity: 0.3 }}>NO DATA UPLOADED</span>
+                                                <span style={{ fontSize: '0.75rem', opacity: 0.2 }}>PENDING DATA...</span>
                                             )}
                                         </div>
                                     </div>
@@ -135,44 +139,54 @@ export default function GameHub() {
                 ) : (
                     <motion.div
                         key="game"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 1.02 }}
+                        style={{ width: '100%' }}
                     >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
                             <button
                                 onClick={() => setSelectedGame(null)}
-                                style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                                style={{
+                                    color: '#fff', background: 'rgba(255,255,255,0.05)',
+                                    padding: '0.75rem 1.5rem', borderRadius: '12px',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    display: 'flex', alignItems: 'center', gap: '0.75rem',
+                                    fontWeight: 700, fontSize: '0.9rem'
+                                }}
+                                className="hover-scale"
                             >
-                                &larr; Return to Hub
+                                <span>&larr;</span> TERMINATE SESSION
                             </button>
                             <div style={{ textAlign: 'right' }}>
-                                <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>{games.find(g => g.id === selectedGame)?.title}</h2>
-                                <p style={{ fontSize: '0.9rem', color: 'var(--accent-primary)' }}>Personal Best: {getHighScore(selectedGame)}</p>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase' }}>{games.find(g => g.id === selectedGame)?.title}</h2>
+                                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>PERSONAL RECORD: <span style={{ color: '#fff' }}>{getHighScore(selectedGame)}</span></p>
                             </div>
                         </div>
 
-                        <div className="game-stage-layout">
-                            <div style={{ display: 'flex', justifyContent: 'center' }}>
-                                {selectedGame === 'gravity' && <GravityJump onFinished={fetchLeaderboard} />}
-                                {selectedGame === 'runner' && <RunnerGame onFinished={fetchLeaderboard} />}
-                                {selectedGame === 'shooter' && <ShooterGame onFinished={fetchLeaderboard} />}
-                                {selectedGame === 'pattern' && <PatternGame onFinished={fetchLeaderboard} />}
-                                {selectedGame === 'crawler' && <CyberCrawler onFinished={fetchLeaderboard} />}
-                                {selectedGame === 'breakout' && <NeonBreakout onFinished={fetchLeaderboard} />}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 300px', gap: '2rem', alignItems: 'start' }} className="game-stage-container">
+                            <div style={{ display: 'flex', justifyContent: 'center', width: '100%', overflow: 'hidden' }}>
+                                {selectedGame === 'gravity' && <GravityJump onFinished={handleGameFinished} />}
+                                {selectedGame === 'runner' && <RunnerGame onFinished={handleGameFinished} />}
+                                {selectedGame === 'shooter' && <ShooterGame onFinished={handleGameFinished} />}
+                                {selectedGame === 'pattern' && <PatternGame onFinished={handleGameFinished} />}
+                                {selectedGame === 'crawler' && <CyberCrawler onFinished={handleGameFinished} />}
+                                {selectedGame === 'breakout' && <NeonBreakout onFinished={handleGameFinished} />}
                             </div>
 
-                            <div className="glass-card" style={{ padding: '2rem' }}>
-                                <h3 style={{ fontSize: '1rem', marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ranking</h3>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                    {filteredLeaderboard.slice(0, 10).map((entry, i) => (
-                                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                                            <span>{entry.name}</span>
-                                            <span style={{ fontWeight: 700 }}>{entry.score}</span>
-                                        </div>
-                                    ))}
+                            <div className="glass-card" style={{ padding: '2rem', height: '100%', minHeight: '500px' }}>
+                                <h3 style={{ fontSize: '0.8rem', fontWeight: 800, marginBottom: '2rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent-primary)' }}>Sector Ranking</h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                    {filteredLeaderboard
+                                        .sort((a, b) => b.score - a.score)
+                                        .slice(0, 10).map((entry, i) => (
+                                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                                <span style={{ opacity: i < 3 ? 1 : 0.6, fontWeight: i < 3 ? 700 : 400 }}>{i + 1}. {entry.name}</span>
+                                                <span style={{ fontWeight: 800 }}>{entry.score}</span>
+                                            </div>
+                                        ))}
                                     {filteredLeaderboard.length === 0 && (
-                                        <div style={{ textAlign: 'center', padding: '1rem', opacity: 0.3, fontSize: '0.8rem' }}>BE THE FIRST TO UPLOAD</div>
+                                        <div style={{ textAlign: 'center', padding: '2rem', opacity: 0.2, fontSize: '0.8rem', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px' }}>BE THE FIRST TO UPLOAD</div>
                                     )}
                                 </div>
                             </div>

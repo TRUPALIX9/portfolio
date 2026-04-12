@@ -7,7 +7,29 @@ export default function ShooterGame({ onFinished }: { onFinished: () => void }) 
     const [score, setScore] = useState(0);
     const [gameOver, setGameOver] = useState(false);
     const [playing, setPlaying] = useState(false);
+    const [isTouch, setIsTouch] = useState(false);
     const [name, setName] = useState("Player");
+
+    useEffect(() => {
+        setIsTouch(window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0);
+        const savedName = localStorage.getItem('arcade-player-name');
+        if (savedName) setName(savedName);
+    }, []);
+
+    const updateName = (val: string) => {
+        setName(val);
+        localStorage.setItem('arcade-player-name', val);
+    };
+
+    const submit = async () => {
+        await fetch('/api/leaderboard', { method: 'POST', body: JSON.stringify({ name, score, game: 'shooter' }) });
+        onFinished();
+    };
+
+    const retry = async () => {
+        await fetch('/api/leaderboard', { method: 'POST', body: JSON.stringify({ name, score, game: 'shooter' }) });
+        startGame();
+    };
 
     const startGame = async () => {
         if (containerRef.current?.requestFullscreen) await containerRef.current.requestFullscreen();
@@ -74,34 +96,54 @@ export default function ShooterGame({ onFinished }: { onFinished: () => void }) 
         return () => { cancelAnimationFrame(animationId); canvas.removeEventListener('mousedown', click); canvas.removeEventListener('touchstart', click); };
     };
 
-    const submit = async () => {
-        await fetch('/api/leaderboard', { method: 'POST', body: JSON.stringify({ name, score, game: 'shooter' }) });
-        onFinished();
-    };
+
 
     return (
         <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0a0b1e', borderRadius: '16px', overflow: 'hidden', position: 'relative', border: '4px solid #ef4444', width: '100%', height: '100%', minHeight: '600px' }} className="game-console">
             <canvas ref={canvasRef} width={400} height={500} style={{ width: 'auto', height: '85vh', maxWidth: '400px', maxHeight: '500px', display: 'block' }} />
             {!playing && !gameOver && (
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.95)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', zIndex: 10, padding: '2rem', textAlign: 'center' }}>
-                    <h2 style={{ color: '#ef4444', fontSize: '2rem' }}>REFLEX</h2>
-                    <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '12px', width: '100%' }}>
-                        <p style={{ fontWeight: 700, marginBottom: '0.5rem', color: '#fff' }}>MISSION: NEUTRALIZE</p>
-                        <p style={{ fontSize: '0.85rem', opacity: 0.8, color: '#fff' }}>Eliminate nodes before they overcharge.</p>
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem', color: '#fff' }}>
-                            <div style={{ fontSize: '0.7rem' }}>🖱️ 👆<br />TAP NODES</div>
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.95)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2rem', zIndex: 10, padding: '2rem', textAlign: 'center' }}>
+                    <div style={{ background: '#ef4444', color: '#fff', padding: '0.75rem 2rem', borderRadius: '12px', transform: 'skewX(-15deg)', boxShadow: '0 10px 30px rgba(239, 68, 68, 0.3)' }}>
+                        <h2 style={{ fontSize: '2.5rem', fontWeight: 900, textTransform: 'uppercase', color: '#fff' }}>REFLEX</h2>
+                    </div>
+
+                    <div style={{ padding: '2rem', borderRadius: '24px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(239, 68, 68, 0.3)', width: '100%', maxWidth: '300px' }}>
+                        <p style={{ fontWeight: 800, fontSize: '1.2rem', color: '#fff', margin: 0 }}>MISSION: NEUTRALIZE</p>
+                        <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)', margin: '0.5rem 0 1.5rem 0' }}>Eliminate nodes before they overcharge.</p>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '1.5rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '20px', border: '2px solid rgba(239, 68, 68, 0.3)' }}>
+                            <div style={{ width: '40px', height: '40px', border: '2px solid #ef4444', borderRadius: '50%', position: 'relative' }}>
+                                <div style={{ width: '100%', height: '100%', border: '1px solid #ef4444', borderRadius: '50%' }} className="animate-ping" />
+                            </div>
+                            <span style={{ fontSize: '1rem', fontWeight: 900, color: '#fff', letterSpacing: '1px' }}>{!isTouch ? 'CLICK ACTIVE NODES' : 'TAP ACTIVE NODES'}</span>
                         </div>
                     </div>
-                    <button onClick={startGame} className="btn-primary" style={{ background: '#ef4444', color: '#fff', width: '100%' }}>INITIALIZE</button>
-                    <p style={{ fontSize: '0.65rem', opacity: 0.5, color: '#fff' }}>Penalty for miscalculation (-5 pts)</p>
+
+                    <button onClick={startGame} style={{
+                        background: '#ef4444', color: '#fff', width: '100%', maxWidth: '300px',
+                        padding: '1.25rem', borderRadius: '16px', fontWeight: 900,
+                        fontSize: '1.1rem', cursor: 'pointer', border: 'none',
+                        boxShadow: '0 4px 20px rgba(239, 68, 68, 0.3)'
+                    }} className="hover-scale">INITIALIZE</button>
+                    <p style={{ fontSize: '0.7rem', opacity: 0.5, color: '#fff' }}>Penalty for miscalculation (-5 pts)</p>
                 </div>
             )}
             {gameOver && (
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', zIndex: 10 }}>
-                    <h2 style={{ color: '#ef4444' }}>LOCKED</h2>
-                    <input value={name} onChange={e => setName(e.target.value)} style={{ padding: '0.75rem', borderRadius: '8px', background: '#111', color: '#fff', border: '1px solid #333', textAlign: 'center' }} />
-                    <button onClick={submit} className="btn-primary" style={{ background: '#ef4444' }}>UPLOAD</button>
-                    <button onClick={startGame} className="btn-outline">RETRY</button>
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', zIndex: 10, padding: '2rem' }}>
+                    <h2 style={{ color: '#ef4444', fontSize: '2.5rem', fontWeight: 900 }}>SYSTEM OVERFLOW</h2>
+                    <p style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 900 }}>SCORE: {score}</p>
+
+                    <div style={{ width: '100%', maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <input value={name} onChange={e => updateName(e.target.value)} placeholder="ENTER ID" style={{ padding: '1rem', borderRadius: '12px', background: '#111', color: '#fff', border: '2px solid #ef4444', textAlign: 'center', fontSize: '1.2rem', fontWeight: 900 }} />
+
+                        <button onClick={retry} style={{ background: '#ef4444', color: '#fff', padding: '1.25rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                            <span>🔄</span> PLAY AGAIN
+                        </button>
+
+                        <button onClick={submit} style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', padding: '1rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.9rem', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer' }}>
+                            SAVE & HUB
+                        </button>
+                    </div>
                 </div>
             )}
             {playing && <div style={{ position: 'absolute', top: 20, right: 20, color: '#ef4444', fontWeight: 800 }}>{score}</div>}

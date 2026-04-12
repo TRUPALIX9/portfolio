@@ -7,7 +7,29 @@ export default function RunnerGame({ onFinished }: { onFinished: () => void }) {
     const [score, setScore] = useState(0);
     const [gameOver, setGameOver] = useState(false);
     const [playing, setPlaying] = useState(false);
+    const [isTouch, setIsTouch] = useState(false);
     const [name, setName] = useState("Player");
+
+    useEffect(() => {
+        setIsTouch(window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0);
+        const savedName = localStorage.getItem('arcade-player-name');
+        if (savedName) setName(savedName);
+    }, []);
+
+    const updateName = (val: string) => {
+        setName(val);
+        localStorage.setItem('arcade-player-name', val);
+    };
+
+    const submit = async () => {
+        await fetch('/api/leaderboard', { method: 'POST', body: JSON.stringify({ name, score, game: 'runner' }) });
+        onFinished();
+    };
+
+    const retry = async () => {
+        await fetch('/api/leaderboard', { method: 'POST', body: JSON.stringify({ name, score, game: 'runner' }) });
+        startGame();
+    };
 
     const startGame = async () => {
         if (containerRef.current?.requestFullscreen) await containerRef.current.requestFullscreen();
@@ -114,35 +136,60 @@ export default function RunnerGame({ onFinished }: { onFinished: () => void }) {
         return () => { cancelAnimationFrame(animationId); window.removeEventListener('keydown', handleKey); };
     };
 
-    const submit = async () => {
-        await fetch('/api/leaderboard', { method: 'POST', body: JSON.stringify({ name, score, game: 'runner' }) });
-        onFinished();
-    };
-
     return (
         <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#1e1b4b', borderRadius: '16px', overflow: 'hidden', position: 'relative', border: '4px solid #f59e0b', width: '100%', height: '100%', minHeight: '500px' }} className="game-console">
             <canvas ref={canvasRef} width={600} height={400} style={{ width: '100%', height: 'auto', maxWidth: '600px', display: 'block' }} />
             {!playing && !gameOver && (
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(30, 27, 75, 0.95)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', zIndex: 10, padding: '2rem', textAlign: 'center' }}>
                     <h2 style={{ color: '#f59e0b', fontSize: '2rem' }}>RUNNER</h2>
-                    <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '12px', width: '100%' }}>
-                        <p style={{ fontWeight: 700, marginBottom: '0.5rem', color: '#fff' }}>OBJECTIVE: SURVIVE</p>
-                        <p style={{ fontSize: '0.85rem', opacity: 0.8, color: '#fff' }}>Clear the neural firewall obstacles.</p>
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem', color: '#fff' }}>
-                            <div style={{ fontSize: '0.7rem' }}>⌨️<br />SPACE</div>
-                            <div style={{ fontSize: '0.7rem' }}>👆<br />TAP JUMP</div>
+                    <div style={{ padding: '2rem', borderRadius: '24px', background: 'rgba(255,255,255,0.03)', border: '1px solid #f59e0b44', width: '100%', maxWidth: '340px' }}>
+                        <p style={{ fontWeight: 800, fontSize: '1.2rem', color: '#fff', margin: 0 }}>MISSION: SURVIVE</p>
+                        <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)', margin: '0.5rem 0 2rem 0' }}>Clear the neural firewall obstacles.</p>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            {!isTouch ? (
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', alignItems: 'center' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+                                        <div style={{ width: '40px', height: '40px', border: '2px solid rgba(255,255,255,0.2)', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 900, color: '#fff', boxShadow: '0 4px 0 rgba(255,255,255,0.1)' }}>↑</div>
+                                        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>UP ARROW</span>
+                                    </div>
+                                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'rgba(255,255,255,0.2)' }}>OR</div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+                                        <div style={{ width: '100px', height: '40px', border: '2px solid rgba(255,255,255,0.2)', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 900, color: '#fff', boxShadow: '0 4px 0 rgba(255,255,255,0.1)', letterSpacing: '2px' }}>SPACE</div>
+                                        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>SPACE BAR</span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', padding: '1.5rem', background: 'rgba(245, 158, 11, 0.15)', borderRadius: '24px', border: '2px solid rgba(245, 158, 11, 0.4)' }}>
+                                    <div style={{ width: '20px', height: '20px', background: '#f59e0b', borderRadius: '50%' }} className="animate-bounce" />
+                                    <div style={{ textAlign: 'left' }}>
+                                        <span style={{ display: 'block', fontSize: '1.1rem', fontWeight: 900, color: '#fff' }}>TAP TO JUMP</span>
+                                        <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>Clear the neural firewall</span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
-                    <button onClick={startGame} className="btn-primary" style={{ background: '#f59e0b', color: '#000', width: '100%' }}>INITIALIZE</button>
+                    <button onClick={startGame} className="btn-primary" style={{ background: '#f59e0b', color: '#000', width: '100%', maxWidth: '340px' }}>INITIALIZE</button>
                 </div>
             )}
             {playing && <div style={{ position: 'absolute', bottom: 40, right: 40, zIndex: 20 }}><button onPointerDown={(e) => { e.preventDefault(); (window as any).requestJump(); }} style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.3)', border: '2px solid #f59e0b', color: '#fff', fontWeight: 800, backdropFilter: 'blur(5px)' }}>JUMP</button></div>}
             {gameOver && (
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', zIndex: 10 }}>
-                    <h2 style={{ color: '#f87171' }}>ZONE FAILED</h2>
-                    <input value={name} onChange={e => setName(e.target.value)} style={{ padding: '0.75rem', borderRadius: '8px', background: '#111', color: '#fff', border: '1px solid #333', textAlign: 'center' }} />
-                    <button onClick={submit} className="btn-primary" style={{ background: '#f59e0b', color: '#000' }}>UPLOAD</button>
-                    <button onClick={startGame} className="btn-outline" style={{ color: '#fff' }}>RETRY</button>
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', zIndex: 10, padding: '2rem' }}>
+                    <h2 style={{ color: '#f59e0b', fontSize: '2.5rem', fontWeight: 900 }}>FIREWALL BREACH</h2>
+                    <p style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 900 }}>SCORE: {score}</p>
+
+                    <div style={{ width: '100%', maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <input value={name} onChange={e => updateName(e.target.value)} placeholder="ENTER ID" style={{ padding: '1rem', borderRadius: '12px', background: '#111', color: '#fff', border: '2px solid #f59e0b', textAlign: 'center', fontSize: '1.2rem', fontWeight: 900 }} />
+
+                        <button onClick={retry} style={{ background: '#f59e0b', color: '#000', padding: '1.25rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                            <span>🔄</span> PLAY AGAIN
+                        </button>
+
+                        <button onClick={submit} style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', padding: '1rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.9rem', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer' }}>
+                            SAVE & HUB
+                        </button>
+                    </div>
                 </div>
             )}
             {playing && <div style={{ position: 'absolute', top: 20, right: 20, color: '#f59e0b', fontWeight: 800 }}>{score}m</div>}
