@@ -15,6 +15,7 @@ export default function CollectorGame({ onFinished }: { onFinished: () => void }
         const canvas = canvasRef.current!;
         const ctx = canvas.getContext('2d')!;
         let items: any[] = [];
+        let effects: any[] = [];
         let pX = canvas.width / 2;
         let animationId: number;
         let frames = 0;
@@ -22,63 +23,70 @@ export default function CollectorGame({ onFinished }: { onFinished: () => void }
 
         const loop = () => {
             frames++;
-            if (frames % 40 === 0) {
-                const type = Math.random() > 0.2 ? 'gem' : 'bomb';
-                items.push({ x: Math.random() * (canvas.width - 20), y: -20, type, s: 2 + (curScore / 100) });
-            }
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // Player basket
-            ctx.fillStyle = '#06b6d4';
-            ctx.fillRect(pX - 25, canvas.height - 30, 50, 15);
+            if (frames % 40 === 0) items.push({ x: 20 + Math.random() * (canvas.width - 40), y: -20, isBomb: Math.random() < 0.15, s: 2.5 + (curScore / 200), size: 10 + Math.random() * 5 });
+
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2; ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+
+            ctx.fillStyle = '#06b6d4'; ctx.beginPath(); ctx.moveTo(pX - 30, canvas.height - 10); ctx.lineTo(pX + 30, canvas.height - 10); ctx.lineTo(pX + 20, canvas.height - 30); ctx.lineTo(pX - 20, canvas.height - 30); ctx.closePath(); ctx.fill();
 
             for (let item of items) {
                 item.y += item.s;
-                ctx.fillStyle = item.type === 'gem' ? '#06b6d4' : '#ef4444';
-                ctx.beginPath(); ctx.arc(item.x + 10, item.y + 10, 10, 0, Math.PI * 2); ctx.fill();
-
-                if (item.y > canvas.height - 40 && item.x > pX - 35 && item.x < pX + 25) {
-                    if (item.type === 'gem') {
+                ctx.fillStyle = item.isBomb ? '#f87171' : '#06b6d4';
+                ctx.beginPath(); ctx.moveTo(item.x, item.y - item.size); ctx.lineTo(item.x + item.size, item.y); ctx.lineTo(item.x, item.y + item.size); ctx.lineTo(item.x - item.size, item.y); ctx.closePath(); ctx.fill();
+                if (item.y > canvas.height - 40 && Math.abs(item.x - pX) < 30) {
+                    if (!item.isBomb) {
                         curScore += 10; setScore(curScore);
-                        item.y = -100; // mark for removal
-                    } else {
-                        setGameOver(true); setPlaying(false); cancelAnimationFrame(animationId);
-                        if (document.fullscreenElement) document.exitFullscreen();
-                        return;
+                        effects.push({ x: item.x, y: item.y, text: "+10", life: 30, color: '#4ade80' });
+                        item.y = -100;
                     }
+                    else { setGameOver(true); setPlaying(false); cancelAnimationFrame(animationId); if (document.fullscreenElement) document.exitFullscreen(); return; }
                 }
             }
+            // Effects
+            ctx.font = 'bold 14px Inter'; ctx.textAlign = 'center';
+            for (let e of effects) {
+                e.life--; e.y -= 1;
+                ctx.fillStyle = `${e.color}${Math.floor((e.life / 30) * 255).toString(16).padStart(2, '0')}`;
+                ctx.fillText(e.text, e.x, e.y);
+            }
+            effects = effects.filter(e => e.life > 0);
             items = items.filter(i => i.y < canvas.height && i.y !== -100);
             animationId = requestAnimationFrame(loop);
         };
         loop();
+
         const move = (e: any) => {
             const rect = canvas.getBoundingClientRect();
-            const x = (e.clientX || e.touches?.[0].clientX) - rect.left;
-            pX = Math.max(25, Math.min(canvas.width - 25, x * (canvas.width / rect.width)));
+            pX = Math.max(30, Math.min(canvas.width - 30, ((e.clientX || e.touches?.[0].clientX) - rect.left) * (canvas.width / rect.width)));
         };
         window.addEventListener('mousemove', move); window.addEventListener('touchmove', move);
         return () => { cancelAnimationFrame(animationId); window.removeEventListener('mousemove', move); window.removeEventListener('touchmove', move); };
     };
 
     const submit = async () => {
-        await fetch('/api/leaderboard', { method: 'POST', body: JSON.stringify({ name, score: score, game: 'collector' }) });
+        await fetch('/api/leaderboard', { method: 'POST', body: JSON.stringify({ name, score, game: 'collector' }) });
         onFinished();
     };
 
     return (
-        <div ref={containerRef} style={{ textAlign: 'center', background: '#000', borderRadius: '16px', overflow: 'hidden', position: 'relative' }}>
-            <canvas ref={canvasRef} width={400} height={500} style={{ width: '100%', maxWidth: '400px', height: 'auto', display: 'block', margin: '0 auto' }} />
-            {!playing && !gameOver && <button onClick={startGame} className="btn-primary" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }}>Start Crystal Catch</button>}
+        <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0a0b1e', borderRadius: '16px', overflow: 'hidden', position: 'relative', border: '4px solid #06b6d4', width: '100%', height: '100%', minHeight: '600px' }} className="game-console">
+            <canvas ref={canvasRef} width={400} height={500} style={{ width: 'auto', height: '85vh', maxWidth: '400px', maxHeight: '500px', display: 'block' }} />
+            {!playing && !gameOver && (
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.9)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', zIndex: 5 }}>
+                    <h2 className="heading-md" style={{ color: '#06b6d4' }}>Diamonds</h2>
+                    <button onClick={startGame} className="btn-primary" style={{ background: '#06b6d4' }}>Start</button>
+                </div>
+            )}
             {gameOver && (
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.9)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
-                    <h2 style={{ color: '#ef4444' }}>GAME OVER</h2>
-                    <p>Score: {score}</p>
-                    <input value={name} onChange={e => setName(e.target.value)} style={{ padding: '0.5rem', borderRadius: '8px', background: '#222', color: '#fff', border: '1px solid #444' }} />
-                    <button onClick={submit} className="btn-primary">Save Score</button>
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', zIndex: 10 }}>
+                    <h2 style={{ color: '#f87171' }}>BREACH</h2>
+                    <input value={name} onChange={e => setName(e.target.value)} style={{ padding: '0.75rem', borderRadius: '8px', background: '#111', color: '#fff', border: '1px solid #333', textAlign: 'center' }} />
+                    <button onClick={submit} className="btn-primary" style={{ background: '#06b6d4' }}>Save</button>
                     <button onClick={startGame} className="btn-outline">Retry</button>
                 </div>
             )}
-            {playing && <div style={{ position: 'absolute', top: 10, left: 10, color: '#06b6d4' }}>Score: {score}</div>}
+            {playing && <div style={{ position: 'absolute', top: 20, right: 20, color: '#06b6d4', fontWeight: 800 }}>💎 {score}</div>}
         </div>
     );
 }
