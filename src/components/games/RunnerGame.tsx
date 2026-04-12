@@ -89,22 +89,36 @@ export default function RunnerGame({ onFinished }: { onFinished: () => void }) {
                 player.y = groundY - player.h; player.vy = 0; player.jumps = 0; player.rot = 0;
             } else { player.rot += 0.12; }
 
-            const bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            bgGrad.addColorStop(0, '#1e1b4b'); bgGrad.addColorStop(1, '#4c1d95');
-            ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Paper Background
+            ctx.fillStyle = '#fcfaf8'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = '#111827'; ctx.fillRect(0, groundY, canvas.width, 30);
-            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3; ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+            // Doodle Grid
+            ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+            const scroll = (frames * currentSpeed) % 40;
+            for (let i = -40; i <= canvas.width + 40; i += 40) {
+                ctx.beginPath(); ctx.moveTo(i - scroll, 0); ctx.lineTo(i - scroll + (Math.sin(i) * 2), canvas.height); ctx.stroke();
+            }
+            for (let i = 0; i <= canvas.height; i += 40) {
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i + (Math.cos(i) * 2)); ctx.stroke();
+            }
 
-            // Player
+            // Sketchy Ground
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(0, groundY, canvas.width, 30);
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.strokeRect(0, groundY, canvas.width, 1);
+
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+
+            // Player (Doodle Style)
             ctx.save();
             ctx.translate(player.x + player.w / 2, player.y + player.h / 2);
             if (player.y < groundY - player.h) ctx.rotate(player.rot);
-            ctx.fillStyle = '#f59e0b'; ctx.shadowBlur = 10; ctx.shadowColor = '#f59e0b';
-            ctx.beginPath(); ctx.roundRect(-player.w / 2, -player.h / 2, player.w, player.h, 4); ctx.fill();
+            ctx.fillStyle = '#f59e0b'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.roundRect(-player.w / 2, -player.h / 2, player.w, player.h, 4); ctx.fill(); ctx.stroke();
+
+            // Eyes
             ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-7, -4, 2.5, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(7, -4, 2.5, 0, Math.PI * 2); ctx.fill();
             const mood = curScore / 10;
-            ctx.beginPath(); ctx.lineWidth = 2; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
             if (mood < 200) { ctx.arc(0, 10, 6, Math.PI + 0.2, (Math.PI * 2) - 0.2); }
             else if (mood < 500) { ctx.moveTo(-5, 8); ctx.lineTo(5, 8); }
             else { ctx.arc(0, 5, 6, 0.2, Math.PI - 0.2); }
@@ -112,8 +126,9 @@ export default function RunnerGame({ onFinished }: { onFinished: () => void }) {
 
             for (let o of obstacles) {
                 o.x -= currentSpeed;
-                ctx.fillStyle = '#ef4444'; ctx.shadowBlur = 15; ctx.shadowColor = '#ef4444';
-                ctx.beginPath(); ctx.roundRect(o.x, o.y, o.w, o.h, 4); ctx.fill();
+                ctx.fillStyle = '#ef4444'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.roundRect(o.x, o.y, o.w, o.h, 4); ctx.fill(); ctx.stroke();
+
                 if (player.x + 8 < o.x + o.w && player.x + player.w - 8 > o.x && player.y + 8 < o.y + o.h && player.y + player.h - 8 > o.y) {
                     setGameOver(true); setPlaying(false); cancelAnimationFrame(animationId); if (document.fullscreenElement) document.exitFullscreen(); return;
                 }
@@ -121,7 +136,8 @@ export default function RunnerGame({ onFinished }: { onFinished: () => void }) {
             obstacles = obstacles.filter(o => o.x > -100);
 
             for (let e of effects) {
-                e.life--; e.y -= 2; ctx.fillStyle = `${e.color}${Math.floor((e.life / 25) * 255).toString(16).padStart(2, '0')}`; ctx.fillText(e.text, e.x, e.y);
+                e.life--; e.y -= 2; ctx.fillStyle = `rgba(0,0,0,${e.life / 25})`;
+                ctx.font = 'bold 12px Inter'; ctx.fillText(e.text, e.x, e.y);
             }
             effects = effects.filter(e => e.life > 0);
 
@@ -137,62 +153,60 @@ export default function RunnerGame({ onFinished }: { onFinished: () => void }) {
     };
 
     return (
-        <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#1e1b4b', borderRadius: '16px', overflow: 'hidden', position: 'relative', border: '4px solid #f59e0b', width: '100%', height: '100%', minHeight: '500px' }} className="game-console">
+        <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: '16px', overflow: 'hidden', position: 'relative', border: '4px solid #000', width: '100%', height: '100%', minHeight: '500px' }} className="game-console">
             <canvas ref={canvasRef} width={600} height={400} style={{ width: '100%', height: 'auto', maxWidth: '600px', display: 'block' }} />
             {!playing && !gameOver && (
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(30, 27, 75, 0.95)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', zIndex: 10, padding: '2rem', textAlign: 'center' }}>
-                    <h2 style={{ color: '#f59e0b', fontSize: '2rem' }}>RUNNER</h2>
-                    <div style={{ padding: '2rem', borderRadius: '24px', background: 'rgba(255,255,255,0.03)', border: '1px solid #f59e0b44', width: '100%', maxWidth: '340px' }}>
-                        <p style={{ fontWeight: 800, fontSize: '1.2rem', color: '#fff', margin: 0 }}>MISSION: SURVIVE</p>
-                        <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)', margin: '0.5rem 0 2rem 0' }}>Clear the neural firewall obstacles.</p>
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(255, 255, 255, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', zIndex: 10, padding: '2rem', textAlign: 'center' }}>
+                    <div style={{ background: '#000', color: '#fff', padding: '0.75rem 2rem', borderRadius: '12px', transform: 'skewX(-15deg)', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)' }}>
+                        <h2 style={{ fontSize: '2.5rem', fontWeight: 900, textTransform: 'uppercase', color: '#fff' }}>RUNNER</h2>
+                    </div>
+
+                    <div style={{ padding: '2rem', borderRadius: '24px', background: '#fff', border: '2px solid #000', width: '100%', maxWidth: '340px' }}>
+                        <p style={{ fontWeight: 800, fontSize: '1.2rem', color: '#000', margin: 0 }}>MISSION: SURVIVE</p>
+                        <p style={{ fontSize: '0.9rem', color: '#4b5563', margin: '0.5rem 0 2rem 0' }}>Clear the neural firewall obstacles.</p>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             {!isTouch ? (
                                 <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', alignItems: 'center' }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
-                                        <div style={{ width: '40px', height: '40px', border: '2px solid rgba(255,255,255,0.2)', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 900, color: '#fff', boxShadow: '0 4px 0 rgba(255,255,255,0.1)' }}>↑</div>
-                                        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>UP ARROW</span>
-                                    </div>
-                                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'rgba(255,255,255,0.2)' }}>OR</div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
-                                        <div style={{ width: '100px', height: '40px', border: '2px solid rgba(255,255,255,0.2)', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 900, color: '#fff', boxShadow: '0 4px 0 rgba(255,255,255,0.1)', letterSpacing: '2px' }}>SPACE</div>
-                                        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>SPACE BAR</span>
+                                        <div style={{ width: '44px', height: '44px', border: '2px solid #000', borderRadius: '8px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 900, color: '#000' }}>↑</div>
+                                        <span style={{ fontSize: '10px', color: '#000', fontWeight: 700 }}>SPACE / UP</span>
                                     </div>
                                 </div>
                             ) : (
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', padding: '1.5rem', background: 'rgba(245, 158, 11, 0.15)', borderRadius: '24px', border: '2px solid rgba(245, 158, 11, 0.4)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', padding: '1.5rem', background: '#f8fafc', borderRadius: '24px', border: '2px solid #000' }}>
                                     <div style={{ width: '20px', height: '20px', background: '#f59e0b', borderRadius: '50%' }} className="animate-bounce" />
                                     <div style={{ textAlign: 'left' }}>
-                                        <span style={{ display: 'block', fontSize: '1.1rem', fontWeight: 900, color: '#fff' }}>TAP TO JUMP</span>
-                                        <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>Clear the neural firewall</span>
+                                        <span style={{ display: 'block', fontSize: '1.1rem', fontWeight: 900, color: '#000' }}>TAP TO JUMP</span>
+                                        <span style={{ fontSize: '0.8rem', color: '#4b5563' }}>Clear the neural firewall</span>
                                     </div>
                                 </div>
                             )}
                         </div>
                     </div>
-                    <button onClick={startGame} className="btn-primary" style={{ background: '#f59e0b', color: '#000', width: '100%', maxWidth: '340px' }}>INITIALIZE</button>
+                    <button onClick={startGame} style={{ background: '#000', color: '#fff', width: '100%', maxWidth: '340px', padding: '1.25rem', borderRadius: '16px', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: 'pointer' }}>INITIALIZE</button>
                 </div>
             )}
-            {playing && <div style={{ position: 'absolute', bottom: 40, right: 40, zIndex: 20 }}><button onPointerDown={(e) => { e.preventDefault(); (window as any).requestJump(); }} style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.3)', border: '2px solid #f59e0b', color: '#fff', fontWeight: 800, backdropFilter: 'blur(5px)' }}>JUMP</button></div>}
+            {playing && <div style={{ position: 'absolute', bottom: 40, right: 40, zIndex: 20 }}><button onPointerDown={(e) => { e.preventDefault(); (window as any).requestJump(); }} style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(0, 0, 0, 0.1)', border: '3px solid #000', color: '#000', fontWeight: 900, backdropFilter: 'blur(5px)' }}>JUMP</button></div>}
             {gameOver && (
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', zIndex: 10, padding: '2rem' }}>
-                    <h2 style={{ color: '#f59e0b', fontSize: '2.5rem', fontWeight: 900 }}>FIREWALL BREACH</h2>
-                    <p style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 900 }}>SCORE: {score}</p>
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(255, 255, 255, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', zIndex: 10, padding: '2rem' }}>
+                    <h2 style={{ color: '#ef4444', fontSize: '2.5rem', fontWeight: 900 }}>FIREWALL BREACH</h2>
+                    <p style={{ color: '#000', fontSize: '1.5rem', fontWeight: 900 }}>SCORE: {score}</p>
 
                     <div style={{ width: '100%', maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <input value={name} onChange={e => updateName(e.target.value)} placeholder="ENTER ID" style={{ padding: '1rem', borderRadius: '12px', background: '#111', color: '#fff', border: '2px solid #f59e0b', textAlign: 'center', fontSize: '1.2rem', fontWeight: 900 }} />
+                        <input value={name} onChange={e => updateName(e.target.value)} placeholder="ENTER ID" style={{ padding: '1rem', borderRadius: '12px', background: '#f8fafc', color: '#000', border: '3px solid #000', textAlign: 'center', fontSize: '1.2rem', fontWeight: 900 }} />
 
-                        <button onClick={retry} style={{ background: '#f59e0b', color: '#000', padding: '1.25rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                        <button onClick={retry} style={{ background: '#000', color: '#fff', padding: '1.25rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                             <span>🔄</span> PLAY AGAIN
                         </button>
 
-                        <button onClick={submit} style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', padding: '1rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.9rem', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer' }}>
+                        <button onClick={submit} style={{ background: '#e2e8f0', color: '#000', padding: '1rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.9rem', border: 'none', cursor: 'pointer' }}>
                             SAVE & HUB
                         </button>
                     </div>
                 </div>
             )}
-            {playing && <div style={{ position: 'absolute', top: 20, right: 20, color: '#f59e0b', fontWeight: 800 }}>{score}m</div>}
+            {playing && <div style={{ position: 'absolute', top: 20, right: 20, color: '#000', fontWeight: 800, background: '#fff', padding: '4px 8px', border: '2px solid #000', borderRadius: '4px' }}>{score}m</div>}
         </div>
     );
 }

@@ -57,27 +57,40 @@ export default function NeonBreakout({ onFinished }: { onFinished: () => void })
         generateLevel(curLevel);
 
         const loop = () => {
-            ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, canvas.width, canvas.height); // White Background
+            // Paper Background
+            ctx.fillStyle = '#fcfaf8'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Doodle Grid
+            ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+            for (let i = 0; i <= canvas.width; i += 40) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + (Math.sin(i + curScore * 0.1) * 2), canvas.height); ctx.stroke();
+            }
+            for (let i = 0; i <= canvas.height; i += 40) {
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i + (Math.cos(i + curScore * 0.1) * 2)); ctx.stroke();
+            }
+
             ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
 
-            // Paddle Smoothing
+            // Paddle Smoothing & Rendering (Sketchy)
             paddle.w += (paddle.targetW - paddle.w) * 0.1;
-            ctx.fillStyle = '#000'; ctx.fillRect(paddle.x, canvas.height - 30, paddle.w, paddle.h);
+            ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.roundRect(paddle.x, canvas.height - 30, paddle.w, paddle.h, 4); ctx.fill(); ctx.stroke();
 
-            // PowerUps
+            // PowerUps (Ink Blobs)
             for (let p of powerUps) {
                 p.y += 3;
                 ctx.fillStyle = p.type === 'multi' ? '#3b82f6' : p.type === 'wide' ? '#10b981' : '#f59e0b';
-                ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#fff'; ctx.font = 'bold 10px Inter'; ctx.textAlign = 'center';
+                ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.arc(p.x, p.y, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center';
                 ctx.fillText(p.type === 'multi' ? '3' : p.type === 'wide' ? 'W' : 'B', p.x, p.y + 4);
 
                 if (p.y > canvas.height - 35 && p.x > paddle.x && p.x < paddle.x + paddle.w) {
                     p.active = false;
                     if (p.type === 'multi') {
                         const b = balls[0];
-                        balls.push({ ...b, dx: -b.dx, dy: b.dy * 0.9 });
-                        balls.push({ ...b, dx: b.dx * 0.5, dy: -Math.abs(b.dy) });
+                        balls.push({ ...b, dx: -b.dx, dy: b.dy * 0.9, r: 6, power: 1 });
+                        balls.push({ ...b, dx: b.dx * 0.5, dy: -Math.abs(b.dy), r: 6, power: 1 });
                     } else if (p.type === 'wide') {
                         paddle.targetW = 160; setTimeout(() => paddle.targetW = 100, 8000);
                     } else if (p.type === 'big') {
@@ -88,7 +101,7 @@ export default function NeonBreakout({ onFinished }: { onFinished: () => void })
             }
             powerUps = powerUps.filter(p => p.active && p.y < canvas.height);
 
-            // Balls
+            // Balls (Ink Drops)
             for (let b of balls) {
                 b.x += b.dx; b.y += b.dy;
                 if (b.x < 10 || b.x > canvas.width - 10) b.dx *= -1;
@@ -117,11 +130,13 @@ export default function NeonBreakout({ onFinished }: { onFinished: () => void })
                 setGameOver(true); setPlaying(false); cancelAnimationFrame(animationId); if (document.fullscreenElement) document.exitFullscreen(); return;
             }
 
+            // Bricks (Sketchy tiles)
             for (let br of bricks) {
                 if (br.active) {
-                    ctx.fillStyle = br.color; ctx.fillRect(br.x, br.y, br.w, br.h);
+                    ctx.fillStyle = br.color; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
+                    ctx.beginPath(); ctx.roundRect(br.x, br.y, br.w, br.h, 3); ctx.fill(); ctx.stroke();
                     if (br.isMystery) {
-                        ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center';
+                        ctx.fillStyle = '#000'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center';
                         ctx.fillText('?', br.x + br.w / 2, br.y + br.h - 5);
                     }
                 }
@@ -161,32 +176,29 @@ export default function NeonBreakout({ onFinished }: { onFinished: () => void })
             <canvas ref={canvasRef} width={400} height={600} style={{ width: 'auto', height: '90vh', maxWidth: '400px', maxHeight: '600px', display: 'block' }} />
             {!playing && !gameOver && (
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(255, 255, 255, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2rem', zIndex: 20, padding: '2rem', textAlign: 'center' }}>
-                    <div style={{ border: '3px solid #000', padding: '0.5rem 1.5rem', borderRadius: '12px', background: '#000', color: '#fff', transform: 'skewX(-10deg)', marginBottom: '1rem' }}>
-                        <h2 style={{ fontSize: '2.5rem', fontWeight: 900, letterSpacing: '2px', color: '#fff' }}>BREAKOUT</h2>
+                    <div style={{ background: '#000', color: '#fff', padding: '0.75rem 2rem', borderRadius: '12px', transform: 'skewX(-15deg)', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)' }}>
+                        <h2 style={{ fontSize: '2.5rem', fontWeight: 900, textTransform: 'uppercase', color: '#fff' }}>BREAKOUT</h2>
                     </div>
 
-                    <div style={{ padding: '2rem', borderRadius: '24px', background: '#fff', border: '2px solid #000', width: '100%', maxWidth: '340px', boxShadow: '8px 8px 0px #e2e8f0' }}>
-                        <p style={{ fontWeight: 900, fontSize: '1.2rem', color: '#000', margin: 0 }}>STAGES: 100</p>
+                    <div style={{ padding: '2rem', borderRadius: '24px', background: '#fff', border: '2px solid #000', width: '100%', maxWidth: '340px' }}>
+                        <p style={{ fontWeight: 900, fontSize: '1.2rem', color: '#000', margin: 0 }}>MISSION: SYSTEM CLEANSE</p>
                         <p style={{ fontSize: '0.9rem', color: '#4b5563', margin: '0.5rem 0 2rem 0' }}>Smash mystery bricks for power-ups.</p>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             {!isTouch ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', alignItems: 'center' }}>
                                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                        <div style={{ width: '40px', height: '40px', border: '2px solid #000', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 900, boxShadow: '0 4px 0 #000' }}>←</div>
-                                        <div style={{ width: '40px', height: '40px', border: '2px solid #000', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 900, boxShadow: '0 4px 0 #000' }}>→</div>
+                                        <div style={{ width: '44px', height: '44px', border: '2px solid #000', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 900 }}>←</div>
+                                        <div style={{ width: '44px', height: '44px', border: '2px solid #000', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 900 }}>→</div>
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem 2rem', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                                        <span style={{ fontSize: '1.5rem' }}>🖱️</span>
-                                        <span style={{ fontSize: '0.9rem', fontWeight: 900, color: '#000', letterSpacing: '1px' }}>USE MOUSE TO STEER</span>
-                                    </div>
+                                    <p style={{ fontSize: '0.8rem', fontWeight: 800, color: '#000' }}>OR MOUSE MOVE</p>
                                 </div>
                             ) : (
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', padding: '2rem', background: '#f1f5f9', borderRadius: '24px', border: '2px solid #e2e8f0' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', padding: '2rem', background: '#f8fafc', borderRadius: '24px', border: '2px solid #000' }}>
                                     <div style={{ width: '12px', height: '12px', background: '#000', borderRadius: '50%' }} className="animate-ping" />
                                     <div style={{ textAlign: 'left' }}>
                                         <span style={{ display: 'block', fontSize: '1.1rem', fontWeight: 900, color: '#000' }}>TOUCH & DRAG</span>
-                                        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Move paddle across width</span>
+                                        <span style={{ fontSize: '0.8rem', color: '#4b5563' }}>Move paddle across width</span>
                                     </div>
                                 </div>
                             )}
@@ -197,11 +209,9 @@ export default function NeonBreakout({ onFinished }: { onFinished: () => void })
                         background: '#000', color: '#fff', width: '100%', maxWidth: '340px',
                         padding: '1.5rem', borderRadius: '20px', fontWeight: 900,
                         fontSize: '1.2rem', cursor: 'pointer', border: 'none',
-                        boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-                        transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                        textTransform: 'uppercase', letterSpacing: '1px'
+                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
                     }} className="hover-scale">
-                        BEGIN SYSTEM CLEANSE
+                        INITIALIZE BRAIN
                     </button>
                 </div>
             )}
@@ -213,7 +223,7 @@ export default function NeonBreakout({ onFinished }: { onFinished: () => void })
                     <div style={{ width: '100%', maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <input value={name} onChange={e => updateName(e.target.value)} placeholder="ENTER ID" style={{ padding: '1rem', borderRadius: '12px', background: '#f8fafc', color: '#000', border: '3px solid #000', textAlign: 'center', fontSize: '1.2rem', fontWeight: 900 }} />
 
-                        <button onClick={retry} style={{ background: '#000', color: '#fff', padding: '1.25rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                        <button onClick={startGame} style={{ background: '#000', color: '#fff', padding: '1.25rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                             <span>🔄</span> PLAY AGAIN
                         </button>
 
@@ -225,8 +235,8 @@ export default function NeonBreakout({ onFinished }: { onFinished: () => void })
             )}
             {playing && (
                 <div style={{ position: 'absolute', top: 20, left: 20, right: 20, display: 'flex', justifyContent: 'space-between', zIndex: 10 }}>
-                    <span style={{ background: '#000', color: '#fff', padding: '4px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 800 }}>LVL {level}</span>
-                    <span style={{ background: '#000', color: '#fff', padding: '4px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 800 }}>{score}</span>
+                    <span style={{ background: '#fff', color: '#000', padding: '4px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 900, border: '2px solid #000' }}>LEVEL {level}</span>
+                    <span style={{ background: '#fff', color: '#000', padding: '4px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 900, border: '2px solid #000' }}>{score}</span>
                 </div>
             )}
         </div>

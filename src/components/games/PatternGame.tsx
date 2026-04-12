@@ -51,8 +51,20 @@ export default function PatternGame({ onFinished }: { onFinished: () => void }) 
         };
 
         const loop = () => {
-            ctx.fillStyle = '#1e1b4b'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = '#ec4899'; ctx.lineWidth = 4; ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+            // Paper Background
+            ctx.fillStyle = '#fcfaf8'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Doodle Grid
+            ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+            const frames = Date.now() / 100;
+            for (let i = 0; i <= canvas.width; i += 40) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + (Math.sin(i + frames * 0.1) * 2), canvas.height); ctx.stroke();
+            }
+            for (let i = 0; i <= canvas.height; i += 40) {
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i + (Math.cos(i + frames * 0.1) * 2)); ctx.stroke();
+            }
+
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
 
             const grid = [
                 { id: 0, x: 50, y: 50, color: '#ec4899' }, { id: 1, x: 210, y: 50, color: '#8b5cf6' },
@@ -70,9 +82,13 @@ export default function PatternGame({ onFinished }: { onFinished: () => void }) 
 
             grid.forEach(g => {
                 const isActive = showing && sequence[flashIndex] === g.id && flashTime > 5;
-                ctx.fillStyle = isActive ? g.color : g.color + '33';
-                ctx.beginPath(); ctx.roundRect(g.x, g.y, 140, 140, 12); ctx.fill();
-                if (isActive) { ctx.shadowBlur = 20; ctx.shadowColor = g.color; ctx.stroke(); ctx.shadowBlur = 0; }
+                ctx.fillStyle = isActive ? g.color : g.color + '15'; // Very subtle inactive
+                ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.roundRect(g.x, g.y, 140, 140, 12); ctx.fill(); ctx.stroke();
+                if (isActive) {
+                    ctx.beginPath(); ctx.roundRect(g.x - 5, g.y - 5, 150, 150, 16);
+                    ctx.strokeStyle = g.color; ctx.lineWidth = 4; ctx.stroke();
+                }
             });
 
             if (!gameOver && playing) requestAnimationFrame(loop);
@@ -107,54 +123,54 @@ export default function PatternGame({ onFinished }: { onFinished: () => void }) 
 
 
     return (
-        <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0a0b1e', borderRadius: '16px', overflow: 'hidden', position: 'relative', border: '4px solid #ec4899', width: '100%', height: '100%', minHeight: '600px' }} className="game-console">
+        <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: '16px', overflow: 'hidden', position: 'relative', border: '4px solid #000', width: '100%', height: '100%', minHeight: '600px' }} className="game-console">
             <canvas ref={canvasRef} width={400} height={400} style={{ width: 'auto', height: '80vh', maxWidth: '400px', maxHeight: '400px', display: 'block' }} />
             {!playing && !gameOver && (
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.95)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2rem', zIndex: 10, padding: '2rem', textAlign: 'center' }}>
-                    <div style={{ background: '#ec4899', color: '#fff', padding: '0.75rem 2rem', borderRadius: '12px', transform: 'skewX(-15deg)', boxShadow: '0 10px 30px rgba(236, 72, 153, 0.3)' }}>
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(255, 255, 255, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2rem', zIndex: 10, padding: '2rem', textAlign: 'center' }}>
+                    <div style={{ background: '#000', color: '#fff', padding: '0.75rem 2rem', borderRadius: '12px', transform: 'skewX(-15deg)', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)' }}>
                         <h2 style={{ fontSize: '2.5rem', fontWeight: 900, textTransform: 'uppercase', color: '#fff' }}>MEMORY</h2>
                     </div>
 
-                    <div style={{ padding: '2rem', borderRadius: '24px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(236, 72, 153, 0.3)', width: '100%', maxWidth: '300px' }}>
-                        <p style={{ fontWeight: 800, fontSize: '1.2rem', color: '#fff', margin: 0 }}>MISSION: SYNC</p>
-                        <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)', margin: '0.5rem 0 1.5rem 0' }}>Repeat the synaptic sequence precisely.</p>
+                    <div style={{ padding: '2rem', borderRadius: '24px', background: '#fff', border: '2px solid #000', width: '100%', maxWidth: '300px' }}>
+                        <p style={{ fontWeight: 800, fontSize: '1.2rem', color: '#000', margin: 0 }}>MISSION: SYNC</p>
+                        <p style={{ fontSize: '0.9rem', color: '#4b5563', margin: '0.5rem 0 1.5rem 0' }}>Repeat the synaptic sequence precisely.</p>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '1.5rem', background: 'rgba(236, 72, 153, 0.1)', borderRadius: '20px', border: '2px solid rgba(236, 72, 153, 0.3)' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '1.5rem', background: '#f8fafc', borderRadius: '20px', border: '2px solid #000' }}>
                             <div style={{ width: '40px', height: '40px', border: '1px solid #ec4899', borderRadius: '4px', position: 'relative' }}>
                                 <div style={{ position: 'absolute', inset: 2, background: '#ec4899', opacity: 0.8 }} className="animate-pulse" />
                             </div>
-                            <span style={{ fontSize: '1rem', fontWeight: 900, color: '#fff', letterSpacing: '1px' }}>{!isTouch ? 'MATCH THE SEQUENCE' : 'TAP THE SEQUENCE'}</span>
+                            <span style={{ fontSize: '1rem', fontWeight: 900, color: '#000', letterSpacing: '1px' }}>{!isTouch ? 'MATCH THE SEQUENCE' : 'TAP THE SEQUENCE'}</span>
                         </div>
                     </div>
 
                     <button onClick={startGame} style={{
-                        background: '#ec4899', color: '#fff', width: '100%', maxWidth: '300px',
+                        background: '#000', color: '#fff', width: '100%', maxWidth: '300px',
                         padding: '1.25rem', borderRadius: '16px', fontWeight: 900,
                         fontSize: '1.1rem', cursor: 'pointer', border: 'none',
-                        boxShadow: '0 4px 20px rgba(236, 72, 153, 0.3)'
+                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
                     }} className="hover-scale">SYNC NEURONS</button>
-                    <p style={{ fontSize: '0.7rem', opacity: 0.5, color: '#fff' }}>Synaptic lag results in immediate disconnect.</p>
+                    <p style={{ fontSize: '0.7rem', opacity: 0.5, color: '#000' }}>Synaptic lag results in immediate disconnect.</p>
                 </div>
             )}
             {gameOver && (
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', zIndex: 10, padding: '2rem' }}>
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(255, 255, 255, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', zIndex: 10, padding: '2rem' }}>
                     <h2 style={{ color: '#ec4899', fontSize: '2.5rem', fontWeight: 900 }}>SYNC LOST</h2>
-                    <p style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 900 }}>SCORE: {score}</p>
+                    <p style={{ color: '#000', fontSize: '1.5rem', fontWeight: 900 }}>SCORE: {score}</p>
 
                     <div style={{ width: '100%', maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <input value={name} onChange={e => updateName(e.target.value)} placeholder="ENTER ID" style={{ padding: '1rem', borderRadius: '12px', background: '#111', color: '#fff', border: '2px solid #ec4899', textAlign: 'center', fontSize: '1.2rem', fontWeight: 900 }} />
+                        <input value={name} onChange={e => updateName(e.target.value)} placeholder="ENTER ID" style={{ padding: '1rem', borderRadius: '12px', background: '#f8fafc', color: '#000', border: '3px solid #000', textAlign: 'center', fontSize: '1.2rem', fontWeight: 900 }} />
 
-                        <button onClick={retry} style={{ background: '#ec4899', color: '#fff', padding: '1.25rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                        <button onClick={retry} style={{ background: '#000', color: '#fff', padding: '1.25rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                             <span>🔄</span> PLAY AGAIN
                         </button>
 
-                        <button onClick={submit} style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', padding: '1rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.9rem', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer' }}>
+                        <button onClick={submit} style={{ background: '#e2e8f0', color: '#000', padding: '1rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.9rem', border: 'none', cursor: 'pointer' }}>
                             SAVE & HUB
                         </button>
                     </div>
                 </div>
             )}
-            {playing && <div style={{ position: 'absolute', top: 20, right: 20, color: '#ec4899', fontWeight: 800 }}>{score}</div>}
+            {playing && <div style={{ position: 'absolute', top: 20, right: 20, color: '#000', fontWeight: 800, background: '#fff', padding: '4px 8px', border: '2px solid #000', borderRadius: '4px' }}>{score}</div>}
         </div>
     );
 }
