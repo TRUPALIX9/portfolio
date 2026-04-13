@@ -23,7 +23,7 @@ export default function ExperienceTimeline() {
                 <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '3rem' }}>
                     {master.experiences.map((exp, index) => (
                         <motion.div
-                            key={index}
+                            key={exp.slug}
                             initial={{ opacity: 0, x: -30 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
@@ -55,7 +55,7 @@ export default function ExperienceTimeline() {
 
                             <div style={{ marginTop: '2rem', display: 'flex' }}>
                                 <Link href={`/experience/${exp.slug}`} className="btn-outline" style={{ display: 'inline-flex', padding: '0.5rem 1.5rem', fontSize: '0.85rem' }}>
-                                    Read Detailed Case Study &rarr;
+                                    View Detailed Experience &rarr;
                                 </Link>
                             </div>
                         </motion.div>

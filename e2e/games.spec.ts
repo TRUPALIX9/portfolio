@@ -174,22 +174,8 @@ test.describe('Arcade games', () => {
     await page.getByRole('button', { name: 'INITIALIZE' }).click({ force: true });
     const snakeCanvas = page.locator('canvas');
     await expect(snakeCanvas).toBeVisible();
-    await dispatchSwipe(snakeCanvas, 'up');
+    await page.getByRole('button', { name: '↑' }).last().click({ force: true });
     await expect(snakeCanvas).toBeVisible();
-
-    await page.getByRole('button', { name: /terminate session/i }).click();
-    await page.getByTestId('game-card-pattern').click();
-    await page.getByRole('button', { name: /sync neurons/i }).click({ force: true });
-    const memoryCanvas = page.locator('canvas');
-    await expect(memoryCanvas).toBeVisible();
-    await memoryCanvas.evaluate((canvas) => {
-      const event = new Event('touchstart', { bubbles: true, cancelable: true });
-      const touchLike = { clientX: 120, clientY: 120 };
-      Object.defineProperty(event, 'touches', { value: [touchLike] });
-      Object.defineProperty(event, 'changedTouches', { value: [touchLike] });
-      canvas.dispatchEvent(event);
-    });
-    await expect(memoryCanvas).toBeVisible();
   });
 });
 

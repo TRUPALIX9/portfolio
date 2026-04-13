@@ -9,123 +9,335 @@ export default function GamePreview({ type }: { type: GameType }) {
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
+
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        let animationId: number;
+        let animationId = 0;
         let frame = 0;
 
-        // Simulation States
-        let runnerY = 105, runnerVY = 0;
-        let pBall = { x: 75, y: 100, dx: 2, dy: -2 };
-        let pBricks = Array(15).fill(true).map((_, i) => ({ x: (i % 5) * 28 + 5, y: Math.floor(i / 5) * 12 + 10, active: true }));
-        let pPaddleX = 60;
-        let targets: any[] = [];
-        let rAsteroids: any[] = [];
-        let snake = [{ x: 5, y: 7 }, { x: 4, y: 7 }, { x: 3, y: 7 }];
-        let snakeDir = { x: 1, y: 0 };
-        let runnerObstacles: any[] = [];
+        let rocketX = 75;
+        const asteroids = Array.from({ length: 4 }, (_, index) => ({
+            x: 20 + index * 32,
+            y: -index * 38,
+            r: 11 + (index % 2) * 4,
+            speed: 1.8 + index * 0.15,
+        }));
+
+        let runnerY = 105;
+        let runnerVy = 0;
+        const runnerObstacles = Array.from({ length: 3 }, (_, index) => ({
+            x: 145 + index * 58,
+            w: 14,
+            h: 24 + (index % 2) * 10,
+        }));
+
+        const reflexTargets = Array.from({ length: 3 }, (_, index) => ({
+            x: 35 + index * 38,
+            y: 42 + (index % 2) * 36,
+            base: 8 + index,
+            phase: index * 18,
+        }));
+
+        const memoryPads = [
+            { x: 18, y: 18, color: '#ec4899' },
+            { x: 82, y: 18, color: '#8b5cf6' },
+            { x: 18, y: 82, color: '#3b82f6' },
+            { x: 82, y: 82, color: '#10b981' },
+        ];
+
+        const snakeBody = [
+            { x: 7, y: 7 },
+            { x: 6, y: 7 },
+            { x: 5, y: 7 },
+            { x: 4, y: 7 },
+        ];
+        let snakeDirection = { x: 1, y: 0 };
+        let snakeFood = { x: 11, y: 5 };
+
+        let breakoutBall = { x: 72, y: 94, dx: 1.6, dy: -1.9 };
+        let breakoutPaddleX = 52;
+        const breakoutBricks = Array.from({ length: 12 }, (_, index) => ({
+            x: 12 + (index % 4) * 32,
+            y: 12 + Math.floor(index / 4) * 15,
+            active: true,
+            hue: 18 + index * 17,
+        }));
+
+        const drawPaperGrid = () => {
+            ctx.strokeStyle = '#d9dee7';
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= canvas.width; x += 30) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x + Math.sin((frame + x) * 0.04) * 2, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y <= canvas.height; y += 30) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y + Math.cos((frame + y) * 0.04) * 2);
+                ctx.stroke();
+            }
+            ctx.strokeStyle = '#111827';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+        };
 
         const render = () => {
-            frame++;
+            frame += 1;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Background Selection
-            if (type === 'breakout' || type === 'gravity') {
-                ctx.fillStyle = '#f8fafc';
-            } else if (type === 'runner') {
-                const grad = ctx.createLinearGradient(0, 0, 0, 150);
-                grad.addColorStop(0, '#111827'); grad.addColorStop(1, '#1f2937');
-                ctx.fillStyle = grad;
+            if (type === 'gravity' || type === 'breakout' || type === 'crawler' || type === 'pattern' || type === 'shooter') {
+                ctx.fillStyle = '#fcfaf8';
             } else {
-                ctx.fillStyle = '#0a0b1e';
+                ctx.fillStyle = '#f8fafc';
             }
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            drawPaperGrid();
 
             if (type === 'gravity') {
-                if (frame % 45 === 0) rAsteroids.push({ x: Math.random() * 150, y: -20, vy: 1.5, r: 10 + Math.random() * 10 });
-                for (let a of rAsteroids) {
-                    a.y += a.vy;
-                    ctx.fillStyle = '#94a3b8'; ctx.beginPath();
-                    // Simple polygon-ish look
-                    ctx.moveTo(a.x + a.r, a.y);
-                    for (let i = 1; i < 6; i++) {
-                        const angle = (i / 6) * Math.PI * 2;
-                        const d = a.r * (0.8 + Math.random() * 0.1); // flicker a bit for energy look
-                        ctx.lineTo(a.x + Math.cos(angle) * d, a.y + Math.sin(angle) * d);
+                rocketX = 75 + Math.sin(frame * 0.05) * 34;
+                for (const asteroid of asteroids) {
+                    asteroid.y += asteroid.speed;
+                    if (asteroid.y - asteroid.r > canvas.height) asteroid.y = -22;
+
+                    ctx.save();
+                    ctx.translate(asteroid.x, asteroid.y);
+                    ctx.rotate(frame * 0.01);
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.strokeStyle = '#111827';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    for (let i = 0; i < 7; i += 1) {
+                        const angle = (i / 7) * Math.PI * 2;
+                        const radius = asteroid.r * (0.8 + ((i + frame) % 3) * 0.08);
+                        const px = Math.cos(angle) * radius;
+                        const py = Math.sin(angle) * radius;
+                        if (i === 0) ctx.moveTo(px, py);
+                        else ctx.lineTo(px, py);
                     }
-                    ctx.closePath(); ctx.fill();
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.restore();
                 }
-                rAsteroids = rAsteroids.filter(a => a.y < 170);
-                pPaddleX += (75 + Math.sin(frame * 0.04) * 40 - pPaddleX) * 0.1;
-                ctx.save(); ctx.translate(pPaddleX, 120);
-                ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.moveTo(-6, 10); ctx.lineTo(0, 0); ctx.lineTo(6, 10); ctx.fill();
-                ctx.fillStyle = '#38bdf8'; ctx.beginPath(); ctx.arc(0, 15, 4, 0, Math.PI * 2); ctx.fill();
+
+                ctx.save();
+                ctx.translate(rocketX, 97);
+                ctx.fillStyle = '#ef4444';
+                ctx.strokeStyle = '#111827';
+                ctx.lineWidth = 2;
+                ctx.fillRect(-4, 24, 8, 12);
+                ctx.strokeRect(-4, 24, 8, 12);
+                ctx.fillRect(20, 24, 8, 12);
+                ctx.strokeRect(20, 24, 8, 12);
+                ctx.beginPath();
+                ctx.roundRect(0, 6, 24, 30, [10, 10, 4, 4]);
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(12, 18, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#38bdf8';
+                ctx.fill();
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(7, 36);
+                ctx.lineTo(12, 49 + Math.sin(frame * 0.3) * 4);
+                ctx.lineTo(17, 36);
+                ctx.closePath();
+                ctx.fillStyle = '#fbbf24';
+                ctx.fill();
                 ctx.restore();
-            } else if (type === 'breakout') {
-                pBall.x += pBall.dx; pBall.y += pBall.dy;
-                if (pBall.x < 5 || pBall.x > 145) pBall.dx *= -1;
-                if (pBall.y < 5) pBall.dy *= -1;
-                if (pBall.y > 135 && pBall.x > pPaddleX && pBall.x < pPaddleX + 35) { pBall.dy = -Math.abs(pBall.dy); pBall.dx = (pBall.x - (pPaddleX + 17.5)) / 5; }
-                if (pBall.y > 150) { pBall.y = 100; pBall.dy = -2; }
-
-                pPaddleX += (pBall.x - 17.5 - pPaddleX) * 0.15;
-                ctx.fillStyle = '#000'; ctx.fillRect(pPaddleX, 140, 35, 4);
-
-                pBricks.forEach((b, i) => {
-                    if (b.active) {
-                        if (pBall.x > b.x && pBall.x < b.x + 25 && pBall.y > b.y && pBall.y < b.y + 10) { b.active = false; pBall.dy *= -1; }
-                        ctx.fillStyle = `hsl(${(i * 30 + frame) % 360}, 60%, 50%)`;
-                        ctx.fillRect(b.x, b.y, 25, 10);
-                    }
-                });
-                if (pBricks.every(b => !b.active)) pBricks.forEach(b => b.active = true);
-                ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(pBall.x, pBall.y, 3, 0, Math.PI * 2); ctx.fill();
             } else if (type === 'runner') {
-                if (frame % 60 === 0) runnerObstacles.push({ x: 160, w: 15, h: 25 });
-                runnerVY += 0.4; runnerY += runnerVY;
-                if (runnerY > 105) { runnerY = 105; runnerVY = 0; }
+                const groundY = 120;
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
+                ctx.strokeStyle = '#111827';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, groundY, canvas.width, 1);
 
-                for (let o of runnerObstacles) {
-                    o.x -= 3;
-                    ctx.fillStyle = '#ef4444'; ctx.fillRect(o.x, 115, o.w, o.h);
-                    if (o.x < 60 && o.x > 30 && runnerY > 90) runnerVY = -8; // Auto jump
+                runnerVy += 0.4;
+                runnerY += runnerVy;
+                if (runnerY > 95) {
+                    runnerY = 95;
+                    runnerVy = 0;
                 }
-                runnerObstacles = runnerObstacles.filter(o => o.x > -20);
-                ctx.fillStyle = '#f59e0b'; ctx.fillRect(40, runnerY, 20, 25);
+
+                for (const obstacle of runnerObstacles) {
+                    obstacle.x -= 3.2;
+                    if (obstacle.x + obstacle.w < 0) obstacle.x = 168;
+                    if (obstacle.x < 55 && obstacle.x > 48 && runnerY === 95) runnerVy = -7;
+                    ctx.fillStyle = '#ef4444';
+                    ctx.strokeStyle = '#111827';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.roundRect(obstacle.x, groundY - obstacle.h, obstacle.w, obstacle.h, 4);
+                    ctx.fill();
+                    ctx.stroke();
+                }
+
+                ctx.save();
+                ctx.translate(44, runnerY);
+                ctx.fillStyle = '#f59e0b';
+                ctx.strokeStyle = '#111827';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(0, 0, 20, 25, 4);
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
             } else if (type === 'shooter') {
-                if (frame % 35 === 0) targets.push({ x: Math.random() * 120 + 15, y: Math.random() * 100 + 25, r: 2, maxR: 12, life: 40 });
-                for (let t of targets) {
-                    t.r += (t.maxR - t.r) * 0.1;
-                    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2); ctx.stroke(); t.life--;
+                for (const target of reflexTargets) {
+                    const pulse = target.base + Math.sin((frame + target.phase) * 0.09) * 4;
+                    ctx.strokeStyle = '#ef4444';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(target.x, target.y, pulse, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    ctx.strokeStyle = '#fca5a5';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.arc(target.x, target.y, pulse * 0.45, 0, Math.PI * 2);
+                    ctx.stroke();
                 }
-                targets = targets.filter(t => t.life > 0);
-            } else if (type === 'crawler') {
-                if (frame % 12 === 0) {
-                    let head = { x: snake[0].x + snakeDir.x, y: snake[0].y + snakeDir.y };
-                    if (head.x > 14 || head.x < 0 || head.y > 14 || head.y < 0 || Math.random() < 0.1) {
-                        const possible = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
-                        snakeDir = possible[Math.floor(Math.random() * 4)];
-                        head = { x: snake[0].x + snakeDir.x, y: snake[0].y + snakeDir.y };
-                    }
-                    snake.unshift(head); snake.pop();
-                }
-                snake.forEach((s, i) => { ctx.fillStyle = i === 0 ? '#22c55e' : '#16a34a'; ctx.fillRect(s.x * 10, s.y * 10, 9, 9); });
             } else if (type === 'pattern') {
-                const active = Math.floor(frame / 40) % 4;
-                const colors = ['#ec4899', '#8b5cf6', '#3b82f6', '#10b981'];
-                [[20, 20], [80, 20], [20, 80], [80, 80]].forEach(([x, y], i) => {
-                    ctx.fillStyle = active === i ? colors[i] : colors[i] + '33';
-                    ctx.fillRect(x, y, 50, 50);
+                const activePad = Math.floor(frame / 35) % memoryPads.length;
+                memoryPads.forEach((pad, index) => {
+                    ctx.fillStyle = index === activePad ? pad.color : `${pad.color}33`;
+                    ctx.strokeStyle = '#111827';
+                    ctx.lineWidth = index === activePad ? 4 : 2;
+                    ctx.beginPath();
+                    ctx.roundRect(pad.x, pad.y, 50, 50, 10);
+                    ctx.fill();
+                    ctx.stroke();
                 });
+            } else if (type === 'crawler') {
+                if (frame % 18 === 0) {
+                    const nextHead = {
+                        x: snakeBody[0].x + snakeDirection.x,
+                        y: snakeBody[0].y + snakeDirection.y,
+                    };
+
+                    if (
+                        nextHead.x < 0 ||
+                        nextHead.x > 14 ||
+                        nextHead.y < 0 ||
+                        nextHead.y > 14 ||
+                        (nextHead.x === snakeFood.x && nextHead.y === snakeFood.y)
+                    ) {
+                        const directions = [
+                            { x: 1, y: 0 },
+                            { x: -1, y: 0 },
+                            { x: 0, y: 1 },
+                            { x: 0, y: -1 },
+                        ];
+                        snakeDirection = directions[(Math.floor(frame / 18) + 1) % directions.length];
+                    }
+
+                    snakeBody.unshift({
+                        x: Math.max(0, Math.min(14, snakeBody[0].x + snakeDirection.x)),
+                        y: Math.max(0, Math.min(14, snakeBody[0].y + snakeDirection.y)),
+                    });
+
+                    while (snakeBody.length > 4) snakeBody.pop();
+
+                    if (snakeBody[0].x === snakeFood.x && snakeBody[0].y === snakeFood.y) {
+                        snakeFood = {
+                            x: 2 + ((frame / 18) % 10),
+                            y: 3 + ((frame / 27) % 8),
+                        };
+                    }
+                }
+
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.arc(snakeFood.x * 9 + 10, snakeFood.y * 9 + 10, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                snakeBody.forEach((segment, index) => {
+                    ctx.fillStyle = index === 0 ? '#10b981' : '#34d399';
+                    ctx.strokeStyle = '#064e3b';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.roundRect(segment.x * 9 + 2, segment.y * 9 + 2, 8, 8, 2);
+                    ctx.fill();
+                    ctx.stroke();
+                });
+            } else if (type === 'breakout') {
+                breakoutBall.x += breakoutBall.dx;
+                breakoutBall.y += breakoutBall.dy;
+                if (breakoutBall.x < 6 || breakoutBall.x > 144) breakoutBall.dx *= -1;
+                if (breakoutBall.y < 7) breakoutBall.dy *= -1;
+                if (breakoutBall.y > 132 && breakoutBall.x > breakoutPaddleX && breakoutBall.x < breakoutPaddleX + 38) {
+                    breakoutBall.dy = -Math.abs(breakoutBall.dy);
+                }
+                if (breakoutBall.y > 150) {
+                    breakoutBall = { x: 72, y: 94, dx: 1.6, dy: -1.9 };
+                }
+
+                breakoutPaddleX += (breakoutBall.x - 19 - breakoutPaddleX) * 0.12;
+
+                breakoutBricks.forEach((brick) => {
+                    if (!brick.active) return;
+                    if (
+                        breakoutBall.x > brick.x &&
+                        breakoutBall.x < brick.x + 26 &&
+                        breakoutBall.y > brick.y &&
+                        breakoutBall.y < brick.y + 10
+                    ) {
+                        brick.active = false;
+                        breakoutBall.dy *= -1;
+                    }
+
+                    ctx.fillStyle = `hsl(${brick.hue}, 70%, 54%)`;
+                    ctx.strokeStyle = '#111827';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.roundRect(brick.x, brick.y, 26, 10, 3);
+                    ctx.fill();
+                    ctx.stroke();
+                });
+
+                if (breakoutBricks.every((brick) => !brick.active)) {
+                    breakoutBricks.forEach((brick) => {
+                        brick.active = true;
+                    });
+                }
+
+                ctx.fillStyle = '#1e293b';
+                ctx.beginPath();
+                ctx.roundRect(breakoutPaddleX, 138, 38, 6, 4);
+                ctx.fill();
+
+                ctx.fillStyle = '#111827';
+                ctx.beginPath();
+                ctx.arc(breakoutBall.x, breakoutBall.y, 3.6, 0, Math.PI * 2);
+                ctx.fill();
             }
 
             animationId = requestAnimationFrame(render);
         };
+
         render();
         return () => cancelAnimationFrame(animationId);
     }, [type]);
 
     return (
-        <canvas ref={canvasRef} width={150} height={150} style={{ width: '100%', height: '140px', borderRadius: '12px', marginBottom: '1rem', background: '#000', border: '1px solid rgba(255,255,255,0.05)' }} />
+        <canvas
+            ref={canvasRef}
+            width={150}
+            height={150}
+            style={{
+                width: '100%',
+                height: '140px',
+                borderRadius: '12px',
+                marginBottom: '1rem',
+                background: '#000',
+                border: '1px solid rgba(255,255,255,0.05)',
+            }}
+        />
     );
 }

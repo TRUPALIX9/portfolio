@@ -27,15 +27,16 @@ type GameDefinition = {
     desc: string;
     color: string;
     previewType: 'gravity' | 'runner' | 'shooter' | 'pattern' | 'crawler' | 'breakout';
+    viewport: 'portrait' | 'square' | 'landscape';
 };
 
 const games: GameDefinition[] = [
-    { id: 'rocket', title: 'Rocket', icon: '🚀', desc: 'High-speed evasion', color: '#ef4444', previewType: 'gravity' },
-    { id: 'runner', title: 'Runner', icon: '🏃', desc: 'Endless dash', color: '#f59e0b', previewType: 'runner' },
-    { id: 'shooter', title: 'Reflex', icon: '🎯', desc: 'Focus trainer', color: '#ef4444', previewType: 'shooter' },
-    { id: 'pattern', title: 'Memory', icon: '🧠', desc: 'Logic matrix', color: '#ec4899', previewType: 'pattern' },
-    { id: 'snake', title: 'Snake', icon: '🐍', desc: 'Core logic', color: '#22c55e', previewType: 'crawler' },
-    { id: 'breakout', title: 'Breakout', icon: '🧱', desc: 'Kinetic energy', color: '#10b981', previewType: 'breakout' },
+    { id: 'rocket', title: 'Rocket', icon: '🚀', desc: 'High-speed evasion', color: '#ef4444', previewType: 'gravity', viewport: 'portrait' },
+    { id: 'runner', title: 'Runner', icon: '🏃', desc: 'Endless dash', color: '#f59e0b', previewType: 'runner', viewport: 'landscape' },
+    { id: 'shooter', title: 'Reflex', icon: '🎯', desc: 'Focus trainer', color: '#ef4444', previewType: 'shooter', viewport: 'portrait' },
+    { id: 'pattern', title: 'Memory', icon: '🧠', desc: 'Logic matrix', color: '#ec4899', previewType: 'pattern', viewport: 'square' },
+    { id: 'snake', title: 'Snake', icon: '🐍', desc: 'Core logic', color: '#22c55e', previewType: 'crawler', viewport: 'square' },
+    { id: 'breakout', title: 'Breakout', icon: '🧱', desc: 'Kinetic energy', color: '#10b981', previewType: 'breakout', viewport: 'portrait' },
 ];
 
 export default function GameHub() {
@@ -67,6 +68,8 @@ export default function GameHub() {
     const filteredLeaderboard = selectedGame
         ? leaderboard.filter((entry) => entry.game === selectedGame)
         : leaderboard;
+    const selectedDefinition = games.find((game) => game.id === selectedGame) ?? null;
+    const selectedViewport = selectedDefinition?.viewport ?? 'square';
 
     return (
         <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', paddingBottom: '4rem' }}>
@@ -194,13 +197,16 @@ export default function GameHub() {
                                 <span>&larr;</span> TERMINATE SESSION
                             </button>
                             <div style={{ textAlign: 'right' }}>
-                                <h2 style={{ fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase' }}>{games.find((game) => game.id === selectedGame)?.title}</h2>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase' }}>{selectedDefinition?.title}</h2>
                                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>PERSONAL RECORD: <span style={{ color: '#fff' }}>{getHighScore(selectedGame)}</span></p>
                             </div>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 300px', gap: '2rem', alignItems: 'start' }} className="game-stage-container">
-                            <div style={{ display: 'flex', justifyContent: 'center', width: '100%', overflow: 'hidden' }}>
+                        <div
+                            style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 300px', gap: '2rem', alignItems: 'start' }}
+                            className={`game-stage-container game-stage-container--${selectedViewport}`}
+                        >
+                            <div className="game-stage-shell">
                                 {selectedGame === 'rocket' && <RocketGame onFinished={handleGameFinished} />}
                                 {selectedGame === 'runner' && <RunnerGame onFinished={handleGameFinished} />}
                                 {selectedGame === 'shooter' && <ReflexGame onFinished={handleGameFinished} />}

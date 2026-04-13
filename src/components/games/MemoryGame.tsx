@@ -1,36 +1,52 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
+import { getSavedArcadePlayerName, submitArcadeScore } from '@/utils/arcade-player';
+
+type MemoryPad = { id: number; x: number; y: number; color?: string };
 
 export default function MemoryGame({ onFinished }: { onFinished: () => void }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
+    const cleanupRef = useRef<(() => void) | null>(null);
+    const playingRef = useRef(false);
     const [score, setScore] = useState(0);
     const [gameOver, setGameOver] = useState(false);
     const [playing, setPlaying] = useState(false);
-    const [name, setName] = useState("Player");
+    const [name, setName] = useState("");
     const [isTouch, setIsTouch] = useState(false);
 
     useEffect(() => {
         setIsTouch(window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0);
-        const savedName = localStorage.getItem('arcade-player-name');
+        const savedName = getSavedArcadePlayerName();
         if (savedName) setName(savedName);
+
+        return () => {
+            cleanupRef.current?.();
+            playingRef.current = false;
+        };
     }, []);
 
     const updateName = (val: string) => {
         setName(val);
-        localStorage.setItem('arcade-player-name', val);
     };
+
     const submit = async () => {
-        await fetch('/api/leaderboard', { method: 'POST', body: JSON.stringify({ name, score, game: 'pattern' }) });
+        const trimmedName = name.trim();
+        if (!trimmedName) return;
+        await submitArcadeScore(trimmedName, score, 'pattern');
         onFinished();
     };
     const retry = async () => {
-        await fetch('/api/leaderboard', { method: 'POST', body: JSON.stringify({ name, score, game: 'pattern' }) });
+        const trimmedName = name.trim();
+        if (!trimmedName) return;
+        await submitArcadeScore(trimmedName, score, 'pattern');
         startGame();
     };
 
-    const startGame = async () => {
-        if (containerRef.current?.requestFullscreen) await containerRef.current.requestFullscreen();
+    const trimmedName = name.trim();
+
+    const startGame = () => {
+        cleanupRef.current?.();
+        playingRef.current = true;
         setPlaying(true); setGameOver(false); setScore(0);
         const canvas = canvasRef.current!;
         const ctx = canvas.getContext('2d')!;
@@ -41,6 +57,12 @@ export default function MemoryGame({ onFinished }: { onFinished: () => void }) {
         let curScore = 0;
         let flashIndex = 0;
         let flashTime = 0;
+        let animationId = 0;
+        let nextLevelTimeout = 0;
+        const grid: MemoryPad[] = [
+            { id: 0, x: 50, y: 50, color: '#ec4899' }, { id: 1, x: 210, y: 50, color: '#8b5cf6' },
+            { id: 2, x: 50, y: 210, color: '#3b82f6' }, { id: 3, x: 210, y: 210, color: '#10b981' }
+        ];
 
         const nextLevel = () => {
             sequence.push(Math.floor(Math.random() * 4));
@@ -66,11 +88,6 @@ export default function MemoryGame({ onFinished }: { onFinished: () => void }) {
 
             ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
 
-            const grid = [
-                { id: 0, x: 50, y: 50, color: '#ec4899' }, { id: 1, x: 210, y: 50, color: '#8b5cf6' },
-                { id: 2, x: 50, y: 210, color: '#3b82f6' }, { id: 3, x: 210, y: 210, color: '#10b981' }
-            ];
-
             if (showing) {
                 flashTime--;
                 if (flashTime <= 0) {
@@ -91,90 +108,106 @@ export default function MemoryGame({ onFinished }: { onFinished: () => void }) {
                 }
             });
 
-            if (!gameOver && playing) requestAnimationFrame(loop);
+            if (playingRef.current) {
+                animationId = requestAnimationFrame(loop);
+            }
         };
 
-        const click = (e: any) => {
-            if (showing || !playing) return;
-            const rect = canvas.getBoundingClientRect();
-            const x = ((e.clientX || e.touches?.[0].clientX) - rect.left) * (canvas.width / rect.width);
-            const y = ((e.clientY || e.touches?.[0].clientY) - rect.top) * (canvas.height / rect.height);
+        const endGame = () => {
+            playingRef.current = false;
+            setGameOver(true);
+            setPlaying(false);
+            window.clearTimeout(nextLevelTimeout);
+            cancelAnimationFrame(animationId);
+        };
 
-            const grid = [{ id: 0, x: 50, y: 50 }, { id: 1, x: 210, y: 50 }, { id: 2, x: 50, y: 210 }, { id: 3, x: 210, y: 210 }];
+        const click = (e: MouseEvent | TouchEvent) => {
+            if (showing || !playingRef.current) return;
+            const rect = canvas.getBoundingClientRect();
+            const point = 'touches' in e ? e.touches[0] : e;
+            if (!point) return;
+            const x = (point.clientX - rect.left) * (canvas.width / rect.width);
+            const y = (point.clientY - rect.top) * (canvas.height / rect.height);
+
             grid.forEach(g => {
                 if (x > g.x && x < g.x + 140 && y > g.y && y < g.y + 140) {
                     userSequence.push(g.id);
                     if (userSequence[userSequence.length - 1] !== sequence[userSequence.length - 1]) {
-                        setGameOver(true); setPlaying(false); if (document.fullscreenElement) document.exitFullscreen(); return;
+                        endGame();
+                        return;
                     }
                     if (userSequence.length === sequence.length) {
                         curScore++; setScore(curScore);
-                        setTimeout(nextLevel, 600);
+                        nextLevelTimeout = window.setTimeout(nextLevel, 600);
                     }
                 }
             });
         };
 
         canvas.addEventListener('mousedown', click);
-        canvas.addEventListener('touchstart', click as any, { passive: false });
+        canvas.addEventListener('touchstart', click, { passive: false });
         nextLevel(); loop();
-        return () => {
+        cleanupRef.current = () => {
+            playingRef.current = false;
+            window.clearTimeout(nextLevelTimeout);
+            cancelAnimationFrame(animationId);
             canvas.removeEventListener('mousedown', click);
-            canvas.removeEventListener('touchstart', click as any);
+            canvas.removeEventListener('touchstart', click);
         };
     };
 
 
 
     return (
-        <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: '16px', overflow: 'hidden', position: 'relative', border: '4px solid #000', width: '100%', height: '100%', minHeight: '600px' }} className="game-console">
-            <canvas ref={canvasRef} width={400} height={400} style={{ width: 'auto', height: '80vh', maxWidth: '400px', maxHeight: '400px', display: 'block' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }} className="game-console game-console--square">
+            <canvas ref={canvasRef} width={400} height={400} className="game-canvas game-canvas-square" />
             {!playing && !gameOver && (
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(255, 255, 255, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2rem', zIndex: 10, padding: '2rem', textAlign: 'center' }}>
+                <div className="game-overlay">
                     <div style={{ background: '#000', color: '#fff', padding: '0.75rem 2rem', borderRadius: '12px', transform: 'skewX(-15deg)', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)' }}>
                         <h2 style={{ fontSize: '2.5rem', fontWeight: 900, textTransform: 'uppercase', color: '#fff' }}>MEMORY</h2>
                     </div>
 
-                    <div style={{ padding: '2rem', borderRadius: '24px', background: '#fff', border: '2px solid #000', width: '100%', maxWidth: '300px' }}>
-                        <p style={{ fontWeight: 800, fontSize: '1.2rem', color: '#000', margin: 0 }}>MISSION: SYNC</p>
-                        <p style={{ fontSize: '0.9rem', color: '#4b5563', margin: '0.5rem 0 1.5rem 0' }}>Repeat the synaptic sequence precisely.</p>
+                    <div className="game-panel">
+                        <p style={{ fontWeight: 800, fontSize: '1.2rem', color: '#f8fafc', margin: 0 }}>MISSION: SYNC</p>
+                        <p style={{ fontSize: '0.9rem', color: '#cbd5e1', margin: '0.5rem 0 1.5rem 0' }}>Repeat the synaptic sequence precisely.</p>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '1.5rem', background: '#f8fafc', borderRadius: '20px', border: '2px solid #000' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '1.5rem', background: 'rgba(15, 23, 42, 0.88)', borderRadius: '20px', border: '1px solid rgba(148, 163, 184, 0.35)' }}>
                             <div style={{ width: '40px', height: '40px', border: '1px solid #ec4899', borderRadius: '4px', position: 'relative' }}>
                                 <div style={{ position: 'absolute', inset: 2, background: '#ec4899', opacity: 0.8 }} className="animate-pulse" />
                             </div>
-                            <span style={{ fontSize: '1rem', fontWeight: 900, color: '#000', letterSpacing: '1px' }}>{!isTouch ? 'MATCH THE SEQUENCE' : 'TAP THE SEQUENCE'}</span>
+                            <span style={{ fontSize: '1rem', fontWeight: 900, color: '#f8fafc', letterSpacing: '1px' }}>{!isTouch ? 'MATCH THE SEQUENCE' : 'TAP THE SEQUENCE'}</span>
                         </div>
                     </div>
 
                     <button onClick={startGame} style={{
-                        background: '#000', color: '#fff', width: '100%', maxWidth: '300px',
-                        padding: '1.25rem', borderRadius: '16px', fontWeight: 900,
+                        background: '#000', color: '#fff', fontWeight: 900,
                         fontSize: '1.1rem', cursor: 'pointer', border: 'none',
                         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
-                    }} className="hover-scale">SYNC NEURONS</button>
-                    <p style={{ fontSize: '0.7rem', opacity: 0.5, color: '#000' }}>Synaptic lag results in immediate disconnect.</p>
+                    }} className="game-start-button hover-scale">SYNC NEURONS</button>
+                    <p style={{ fontSize: '0.7rem', opacity: 0.8, color: '#cbd5e1' }}>Synaptic lag results in immediate disconnect.</p>
                 </div>
             )}
             {gameOver && (
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(255, 255, 255, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', zIndex: 10, padding: '2rem' }}>
+                <div className="game-overlay">
                     <h2 style={{ color: '#ec4899', fontSize: '2.5rem', fontWeight: 900 }}>SYNC LOST</h2>
-                    <p style={{ color: '#000', fontSize: '1.5rem', fontWeight: 900 }}>SCORE: {score}</p>
+                    <p style={{ color: '#f8fafc', fontSize: '1.5rem', fontWeight: 900 }}>SCORE: {score}</p>
 
-                    <div style={{ width: '100%', maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <input value={name} onChange={e => updateName(e.target.value)} placeholder="ENTER ID" style={{ padding: '1rem', borderRadius: '12px', background: '#f8fafc', color: '#000', border: '3px solid #000', textAlign: 'center', fontSize: '1.2rem', fontWeight: 900 }} />
+                    <div style={{ width: '100%', maxWidth: '320px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '0.75rem', alignItems: 'stretch' }}>
+                            <input value={name} onChange={e => updateName(e.target.value)} placeholder="ENTER NAME" style={{ padding: '1rem', borderRadius: '12px', background: '#f8fafc', color: '#000', border: '3px solid #000', textAlign: 'center', fontSize: '1rem', fontWeight: 900, minWidth: 0 }} />
+                            <button onClick={submit} disabled={!trimmedName} style={{ background: trimmedName ? '#e2e8f0' : '#cbd5e1', color: '#000', padding: '0 1rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.9rem', border: 'none', cursor: trimmedName ? 'pointer' : 'not-allowed' }}>
+                                SAVE
+                            </button>
+                        </div>
 
-                        <button onClick={retry} style={{ background: '#000', color: '#fff', padding: '1.25rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                        <button onClick={retry} disabled={!trimmedName} style={{ background: trimmedName ? '#000' : '#475569', color: '#fff', padding: '1.25rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: trimmedName ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                             <span>🔄</span> PLAY AGAIN
                         </button>
-
-                        <button onClick={submit} style={{ background: '#e2e8f0', color: '#000', padding: '1rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.9rem', border: 'none', cursor: 'pointer' }}>
-                            SAVE & HUB
-                        </button>
+                        <p style={{ fontSize: '0.75rem', color: '#475569', margin: 0 }}>A name is required before saving or restarting.</p>
                     </div>
                 </div>
             )}
-            {playing && <div style={{ position: 'absolute', top: 20, right: 20, color: '#000', fontWeight: 800, background: '#fff', padding: '4px 8px', border: '2px solid #000', borderRadius: '4px' }}>{score}</div>}
+            {playing && <div style={{ position: 'absolute', top: 16, right: 16, padding: '6px 10px' }} className="game-score-badge">{score}</div>}
         </div>
     );
 }

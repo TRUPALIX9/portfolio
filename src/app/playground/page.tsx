@@ -38,6 +38,7 @@ const emptyInsights: Insights = {
 };
 
 export default function Playground() {
+    const deleteAllPhrase = "DELETE ALL DB";
     const [key, setKey] = useState("");
     const [authenticated, setAuthenticated] = useState(false);
     const [scores, setScores] = useState<LeaderboardEntry[]>([]);
@@ -47,6 +48,7 @@ export default function Playground() {
     const [busyAction, setBusyAction] = useState<"delete" | "wipe" | null>(null);
     const [shareLink, setShareLink] = useState("");
     const [shareStatus, setShareStatus] = useState("");
+    const [wipeConfirmation, setWipeConfirmation] = useState("");
 
     const recentDates = useMemo(() => insights.topDates.slice(0, 3), [insights.topDates]);
     const featuredGames = useMemo(() => insights.topGames.slice(0, 4), [insights.topGames]);
@@ -128,7 +130,8 @@ export default function Playground() {
     };
 
     const handleWipe = async () => {
-        if (!window.confirm("This will permanently wipe the leaderboard. Continue?")) {
+        if (wipeConfirmation.trim() !== deleteAllPhrase) {
+            alert(`Type "${deleteAllPhrase}" to enable a full reset.`);
             return;
         }
 
@@ -148,6 +151,7 @@ export default function Playground() {
             }
 
             await refreshSnapshot();
+            setWipeConfirmation("");
         } catch (error) {
             alert(error instanceof Error ? error.message : "Wipe failed.");
         } finally {
@@ -334,15 +338,34 @@ export default function Playground() {
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
                         <div>
                             <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 900 }}>Score Curatorship</h2>
-                            <p style={{ margin: "0.35rem 0 0", color: "#475569" }}>Delete individual abusive submissions or wipe the table if you need a hard reset.</p>
+                            <p style={{ margin: "0.35rem 0 0", color: "#475569" }}>Delete individual abusive submissions or use the protected reset flow for a full wipe.</p>
                         </div>
-                        <button
-                            onClick={handleWipe}
-                            disabled={busyAction === "wipe" || scores.length === 0}
-                            style={{ padding: "0.9rem 1rem", borderRadius: "12px", border: "none", background: busyAction === "wipe" ? "#fca5a5" : "#dc2626", color: "#fff", fontWeight: 800, cursor: busyAction === "wipe" ? "wait" : "pointer" }}
-                        >
-                            {busyAction === "wipe" ? "Wiping..." : "Wipe Leaderboard"}
-                        </button>
+                    </div>
+
+                    <div style={{ marginBottom: "1rem", padding: "1rem", borderRadius: "18px", background: "#fff7ed", border: "1px solid #fdba74", display: "grid", gap: "0.8rem" }}>
+                        <div>
+                            <p style={{ margin: 0, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "#c2410c", fontWeight: 800 }}>Danger Zone</p>
+                            <p style={{ margin: "0.4rem 0 0", color: "#7c2d12", lineHeight: 1.6 }}>
+                                Resetting clears the entire leaderboard database view for all games. To confirm, type <strong>{deleteAllPhrase}</strong> exactly.
+                            </p>
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", gap: "0.75rem", alignItems: "stretch" }}>
+                            <input
+                                type="text"
+                                value={wipeConfirmation}
+                                onChange={(event) => setWipeConfirmation(event.target.value)}
+                                placeholder={deleteAllPhrase}
+                                style={{ padding: "0.9rem 1rem", borderRadius: "12px", border: "1px solid #fdba74", background: "#fff", color: "#7c2d12", fontWeight: 700, minWidth: 0 }}
+                            />
+                            <button
+                                onClick={handleWipe}
+                                disabled={busyAction === "wipe" || scores.length === 0 || wipeConfirmation.trim() !== deleteAllPhrase}
+                                style={{ padding: "0.9rem 1rem", borderRadius: "12px", border: "none", background: busyAction === "wipe" ? "#fca5a5" : "#dc2626", color: "#fff", fontWeight: 800, cursor: busyAction === "wipe" ? "wait" : "pointer", opacity: scores.length === 0 || wipeConfirmation.trim() !== deleteAllPhrase ? 0.55 : 1 }}
+                            >
+                                {busyAction === "wipe" ? "Resetting..." : "Reset All Scores"}
+                            </button>
+                        </div>
                     </div>
 
                     <div style={{ overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: "18px" }}>
