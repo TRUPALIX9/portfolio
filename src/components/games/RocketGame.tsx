@@ -55,6 +55,12 @@ export default function RocketGame({ onFinished }: { onFinished: () => void }) {
             y: (Math.random() - 0.5) * canvas.height * 1.2,
             z: 0.2 + Math.random() * 1.8,
         }));
+        const nebulaBands = Array.from({ length: 4 }, (_, index) => ({
+            x: index * 110,
+            width: 84 + index * 18,
+            speed: 0.7 + index * 0.22,
+            hue: [196, 220, 268, 330][index],
+        }));
 
         const getSpawnInterval = () => Math.max(20, 45 - Math.floor(curScore / 100));
         const getObstacleSpeed = () => Math.min(10, 5.5 + (curScore / 200));
@@ -92,14 +98,26 @@ export default function RocketGame({ onFinished }: { onFinished: () => void }) {
             ctx.fillStyle = bg;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = 'rgba(59, 130, 246, 0.14)';
-            ctx.beginPath();
-            ctx.arc(canvas.width * 0.2, canvas.height * 0.16, 90, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = 'rgba(168, 85, 247, 0.12)';
-            ctx.beginPath();
-            ctx.arc(canvas.width * 0.78, canvas.height * 0.22, 120, 0, Math.PI * 2);
-            ctx.fill();
+            for (const band of nebulaBands) {
+                const bandY = (frames * band.speed * 2.4) % (canvas.height + 220) - 220;
+                const glow = ctx.createLinearGradient(0, bandY, 0, bandY + 220);
+                glow.addColorStop(0, `hsla(${band.hue}, 90%, 70%, 0)`);
+                glow.addColorStop(0.4, `hsla(${band.hue}, 82%, 60%, 0.1)`);
+                glow.addColorStop(0.65, `hsla(${band.hue}, 88%, 58%, 0.18)`);
+                glow.addColorStop(1, `hsla(${band.hue}, 90%, 70%, 0)`);
+                ctx.fillStyle = glow;
+                ctx.fillRect(band.x, bandY, band.width, 220);
+            }
+
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 9; i++) {
+                const streakX = (i * 48 + frames * 2.4) % (canvas.width + 120) - 60;
+                ctx.beginPath();
+                ctx.moveTo(streakX, -20);
+                ctx.lineTo(streakX - 46, canvas.height + 20);
+                ctx.stroke();
+            }
 
             for (const star of stars) {
                 star.z -= 0.018;
@@ -118,6 +136,11 @@ export default function RocketGame({ onFinished }: { onFinished: () => void }) {
                 ctx.fillRect(sx, sy, size, size);
                 ctx.fillStyle = `rgba(56,189,248,${alpha * 0.35})`;
                 ctx.fillRect(sx - 0.5, sy - 0.5, size + 1, size + 1);
+
+                if (size > 1.8) {
+                    ctx.fillStyle = `rgba(125, 211, 252, ${alpha * 0.2})`;
+                    ctx.fillRect(sx, sy, 1, 12 + size * 6);
+                }
             }
 
             for (const o of obstacles) {
@@ -198,7 +221,6 @@ export default function RocketGame({ onFinished }: { onFinished: () => void }) {
 
                     <div className="game-panel">
                         <p style={{ fontWeight: 900, fontSize: '1.2rem', color: '#f8fafc', margin: 0 }}>MISSION: SURVIVAL</p>
-                        <p style={{ fontSize: '0.9rem', color: '#cbd5e1', margin: '0.5rem 0 1.5rem 0' }}>Navigate the celestial debris field.</p>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             {!isTouch ? (
@@ -241,17 +263,19 @@ export default function RocketGame({ onFinished }: { onFinished: () => void }) {
                     <p style={{ color: '#f8fafc', fontSize: '1.5rem', fontWeight: 900 }}>SCORE: {score}</p>
 
                     <div style={{ width: '100%', maxWidth: '320px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '0.75rem', alignItems: 'stretch' }}>
-                            <input value={name} onChange={e => updateName(e.target.value)} placeholder="ENTER NAME" style={{ padding: '1rem', borderRadius: '12px', background: '#f8fafc', color: '#000', border: '3px solid #000', textAlign: 'center', fontSize: '1rem', fontWeight: 900, minWidth: 0 }} />
-                            <button onClick={submit} disabled={!trimmedName} style={{ background: trimmedName ? '#e2e8f0' : '#cbd5e1', color: '#000', padding: '0 1rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.9rem', border: 'none', cursor: trimmedName ? 'pointer' : 'not-allowed' }}>
-                                SAVE
-                            </button>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '0.75rem', alignItems: 'stretch' }}>
+                            <input value={name.toUpperCase()} onChange={e => updateName(e.target.value.toUpperCase())} placeholder="ENTER NAME" style={{ padding: '1rem', borderRadius: '12px', background: '#f8fafc', color: '#000', border: '3px solid #000', textAlign: 'center', fontSize: '1rem', fontWeight: 900, minWidth: 0, textTransform: 'uppercase' }} />
                         </div>
 
-                        <button onClick={retry} disabled={!trimmedName} style={{ background: trimmedName ? '#000' : '#475569', color: '#fff', padding: '1.25rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: trimmedName ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                            <span>🔄</span> PLAY AGAIN
-                        </button>
-                        <p style={{ fontSize: '0.75rem', color: '#475569', margin: 0 }}>A name is required before saving or restarting.</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.75rem' }}>
+                            <button onClick={submit} disabled={!trimmedName} style={{ background: trimmedName ? '#e2e8f0' : '#cbd5e1', color: '#000', padding: '1.1rem 0.75rem', borderRadius: '12px', fontWeight: 900, fontSize: '0.95rem', border: 'none', cursor: trimmedName ? 'pointer' : 'not-allowed' }}>
+                                EXIT
+                            </button>
+                            <button onClick={retry} disabled={!trimmedName} style={{ background: trimmedName ? '#000' : '#475569', color: '#fff', padding: '1.1rem 0.75rem', borderRadius: '12px', fontWeight: 900, fontSize: '0.95rem', border: 'none', cursor: trimmedName ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                                <span>🔄</span> PLAY AGAIN
+                            </button>
+                        </div>
+                        <p style={{ fontSize: '0.75rem', color: trimmedName ? '#94a3b8' : '#fca5a5', margin: 0 }}>{trimmedName ? 'Both actions will save this score with the entered name.' : 'Enter a name to enable both EXIT and PLAY AGAIN.'}</p>
                     </div>
                 </div>
             )}

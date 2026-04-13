@@ -11,6 +11,11 @@ import GamePreview from './GamePreview';
 
 type GameId = 'rocket' | 'runner' | 'shooter' | 'pattern' | 'snake' | 'breakout';
 type SelectedGame = GameId | null;
+type GameFinishPayload = {
+    game: GameId;
+    score: number;
+    closeGame?: boolean;
+};
 
 type LeaderboardEntry = {
     id: number;
@@ -24,34 +29,47 @@ type GameDefinition = {
     id: GameId;
     title: string;
     icon: string;
-    desc: string;
     color: string;
     previewType: 'gravity' | 'runner' | 'shooter' | 'pattern' | 'crawler' | 'breakout';
     viewport: 'portrait' | 'square' | 'landscape';
 };
 
 const games: GameDefinition[] = [
-    { id: 'rocket', title: 'Rocket', icon: '🚀', desc: 'High-speed evasion', color: '#ef4444', previewType: 'gravity', viewport: 'portrait' },
-    { id: 'runner', title: 'Runner', icon: '🏃', desc: 'Endless dash', color: '#f59e0b', previewType: 'runner', viewport: 'landscape' },
-    { id: 'shooter', title: 'Reflex', icon: '🎯', desc: 'Focus trainer', color: '#ef4444', previewType: 'shooter', viewport: 'portrait' },
-    { id: 'pattern', title: 'Memory', icon: '🧠', desc: 'Logic matrix', color: '#ec4899', previewType: 'pattern', viewport: 'square' },
-    { id: 'snake', title: 'Snake', icon: '🐍', desc: 'Core logic', color: '#22c55e', previewType: 'crawler', viewport: 'square' },
-    { id: 'breakout', title: 'Breakout', icon: '🧱', desc: 'Kinetic energy', color: '#10b981', previewType: 'breakout', viewport: 'portrait' },
+    { id: 'rocket', title: 'Rocket', icon: '🚀', color: '#ef4444', previewType: 'gravity', viewport: 'portrait' },
+    { id: 'runner', title: 'Runner', icon: '🏃', color: '#f59e0b', previewType: 'runner', viewport: 'landscape' },
+    { id: 'shooter', title: 'Reflex', icon: '🎯', color: '#ef4444', previewType: 'shooter', viewport: 'portrait' },
+    { id: 'pattern', title: 'Memory', icon: '🧠', color: '#ec4899', previewType: 'pattern', viewport: 'portrait' },
+    { id: 'snake', title: 'Snake', icon: '🐍', color: '#22c55e', previewType: 'crawler', viewport: 'square' },
+    { id: 'breakout', title: 'Breakout', icon: '🧱', color: '#10b981', previewType: 'breakout', viewport: 'portrait' },
 ];
 
 export default function GameHub() {
     const [selectedGame, setSelectedGame] = useState<SelectedGame>(null);
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+    const [highScoreCelebration, setHighScoreCelebration] = useState<{ game: string; score: number } | null>(null);
 
     useEffect(() => {
         fetchLeaderboard();
     }, []);
 
+    useEffect(() => {
+        if (!highScoreCelebration) return;
+        const timeoutId = window.setTimeout(() => setHighScoreCelebration(null), 2200);
+        return () => window.clearTimeout(timeoutId);
+    }, [highScoreCelebration]);
+
     const fetchLeaderboard = () => {
-        fetch('/api/leaderboard')
+        return fetch('/api/leaderboard')
             .then((res) => res.json())
-            .then((data) => setLeaderboard(Array.isArray(data) ? data : []))
-            .catch(() => setLeaderboard([]));
+            .then((data) => {
+                const entries = Array.isArray(data) ? data : [];
+                setLeaderboard(entries);
+                return entries as LeaderboardEntry[];
+            })
+            .catch(() => {
+                setLeaderboard([]);
+                return [] as LeaderboardEntry[];
+            });
     };
 
     const getHighScore = (gameId: GameId) => {
@@ -60,9 +78,21 @@ export default function GameHub() {
         return Math.max(...scores.map((entry) => entry.score));
     };
 
-    const handleGameFinished = () => {
-        fetchLeaderboard();
-        setSelectedGame(null);
+    const handleGameFinished = async (payload?: GameFinishPayload) => {
+        const previousHigh = payload ? getHighScore(payload.game) : 0;
+        await fetchLeaderboard();
+
+        if (payload && payload.score > previousHigh) {
+            const matchedGame = games.find((game) => game.id === payload.game);
+            setHighScoreCelebration({
+                game: matchedGame?.title ?? payload.game.toUpperCase(),
+                score: payload.score,
+            });
+        }
+
+        if (!payload || payload.closeGame !== false) {
+            setSelectedGame(null);
+        }
     };
 
     const filteredLeaderboard = selectedGame
@@ -73,6 +103,33 @@ export default function GameHub() {
 
     return (
         <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', paddingBottom: '4rem' }}>
+            <AnimatePresence>
+                {highScoreCelebration && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -18, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -14, scale: 0.98 }}
+                        style={{
+                            position: 'sticky',
+                            top: '1rem',
+                            zIndex: 40,
+                            margin: '0 auto 1rem',
+                            width: 'fit-content',
+                            padding: '0.9rem 1.2rem',
+                            borderRadius: '16px',
+                            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.92), rgba(34, 197, 94, 0.92))',
+                            color: '#03130b',
+                            fontWeight: 900,
+                            letterSpacing: '0.06em',
+                            textTransform: 'uppercase',
+                            boxShadow: '0 16px 30px rgba(22, 163, 74, 0.22)',
+                            border: '1px solid rgba(220, 252, 231, 0.55)',
+                        }}
+                    >
+                        NEW HIGH SCORE IN {highScoreCelebration.game}: {highScoreCelebration.score}
+                    </motion.div>
+                )}
+            </AnimatePresence>
             <AnimatePresence mode="wait">
                 {!selectedGame ? (
                     <motion.div
@@ -106,8 +163,7 @@ export default function GameHub() {
                                     <GamePreview type={game.previewType as never} />
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <div>
-                                            <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff' }}>{game.icon} {game.title}</h3>
-                                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>{game.desc}</p>
+                                            <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{game.icon} {game.title}</h3>
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
                                             <span style={{ display: 'block', fontSize: '1.1rem', fontWeight: 900, color: game.color }}>{getHighScore(game.id)}</span>
@@ -117,29 +173,15 @@ export default function GameHub() {
                             ))}
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
-                            <div className="glass-card" style={{ padding: '2rem', borderLeft: '4px solid var(--accent-primary)' }}>
-                                <h3 style={{ fontSize: '1.1rem', color: '#fff', marginBottom: '0.75rem' }}>🎮 Mission Briefing</h3>
-                                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                                    Navigate between iconic arcade genres rebuilt for the modern web. Every module features <b>Progressive Difficulty</b> and a shared live leaderboard.
-                                </p>
-                            </div>
-                            <div className="glass-card" style={{ padding: '2rem', borderLeft: '4px solid var(--accent-secondary)' }}>
-                                <h3 style={{ fontSize: '1.1rem', color: '#fff', marginBottom: '0.75rem' }}>🏆 Global Data Sync</h3>
-                                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                                    Scores are grouped by game, so each cabinet now tracks its own hall of fame instead of mixing Rocket, Snake, and Reflex into one stream.
-                                </p>
-                            </div>
-                        </div>
-
                         <div className="glass-card" style={{ padding: '3rem 2rem', background: 'rgba(255,255,255,0.01)' }}>
                             <h2 style={{ textAlign: 'center', marginBottom: '4rem', fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.02em' }}>HALL OF <span className="gradient-text">FAME</span></h2>
                             <div
                                 style={{
                                     display: 'grid',
-                                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                                    gap: '3rem',
+                                    gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                                    gap: '1.5rem',
                                 }}
+                                className="hall-of-fame-grid"
                             >
                                 {games.map((game) => {
                                     const gameEntries = leaderboard
@@ -148,19 +190,19 @@ export default function GameHub() {
                                         .slice(0, 5);
 
                                     return (
-                                        <div key={game.id}>
+                                        <div key={game.id} style={{ padding: '1.1rem 1rem', borderRadius: '18px', background: 'rgba(255,255,255,0.02)', border: `1px solid ${game.color}22` }}>
                                             <h3 style={{ fontSize: '0.8rem', color: game.color, textTransform: 'uppercase', marginBottom: '1.5rem', letterSpacing: '0.15em', fontWeight: 800 }}>
                                                 {game.title}
                                             </h3>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                                 {gameEntries.map((entry, index) => (
                                                     <div key={entry.id ?? `${game.id}-${index}`} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                                                        <span style={{ color: index === 0 ? '#fff' : 'var(--text-secondary)', fontWeight: index === 0 ? 700 : 400 }}>{entry.name}</span>
+                                                        <span style={{ color: index === 0 ? '#fff' : 'var(--text-secondary)', fontWeight: index === 0 ? 700 : 400, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{entry.name}</span>
                                                         <span style={{ fontWeight: 800, color: index === 0 ? game.color : '#fff' }}>{entry.score}</span>
                                                     </div>
                                                 ))}
                                                 {gameEntries.length === 0 && (
-                                                    <span style={{ fontSize: '0.75rem', opacity: 0.2 }}>PENDING DATA...</span>
+                                                    <span style={{ fontSize: '0.75rem', opacity: 0.2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>PENDING DATA...</span>
                                                 )}
                                             </div>
                                         </div>
@@ -194,7 +236,7 @@ export default function GameHub() {
                                 }}
                                 className="hover-scale"
                             >
-                                <span>&larr;</span> TERMINATE SESSION
+                                <span>&larr;</span> GO BACK
                             </button>
                             <div style={{ textAlign: 'right' }}>
                                 <h2 style={{ fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase' }}>{selectedDefinition?.title}</h2>
@@ -209,9 +251,9 @@ export default function GameHub() {
                             <div className="game-stage-shell">
                                 {selectedGame === 'rocket' && <RocketGame onFinished={handleGameFinished} />}
                                 {selectedGame === 'runner' && <RunnerGame onFinished={handleGameFinished} />}
-                                {selectedGame === 'shooter' && <ReflexGame onFinished={handleGameFinished} />}
-                                {selectedGame === 'pattern' && <MemoryGame onFinished={handleGameFinished} />}
-                                {selectedGame === 'snake' && <SnakeGame onFinished={handleGameFinished} />}
+                                {selectedGame === 'shooter' && <ReflexGame onFinished={handleGameFinished} highScore={getHighScore('shooter')} />}
+                                {selectedGame === 'pattern' && <MemoryGame onFinished={handleGameFinished} highScore={getHighScore('pattern')} />}
+                                {selectedGame === 'snake' && <SnakeGame onFinished={handleGameFinished} highScore={getHighScore('snake')} />}
                                 {selectedGame === 'breakout' && <BreakoutGame onFinished={handleGameFinished} />}
                             </div>
 
@@ -223,7 +265,7 @@ export default function GameHub() {
                                         .slice(0, 10)
                                         .map((entry, index) => (
                                             <div key={entry.id ?? `${entry.name}-${index}`} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                                <span style={{ opacity: index < 3 ? 1 : 0.6, fontWeight: index < 3 ? 700 : 400 }}>{index + 1}. {entry.name}</span>
+                                                <span style={{ opacity: index < 3 ? 1 : 0.6, fontWeight: index < 3 ? 700 : 400, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{index + 1}. {entry.name}</span>
                                                 <span style={{ fontWeight: 800 }}>{entry.score}</span>
                                             </div>
                                         ))}

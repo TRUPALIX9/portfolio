@@ -353,6 +353,38 @@ button {
   justify-content: center;
 }
 
+.game-mobile-controls {
+  width: min(100%, 100vw - 2rem);
+  max-width: 460px;
+  padding: 0.8rem 0.95rem;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 16px 32px rgba(2, 6, 23, 0.28);
+  display: flex;
+  justify-content: center;
+}
+
+.game-mobile-button {
+  min-width: 136px;
+  min-height: 56px;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.96), rgba(8, 15, 33, 1));
+  color: #f8fafc;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-mobile-button--wide {
+  width: min(100%, 320px);
+}
+
 .game-stage-shell {
   width: 100%;
   display: flex;
@@ -378,6 +410,10 @@ button {
   .game-stage-container {
     grid-template-columns: 1fr !important;
   }
+
+  .hall-of-fame-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
 }
 
 @media (max-width: 640px) {
@@ -394,28 +430,62 @@ button {
 
   .game-panel {
     max-width: 100%;
-    padding: 1rem;
+    padding: 0.85rem;
     border-radius: 18px;
   }
 
   .game-start-button {
     max-width: 100%;
-    font-size: 1rem !important;
+    font-size: 0.95rem !important;
+    padding: 0.85rem 1rem !important;
   }
 
   .game-overlay h2 {
-    font-size: 2rem !important;
+    font-size: 1.7rem !important;
   }
 
   .game-overlay p {
     line-height: 1.45;
   }
 
+  .game-overlay input {
+    padding: 0.8rem !important;
+    font-size: 0.88rem !important;
+  }
+
+  .game-overlay button:not(.game-start-button) {
+    font-size: 0.9rem !important;
+  }
+
+  .game-overlay button:not(.game-start-button):has(span) {
+    gap: 0.35rem !important;
+  }
+
+  .game-overlay div[style*="grid-template-columns: minmax(0, 1fr) auto"] {
+    gap: 0.55rem !important;
+  }
+
   .game-canvas-wide {
     max-width: 100%;
+    aspect-ratio: 16 / 10;
   }
 
   .game-console--landscape {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 10;
+  }
+
+  .hall-of-fame-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .game-mobile-controls {
+    width: min(100%, 100vw - 1rem);
+    padding: 0.7rem 0.8rem;
+    border-radius: 18px;
+  }
+
+  .game-mobile-button {
+    min-height: 52px;
+    font-size: 0.92rem;
   }
 }

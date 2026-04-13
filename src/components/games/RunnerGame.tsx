@@ -13,21 +13,33 @@ export default function RunnerGame({ onFinished }: { onFinished: () => void }) {
     const [gameOver, setGameOver] = useState(false);
     const [playing, setPlaying] = useState(false);
     const [isTouch, setIsTouch] = useState(false);
+    const [isPortraitScreen, setIsPortraitScreen] = useState(false);
     const [name, setName] = useState("");
 
     useEffect(() => {
         setIsTouch(window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0);
+        setIsPortraitScreen(window.innerHeight > window.innerWidth);
         const savedName = getSavedArcadePlayerName();
         if (savedName) setName(savedName);
+
+        const handleResize = () => {
+            setIsPortraitScreen(window.innerHeight > window.innerWidth);
+        };
+        window.addEventListener('resize', handleResize);
 
         return () => {
             cleanupRef.current?.();
             jumpRef.current = null;
+            window.removeEventListener('resize', handleResize);
         };
     }, []);
 
     const updateName = (val: string) => {
         setName(val);
+    };
+
+    const handleJumpPress = () => {
+        jumpRef.current?.();
     };
 
     const submit = async () => {
@@ -62,6 +74,11 @@ export default function RunnerGame({ onFinished }: { onFinished: () => void }) {
         let baseSpeed = 5.5;
         let frames = 0;
         let effects: RunnerEffect[] = [];
+        const skylineLayers = [
+            { color: 'rgba(37, 99, 235, 0.16)', speed: 0.18, height: 30, width: 42, offset: 0 },
+            { color: 'rgba(14, 116, 144, 0.2)', speed: 0.32, height: 46, width: 56, offset: 18 },
+            { color: 'rgba(15, 23, 42, 0.34)', speed: 0.5, height: 62, width: 72, offset: 34 },
+        ];
 
         const patterns = [
             [{ t: 'ground', x: 0 }], [{ t: 'ground', x: 0 }, { t: 'ground', x: 60 }],
@@ -85,7 +102,7 @@ export default function RunnerGame({ onFinished }: { onFinished: () => void }) {
             if (player.jumps < 2) {
                 player.vy = -13;
                 player.jumps++;
-                effects.push({ x: player.x + 15, y: player.y, text: player.jumps === 2 ? "SUPER!" : "HOP", life: 25, color: '#fff' });
+                effects.push({ x: player.x + 15, y: player.y, text: player.jumps === 2 ? "DOUBLE!" : "JUMP", life: 25, color: '#fff' });
             }
         };
         jumpRef.current = jump;
@@ -105,24 +122,53 @@ export default function RunnerGame({ onFinished }: { onFinished: () => void }) {
                 player.y = groundY - player.h; player.vy = 0; player.jumps = 0; player.rot = 0;
             } else { player.rot += 0.12; }
 
-            // Paper Background
-            ctx.fillStyle = '#fcfaf8'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            sky.addColorStop(0, '#020617');
+            sky.addColorStop(0.42, '#0f172a');
+            sky.addColorStop(0.8, '#1e293b');
+            sky.addColorStop(1, '#111827');
+            ctx.fillStyle = sky;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Doodle Grid
-            ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
-            const scroll = (frames * currentSpeed) % 40;
-            for (let i = -40; i <= canvas.width + 40; i += 40) {
-                ctx.beginPath(); ctx.moveTo(i - scroll, 0); ctx.lineTo(i - scroll + (Math.sin(i) * 2), canvas.height); ctx.stroke();
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.08)';
+            for (let i = 0; i < 10; i++) {
+                const y = 30 + i * 28;
+                const width = 90 + (i % 3) * 32;
+                const offset = (frames * (1.5 + i * 0.12)) % (canvas.width + width);
+                ctx.fillRect(canvas.width - offset, y, width, 2);
             }
-            for (let i = 0; i <= canvas.height; i += 40) {
-                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i + (Math.cos(i) * 2)); ctx.stroke();
+
+            skylineLayers.forEach((layer) => {
+                const layerScroll = (frames * currentSpeed * layer.speed) % (layer.width * 2);
+                ctx.fillStyle = layer.color;
+                for (let x = -layer.width * 2; x < canvas.width + layer.width * 2; x += layer.width) {
+                    const towerHeight = layer.height + ((Math.floor(x / layer.width) % 3) === 0 ? 18 : (Math.floor(x / layer.width) % 2) === 0 ? 8 : 0);
+                    ctx.fillRect(x - layerScroll, groundY - towerHeight - layer.offset, layer.width - 10, towerHeight);
+                }
+            });
+
+            const ground = ctx.createLinearGradient(0, groundY, 0, canvas.height);
+            ground.addColorStop(0, '#111827');
+            ground.addColorStop(1, '#020617');
+            ctx.fillStyle = ground;
+            ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
+
+            const laneScroll = (frames * currentSpeed * 1.5) % 90;
+            ctx.fillStyle = 'rgba(248, 250, 252, 0.75)';
+            for (let x = -80; x < canvas.width + 120; x += 90) {
+                ctx.fillRect(x - laneScroll, groundY + 14, 42, 4);
             }
 
-            // Sketchy Ground
-            ctx.fillStyle = '#1e293b'; ctx.fillRect(0, groundY, canvas.width, 30);
-            ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.strokeRect(0, groundY, canvas.width, 1);
+            ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, groundY);
+            ctx.lineTo(canvas.width, groundY);
+            ctx.stroke();
 
-            ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
 
             // Player (Doodle Style)
             ctx.save();
@@ -177,19 +223,23 @@ export default function RunnerGame({ onFinished }: { onFinished: () => void }) {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }} className="game-console game-console--landscape">
-            <canvas ref={canvasRef} width={600} height={400} className="game-canvas game-canvas-wide" />
-            {!playing && !gameOver && (
-                <div className="game-overlay">
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isTouch && playing ? '0.85rem' : 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }} className="game-console game-console--landscape">
+                <canvas ref={canvasRef} width={600} height={400} className="game-canvas game-canvas-wide" />
+                {!playing && !gameOver && (
+                    <div className="game-overlay" style={isTouch ? { justifyContent: 'flex-start', gap: '0.85rem', padding: '0.85rem' } : undefined}>
                     <div style={{ background: '#000', color: '#fff', padding: '0.75rem 2rem', borderRadius: '12px', transform: 'skewX(-15deg)', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)' }}>
-                        <h2 style={{ fontSize: '2.5rem', fontWeight: 900, textTransform: 'uppercase', color: '#fff' }}>RUNNER</h2>
+                        <h2 style={{ fontSize: isTouch ? '2rem' : '2.5rem', fontWeight: 900, textTransform: 'uppercase', color: '#fff' }}>RUNNER</h2>
                     </div>
 
-                    <div className="game-panel">
-                        <p style={{ fontWeight: 800, fontSize: '1.2rem', color: '#f8fafc', margin: 0 }}>MISSION: SURVIVE</p>
-                        <p style={{ fontSize: '0.9rem', color: '#cbd5e1', margin: '0.5rem 0 2rem 0' }}>Clear the neural firewall obstacles.</p>
+                    <button onClick={startGame} style={{ background: '#000', color: '#fff', fontWeight: 900, fontSize: isTouch ? '1rem' : '1.1rem', border: 'none', cursor: 'pointer' }} className="game-start-button">
+                        INITIALIZE
+                    </button>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    <div className="game-panel" style={isTouch ? { padding: '0.9rem', borderRadius: '18px' } : undefined}>
+                        <p style={{ fontWeight: 800, fontSize: isTouch ? '1rem' : '1.2rem', color: '#f8fafc', margin: 0 }}>MISSION: SURVIVE</p>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: isTouch ? '0.85rem' : '1.5rem' }}>
                             {!isTouch ? (
                                 <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', alignItems: 'center' }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
@@ -198,41 +248,63 @@ export default function RunnerGame({ onFinished }: { onFinished: () => void }) {
                                     </div>
                                 </div>
                             ) : (
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', padding: '1.5rem', background: 'rgba(15, 23, 42, 0.88)', borderRadius: '24px', border: '1px solid rgba(148, 163, 184, 0.35)' }}>
-                                    <div style={{ width: '20px', height: '20px', background: '#f59e0b', borderRadius: '50%' }} className="animate-bounce" />
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.85rem', padding: '0.85rem', background: 'rgba(15, 23, 42, 0.88)', borderRadius: '18px', border: '1px solid rgba(148, 163, 184, 0.35)' }}>
+                                    <div style={{ width: '16px', height: '16px', background: '#f59e0b', borderRadius: '50%' }} className="animate-bounce" />
                                     <div style={{ textAlign: 'left' }}>
-                                        <span style={{ display: 'block', fontSize: '1.1rem', fontWeight: 900, color: '#f8fafc' }}>TAP TO JUMP</span>
-                                        <span style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>Clear the neural firewall</span>
+                                        <span style={{ display: 'block', fontSize: '0.88rem', fontWeight: 900, color: '#f8fafc' }}>TAP TO JUMP</span>
+                                        <span style={{ fontSize: '0.72rem', color: '#cbd5e1' }}>
+                                            {isPortraitScreen ? 'Rotate phone for the full horizontal run lane' : 'Stage tap or jump pad both work'}
+                                        </span>
                                     </div>
                                 </div>
                             )}
+                            <p style={{ margin: 0, textAlign: 'center', fontSize: isTouch ? '0.72rem' : '0.78rem', fontWeight: 800, letterSpacing: '0.08em', color: '#93c5fd' }}>
+                                DOUBLE JUMP ACTIVE
+                            </p>
                         </div>
                     </div>
-                    <button onClick={startGame} style={{ background: '#000', color: '#fff', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: 'pointer' }} className="game-start-button">INITIALIZE</button>
-                </div>
-            )}
-            {playing && <div style={{ position: 'absolute', bottom: 16, right: 16, zIndex: 20 }}><button onPointerDown={(e) => { e.preventDefault(); jumpRef.current?.(); }} style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(148, 163, 184, 0.45)', color: '#f8fafc', fontWeight: 900, backdropFilter: 'blur(5px)' }}>JUMP</button></div>}
-            {gameOver && (
-                <div className="game-overlay">
+                    </div>
+                )}
+                {gameOver && (
+                    <div className="game-overlay">
                     <h2 style={{ color: '#ef4444', fontSize: '2.5rem', fontWeight: 900 }}>FIREWALL BREACH</h2>
                     <p style={{ color: '#f8fafc', fontSize: '1.5rem', fontWeight: 900 }}>SCORE: {score}</p>
 
                     <div style={{ width: '100%', maxWidth: '320px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '0.75rem', alignItems: 'stretch' }}>
-                            <input value={name} onChange={e => updateName(e.target.value)} placeholder="ENTER NAME" style={{ padding: '1rem', borderRadius: '12px', background: '#f8fafc', color: '#000', border: '3px solid #000', textAlign: 'center', fontSize: '1rem', fontWeight: 900, minWidth: 0 }} />
-                            <button onClick={submit} disabled={!trimmedName} style={{ background: trimmedName ? '#e2e8f0' : '#cbd5e1', color: '#000', padding: '0 1rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.9rem', border: 'none', cursor: trimmedName ? 'pointer' : 'not-allowed' }}>
-                                SAVE
-                            </button>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '0.75rem', alignItems: 'stretch' }}>
+                            <input value={name.toUpperCase()} onChange={e => updateName(e.target.value.toUpperCase())} placeholder="ENTER NAME" style={{ padding: '1rem', borderRadius: '12px', background: '#f8fafc', color: '#000', border: '3px solid #000', textAlign: 'center', fontSize: '1rem', fontWeight: 900, minWidth: 0, textTransform: 'uppercase' }} />
                         </div>
 
-                        <button onClick={retry} disabled={!trimmedName} style={{ background: trimmedName ? '#000' : '#475569', color: '#fff', padding: '1.25rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: trimmedName ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                            <span>🔄</span> PLAY AGAIN
-                        </button>
-                        <p style={{ fontSize: '0.75rem', color: '#475569', margin: 0 }}>A name is required before saving or restarting.</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.75rem' }}>
+                            <button onClick={submit} disabled={!trimmedName} style={{ background: trimmedName ? '#e2e8f0' : '#cbd5e1', color: '#000', padding: '1.1rem 0.75rem', borderRadius: '12px', fontWeight: 900, fontSize: '0.95rem', border: 'none', cursor: trimmedName ? 'pointer' : 'not-allowed' }}>
+                                EXIT
+                            </button>
+                            <button onClick={retry} disabled={!trimmedName} style={{ background: trimmedName ? '#000' : '#475569', color: '#fff', padding: '1.1rem 0.75rem', borderRadius: '12px', fontWeight: 900, fontSize: '0.95rem', border: 'none', cursor: trimmedName ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                                <span>🔄</span> PLAY AGAIN
+                            </button>
+                        </div>
+                        <p style={{ fontSize: '0.75rem', color: trimmedName ? '#94a3b8' : '#fca5a5', margin: 0 }}>{trimmedName ? 'Both actions will save this score with the entered name.' : 'Enter a name to enable both EXIT and PLAY AGAIN.'}</p>
                     </div>
+                    </div>
+                )}
+                {playing && <div style={{ position: 'absolute', top: 16, right: 16, padding: '6px 10px', zIndex: 21 }} className="game-score-badge">{score}m</div>}
+            </div>
+
+            {playing && isTouch && (
+                <div className="game-mobile-controls">
+                    <button
+                        type="button"
+                        className="game-mobile-button game-mobile-button--wide"
+                        aria-label="Jump"
+                        onPointerDown={(e) => {
+                            e.preventDefault();
+                            handleJumpPress();
+                        }}
+                    >
+                        JUMP
+                    </button>
                 </div>
             )}
-            {playing && <div style={{ position: 'absolute', top: 16, right: 16, padding: '6px 10px' }} className="game-score-badge">{score}m</div>}
         </div>
     );
 }
