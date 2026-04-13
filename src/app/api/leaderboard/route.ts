@@ -164,3 +164,41 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ error: 'Failed to delete entry' }, { status: 500 });
     }
 }
+
+export async function PATCH(request: Request) {
+    try {
+        const body = await request.json();
+
+        if (!isAuthorized(request, body)) {
+            return NextResponse.json({ error: 'Unauthorized key' }, { status: 401 });
+        }
+
+        const nextName = typeof body.name === 'string' ? body.name.trim() : '';
+        if (!nextName) {
+            return NextResponse.json({ error: 'Missing updated name' }, { status: 400 });
+        }
+
+        const supabase = await getSupabase();
+        let query = supabase.from('leaderboard').update({ name: nextName });
+
+        if (body.id !== undefined && body.id !== null) {
+            query = query.eq('id', body.id);
+        } else if (typeof body.playerName === 'string' && body.playerName.trim()) {
+            query = query.eq('name', body.playerName.trim());
+        } else {
+            return NextResponse.json({ error: 'Missing leaderboard target' }, { status: 400 });
+        }
+
+        const { error } = await query;
+
+        if (error) {
+            console.error('Supabase PATCH Error:', error);
+            return NextResponse.json({ error: 'Database error' }, { status: 500 });
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Leaderboard PATCH Error:', error);
+        return NextResponse.json({ error: 'Failed to update leaderboard entry' }, { status: 500 });
+    }
+}
