@@ -1,12 +1,12 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import GravityJump from './games/GravityJump';
+import RocketGame from './games/RocketGame';
 import RunnerGame from './games/RunnerGame';
-import ShooterGame from './games/ShooterGame';
-import PatternGame from './games/PatternGame';
-import CyberCrawler from './games/CyberCrawler';
-import NeonBreakout from './games/NeonBreakout';
+import ReflexGame from './games/ReflexGame';
+import MemoryGame from './games/MemoryGame';
+import SnakeGame from './games/SnakeGame';
+import BreakoutGame from './games/BreakoutGame';
 import GamePreview from './GamePreview';
 
 type GameType = 'gravity' | 'runner' | 'shooter' | 'pattern' | 'crawler' | 'breakout' | null;
@@ -166,12 +166,12 @@ export default function GameHub() {
 
                         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 300px', gap: '2rem', alignItems: 'start' }} className="game-stage-container">
                             <div style={{ display: 'flex', justifyContent: 'center', width: '100%', overflow: 'hidden' }}>
-                                {selectedGame === 'gravity' && <GravityJump onFinished={handleGameFinished} />}
+                                {selectedGame === 'gravity' && <RocketGame onFinished={handleGameFinished} />}
                                 {selectedGame === 'runner' && <RunnerGame onFinished={handleGameFinished} />}
-                                {selectedGame === 'shooter' && <ShooterGame onFinished={handleGameFinished} />}
-                                {selectedGame === 'pattern' && <PatternGame onFinished={handleGameFinished} />}
-                                {selectedGame === 'crawler' && <CyberCrawler onFinished={handleGameFinished} />}
-                                {selectedGame === 'breakout' && <NeonBreakout onFinished={handleGameFinished} />}
+                                {selectedGame === 'shooter' && <ReflexGame onFinished={handleGameFinished} />}
+                                {selectedGame === 'pattern' && <MemoryGame onFinished={handleGameFinished} />}
+                                {selectedGame === 'crawler' && <SnakeGame onFinished={handleGameFinished} />}
+                                {selectedGame === 'breakout' && <BreakoutGame onFinished={handleGameFinished} />}
                             </div>
 
                             <div className="glass-card" style={{ padding: '2rem', height: '100%', minHeight: '500px' }}>

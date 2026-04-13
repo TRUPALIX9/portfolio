@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
 
-export default function ShooterGame({ onFinished }: { onFinished: () => void }) {
+export default function ReflexGame({ onFinished }: { onFinished: () => void }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [score, setScore] = useState(0);
@@ -98,6 +98,7 @@ export default function ShooterGame({ onFinished }: { onFinished: () => void }) 
 
         const click = (e: any) => {
             if (!playing) return;
+            if (e.cancelable && e.type === 'touchstart') e.preventDefault();
             const rect = canvas.getBoundingClientRect();
             const x = ((e.clientX || e.touches?.[0].clientX) - rect.left) * (canvas.width / rect.width);
             const y = ((e.clientY || e.touches?.[0].clientY) - rect.top) * (canvas.height / rect.height);

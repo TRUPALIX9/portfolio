@@ -11,7 +11,7 @@ export async function GET() {
             .from('leaderboard')
             .select('*')
             .order('score', { ascending: false })
-            .limit(20);
+            .limit(200);
 
         if (error) {
             console.error("Supabase GET Error:", error);
@@ -35,6 +35,7 @@ export async function POST(req: Request) {
         const entry = {
             name: body.name || 'Anonymous',
             score: Number(body.score) || 0,
+            game: body.game || 'unknown',
             date: new Date().toISOString()
         };
 
@@ -62,5 +63,34 @@ export async function POST(req: Request) {
     } catch (e: any) {
         console.error("Leaderboard POST Error:", e);
         return NextResponse.json({ error: 'Failed to update leaderboard' }, { status: 500 });
+    }
+}
+
+export async function DELETE(req: Request) {
+    try {
+        const body = await req.json();
+        const { id, key } = body;
+        
+        if (key !== process.env.KEY) {
+            return NextResponse.json({ error: 'Unauthorized Key' }, { status: 401 });
+        }
+
+        const cookieStore = await cookies();
+        const supabase = createClient(cookieStore);
+
+        const { error } = await supabase
+            .from('leaderboard')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error("Supabase DELETE Error:", error);
+            return NextResponse.json({ error: 'Database error' }, { status: 500 });
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (e: any) {
+        console.error("Leaderboard DELETE Error:", e);
+        return NextResponse.json({ error: 'Failed to delete entry' }, { status: 500 });
     }
 }

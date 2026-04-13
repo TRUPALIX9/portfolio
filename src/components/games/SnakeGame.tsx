@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
 
-export default function CyberCrawler({ onFinished }: { onFinished: () => void }) {
+export default function SnakeGame({ onFinished }: { onFinished: () => void }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [score, setScore] = useState(0);
@@ -96,8 +96,46 @@ export default function CyberCrawler({ onFinished }: { onFinished: () => void })
             if (e.key === 'ArrowLeft' && dir.x === 0) nextDir = { x: -1, y: 0 };
             if (e.key === 'ArrowRight' && dir.x === 0) nextDir = { x: 1, y: 0 };
         };
+
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        const handleTouchStart = (e: TouchEvent) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        };
+        
+        const handleTouchEnd = (e: TouchEvent) => {
+            if (!touchStartX || !touchStartY) return;
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (dx > 30 && dir.x === 0) nextDir = { x: 1, y: 0 };
+                else if (dx < -30 && dir.x === 0) nextDir = { x: -1, y: 0 };
+            } else {
+                if (dy > 30 && dir.y === 0) nextDir = { x: 0, y: 1 };
+                else if (dy < -30 && dir.y === 0) nextDir = { x: 0, y: -1 };
+            }
+            touchStartX = 0;
+            touchStartY = 0;
+        };
+
+        const preventScroll = (e: TouchEvent) => {
+            if (playing && e.cancelable) e.preventDefault();
+        };
+
         window.addEventListener('keydown', handleKeys);
-        return () => { window.removeEventListener('keydown', handleKeys); cancelAnimationFrame(animationId); };
+        canvas.addEventListener('touchstart', handleTouchStart as any, { passive: false });
+        canvas.addEventListener('touchend', handleTouchEnd as any, { passive: false });
+        canvas.addEventListener('touchmove', preventScroll as any, { passive: false });
+
+        return () => { 
+            window.removeEventListener('keydown', handleKeys); 
+            canvas.removeEventListener('touchstart', handleTouchStart as any);
+            canvas.removeEventListener('touchend', handleTouchEnd as any);
+            canvas.removeEventListener('touchmove', preventScroll as any);
+            cancelAnimationFrame(animationId); 
+        };
     };
 
     return (

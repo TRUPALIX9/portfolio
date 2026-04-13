@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
 
-export default function NeonBreakout({ onFinished }: { onFinished: () => void }) {
+export default function BreakoutGame({ onFinished }: { onFinished: () => void }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [score, setScore] = useState(0);
