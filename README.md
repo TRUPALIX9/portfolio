@@ -180,6 +180,7 @@ Verified in this workspace:
 
 - `npm run build` passes
 - `npm run test:e2e` passes with `9 passed, 3 skipped`
+- `node scripts/verify-supabase.mjs` passes against the live Supabase project, including insert/select verification on the `leaderboard` table with the `game` column present
 - Playwright needed to be rerun outside the sandbox so the local test server could bind to port `3000`
 
 One existing framework note remains:

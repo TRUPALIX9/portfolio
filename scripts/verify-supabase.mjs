@@ -23,6 +23,7 @@ async function testSupabase() {
   const testEntry = {
     name: 'E2E Test User',
     score: Math.floor(Math.random() * 1000),
+    game: 'verification',
     date: new Date().toISOString()
   };
 
@@ -33,7 +34,7 @@ async function testSupabase() {
 
   if (insertError) {
     console.error("Failed to insert into `leaderboard` table.");
-    console.error("Ensure the table exists in your Supabase dashboard with columns: id, name (text), score (integer), date (timestamp).");
+    console.error("Ensure the table exists in your Supabase dashboard with columns: id, name (text), score (integer), game (text), date (timestamp).");
     console.error("Error details:", insertError.message);
     process.exit(1);
   }
@@ -43,6 +44,7 @@ async function testSupabase() {
   const { data: selectData, error: selectError } = await supabase
     .from('leaderboard')
     .select('*')
+    .eq('game', 'verification')
     .order('score', { ascending: false })
     .limit(1);
 

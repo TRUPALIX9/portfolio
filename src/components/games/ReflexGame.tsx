@@ -1,35 +1,103 @@
 "use client";
+
 import { useEffect, useRef, useState } from 'react';
 import { getSavedArcadePlayerName, submitArcadeScore } from '@/utils/arcade-player';
 
-type Target = { x: number; y: number; r: number; life: number };
-type Effect =
-    | { type: 'text'; x: number; y: number; text: string; color: string; life: number; vy: number }
-    | { type: 'pop'; x: number; y: number; color: string; life: number; r: number };
+const PANEL_ROWS = [4, 3, 4] as const;
+const PANEL_SLOTS = PANEL_ROWS.reduce((total, count) => total + count, 0);
 
 export default function ReflexGame({ onFinished }: { onFinished: () => void }) {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const playingRef = useRef(false);
-    const cleanupRef = useRef<(() => void) | null>(null);
+    const timeoutRef = useRef<number | null>(null);
+    const roundRef = useRef(0);
 
     const [score, setScore] = useState(0);
     const [gameOver, setGameOver] = useState(false);
     const [playing, setPlaying] = useState(false);
     const [isTouch, setIsTouch] = useState(false);
-    const [name, setName] = useState("");
+    const [name, setName] = useState('');
+    const [activeButton, setActiveButton] = useState<number | null>(null);
+    const [pulse, setPulse] = useState(100);
+    const [statusText, setStatusText] = useState('READY');
+    const [lastAction, setLastAction] = useState<string | null>(null);
 
     useEffect(() => {
         setIsTouch(window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0);
+
         const savedName = getSavedArcadePlayerName();
         if (savedName) setName(savedName);
 
         return () => {
-            cleanupRef.current?.();
+            if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
         };
     }, []);
 
-    const updateName = (val: string) => {
-        setName(val);
+    useEffect(() => {
+        if (!playing) return;
+
+        const tick = window.setInterval(() => {
+            setPulse((current) => Math.max(0, current - 2));
+        }, 16);
+
+        return () => window.clearInterval(tick);
+    }, [playing, activeButton]);
+
+    const stopRound = () => {
+        if (timeoutRef.current) {
+            window.clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+        }
+    };
+
+    const finishGame = () => {
+        stopRound();
+        setPlaying(false);
+        setGameOver(true);
+        setActiveButton(null);
+        setStatusText('SYSTEM OVERFLOW');
+    };
+
+    const scheduleRound = (nextScore: number) => {
+        stopRound();
+        roundRef.current += 1;
+        const nextRound = roundRef.current;
+        const duration = Math.max(550, 1500 - Math.floor(nextScore / 20) * 60);
+        const nextButton = Math.floor(Math.random() * PANEL_SLOTS);
+
+        setActiveButton(nextButton);
+        setPulse(100);
+        setStatusText(duration <= 750 ? 'CRITICAL' : 'TRACK TARGET');
+        setLastAction(null);
+
+        timeoutRef.current = window.setTimeout(() => {
+            if (roundRef.current !== nextRound) return;
+            finishGame();
+        }, duration);
+    };
+
+    const startGame = () => {
+        stopRound();
+        roundRef.current = 0;
+        setScore(0);
+        setGameOver(false);
+        setPlaying(true);
+        setLastAction(null);
+        scheduleRound(0);
+    };
+
+    const handleButtonPress = (index: number) => {
+        if (!playing) return;
+
+        if (index === activeButton) {
+            const nextScore = score + 25;
+            setScore(nextScore);
+            setLastAction('+25 lock');
+            scheduleRound(nextScore);
+            return;
+        }
+
+        const nextScore = Math.max(0, score - 5);
+        setScore(nextScore);
+        setLastAction('-5 miss');
     };
 
     const submit = async () => {
@@ -41,160 +109,122 @@ export default function ReflexGame({ onFinished }: { onFinished: () => void }) {
 
     const retry = async () => {
         const trimmedName = name.trim();
-        if (!trimmedName) return;
-        await submitArcadeScore(trimmedName, score, 'shooter');
+        if (trimmedName) {
+            await submitArcadeScore(trimmedName, score, 'shooter');
+        }
         startGame();
     };
 
     const trimmedName = name.trim();
 
-    const startGame = () => {
-        cleanupRef.current?.();
-        playingRef.current = true;
-        setPlaying(true);
-        setGameOver(false);
-        setScore(0);
-
-        const canvas = canvasRef.current!;
-        const ctx = canvas.getContext('2d')!;
-        let targets: Target[] = [];
-        let effects: Effect[] = [];
-        let animationId = 0;
-        let curScore = 0;
-        let frames = 0;
-
-        const endGame = () => {
-            playingRef.current = false;
-            setGameOver(true);
-            setPlaying(false);
-            cancelAnimationFrame(animationId);
-        };
-
-        const loop = () => {
-            frames++;
-            const spawnRate = Math.max(15, 45 - Math.floor(curScore / 100));
-            if (frames % spawnRate === 0) {
-                const r = Math.max(15, 22 - (curScore / 500));
-                targets.push({
-                    x: 50 + Math.random() * (canvas.width - 100),
-                    y: 50 + Math.random() * (canvas.height - 100),
-                    r,
-                    life: Math.max(30, 65 - Math.min(40, curScore / 25)),
-                });
-            }
-
-            ctx.fillStyle = '#fcfaf8';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.strokeStyle = '#e2e8f0';
-            ctx.lineWidth = 1;
-            for (let i = 0; i <= canvas.width; i += 40) {
-                ctx.beginPath();
-                ctx.moveTo(i, 0);
-                ctx.lineTo(i + (Math.sin(i + frames * 0.01) * 2), canvas.height);
-                ctx.stroke();
-            }
-            for (let i = 0; i <= canvas.height; i += 40) {
-                ctx.beginPath();
-                ctx.moveTo(0, i);
-                ctx.lineTo(canvas.width, i + (Math.cos(i + frames * 0.01) * 2));
-                ctx.stroke();
-            }
-
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
-
-            for (const target of targets) {
-                target.life--;
-                if (target.life <= 0) {
-                    endGame();
-                    return;
-                }
-
-                ctx.beginPath();
-                ctx.arc(target.x, target.y, target.r, 0, Math.PI * 2);
-                ctx.strokeStyle = '#ef4444';
-                ctx.lineWidth = 3;
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.arc(target.x, target.y, target.r * (target.life / 60), 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(target.x, target.y, target.r * 0.4, 0, Math.PI * 2);
-                ctx.strokeStyle = '#ef4444';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-            }
-
-            for (const effect of effects) {
-                effect.life--;
-                if (effect.type === 'text') {
-                    effect.y += effect.vy;
-                    ctx.fillStyle = `${effect.color}${Math.floor((effect.life / 30) * 255).toString(16).padStart(2, '0')}`;
-                    ctx.font = 'bold 16px Inter';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(effect.text, effect.x, effect.y);
-                } else {
-                    effect.r += 3;
-                    ctx.strokeStyle = `${effect.color}${Math.floor((effect.life / 30) * 255).toString(16).padStart(2, '0')}`;
-                    ctx.beginPath();
-                    ctx.arc(effect.x, effect.y, effect.r, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-            }
-
-            effects = effects.filter((effect) => effect.life > 0);
-            targets = targets.filter((target) => target.life > 0);
-            animationId = requestAnimationFrame(loop);
-        };
-
-        const handleHit = (event: MouseEvent | TouchEvent) => {
-            if (!playingRef.current) return;
-            if (event.cancelable && event.type === 'touchstart') event.preventDefault();
-
-            const rect = canvas.getBoundingClientRect();
-            const point = 'touches' in event ? event.touches[0] ?? event.changedTouches[0] : event;
-            const x = (point.clientX - rect.left) * (canvas.width / rect.width);
-            const y = (point.clientY - rect.top) * (canvas.height / rect.height);
-
-            let hit = false;
-            targets.forEach((target) => {
-                if (Math.hypot(target.x - x, target.y - y) < target.r) {
-                    target.life = -1;
-                    curScore += 25;
-                    setScore(curScore);
-                    effects.push({ x: target.x, y: target.y, text: '+25', color: '#16a34a', type: 'text', life: 30, vy: -1.5 });
-                    effects.push({ x: target.x, y: target.y, color: '#ef4444', type: 'pop', life: 30, r: 10 });
-                    hit = true;
-                }
-            });
-
-            if (!hit) {
-                curScore = Math.max(0, curScore - 5);
-                setScore(curScore);
-                effects.push({ x, y, text: '-5', color: '#dc2626', type: 'text', life: 30, vy: -1.5 });
-            }
-        };
-
-        canvas.addEventListener('mousedown', handleHit as EventListener);
-        canvas.addEventListener('touchstart', handleHit as EventListener, { passive: false });
-        loop();
-
-        cleanupRef.current = () => {
-            playingRef.current = false;
-            cancelAnimationFrame(animationId);
-            canvas.removeEventListener('mousedown', handleHit as EventListener);
-            canvas.removeEventListener('touchstart', handleHit as EventListener);
-        };
-    };
-
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }} className="game-console game-console--portrait">
-            <canvas ref={canvasRef} width={400} height={500} className="game-canvas game-canvas-portrait" />
+        <div
+            className="game-console game-console--portrait"
+            style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}
+        >
+            <div
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '18px',
+                    padding: '1rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: '1rem',
+                    background:
+                        'radial-gradient(circle at top, rgba(239, 68, 68, 0.18), transparent 35%), linear-gradient(180deg, #020617 0%, #111827 100%)',
+                }}
+            >
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', alignItems: 'center' }}>
+                    <div className="game-score-badge" style={{ padding: '0.5rem 0.75rem' }}>
+                        SCORE {score}
+                    </div>
+                    <div
+                        style={{
+                            minWidth: '110px',
+                            padding: '0.5rem 0.75rem',
+                            borderRadius: '999px',
+                            border: '1px solid rgba(248, 250, 252, 0.18)',
+                            background: 'rgba(15, 23, 42, 0.8)',
+                            color: pulse < 35 ? '#f87171' : '#f8fafc',
+                            fontWeight: 800,
+                            textAlign: 'center',
+                            fontSize: '0.8rem',
+                            letterSpacing: '0.08em',
+                        }}
+                    >
+                        {statusText}
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%', flex: 1, minHeight: 0, justifyContent: 'center' }}>
+                    {(() => {
+                        let buttonIndex = 0;
+
+                        return PANEL_ROWS.map((count, rowIndex) => (
+                            <div
+                                key={rowIndex}
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))`,
+                                    gap: '0.75rem',
+                                    width: rowIndex === 1 ? '76%' : '100%',
+                                    alignSelf: 'center',
+                                }}
+                            >
+                                {Array.from({ length: count }).map((_, columnIndex) => {
+                                    const currentIndex = buttonIndex++;
+                                    const active = playing && activeButton === currentIndex;
+
+                                    return (
+                                        <button
+                                            key={`${rowIndex}-${columnIndex}`}
+                                            type="button"
+                                            onClick={() => handleButtonPress(currentIndex)}
+                                            disabled={!playing}
+                                            aria-label={`Reflex button ${currentIndex + 1}`}
+                                            style={{
+                                                minHeight: 0,
+                                                aspectRatio: '1 / 1',
+                                                borderRadius: '18px',
+                                                border: active ? '2px solid #f8fafc' : '1px solid rgba(148, 163, 184, 0.28)',
+                                                background: active
+                                                    ? `radial-gradient(circle, rgba(248, 113, 113, ${0.25 + (pulse / 100) * 0.45}) 0%, rgba(127, 29, 29, 0.98) 72%)`
+                                                    : 'linear-gradient(180deg, rgba(15, 23, 42, 0.82), rgba(30, 41, 59, 0.95))',
+                                                boxShadow: active
+                                                    ? '0 0 0 1px rgba(248, 250, 252, 0.1), 0 0 32px rgba(248, 113, 113, 0.5)'
+                                                    : 'inset 0 1px 0 rgba(255, 255, 255, 0.03)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                color: '#f8fafc',
+                                                fontWeight: 900,
+                                                fontSize: active ? '1rem' : '0.7rem',
+                                                letterSpacing: '0.08em',
+                                                transition: 'transform 120ms ease, box-shadow 120ms ease, background 120ms ease',
+                                                transform: active ? 'scale(1.03)' : 'scale(1)',
+                                            }}
+                                        >
+                                            {active ? 'HIT' : 'BTN'}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        ));
+                    })()}
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', minHeight: '2rem' }}>
+                    <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.8rem', fontWeight: 700 }}>
+                        {isTouch ? 'Tap the red blinking button before it times out.' : 'Click the red blinking button before it times out.'}
+                    </p>
+                    <p style={{ margin: 0, color: lastAction?.startsWith('+') ? '#4ade80' : '#fca5a5', fontSize: '0.8rem', fontWeight: 900, minWidth: '64px', textAlign: 'right' }}>
+                        {lastAction ?? ''}
+                    </p>
+                </div>
+            </div>
+
             {!playing && !gameOver && (
                 <div className="game-overlay">
                     <div style={{ background: '#000', color: '#fff', padding: '0.75rem 2rem', borderRadius: '12px', transform: 'skewX(-15deg)', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)' }}>
@@ -202,14 +232,47 @@ export default function ReflexGame({ onFinished }: { onFinished: () => void }) {
                     </div>
 
                     <div className="game-panel">
-                        <p style={{ fontWeight: 800, fontSize: '1.2rem', color: '#f8fafc', margin: 0 }}>MISSION: NEUTRALIZE</p>
-                        <p style={{ fontSize: '0.9rem', color: '#cbd5e1', margin: '0.5rem 0 1.5rem 0' }}>Eliminate nodes before they overcharge.</p>
+                        <p style={{ fontWeight: 800, fontSize: '1.2rem', color: '#f8fafc', margin: 0 }}>MISSION: HIT THE RED BUTTON</p>
+                        <p style={{ fontSize: '0.9rem', color: '#cbd5e1', margin: '0.5rem 0 1.5rem 0' }}>
+                            The panel blinks one live button at a time in a 4 / 3 / 4 layout. Hit it fast for +25. Wrong taps cost -5.
+                        </p>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '1.5rem', background: 'rgba(15, 23, 42, 0.88)', borderRadius: '20px', border: '1px solid rgba(148, 163, 184, 0.35)' }}>
-                            <div style={{ width: '40px', height: '40px', border: '2px solid #ef4444', borderRadius: '50%', position: 'relative' }}>
-                                <div style={{ width: '100%', height: '100%', border: '1px solid #ef4444', borderRadius: '50%' }} className="animate-ping" />
-                            </div>
-                            <span style={{ fontSize: '1rem', fontWeight: 900, color: '#f8fafc', letterSpacing: '1px' }}>{!isTouch ? 'CLICK ACTIVE NODES' : 'TAP ACTIVE NODES'}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                            {(() => {
+                                let previewIndex = 0;
+
+                                return PANEL_ROWS.map((count, rowIndex) => (
+                                    <div
+                                        key={rowIndex}
+                                        style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))`,
+                                            gap: '0.65rem',
+                                            width: rowIndex === 1 ? '76%' : '100%',
+                                            alignSelf: 'center',
+                                        }}
+                                    >
+                                        {Array.from({ length: count }).map((_, columnIndex) => {
+                                            const isLive = previewIndex === 5;
+                                            previewIndex += 1;
+
+                                            return (
+                                                <div
+                                                    key={`${rowIndex}-${columnIndex}`}
+                                                    style={{
+                                                        aspectRatio: '1 / 1',
+                                                        borderRadius: '14px',
+                                                        border: isLive ? '2px solid #f8fafc' : '1px solid rgba(148, 163, 184, 0.28)',
+                                                        background: isLive
+                                                            ? 'radial-gradient(circle, rgba(248, 113, 113, 0.7) 0%, rgba(127, 29, 29, 0.95) 75%)'
+                                                            : 'linear-gradient(180deg, rgba(15, 23, 42, 0.82), rgba(30, 41, 59, 0.95))',
+                                                    }}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                ));
+                            })()}
                         </div>
                     </div>
 
@@ -228,9 +291,10 @@ export default function ReflexGame({ onFinished }: { onFinished: () => void }) {
                     >
                         INITIALIZE
                     </button>
-                    <p style={{ fontSize: '0.7rem', opacity: 0.8, color: '#cbd5e1' }}>Penalty for miscalculation (-5 pts)</p>
+                    <p style={{ fontSize: '0.7rem', opacity: 0.8, color: '#cbd5e1' }}>Designed for reliable mobile and desktop play.</p>
                 </div>
             )}
+
             {gameOver && (
                 <div className="game-overlay">
                     <h2 style={{ color: '#ef4444', fontSize: '2.5rem', fontWeight: 900 }}>SYSTEM OVERFLOW</h2>
@@ -238,20 +302,33 @@ export default function ReflexGame({ onFinished }: { onFinished: () => void }) {
 
                     <div style={{ width: '100%', maxWidth: '320px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '0.75rem', alignItems: 'stretch' }}>
-                            <input value={name} onChange={(e) => updateName(e.target.value)} placeholder="ENTER NAME" style={{ padding: '1rem', borderRadius: '12px', background: '#f8fafc', color: '#000', border: '3px solid #000', textAlign: 'center', fontSize: '1rem', fontWeight: 900, minWidth: 0 }} />
-                            <button onClick={submit} disabled={!trimmedName} style={{ background: trimmedName ? '#e2e8f0' : '#cbd5e1', color: '#000', padding: '0 1rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.9rem', border: 'none', cursor: trimmedName ? 'pointer' : 'not-allowed' }}>
+                            <input
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="ENTER NAME"
+                                style={{ padding: '1rem', borderRadius: '12px', background: '#f8fafc', color: '#000', border: '3px solid #000', textAlign: 'center', fontSize: '1rem', fontWeight: 900, minWidth: 0 }}
+                            />
+                            <button
+                                onClick={submit}
+                                disabled={!trimmedName}
+                                style={{ background: trimmedName ? '#e2e8f0' : '#cbd5e1', color: '#000', padding: '0 1rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.9rem', border: 'none', cursor: trimmedName ? 'pointer' : 'not-allowed' }}
+                            >
                                 SAVE
                             </button>
                         </div>
 
-                        <button onClick={retry} disabled={!trimmedName} style={{ background: trimmedName ? '#000' : '#475569', color: '#fff', padding: '1.25rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: trimmedName ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                        <button
+                            onClick={retry}
+                            style={{ background: '#000', color: '#fff', padding: '1.25rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                        >
                             <span>🔄</span> PLAY AGAIN
                         </button>
-                        <p style={{ fontSize: '0.75rem', color: '#475569', margin: 0 }}>A name is required before saving or restarting.</p>
+                        <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: 0 }}>
+                            Add a name to save this score, or play again instantly.
+                        </p>
                     </div>
                 </div>
             )}
-            {playing && <div style={{ position: 'absolute', top: 16, right: 16, padding: '6px 10px' }} className="game-score-badge">{score}</div>}
         </div>
     );
 }
