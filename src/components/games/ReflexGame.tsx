@@ -8,6 +8,7 @@ const PANEL_SLOTS = PANEL_ROWS.reduce((total, count) => total + count, 0);
 
 export default function ReflexGame({ onFinished }: { onFinished: () => void }) {
     const timeoutRef = useRef<number | null>(null);
+    const timerFrameRef = useRef<number | null>(null);
     const roundRef = useRef(0);
 
     const [score, setScore] = useState(0);
@@ -17,6 +18,8 @@ export default function ReflexGame({ onFinished }: { onFinished: () => void }) {
     const [name, setName] = useState('');
     const [activeButton, setActiveButton] = useState<number | null>(null);
     const [pulse, setPulse] = useState(100);
+    const [timerProgress, setTimerProgress] = useState(0);
+    const [remainingMs, setRemainingMs] = useState(0);
     const [statusText, setStatusText] = useState('READY');
     const [lastAction, setLastAction] = useState<string | null>(null);
 
@@ -28,6 +31,7 @@ export default function ReflexGame({ onFinished }: { onFinished: () => void }) {
 
         return () => {
             if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+            if (timerFrameRef.current) window.cancelAnimationFrame(timerFrameRef.current);
         };
     }, []);
 
@@ -46,6 +50,10 @@ export default function ReflexGame({ onFinished }: { onFinished: () => void }) {
             window.clearTimeout(timeoutRef.current);
             timeoutRef.current = null;
         }
+        if (timerFrameRef.current) {
+            window.cancelAnimationFrame(timerFrameRef.current);
+            timerFrameRef.current = null;
+        }
     };
 
     const finishGame = () => {
@@ -53,6 +61,8 @@ export default function ReflexGame({ onFinished }: { onFinished: () => void }) {
         setPlaying(false);
         setGameOver(true);
         setActiveButton(null);
+        setTimerProgress(100);
+        setRemainingMs(0);
         setStatusText('SYSTEM OVERFLOW');
     };
 
@@ -60,13 +70,30 @@ export default function ReflexGame({ onFinished }: { onFinished: () => void }) {
         stopRound();
         roundRef.current += 1;
         const nextRound = roundRef.current;
-        const duration = Math.max(550, 1500 - Math.floor(nextScore / 20) * 60);
+        const duration = Math.max(220, 900 - Math.floor(nextScore / 25) * 35);
         const nextButton = Math.floor(Math.random() * PANEL_SLOTS);
+        const startedAt = performance.now();
 
         setActiveButton(nextButton);
         setPulse(100);
-        setStatusText(duration <= 750 ? 'CRITICAL' : 'TRACK TARGET');
+        setTimerProgress(0);
+        setRemainingMs(duration);
+        setStatusText(duration <= 260 ? 'HUMAN LIMIT' : duration <= 420 ? 'ELITE REACT' : 'LOCK TARGET');
         setLastAction(null);
+
+        const tickTimer = (now: number) => {
+            const elapsed = now - startedAt;
+            const progress = Math.min(100, (elapsed / duration) * 100);
+            const nextRemaining = Math.max(0, Math.ceil(duration - elapsed));
+            setTimerProgress(progress);
+            setRemainingMs(nextRemaining);
+
+            if (progress < 100 && roundRef.current === nextRound) {
+                timerFrameRef.current = window.requestAnimationFrame(tickTimer);
+            }
+        };
+
+        timerFrameRef.current = window.requestAnimationFrame(tickTimer);
 
         timeoutRef.current = window.setTimeout(() => {
             if (roundRef.current !== nextRound) return;
@@ -81,6 +108,8 @@ export default function ReflexGame({ onFinished }: { onFinished: () => void }) {
         setGameOver(false);
         setPlaying(true);
         setLastAction(null);
+        setTimerProgress(0);
+        setRemainingMs(0);
         scheduleRound(0);
     };
 
@@ -143,18 +172,36 @@ export default function ReflexGame({ onFinished }: { onFinished: () => void }) {
                     <div
                         style={{
                             minWidth: '110px',
-                            padding: '0.5rem 0.75rem',
-                            borderRadius: '999px',
+                            padding: '0.45rem 0.55rem',
+                            borderRadius: '16px',
                             border: '1px solid rgba(248, 250, 252, 0.18)',
                             background: 'rgba(15, 23, 42, 0.8)',
-                            color: pulse < 35 ? '#f87171' : '#f8fafc',
-                            fontWeight: 800,
-                            textAlign: 'center',
-                            fontSize: '0.8rem',
-                            letterSpacing: '0.08em',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.35rem',
                         }}
                     >
-                        {statusText}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{ color: pulse < 35 ? '#f87171' : '#f8fafc', fontWeight: 800, fontSize: '0.72rem', letterSpacing: '0.08em' }}>
+                                {statusText}
+                            </span>
+                            <span style={{ color: '#94a3b8', fontWeight: 800, fontSize: '0.65rem' }}>
+                                {playing ? `${remainingMs}ms` : '0ms'}
+                            </span>
+                        </div>
+                        <div style={{ width: '100%', height: '6px', borderRadius: '999px', background: 'rgba(148, 163, 184, 0.2)', overflow: 'hidden' }}>
+                            <div
+                                style={{
+                                    width: `${timerProgress}%`,
+                                    height: '100%',
+                                    borderRadius: '999px',
+                                    background: timerProgress > 78
+                                        ? 'linear-gradient(90deg, #fb7185 0%, #ef4444 100%)'
+                                        : 'linear-gradient(90deg, #22c55e 0%, #f59e0b 55%, #f87171 100%)',
+                                    transition: 'width 80ms linear',
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
 
