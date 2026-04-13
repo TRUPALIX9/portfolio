@@ -1,18 +1,27 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-
-const filePath = path.join(process.cwd(), 'src', 'data', 'leaderboard.json');
+import { createClient } from '@/utils/supabase/server';
+import { cookies } from 'next/headers';
 
 export async function GET() {
     try {
-        if (!fs.existsSync(filePath)) {
+        const cookieStore = await cookies();
+        const supabase = createClient(cookieStore);
+
+        const { data: leaderboard, error } = await supabase
+            .from('leaderboard')
+            .select('*')
+            .order('score', { ascending: false })
+            .limit(20);
+
+        if (error) {
+            console.error("Supabase GET Error:", error);
+            // Fallback for missing table during deployment/testing if needed
             return NextResponse.json([]);
         }
-        const data = fs.readFileSync(filePath, 'utf8');
-        const leaderboard = JSON.parse(data);
-        return NextResponse.json(leaderboard);
+
+        return NextResponse.json(leaderboard || []);
     } catch (e: any) {
+        console.error("Leaderboard GET Error:", e);
         return NextResponse.json({ error: 'Failed to read leaderboard' }, { status: 500 });
     }
 }
@@ -20,34 +29,38 @@ export async function GET() {
 export async function POST(req: Request) {
     try {
         const body = await req.json();
+        const cookieStore = await cookies();
+        const supabase = createClient(cookieStore);
 
-        let leaderboard = [];
-        if (fs.existsSync(filePath)) {
-            const data = fs.readFileSync(filePath, 'utf8');
-            leaderboard = JSON.parse(data);
-        }
-
-        leaderboard.push({
+        const entry = {
             name: body.name || 'Anonymous',
             score: Number(body.score) || 0,
             date: new Date().toISOString()
-        });
+        };
 
-        // Sort descending
-        leaderboard.sort((a: any, b: any) => b.score - a.score);
+        const { error: insertError } = await supabase
+            .from('leaderboard')
+            .insert([entry]);
 
-        // Retain Top 20
-        const top20 = leaderboard.slice(0, 20);
-
-        try {
-            fs.writeFileSync(filePath, JSON.stringify(top20, null, 2));
-        } catch (e) {
-            console.error("Vercel FS Bypass: ", e);
-            // In serverless, we return the sorted list but can't save to JSON.
-            // The frontend fallback handles persistence.
+        if (insertError) {
+            console.error("Supabase POST Error:", insertError);
+            return NextResponse.json({ error: 'Database error' }, { status: 500 });
         }
-        return NextResponse.json(top20);
+
+        // Fetch top 20 to return
+        const { data: leaderboard, error: selectError } = await supabase
+            .from('leaderboard')
+            .select('*')
+            .order('score', { ascending: false })
+            .limit(20);
+            
+        if (selectError) {
+            console.error("Supabase POST Select Error:", selectError);
+        }
+
+        return NextResponse.json(leaderboard || []);
     } catch (e: any) {
+        console.error("Leaderboard POST Error:", e);
         return NextResponse.json({ error: 'Failed to update leaderboard' }, { status: 500 });
     }
 }
