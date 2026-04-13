@@ -7,10 +7,18 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+
+# Local env files
+*.local
+
+# Build outputs
+.next
 dist
 dist-ssr
-*.local
+playwright-report/
+test-results/
 
 # Editor directories and files
 .vscode/*
@@ -22,8 +30,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-.next
-
-# Local Execution Scripts and Agent Instructions
-scripts/
-.agents/

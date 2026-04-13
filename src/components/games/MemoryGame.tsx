@@ -116,8 +116,12 @@ export default function MemoryGame({ onFinished }: { onFinished: () => void }) {
         };
 
         canvas.addEventListener('mousedown', click);
+        canvas.addEventListener('touchstart', click as any, { passive: false });
         nextLevel(); loop();
-        return () => canvas.removeEventListener('mousedown', click);
+        return () => {
+            canvas.removeEventListener('mousedown', click);
+            canvas.removeEventListener('touchstart', click as any);
+        };
     };
 
 

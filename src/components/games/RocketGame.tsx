@@ -159,10 +159,10 @@ export default function RocketGame({ onFinished }: { onFinished: () => void }) {
                                 <div style={{ display: 'flex', justifyContent: 'center', gap: '2.5rem', alignItems: 'center' }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
                                         <div style={{ display: 'flex', gap: '8px' }}>
-                                            <div style={{ width: '44px', height: '44px', border: '3px solid #000', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 900, background: '#fff', color: '#000' }}>A</div>
-                                            <div style={{ width: '44px', height: '44px', border: '3px solid #000', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 900, background: '#fff', color: '#000' }}>D</div>
+                                            <div style={{ width: '44px', height: '44px', border: '3px solid #000', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 900, background: '#fff', color: '#000' }}>M</div>
+                                            <div style={{ width: '44px', height: '44px', border: '3px solid #000', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 900, background: '#fff', color: '#000' }}>↔</div>
                                         </div>
-                                        <span style={{ fontSize: '10px', color: '#000', fontWeight: 800 }}>STEER</span>
+                                        <span style={{ fontSize: '10px', color: '#000', fontWeight: 800 }}>MOUSE MOVE</span>
                                     </div>
                                 </div>
                             ) : (

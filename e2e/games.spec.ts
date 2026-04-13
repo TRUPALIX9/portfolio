@@ -1,88 +1,215 @@
-import { test, expect } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
-test.describe('Arcade Games E2E Verification', () => {
+const mockedLeaderboard = [
+  { id: 1, name: 'Nova', score: 94, game: 'rocket', date: '2026-04-11T18:15:00.000Z' },
+  { id: 2, name: 'Dash', score: 71, game: 'runner', date: '2026-04-11T19:00:00.000Z' },
+  { id: 3, name: 'Blink', score: 52, game: 'shooter', date: '2026-04-12T02:05:00.000Z' },
+  { id: 4, name: 'Recall', score: 33, game: 'pattern', date: '2026-04-12T02:15:00.000Z' },
+  { id: 5, name: 'Coil', score: 44, game: 'snake', date: '2026-04-12T03:20:00.000Z' },
+  { id: 6, name: 'Brick', score: 61, game: 'breakout', date: '2026-04-12T04:45:00.000Z' },
+];
 
-  test('GameHub renders correctly and games can be selected', async ({ page }) => {
-    await page.goto('/game');
-
-    // Title Verification
-    await expect(page.locator('h1')).toContainText('Arcade');
-    
-    // Check elements map correctly
-    const gameCards = page.locator('.glass-card');
-    await expect(gameCards).toHaveCount(11); // 6 game cards + 2 top info cards + 3 leaderboard blocks (roughly)
-
-    // Select the Reflex Game
-    await page.getByText(/Reflex/i).first().click();
-    
-    // Ensure the terminal transitions to Game Stage
-    await expect(page.getByText('MISSION: NEUTRALIZE')).toBeVisible();
-    await expect(page.getByText('INITIALIZE')).toBeVisible();
+async function disableFullscreen(page: Page) {
+  await page.addInitScript(() => {
+    Object.defineProperty(HTMLElement.prototype, 'requestFullscreen', {
+      configurable: true,
+      value: async () => undefined,
+    });
+    Object.defineProperty(document, 'exitFullscreen', {
+      configurable: true,
+      value: async () => undefined,
+    });
   });
+}
 
-  test('Reflex Game Desktop Event Dispatches (Canvas Click)', async ({ page }) => {
-    await page.goto('/game');
-    await page.getByText(/Reflex/i).first().click();
-
-    // Start Game
-    await page.getByText('INITIALIZE').click();
-
-    const canvas = page.locator('canvas');
-    await expect(canvas).toBeVisible();
-
-    // Fire deterministic keyboard/mouse layouts to verify logic frame doesn't crash
-    await canvas.click({ position: { x: 50, y: 50 } });
-    await canvas.click({ position: { x: 100, y: 150 } });
-
-    // Expect score overlay to spawn
-    const canvasParent = canvas.locator('..');
-    await expect(canvasParent).toBeVisible();
-  });
-
-  test('Snake Game Mobile Swipe Emulation', async ({ page, isMobile }) => {
-    await page.goto('/game');
-    await page.getByText(/Snake/i).first().click();
-
-    // Initialization overlay check depending on device
-    if (isMobile) {
-      await expect(page.getByText('SWIPE TO MOVE')).toBeVisible();
-    } else {
-      await expect(page.locator('text=W')).toBeVisible();
-      await expect(page.locator('text=A')).toBeVisible();
-      await expect(page.locator('text=S')).toBeVisible();
-      await expect(page.locator('text=D')).toBeVisible();
+async function mockPublicLeaderboard(page: Page) {
+  await page.route('**/api/leaderboard', async (route) => {
+    const request = route.request();
+    if (request.method() === 'GET') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(mockedLeaderboard),
+      });
+      return;
     }
 
-    await page.getByText('INITIALIZE').click();
-    const canvas = page.locator('canvas');
-    await expect(canvas).toBeVisible();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([]),
+    });
+  });
+}
 
-    // Test Swipe mechanic mapping securely
-    const boundingBox = await canvas.boundingBox();
-    if (boundingBox && isMobile) {
-        await page.mouse.move(boundingBox.x + boundingBox.width / 2, boundingBox.y + boundingBox.height / 2);
-        await page.mouse.down();
-        // Emulate a swift vertical drag representing touchstart & touchend
-        await page.mouse.move(boundingBox.x + boundingBox.width / 2, boundingBox.y + boundingBox.height / 2 + 100, { steps: 5 });
-        await page.mouse.up();
+async function mockAdminApi(page: Page) {
+  await page.route('**/api/leaderboard?admin=1', async (route) => {
+    const key = route.request().headers()['x-admin-key'];
+
+    if (key !== 'VALID_KEY') {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'Unauthorized key' }),
+      });
+      return;
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        scores: mockedLeaderboard,
+        insights: {
+          totalScores: mockedLeaderboard.length,
+          gamesTracked: 6,
+          topGames: [
+            { game: 'rocket', submissions: 1, highestScore: 94, totalScore: 94 },
+            { game: 'runner', submissions: 1, highestScore: 71, totalScore: 71 },
+            { game: 'breakout', submissions: 1, highestScore: 61, totalScore: 61 },
+          ],
+          topDates: [
+            { date: '2026-04-12', totalScore: 190 },
+            { date: '2026-04-11', totalScore: 165 },
+          ],
+        },
+      }),
+    });
+  });
+
+  await page.route('**/api/leaderboard', async (route) => {
+    const request = route.request();
+
+    if (request.method() === 'DELETE') {
+      const key = request.headers()['x-admin-key'];
+      await route.fulfill({
+        status: key === 'VALID_KEY' ? 200 : 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: key === 'VALID_KEY' }),
+      });
+      return;
+    }
+
+    await route.continue();
+  });
+}
+
+async function dispatchSwipe(locator: Locator, direction: 'up' | 'right') {
+  await locator.evaluate((canvas, swipeDirection) => {
+    const rect = canvas.getBoundingClientRect();
+    const startX = rect.left + rect.width / 2;
+    const startY = rect.top + rect.height / 2;
+    const endX = swipeDirection === 'right' ? startX + 80 : startX;
+    const endY = swipeDirection === 'up' ? startY - 80 : startY;
+
+    const createTouchLikeEvent = (type: string, x: number, y: number) => {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      const touchLike = { clientX: x, clientY: y };
+      Object.defineProperty(event, 'touches', { value: type === 'touchend' ? [] : [touchLike] });
+      Object.defineProperty(event, 'changedTouches', { value: [touchLike] });
+      return event;
+    };
+
+    canvas.dispatchEvent(createTouchLikeEvent('touchstart', startX, startY));
+    canvas.dispatchEvent(createTouchLikeEvent('touchend', endX, endY));
+  }, direction);
+}
+
+test.describe('Arcade games', () => {
+  test.beforeEach(async ({ page }) => {
+    await disableFullscreen(page);
+    await mockPublicLeaderboard(page);
+  });
+
+  test('hub renders all game cards and opens each cabinet', async ({ page }) => {
+    await page.goto('/game');
+
+    await expect(page.getByRole('heading', { name: /arcade/i })).toBeVisible();
+    await expect(page.locator('[data-testid^="game-card-"]')).toHaveCount(6);
+
+    const games = [
+      { id: 'rocket', title: 'Rocket', startLabel: /launch mission/i },
+      { id: 'runner', title: 'Runner', startLabel: /initialize/i },
+      { id: 'shooter', title: 'Reflex', startLabel: /initialize/i },
+      { id: 'pattern', title: 'Memory', startLabel: /sync neurons/i },
+      { id: 'snake', title: 'Snake', startLabel: /initialize/i },
+      { id: 'breakout', title: 'Breakout', startLabel: /initialize brain/i },
+    ];
+
+    for (const game of games) {
+      await page.getByTestId(`game-card-${game.id}`).click();
+      await expect(page.getByRole('heading', { name: game.title, exact: true })).toBeVisible();
+      await expect(page.getByRole('button', { name: game.startLabel })).toBeVisible();
+      await page.getByRole('button', { name: /terminate session/i }).click();
+      await expect(page.getByTestId(`game-card-${game.id}`)).toBeVisible();
     }
   });
 
-  test('Admin Playground Auth & Rendering', async ({ page }) => {
+  test('desktop smoke interactions work for keyboard and click-driven games', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Desktop keyboard smoke test only runs on desktop projects.');
+
+    await page.goto('/game');
+
+    await page.getByTestId('game-card-shooter').click();
+    await page.getByRole('button', { name: 'INITIALIZE' }).click();
+    const reflexCanvas = page.locator('canvas');
+    await expect(reflexCanvas).toBeVisible();
+    await reflexCanvas.click({ position: { x: 120, y: 160 } });
+    await expect(reflexCanvas).toBeVisible();
+
+    await page.getByRole('button', { name: /terminate session/i }).click();
+    await page.getByTestId('game-card-runner').click();
+    await page.getByRole('button', { name: 'INITIALIZE' }).click();
+    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('Space');
+    await expect(page.locator('canvas')).toBeVisible();
+  });
+
+  test('mobile smoke interactions dispatch touch gestures for touch-first games', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'Touch gesture smoke test is only meaningful on mobile projects.');
+
+    await page.goto('/game');
+
+    await page.getByTestId('game-card-snake').click();
+    await page.getByRole('button', { name: 'INITIALIZE' }).click({ force: true });
+    const snakeCanvas = page.locator('canvas');
+    await expect(snakeCanvas).toBeVisible();
+    await dispatchSwipe(snakeCanvas, 'up');
+    await expect(snakeCanvas).toBeVisible();
+
+    await page.getByRole('button', { name: /terminate session/i }).click();
+    await page.getByTestId('game-card-pattern').click();
+    await page.getByRole('button', { name: /sync neurons/i }).click({ force: true });
+    const memoryCanvas = page.locator('canvas');
+    await expect(memoryCanvas).toBeVisible();
+    await memoryCanvas.evaluate((canvas) => {
+      const event = new Event('touchstart', { bubbles: true, cancelable: true });
+      const touchLike = { clientX: 120, clientY: 120 };
+      Object.defineProperty(event, 'touches', { value: [touchLike] });
+      Object.defineProperty(event, 'changedTouches', { value: [touchLike] });
+      canvas.dispatchEvent(event);
+    });
+    await expect(memoryCanvas).toBeVisible();
+  });
+});
+
+test.describe('Playground admin', () => {
+  test.beforeEach(async ({ page }) => {
+    await mockAdminApi(page);
+  });
+
+  test('rejects invalid keys and unlocks with a validated key', async ({ page }) => {
     await page.goto('/playground');
 
-    // Make sure Authentication Gate blocks rendering of data
-    await expect(page.getByText('Playground Admin Block')).toBeVisible();
-    await expect(page.locator('input[type="password"]')).toBeVisible();
+    await page.getByTestId('playground-key-input').fill('WRONG_KEY');
+    await page.getByRole('button', { name: /access playground/i }).click();
+    await expect(page.getByTestId('playground-auth-error')).toContainText('Invalid KEY');
 
-    // Input the wrong key
-    await page.locator('input[type="password"]').fill('INCORRECT_KEY');
-    await page.getByText('ACCESS ARCHIVES').click();
+    await page.getByTestId('playground-key-input').fill('VALID_KEY');
+    await page.getByRole('button', { name: /access playground/i }).click();
 
-    // Given the logic, the frontend passes, but attempts to delete data will throw if we do real CRUD.
-    // Ensure dashboard renders insights successfully.
-    await expect(page.getByText('Arcade Insights')).toBeVisible();
-    await expect(page.getByText('Total Packets')).toBeVisible();
-    await expect(page.getByText('Raw Data Matrix')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /arcade insights/i })).toBeVisible();
+    await expect(page.getByTestId('playground-score-table')).toBeVisible();
+    await expect(page.getByTestId('playground-game-1')).toHaveText('rocket');
   });
 });

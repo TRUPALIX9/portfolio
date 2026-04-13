@@ -22,9 +22,10 @@ function NavbarContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const isStrict = searchParams.get('strict') === 'true';
+  const isArcadeOnly = pathname.startsWith('/arcade/');
   const [isOpen, setIsOpen] = useState(false);
 
-  if (isStrict) return null;
+  if (isStrict || isArcadeOnly) return null;
 
   const links = [
     { href: "/about", label: "About" },

@@ -188,10 +188,10 @@ export default function BreakoutGame({ onFinished }: { onFinished: () => void })
                             {!isTouch ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', alignItems: 'center' }}>
                                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                        <div style={{ width: '44px', height: '44px', border: '2px solid #000', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 900 }}>←</div>
-                                        <div style={{ width: '44px', height: '44px', border: '2px solid #000', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 900 }}>→</div>
+                                        <div style={{ width: '44px', height: '44px', border: '2px solid #000', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 900 }}>M</div>
+                                        <div style={{ width: '44px', height: '44px', border: '2px solid #000', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', fontWeight: 900 }}>↔</div>
                                     </div>
-                                    <p style={{ fontSize: '0.8rem', fontWeight: 800, color: '#000' }}>OR MOUSE MOVE</p>
+                                    <p style={{ fontSize: '0.8rem', fontWeight: 800, color: '#000' }}>MOUSE MOVE</p>
                                 </div>
                             ) : (
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', padding: '2rem', background: '#f8fafc', borderRadius: '24px', border: '2px solid #000' }}>

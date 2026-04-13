@@ -95,6 +95,10 @@ export default function SnakeGame({ onFinished }: { onFinished: () => void }) {
             if (e.key === 'ArrowDown' && dir.y === 0) nextDir = { x: 0, y: 1 };
             if (e.key === 'ArrowLeft' && dir.x === 0) nextDir = { x: -1, y: 0 };
             if (e.key === 'ArrowRight' && dir.x === 0) nextDir = { x: 1, y: 0 };
+            if ((e.key === 'w' || e.key === 'W') && dir.y === 0) nextDir = { x: 0, y: -1 };
+            if ((e.key === 's' || e.key === 'S') && dir.y === 0) nextDir = { x: 0, y: 1 };
+            if ((e.key === 'a' || e.key === 'A') && dir.x === 0) nextDir = { x: -1, y: 0 };
+            if ((e.key === 'd' || e.key === 'D') && dir.x === 0) nextDir = { x: 1, y: 0 };
         };
 
         let touchStartX = 0;

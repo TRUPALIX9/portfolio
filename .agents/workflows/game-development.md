@@ -6,7 +6,7 @@ description: Standardized workflow for adding high-fidelity arcade modules to th
 
 Follow these steps to create a new game module that integrates seamlessly with the Arcade Hub.
 
-## 1. Foundations
+## 1. Foundation
 - Create a new component in `src/components/games/[GameName].tsx`.
 - Use the `onFinished` prop to handle game exits and leaderboard submission.
 - Implement a `containerRef` for full-screen support.

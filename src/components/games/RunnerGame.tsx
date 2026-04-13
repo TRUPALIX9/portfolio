@@ -146,7 +146,12 @@ export default function RunnerGame({ onFinished }: { onFinished: () => void }) {
         };
         loop();
 
-        const handleKey = (e: KeyboardEvent) => { if (e.code === 'Space') { e.preventDefault(); jump(); } };
+        const handleKey = (e: KeyboardEvent) => {
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
+                e.preventDefault();
+                jump();
+            }
+        };
         window.addEventListener('keydown', handleKey);
         (window as any).requestJump = jump;
         return () => { cancelAnimationFrame(animationId); window.removeEventListener('keydown', handleKey); };
