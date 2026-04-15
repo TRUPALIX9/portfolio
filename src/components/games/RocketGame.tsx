@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
-import { getSavedArcadePlayerName, submitArcadeScore } from '@/utils/arcade-player';
+import { getSavedArcadePlayerName, saveArcadePlayerName, submitArcadeScore } from '@/utils/arcade-player';
 
 type Star = { x: number; y: number; z: number };
 type AsteroidPoint = { x: number; y: number };
@@ -36,6 +36,7 @@ export default function RocketGame({ onFinished }: { onFinished: () => void }) {
 
     const updateName = (val: string) => {
         setName(val);
+        saveArcadePlayerName(val);
     };
 
     const startGame = () => {

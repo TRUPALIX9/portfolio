@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
-import { getSavedArcadePlayerName, submitArcadeScore } from '@/utils/arcade-player';
+import { getSavedArcadePlayerName, saveArcadePlayerName, submitArcadeScore } from '@/utils/arcade-player';
 
 type RunnerObstacle = { x: number; y: number; w: number; h: number; type: string };
 type RunnerEffect = { x: number; y: number; text: string; life: number; color: string };
@@ -36,6 +36,7 @@ export default function RunnerGame({ onFinished }: { onFinished: () => void }) {
 
     const updateName = (val: string) => {
         setName(val);
+        saveArcadePlayerName(val);
     };
 
     const handleJumpPress = () => {

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
-import { getSavedArcadePlayerName, submitArcadeScore } from '@/utils/arcade-player';
+import { getSavedArcadePlayerName, saveArcadePlayerName, submitArcadeScore } from '@/utils/arcade-player';
 
 type Ball = { x: number; y: number; dx: number; dy: number; r: number; power: number };
 type Paddle = { x: number; w: number; h: number; targetW: number };
@@ -54,6 +54,7 @@ export default function BreakoutGame({ onFinished }: { onFinished: () => void })
 
     const updateName = (val: string) => {
         setName(val);
+        saveArcadePlayerName(val);
     };
 
     const startGame = () => {

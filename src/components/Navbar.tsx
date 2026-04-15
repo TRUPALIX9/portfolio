@@ -16,9 +16,11 @@ function NavbarContent() {
   const searchParams = useSearchParams();
   const isStrict = searchParams.get('strict') === 'true';
   const isArcadeOnly = pathname.startsWith('/arcade/');
+  const isDedicatedSharePage = pathname === '/social-only' || pathname === '/arcade-only' || pathname === '/game-only';
+  const isPlayground = pathname === '/playground';
   const [isOpen, setIsOpen] = useState(false);
 
-  if (isStrict || isArcadeOnly) return null;
+  if (isStrict || isArcadeOnly || isDedicatedSharePage || isPlayground) return null;
 
   const handleToggle = () => setIsOpen(!isOpen);
   const isLinkActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);

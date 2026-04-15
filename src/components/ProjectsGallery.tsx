@@ -11,6 +11,8 @@ const GithubIcon = ({ size = 20 }: { size?: number }) => (
 );
 
 export default function ProjectsGallery() {
+    const hasRealLink = (url: string) => Boolean(url) && url !== "#";
+
     return (
         <section id="work" className="section container">
             <motion.div
@@ -45,6 +47,25 @@ export default function ProjectsGallery() {
                             </div>
 
                             <div style={{ padding: '2rem', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                                <div style={{ marginBottom: '0.85rem' }}>
+                                    <span
+                                        style={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            padding: '0.35rem 0.7rem',
+                                            borderRadius: '999px',
+                                            background: project.status === "In Progress" ? 'rgba(6, 182, 212, 0.12)' : 'rgba(74, 222, 128, 0.12)',
+                                            color: project.status === "In Progress" ? '#67e8f9' : '#86efac',
+                                            border: `1px solid ${project.status === "In Progress" ? 'rgba(6, 182, 212, 0.24)' : 'rgba(74, 222, 128, 0.24)'}`,
+                                            fontSize: '0.74rem',
+                                            fontWeight: 700,
+                                            letterSpacing: '0.08em',
+                                            textTransform: 'uppercase',
+                                        }}
+                                    >
+                                        {project.status}
+                                    </span>
+                                </div>
                                 <h3 className="heading-md" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>{project.title}</h3>
                                 <p className="text-body" style={{ marginBottom: '1.5rem', flexGrow: 1 }}>{project.description}</p>
 
@@ -60,8 +81,12 @@ export default function ProjectsGallery() {
                                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                                     <Link href={`/projects/${project.slug}`} className="btn-outline" style={{ display: 'inline-block', padding: '0.4rem 1.25rem', fontSize: '0.9rem' }}>Read More</Link>
                                     <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.75rem' }}>
-                                        <a href={project.links.github} target="_blank" rel="noreferrer" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s', marginTop: '4px' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}><GithubIcon size={22} /></a>
-                                        <a href={project.links.live} target="_blank" rel="noreferrer" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s', marginTop: '4px' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}><ExternalLink size={22} /></a>
+                                        {hasRealLink(project.links.github) && (
+                                            <a href={project.links.github} target="_blank" rel="noreferrer" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s', marginTop: '4px' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}><GithubIcon size={22} /></a>
+                                        )}
+                                        {hasRealLink(project.links.live) && (
+                                            <a href={project.links.live} target="_blank" rel="noreferrer" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s', marginTop: '4px' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}><ExternalLink size={22} /></a>
+                                        )}
                                     </div>
                                 </div>
                             </div>

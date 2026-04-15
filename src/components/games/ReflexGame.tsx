@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
-import { getSavedArcadePlayerName, submitArcadeScore } from '@/utils/arcade-player';
+import { getSavedArcadePlayerName, saveArcadePlayerName, submitArcadeScore } from '@/utils/arcade-player';
 
 const LEVEL_TWO_BY_TWO_END = 7;
 const LEVEL_THREE_BY_THREE_END = 12;
@@ -56,6 +56,11 @@ export default function ReflexGame({ onFinished, highScore = 0 }: { onFinished: 
             }
         };
     }, []);
+
+    const updateName = (val: string) => {
+        setName(val);
+        saveArcadePlayerName(val);
+    };
 
     const stopRound = () => {
         if (timeoutRef.current) {
@@ -418,7 +423,7 @@ export default function ReflexGame({ onFinished, highScore = 0 }: { onFinished: 
                         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '0.75rem', alignItems: 'stretch' }}>
                             <input
                                 value={name.toUpperCase()}
-                                onChange={(e) => setName(e.target.value.toUpperCase())}
+                                onChange={(e) => updateName(e.target.value.toUpperCase())}
                                 placeholder="ENTER NAME"
                                 style={{ padding: '1rem', borderRadius: '12px', background: '#f8fafc', color: '#000', border: '3px solid #000', textAlign: 'center', fontSize: '1rem', fontWeight: 900, minWidth: 0, textTransform: 'uppercase' }}
                             />

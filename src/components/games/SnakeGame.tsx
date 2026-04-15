@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
-import { getSavedArcadePlayerName, submitArcadeScore } from '@/utils/arcade-player';
+import { getSavedArcadePlayerName, saveArcadePlayerName, submitArcadeScore } from '@/utils/arcade-player';
 
 type Direction = { x: number; y: number };
 type PortalSide = 'top' | 'right' | 'bottom' | 'left';
@@ -49,6 +49,7 @@ export default function SnakeGame({ onFinished, highScore = 0 }: { onFinished: (
 
     const updateName = (val: string) => {
         setName(val);
+        saveArcadePlayerName(val);
     };
 
     const queueDirection = (next: Direction) => {

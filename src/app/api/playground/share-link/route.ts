@@ -1,11 +1,7 @@
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { createArcadeShareToken } from '@/utils/arcade-share';
-
-function isAuthorized(request: Request) {
-    const key = request.headers.get('x-admin-key') ?? '';
-    return Boolean(process.env.KEY) && key === process.env.KEY;
-}
+import { isAuthorizedRequest } from '@/utils/admin';
 
 function getOrigin(headerList: Headers, request: Request) {
     const forwardedProto = headerList.get('x-forwarded-proto');
@@ -19,7 +15,7 @@ function getOrigin(headerList: Headers, request: Request) {
 }
 
 export async function POST(request: Request) {
-    if (!isAuthorized(request)) {
+    if (!(await isAuthorizedRequest(request))) {
         return NextResponse.json({ error: 'Unauthorized key' }, { status: 401 });
     }
 

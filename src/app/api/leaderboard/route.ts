@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { getSupabaseServerClient, isAuthorizedRequest } from '@/utils/admin';
 
 type LeaderboardEntry = {
     id: number;
@@ -10,17 +9,7 @@ type LeaderboardEntry = {
     date: string;
 };
 
-const ADMIN_KEY_HEADER = 'x-admin-key';
 const DEFAULT_GAME = 'unknown';
-
-function getAdminKey(request: Request, body?: { key?: string }) {
-    return request.headers.get(ADMIN_KEY_HEADER) ?? body?.key ?? '';
-}
-
-function isAuthorized(request: Request, body?: { key?: string }) {
-    const key = getAdminKey(request, body);
-    return Boolean(process.env.KEY) && key === process.env.KEY;
-}
 
 function createInsights(entries: LeaderboardEntry[]) {
     const gameStats = new Map<string, { submissions: number; highestScore: number; totalScore: number }>();
@@ -54,16 +43,11 @@ function createInsights(entries: LeaderboardEntry[]) {
     };
 }
 
-async function getSupabase() {
-    const cookieStore = await cookies();
-    return createClient(cookieStore);
-}
-
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const adminMode = searchParams.get('admin') === '1';
-        const supabase = await getSupabase();
+        const supabase = await getSupabaseServerClient();
 
         const { data, error } = await supabase
             .from('leaderboard')
@@ -84,7 +68,7 @@ export async function GET(request: Request) {
             return NextResponse.json(leaderboard);
         }
 
-        if (!isAuthorized(request)) {
+        if (!(await isAuthorizedRequest(request))) {
             return NextResponse.json({ error: 'Unauthorized key' }, { status: 401 });
         }
 
@@ -101,7 +85,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const supabase = await getSupabase();
+        const supabase = await getSupabaseServerClient();
 
         const entry = {
             name: body.name || 'Anonymous',
@@ -139,11 +123,11 @@ export async function DELETE(request: Request) {
     try {
         const body = await request.json();
 
-        if (!isAuthorized(request, body)) {
+        if (!(await isAuthorizedRequest(request, body))) {
             return NextResponse.json({ error: 'Unauthorized key' }, { status: 401 });
         }
 
-        const supabase = await getSupabase();
+        const supabase = await getSupabaseServerClient();
         const deleteAll = body.deleteAll === true;
 
         if (!deleteAll && (body.id === undefined || body.id === null)) {
@@ -169,7 +153,7 @@ export async function PATCH(request: Request) {
     try {
         const body = await request.json();
 
-        if (!isAuthorized(request, body)) {
+        if (!(await isAuthorizedRequest(request, body))) {
             return NextResponse.json({ error: 'Unauthorized key' }, { status: 401 });
         }
 
@@ -178,7 +162,7 @@ export async function PATCH(request: Request) {
             return NextResponse.json({ error: 'Missing updated name' }, { status: 400 });
         }
 
-        const supabase = await getSupabase();
+        const supabase = await getSupabaseServerClient();
         let query = supabase.from('leaderboard').update({ name: nextName });
 
         if (body.id !== undefined && body.id !== null) {

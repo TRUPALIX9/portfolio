@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import GameHub from '@/components/GameHub';
+import TrackedGameHub from '@/components/TrackedGameHub';
 import { verifyArcadeShareToken } from '@/utils/arcade-share';
 
 export default async function ArcadeSharePage({
@@ -15,7 +15,7 @@ export default async function ArcadeSharePage({
 
     return (
         <main className="container section" style={{ paddingTop: '2rem', minHeight: '100vh' }}>
-            <GameHub />
+            <TrackedGameHub route={`/arcade/${token}`} shareToken={token} source="signed-share-link" />
         </main>
     );
 }

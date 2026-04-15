@@ -43,7 +43,15 @@ const games: GameDefinition[] = [
     { id: 'breakout', title: 'Breakout', icon: '🧱', color: '#10b981', previewType: 'breakout', viewport: 'portrait' },
 ];
 
-export default function GameHub() {
+export default function GameHub({
+    standalone = false,
+    onGameOpen,
+    onTrackedFinish,
+}: {
+    standalone?: boolean;
+    onGameOpen?: (game: GameId) => void;
+    onTrackedFinish?: (payload: { game: GameId; score: number }) => void;
+}) {
     const [selectedGame, setSelectedGame] = useState<SelectedGame>(null);
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [highScoreCelebration, setHighScoreCelebration] = useState<{ game: string; score: number } | null>(null);
@@ -88,6 +96,10 @@ export default function GameHub() {
                 game: matchedGame?.title ?? payload.game.toUpperCase(),
                 score: payload.score,
             });
+        }
+
+        if (payload) {
+            onTrackedFinish?.({ game: payload.game, score: payload.score });
         }
 
         if (!payload || payload.closeGame !== false) {
@@ -139,7 +151,11 @@ export default function GameHub() {
                         exit={{ opacity: 0, scale: 1.05 }}
                     >
                         <h1 className="heading-lg" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-                            The <span className="gradient-text">Arcade.</span>
+                            {standalone ? (
+                                <>Arcade.</>
+                            ) : (
+                                <>The <span className="gradient-text">Arcade.</span></>
+                            )}
                         </h1>
 
                         <div
@@ -158,7 +174,10 @@ export default function GameHub() {
                                     className="glass-card"
                                     data-testid={`game-card-${game.id}`}
                                     style={{ padding: '1.25rem', cursor: 'pointer', border: `1px solid ${game.color}22`, overflow: 'hidden' }}
-                                    onClick={() => setSelectedGame(game.id)}
+                                    onClick={() => {
+                                        setSelectedGame(game.id);
+                                        onGameOpen?.(game.id);
+                                    }}
                                 >
                                     <GamePreview type={game.previewType as never} />
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

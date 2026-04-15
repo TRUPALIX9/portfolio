@@ -1,6 +1,8 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { Download, ExternalLink, Mail, MapPin, Phone } from 'lucide-react';
 import masterData from '@/data/master.json';
+import TrackedAnchor from '@/components/TrackedAnchor';
+import ResumeAnalyticsBeacon from '@/components/ResumeAnalyticsBeacon';
 
 const skills = {
     frontend: ['React.js', 'Next.js', 'Material UI', 'Tailwind CSS', 'Chakra UI', 'Redux', 'Elastic UI', 'HTML5', 'CSS3', 'Responsive Design', 'Jest', 'Webpack', 'Babel', 'Vite'],
@@ -69,7 +71,8 @@ export default function ResumePage() {
                 flexDirection: 'column',
                 gap: '1.5rem',
             }}
-        >
+            >
+            <ResumeAnalyticsBeacon />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
                 <div>
                     <h1 className="heading-lg" style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Resume</h1>
@@ -79,12 +82,12 @@ export default function ResumePage() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    <a href="/RESUME.pdf" target="_blank" rel="noreferrer" className="btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <TrackedAnchor href="/RESUME.pdf" target="_blank" rel="noreferrer" className="btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} route="/resume" eventType="resume_open" linkName="Resume PDF Open" linkUrl="/RESUME.pdf" source="resume-actions">
                         Open PDF <ExternalLink size={18} />
-                    </a>
-                    <a href="/RESUME.pdf" download="Trupal_Patel_Resume.pdf" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    </TrackedAnchor>
+                    <TrackedAnchor href="/RESUME.pdf" download="Trupal_Patel_Resume.pdf" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} route="/resume" eventType="resume_download" linkName="Resume PDF Download" linkUrl="/RESUME.pdf" source="resume-actions">
                         Download PDF <Download size={18} />
-                    </a>
+                    </TrackedAnchor>
                 </div>
             </div>
 
@@ -199,9 +202,9 @@ export default function ResumePage() {
                             <p style={{ marginBottom: '1rem', lineHeight: 1.6 }}>
                                 Your browser could not render the PDF inline.
                             </p>
-                            <a href="/RESUME.pdf" target="_blank" rel="noreferrer" style={{ color: '#16a34a', fontWeight: 700 }}>
+                            <TrackedAnchor href="/RESUME.pdf" target="_blank" rel="noreferrer" style={{ color: '#16a34a', fontWeight: 700 }} route="/resume" eventType="resume_open" linkName="Resume PDF Fallback Open" linkUrl="/RESUME.pdf" source="resume-fallback">
                                 Open the resume PDF in a new tab
-                            </a>
+                            </TrackedAnchor>
                         </div>
                     </object>
                 </div>
