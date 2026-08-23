@@ -1,6 +1,6 @@
 "use client";
 import { motion } from 'framer-motion';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { projects } from '../data/projects';
 
@@ -21,6 +21,13 @@ export default function ProjectsGallery() {
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.8 }}
             >
+                {/* Back to Home Button */}
+                <div style={{ marginBottom: '2rem' }}>
+                    <Link href="/" className="btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 1.25rem', fontSize: '0.9rem' }}>
+                        <ArrowLeft size={15} /> Back to Home
+                    </Link>
+                </div>
+
                 <h2 className="heading-lg" style={{ marginBottom: '4rem' }}>
                     Some things I've <span style={{ color: 'var(--accent-secondary)' }}>built.</span>
                 </h2>
@@ -47,25 +54,6 @@ export default function ProjectsGallery() {
                             </div>
 
                             <div style={{ padding: '2rem', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                                <div style={{ marginBottom: '0.85rem' }}>
-                                    <span
-                                        style={{
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            padding: '0.35rem 0.7rem',
-                                            borderRadius: '999px',
-                                            background: project.status === "In Progress" ? 'rgba(6, 182, 212, 0.12)' : 'rgba(74, 222, 128, 0.12)',
-                                            color: project.status === "In Progress" ? '#67e8f9' : '#86efac',
-                                            border: `1px solid ${project.status === "In Progress" ? 'rgba(6, 182, 212, 0.24)' : 'rgba(74, 222, 128, 0.24)'}`,
-                                            fontSize: '0.74rem',
-                                            fontWeight: 700,
-                                            letterSpacing: '0.08em',
-                                            textTransform: 'uppercase',
-                                        }}
-                                    >
-                                        {project.status}
-                                    </span>
-                                </div>
                                 <h3 className="heading-md" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>{project.title}</h3>
                                 <p className="text-body" style={{ marginBottom: '1.5rem', flexGrow: 1 }}>{project.description}</p>
 

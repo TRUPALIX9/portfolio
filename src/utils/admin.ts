@@ -1,6 +1,5 @@
 import crypto from 'crypto';
 import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
 
 export const ADMIN_KEY_HEADER = 'x-admin-key';
 export const ADMIN_COOKIE_NAME = 'playground_admin';
@@ -78,9 +77,4 @@ export async function isAuthorizedRequest(request: Request, body?: { key?: strin
     const cookieStore = await cookies();
     const token = cookieStore.get(ADMIN_COOKIE_NAME)?.value ?? '';
     return Boolean(token) && verifyAdminSessionToken(token);
-}
-
-export async function getSupabaseServerClient() {
-    const cookieStore = await cookies();
-    return createClient(cookieStore);
 }

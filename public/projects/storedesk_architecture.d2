@@ -1,0 +1,208 @@
+# ==========================================
+# 1. Global Settings
+# ==========================================
+direction: right
+
+# ==========================================
+# 2. Styles and Classes (Infrastructure Topology)
+# ==========================================
+classes: {
+  user: {
+    shape: person
+    style: {
+      fill: "#ffffff"
+      stroke: "#64748b"
+      shadow: true
+    }
+  }
+  cloud_node: {
+    style: {
+      fill: "#e0f2fe"
+      stroke: "#0284c7"
+      font-color: "#0369a1"
+      border-radius: 8
+      shadow: true
+    }
+  }
+  edge_node: {
+    style: {
+      fill: "#dcfce7"
+      stroke: "#16a34a"
+      font-color: "#15803d"
+      border-radius: 8
+      shadow: true
+    }
+  }
+  datastore_node: {
+    style: {
+      fill: "#f3e8ff"
+      stroke: "#9333ea"
+      font-color: "#7e22ce"
+      border-radius: 8
+      shadow: true
+    }
+  }
+  hardware_node: {
+    style: {
+      fill: "#ffedd5"
+      stroke: "#ea580c"
+      font-color: "#c2410c"
+      border-radius: 8
+      shadow: true
+    }
+  }
+  zone: {
+    style: {
+      stroke-dash: 5
+      stroke: "#475569"
+      fill: "#f8fafc"
+      border-radius: 12
+    }
+  }
+}
+
+# ==========================================
+# 3. Infrastructure Topology Structure
+# ==========================================
+
+# External Actors
+user_operator: "Store AppUser\n(Desktop & Mobile)" {
+  class: user
+  icon: "https://api.iconify.design/material-symbols:person.svg"
+}
+
+central_admin: "Support Admin" {
+  class: user
+}
+
+# Zone: Public Cloud Infrastructure
+cloud_infrastructure: "Public Cloud Control Plane" {
+  class: zone
+
+  vercel_edge: "Vercel Edge Network\nNext.js Admin Dashboard" {
+    class: cloud_node
+    icon: "https://api.iconify.design/simple-icons:nextdotjs.svg"
+  }
+
+  gcp_vm_relay: "GCP Compute Engine\nWSS Cloud Hub (PM2)" {
+    class: cloud_node
+    icon: "https://api.iconify.design/simple-icons:googlecloud.svg"
+  }
+
+  atlas_cluster: "MongoDB Atlas\nAuth & Tenancy Metadata" {
+    class: datastore_node
+    icon: "https://api.iconify.design/simple-icons:mongodb.svg"
+  }
+}
+
+# Zone: Client Operating Environments
+client_devices: "Client Endpoints Layer" {
+  class: zone
+
+  electron_desktop: "StoreDesk Desktop\n(Electron + React + MUI)" {
+    class: cloud_node
+    icon: "https://api.iconify.design/simple-icons:electron.svg"
+  }
+
+  flutter_mobile: "StoreDesk Mobile\n(Flutter Helper App)" {
+    class: cloud_node
+    icon: "https://api.iconify.design/simple-icons:flutter.svg"
+  }
+}
+
+# Zone: On-Premise Store Edge Infrastructure
+store_edge_network: "On-Premise Store Edge Site" {
+  class: zone
+
+  # Sub-group for local services/runtime
+  runtime_group: "Local Runtime Services" {
+    style: {fill: "#f1f5f9"; stroke: "#cbd5e1"; border-radius: 8}
+
+    win_service_manager: "Windows Service Manager\nNative Daemon (WinSW)" {
+      class: edge_node
+      icon: "https://api.iconify.design/material-symbols:settings.svg"
+    }
+
+    edge_worker: "StoreDesk Worker\nNode.js / Express API" {
+      class: edge_node
+      icon: "https://api.iconify.design/simple-icons:nodedotjs.svg"
+    }
+  }
+
+  # Sub-group for local data & security
+  data_group: "Local Storage & Config" {
+    style: {fill: "#f1f5f9"; stroke: "#cbd5e1"; border-radius: 8}
+
+    local_mongodb: "Local MongoDB\nCanonical Store Catalog" {
+      class: datastore_node
+      icon: "https://api.iconify.design/simple-icons:mongodb.svg"
+    }
+
+    aes_config: "Secure Config\nAES-256-GCM Sealed" {
+      class: datastore_node
+      icon: "https://api.iconify.design/material-symbols:lock.svg"
+    }
+  }
+
+  # Sub-group for POS and physical hardware
+  hardware_group: "Hardware & Registers LAN" {
+    style: {fill: "#f1f5f9"; stroke: "#cbd5e1"; border-radius: 8}
+
+    verifone_commander: "Verifone Commander\nPLUs & T-Log Engine" {
+      class: hardware_node
+      icon: "https://api.iconify.design/material-symbols:desktop-windows.svg"
+    }
+
+    ruby_registers: "Ruby 2 POS Registers\nCheckout Terminals" {
+      class: hardware_node
+      icon: "https://api.iconify.design/material-symbols:shopping-cart.svg"
+    }
+  }
+}
+
+# ==========================================
+# 4. Infrastructure Links & Network Paths
+# ==========================================
+
+# Administrative & User Interactions
+central_admin -> cloud_infrastructure.vercel_edge: "Provision Orgs & Sites"
+user_operator -> client_devices.electron_desktop: "Launches UI / Pricing Rules"
+user_operator -> client_devices.flutter_mobile: "Barcode Scanning / Companion"
+
+# Cloud Plane Management & Auth
+cloud_infrastructure.vercel_edge -> cloud_infrastructure.atlas_cluster: "Persists Tenancy Metadata" {
+  style: {stroke: "#9333ea"}
+}
+
+# Client Tunneling via WebSockets (WSS)
+client_devices.electron_desktop -> cloud_infrastructure.gcp_vm_relay: "WSS Session Tunnel" {
+  style: {stroke: "#0284c7"; stroke-width: 2}
+}
+client_devices.flutter_mobile -> cloud_infrastructure.gcp_vm_relay: "WSS Session Tunnel" {
+  style: {stroke: "#0284c7"; stroke-width: 2}
+}
+cloud_infrastructure.gcp_vm_relay -> cloud_infrastructure.atlas_cluster: "Verify Scope & Permissions" {
+  style: {stroke: "#9333ea"}
+}
+
+# Edge-to-Cloud Synchronization
+store_edge_network.runtime_group.edge_worker -> cloud_infrastructure.gcp_vm_relay: "Outbound WSS / Delta Sync" {
+  style: {stroke: "#16a34a"; stroke-width: 2}
+}
+
+# Local Node Daemon & Storage Management
+store_edge_network.runtime_group.win_service_manager -> store_edge_network.runtime_group.edge_worker: "Daemon Lifecycle Control"
+store_edge_network.runtime_group.win_service_manager -> store_edge_network.data_group.aes_config: "Reads/Writes Encrypted Secrets" {
+  style: {stroke: "#9333ea"; stroke-dash: 3}
+}
+store_edge_network.runtime_group.edge_worker -> store_edge_network.data_group.local_mongodb: "Queries/Mutates Local Catalog" {
+  style: {stroke: "#9333ea"}
+}
+
+# POS Hardware Integration LAN Traffic
+store_edge_network.runtime_group.edge_worker -> store_edge_network.hardware_group.verifone_commander: "TCP/IP Queries (PLUs & Reports)" {
+  style: {stroke: "#ea580c"; stroke-width: 2}
+}
+store_edge_network.hardware_group.verifone_commander -> store_edge_network.hardware_group.ruby_registers: "Pushes PLU Updates & Pulls T-Logs" {
+  style: {stroke: "#475569"}
+}

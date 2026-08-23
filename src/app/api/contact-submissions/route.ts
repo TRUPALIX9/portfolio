@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseServerClient, isAuthorizedRequest } from '@/utils/admin';
+import { getDb } from '@/utils/mongodb';
+import { isAuthorizedRequest } from '@/utils/admin';
 
 type ContactSubmission = {
     id: string;
@@ -22,41 +23,96 @@ export async function GET(request: Request) {
     }
 
     try {
-        const supabase = await getSupabaseServerClient();
-        const { data, error } = await supabase
-            .from('contact_submissions')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .limit(200);
+        const db = await getDb();
+        const docs = await db.collection('contact_submissions')
+            .find({})
+            .sort({ created_at: -1 })
+            .limit(200)
+            .toArray();
 
-        if (error) {
-            console.error('Contact Submission GET Error:', error);
-            return NextResponse.json([]);
-        }
+        const submissions: ContactSubmission[] = docs.map((doc) => ({
+            id: doc._id.toString(),
+            name: doc.name ?? '',
+            email: doc.email ?? '',
+            message: doc.message ?? '',
+            status: doc.status ?? 'new',
+            created_at: doc.created_at ?? new Date().toISOString(),
+            source: doc.source ?? '/contact',
+            user_agent: doc.user_agent ?? null,
+        }));
 
-        return NextResponse.json((data ?? []) as ContactSubmission[]);
+        return NextResponse.json(submissions);
     } catch (error) {
-        console.error('Contact Submission GET Error:', error);
-        return NextResponse.json({ error: 'Failed to read contact submissions' }, { status: 500 });
+        console.error('Contact Submission GET MongoDB Error, using local file backup:', error);
+        try {
+            const fs = await import('fs/promises');
+            const path = await import('path');
+            const backupFile = path.join(process.cwd(), 'backups', 'contact_submissions.json');
+            let submissions: ContactSubmission[] = [];
+            try {
+                const content = await fs.readFile(backupFile, 'utf-8');
+                submissions = JSON.parse(content);
+            } catch (e) {
+                // File does not exist yet
+            }
+            return NextResponse.json(submissions);
+        } catch (backupError) {
+            console.error('Fatal: Contact Submission GET fallback failed:', backupError);
+            return NextResponse.json({ error: 'Failed to read contact submissions' }, { status: 500 });
+        }
     }
 }
 
 export async function POST(request: Request) {
+    let name = '';
+    let email = '';
+    let message = '';
+    let source = '/contact';
+    let userAgent = '';
+
     try {
         const body = await request.json();
-        const name = normalizeString(body.name);
-        const email = normalizeString(body.contact || body.email);
-        const message = normalizeString(body.message);
-        const source = normalizeString(body.source) || '/contact';
-        const userAgent = request.headers.get('user-agent');
+        name = normalizeString(body.name);
+        email = normalizeString(body.contact || body.email);
+        message = normalizeString(body.message);
+        source = normalizeString(body.source) || '/contact';
+        userAgent = request.headers.get('user-agent') || '';
 
         if (!name || !email || !message) {
             return NextResponse.json({ error: 'Name, email, and message are required.' }, { status: 400 });
         }
 
-        const supabase = await getSupabaseServerClient();
-        const { error } = await supabase.from('contact_submissions').insert([
-            {
+        const db = await getDb();
+        await db.collection('contact_submissions').insertOne({
+            name,
+            email,
+            message,
+            source,
+            status: 'new',
+            user_agent: userAgent,
+            created_at: new Date().toISOString(),
+        });
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Contact Submission POST MongoDB Error, saving to local file backup:', error);
+        try {
+            const fs = await import('fs/promises');
+            const path = await import('path');
+            const backupDir = path.join(process.cwd(), 'backups');
+            await fs.mkdir(backupDir, { recursive: true });
+            const backupFile = path.join(backupDir, 'contact_submissions.json');
+
+            let existing: any[] = [];
+            try {
+                const content = await fs.readFile(backupFile, 'utf-8');
+                existing = JSON.parse(content);
+            } catch (e) {
+                // File does not exist yet
+            }
+
+            const newSubmission = {
+                id: Date.now().toString(),
                 name,
                 email,
                 message,
@@ -64,18 +120,16 @@ export async function POST(request: Request) {
                 status: 'new',
                 user_agent: userAgent,
                 created_at: new Date().toISOString(),
-            },
-        ]);
+                backup: true
+            };
+            existing.push(newSubmission);
+            await fs.writeFile(backupFile, JSON.stringify(existing, null, 2), 'utf-8');
 
-        if (error) {
-            console.error('Contact Submission POST Error:', error);
-            return NextResponse.json({ error: 'Failed to save contact submission' }, { status: 500 });
+            return NextResponse.json({ success: true, backup: true });
+        } catch (backupError) {
+            console.error('Fatal: Contact Submission POST fallback failed:', backupError);
+            return NextResponse.json({ error: 'Failed to submit contact form' }, { status: 500 });
         }
-
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Contact Submission POST Error:', error);
-        return NextResponse.json({ error: 'Failed to submit contact form' }, { status: 500 });
     }
 }
 
@@ -94,16 +148,12 @@ export async function PATCH(request: Request) {
             return NextResponse.json({ error: 'Missing contact submission target or status' }, { status: 400 });
         }
 
-        const supabase = await getSupabaseServerClient();
-        const { error } = await supabase
-            .from('contact_submissions')
-            .update({ status })
-            .eq('id', id);
-
-        if (error) {
-            console.error('Contact Submission PATCH Error:', error);
-            return NextResponse.json({ error: 'Failed to update contact submission' }, { status: 500 });
-        }
+        const db = await getDb();
+        const { ObjectId } = await import('mongodb');
+        await db.collection('contact_submissions').updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { status } }
+        );
 
         return NextResponse.json({ success: true });
     } catch (error) {

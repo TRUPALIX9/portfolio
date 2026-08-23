@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
-import GameHub from './GameHub';
-import { trackVisitorEvent } from '@/utils/visitor-analytics';
+import MemoryArcade from './MemoryArcade';
 
 type TrackedGameHubProps = {
     route: string;
@@ -17,37 +15,12 @@ export default function TrackedGameHub({
     source,
     standalone = false,
 }: TrackedGameHubProps) {
-    useEffect(() => {
-        void trackVisitorEvent({
-            event: 'page_view',
-            route,
-            shareToken,
-            source,
-        });
-    }, [route, shareToken, source]);
-
     return (
-        <GameHub
+        <MemoryArcade
             standalone={standalone}
-            onGameOpen={(game) => {
-                void trackVisitorEvent({
-                    event: 'game_open',
-                    route,
-                    shareToken,
-                    source,
-                    game,
-                });
-            }}
-            onTrackedFinish={({ game, score }) => {
-                void trackVisitorEvent({
-                    event: 'run_complete',
-                    route,
-                    shareToken,
-                    source,
-                    game,
-                    score,
-                });
-            }}
+            route={route}
+            shareToken={shareToken}
+            source={source}
         />
     );
 }

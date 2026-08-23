@@ -1,19 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { getSavedArcadePlayerName, saveArcadePlayerName, submitArcadeScore } from '@/utils/arcade-player';
 
 const TILE_COUNT = 9;
+
 const TILE_ACCENTS = [
-    'rgba(34, 211, 238, 0.95)',
-    'rgba(168, 85, 247, 0.95)',
-    'rgba(251, 191, 36, 0.95)',
-    'rgba(236, 72, 153, 0.95)',
-    'rgba(59, 130, 246, 0.95)',
-    'rgba(16, 185, 129, 0.95)',
-    'rgba(244, 114, 182, 0.95)',
-    'rgba(14, 165, 233, 0.95)',
-    'rgba(250, 204, 21, 0.95)',
+    'rgba(255, 255, 255, 1)',
+    'rgba(255, 255, 255, 1)',
+    'rgba(255, 255, 255, 1)',
+    'rgba(255, 255, 255, 1)',
+    'rgba(255, 255, 255, 1)',
+    'rgba(255, 255, 255, 1)',
+    'rgba(255, 255, 255, 1)',
+    'rgba(255, 255, 255, 1)',
+    'rgba(255, 255, 255, 1)',
 ];
 
 export default function MemoryGame({ onFinished, highScore = 0 }: { onFinished: () => void; highScore?: number }) {
@@ -35,7 +37,10 @@ export default function MemoryGame({ onFinished, highScore = 0 }: { onFinished: 
     const [gameOver, setGameOver] = useState(false);
     const [playing, setPlaying] = useState(false);
     const [name, setName] = useState('');
+    const [nameError, setNameError] = useState(false);
     const [isTouch, setIsTouch] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         setIsTouch(window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0);
@@ -49,6 +54,7 @@ export default function MemoryGame({ onFinished, highScore = 0 }: { onFinished: 
 
     const updateName = (val: string) => {
         setName(val);
+        setNameError(false);
         saveArcadePlayerName(val);
     };
 
@@ -176,16 +182,34 @@ export default function MemoryGame({ onFinished, highScore = 0 }: { onFinished: 
     };
 
     const submit = async () => {
+        if (isSubmitting) return;
         const trimmedName = name.trim();
-        if (!trimmedName) return;
-        await submitArcadeScore(trimmedName, score, 'pattern');
-        onFinished();
+        if (!trimmedName) {
+            setNameError(true);
+            return;
+        }
+        setIsSubmitting(true);
+        try {
+            await submitArcadeScore(trimmedName, score, 'pattern');
+            onFinished();
+            router.push('/');
+        } catch (error) {
+            setIsSubmitting(false);
+        }
     };
 
     const retry = async () => {
+        if (isSubmitting) return;
         const trimmedName = name.trim();
-        if (trimmedName) {
+        if (!trimmedName) {
+            setNameError(true);
+            return;
+        }
+        setIsSubmitting(true);
+        try {
             await submitArcadeScore(trimmedName, score, 'pattern');
+        } finally {
+            setIsSubmitting(false);
         }
         startGame();
     };
@@ -193,306 +217,121 @@ export default function MemoryGame({ onFinished, highScore = 0 }: { onFinished: 
     const trimmedName = name.trim();
 
     return (
-        <div
-            className="game-console game-console--portrait"
-            style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}
-        >
-            <div
-                style={{
-                    width: '100%',
-                    height: '100%',
-                    padding: '0.7rem',
-                    borderRadius: '18px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.7rem',
-                    position: 'relative',
-                    background: 'radial-gradient(circle at top, rgba(56, 189, 248, 0.14), transparent 30%), radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.18), transparent 24%), linear-gradient(180deg, #050816 0%, #0f172a 38%, #160c2d 100%)',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -20px 40px rgba(2, 6, 23, 0.5)',
-                }}
-            >
-                <div
-                    aria-hidden="true"
-                    style={{
-                        position: 'absolute',
-                        inset: 0,
-                        borderRadius: '18px',
-                        background: 'repeating-linear-gradient(180deg, rgba(148, 163, 184, 0.05) 0 1px, transparent 1px 34px)',
-                        opacity: 0.35,
-                        pointerEvents: 'none',
-                    }}
-                />
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.45rem', position: 'relative' }}>
-                    <div className="game-score-badge" style={{ padding: '0.45rem 0.5rem', fontSize: '0.74rem', textAlign: 'center' }}>
-                        SCORE {score}
-                    </div>
-                    <div className="game-score-badge" style={{ padding: '0.45rem 0.5rem', fontSize: '0.74rem', textAlign: 'center' }}>
-                        ROUND {round}
-                    </div>
+        <div className="w-full max-w-[420px] bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-3xl p-6 flex flex-col gap-5 md:gap-6 shadow-2xl relative">
+            {/* HUD Status Bar */}
+            <div className="flex justify-between items-center gap-4 border-b border-white/5 pb-4">
+                <div className="flex flex-col">
+                    <span className="text-[0.65rem] font-bold uppercase tracking-widest text-neutral-500">Score</span>
+                    <span className="text-xl md:text-2xl font-black text-white leading-tight">{score}</span>
                 </div>
-
-                <div
-                    style={{
-                        position: 'relative',
-                        padding: '0.75rem',
-                        borderRadius: '18px',
-                        background: 'linear-gradient(180deg, rgba(8, 15, 33, 0.92), rgba(8, 15, 33, 0.72))',
-                        border: '1px solid rgba(148, 163, 184, 0.18)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.55rem',
-                    }}
-                >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-                        <span style={{ color: '#f8fafc', fontWeight: 900, fontSize: '0.72rem', letterSpacing: '0.12em' }}>{phaseLabel}</span>
-                        <span style={{ color: '#94a3b8', fontWeight: 800, fontSize: '0.68rem' }}>{playerProgress} / {sequenceLength || 1} LOCKED</span>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '0.7rem', alignItems: 'start' }}>
-                        <div style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '0.72rem', lineHeight: 1.35 }}>{statusText}</div>
-                        <div
-                            style={{
-                                minWidth: '72px',
-                                padding: '0.45rem 0.55rem',
-                                borderRadius: '14px',
-                                background: 'rgba(15, 23, 42, 0.7)',
-                                border: '1px solid rgba(148, 163, 184, 0.14)',
-                                textAlign: 'right',
-                            }}
-                        >
-                            <div style={{ color: '#94a3b8', fontSize: '0.54rem', fontWeight: 900, letterSpacing: '0.12em' }}>HIGH SCORE</div>
-                            <div style={{ color: '#f8fafc', fontSize: '0.95rem', fontWeight: 900, lineHeight: 1.1 }}>{highScore}</div>
-                        </div>
-                    </div>
+                <div className="flex flex-col items-center">
+                    <span className="text-[0.65rem] font-bold uppercase tracking-widest text-neutral-500">Round</span>
+                    <span className="text-xl md:text-2xl font-black text-white leading-tight">{round}</span>
                 </div>
-
-                <div
-                    style={{
-                        flex: 1,
-                        minHeight: 0,
-                        position: 'relative',
-                        borderRadius: '22px',
-                        padding: '0.85rem',
-                        background: 'linear-gradient(180deg, rgba(8, 15, 33, 0.9), rgba(5, 10, 22, 0.98))',
-                        border: '1px solid rgba(148, 163, 184, 0.18)',
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -22px 36px rgba(0,0,0,0.36)',
-                        display: 'grid',
-                        alignItems: 'stretch',
-                    }}
-                >
-                    <div
-                        aria-hidden="true"
-                        style={{
-                            position: 'absolute',
-                            inset: '14px',
-                            borderRadius: '18px',
-                            border: '1px solid rgba(34, 211, 238, 0.12)',
-                            pointerEvents: 'none',
-                        }}
-                    />
-
-                    <div
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                            gap: '0.68rem',
-                            alignContent: 'center',
-                            width: '100%',
-                            maxWidth: '300px',
-                            margin: '0 auto',
-                            height: '100%',
-                            position: 'relative',
-                            zIndex: 1,
-                        }}
-                    >
-                        {Array.from({ length: TILE_COUNT }).map((_, tileId) => {
-                            const isActive = activeTile === tileId;
-                            const accent = TILE_ACCENTS[tileId];
-
-                            return (
-                                <button
-                                    key={tileId}
-                                    type="button"
-                                    onClick={() => handleTilePress(tileId)}
-                                    disabled={!playing}
-                                    aria-label={`Memory tile ${tileId + 1}`}
-                                    style={{
-                                        aspectRatio: '1 / 1',
-                                        borderRadius: '22px',
-                                        border: isActive ? `2px solid ${accent}` : `1px solid ${accent.replace('0.95', '0.2')}`,
-                                        background: isActive
-                                            ? `radial-gradient(circle at 30% 24%, rgba(255,255,255,0.34), transparent 32%), linear-gradient(180deg, ${accent}, rgba(15, 23, 42, 0.92))`
-                                            : 'linear-gradient(180deg, rgba(35, 43, 63, 0.98), rgba(9, 14, 28, 1))',
-                                        boxShadow: isActive
-                                            ? `inset 0 2px 8px rgba(255,255,255,0.22), 0 0 28px ${accent.replace('0.95', '0.38')}, 0 18px 28px rgba(2, 6, 23, 0.38)`
-                                            : `inset 0 1px 0 rgba(255,255,255,0.08), 0 16px 24px rgba(2, 6, 23, 0.34), 0 0 0 1px ${accent.replace('0.95', '0.08')}`,
-                                        transform: isActive ? 'translateY(-5px) scale(1.02)' : 'translateY(0) scale(1)',
-                                        transition: 'transform 140ms ease, box-shadow 140ms ease, border 140ms ease, background 140ms ease',
-                                        position: 'relative',
-                                        overflow: 'hidden',
-                                        }}
-                                    >
-                                    <span
-                                        aria-hidden="true"
-                                        style={{
-                                            position: 'absolute',
-                                            inset: '8px',
-                                            borderRadius: '16px',
-                                            background: isActive
-                                                ? 'linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02))'
-                                                : 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(15,23,42,0.02))',
-                                            border: isActive ? '1px solid rgba(255,255,255,0.26)' : '1px solid rgba(255,255,255,0.08)',
-                                        }}
-                                    />
-                                    <span
-                                        aria-hidden="true"
-                                        style={{
-                                            position: 'absolute',
-                                            inset: '24%',
-                                            borderRadius: '999px',
-                                            background: isActive
-                                                ? 'radial-gradient(circle, rgba(255,255,255,0.76) 0%, rgba(255,255,255,0.14) 40%, rgba(255,255,255,0) 72%)'
-                                                : `radial-gradient(circle, ${accent.replace('0.95', '0.18')} 0%, rgba(255,255,255,0) 72%)`,
-                                        }}
-                                    />
-                                    <span
-                                        aria-hidden="true"
-                                        style={{
-                                            position: 'absolute',
-                                            top: '10px',
-                                            left: '10px',
-                                            width: '8px',
-                                            height: '8px',
-                                            borderRadius: '999px',
-                                            background: accent.replace('0.95', isActive ? '0.95' : '0.45'),
-                                            boxShadow: isActive ? `0 0 12px ${accent.replace('0.95', '0.45')}` : 'none',
-                                        }}
-                                    />
-                                    <span
-                                        aria-hidden="true"
-                                        style={{
-                                            position: 'absolute',
-                                            right: '10px',
-                                            bottom: '10px',
-                                            width: '12px',
-                                            height: '3px',
-                                            borderRadius: '999px',
-                                            background: isActive ? 'rgba(255,255,255,0.78)' : 'rgba(148,163,184,0.42)',
-                                        }}
-                                    />
-                                </button>
-                            );
-                        })}
-                    </div>
+                <div className="flex flex-col items-end">
+                    <span className="text-[0.65rem] font-bold uppercase tracking-widest text-neutral-500">High Score</span>
+                    <span className="text-xl md:text-2xl font-black text-[#4ADE80] leading-tight">{highScore}</span>
                 </div>
-
             </div>
 
-            {!playing && !gameOver && (
-                <div className="game-overlay">
-                    <div style={{ background: '#000', color: '#fff', padding: '0.65rem 1.6rem', borderRadius: '12px', transform: 'skewX(-15deg)', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)' }}>
-                        <h2 style={{ fontSize: '2.2rem', fontWeight: 900, textTransform: 'uppercase', color: '#fff' }}>MEMORY</h2>
-                    </div>
-
-                    <div className="game-panel">
-                        <p style={{ fontWeight: 800, fontSize: '1.05rem', color: '#f8fafc', margin: 0 }}>MISSION: HOLD THE WHOLE CHAIN</p>
-
-                        <div
-                            style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                                gap: '0.48rem',
-                                width: '100%',
-                                maxWidth: '276px',
-                                margin: '0 auto',
-                                padding: '0.75rem',
-                                borderRadius: '18px',
-                                background: 'rgba(8, 15, 33, 0.84)',
-                                border: '1px solid rgba(148, 163, 184, 0.2)',
-                            }}
-                        >
-                            {Array.from({ length: TILE_COUNT }).map((_, tileId) => (
-                                <div
-                                    key={tileId}
-                                    style={{
-                                        aspectRatio: '1 / 1',
-                                        borderRadius: '18px',
-                                        border: tileId === 2 ? `2px solid ${TILE_ACCENTS[tileId]}` : `1px solid ${TILE_ACCENTS[tileId].replace('0.95', '0.2')}`,
-                                        background: tileId === 2
-                                            ? `radial-gradient(circle at 30% 24%, rgba(255,255,255,0.34), transparent 32%), linear-gradient(180deg, ${TILE_ACCENTS[tileId]}, rgba(15, 23, 42, 0.92))`
-                                            : 'linear-gradient(180deg, rgba(35, 43, 63, 0.98), rgba(9, 14, 28, 1))',
-                                        boxShadow: tileId === 2 ? `0 0 24px ${TILE_ACCENTS[tileId].replace('0.95', '0.3')}` : `0 12px 20px rgba(2, 6, 23, 0.24)`,
-                                        position: 'relative',
-                                        overflow: 'hidden',
-                                    }}
-                                >
-                                    <div style={{ position: 'absolute', inset: '7px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }} />
-                                    <div style={{ position: 'absolute', inset: '26%', borderRadius: '999px', background: tileId === 2 ? 'radial-gradient(circle, rgba(255,255,255,0.76) 0%, rgba(255,255,255,0.14) 40%, rgba(255,255,255,0) 72%)' : `radial-gradient(circle, ${TILE_ACCENTS[tileId].replace('0.95', '0.18')} 0%, rgba(255,255,255,0) 72%)` }} />
-                                    <div style={{ position: 'absolute', top: '9px', left: '9px', width: '7px', height: '7px', borderRadius: '999px', background: TILE_ACCENTS[tileId].replace('0.95', tileId === 2 ? '0.95' : '0.45') }} />
-                                    <div style={{ position: 'absolute', right: '9px', bottom: '9px', width: '12px', height: '3px', borderRadius: '999px', background: tileId === 2 ? 'rgba(255,255,255,0.78)' : 'rgba(148,163,184,0.42)' }} />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={startGame}
-                        style={{
-                            background: '#000',
-                            color: '#fff',
-                            fontWeight: 900,
-                            fontSize: '1.05rem',
-                            cursor: 'pointer',
-                            border: 'none',
-                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                        }}
-                        className="game-start-button hover-scale"
-                    >
-                        START MEMORY RUN
-                    </button>
-                    <p style={{ fontSize: '0.68rem', opacity: 0.85, color: '#cbd5e1', lineHeight: 1.4 }}>
-                        LONGER CHAIN EVERY ROUND.
-                    </p>
+            {/* Instruction Panel */}
+            <div className="bg-white/[0.02] border border-white/[0.06] p-4 md:p-5 rounded-2xl flex flex-col gap-1.5 md:gap-2 text-center shadow-sm">
+                <div className="flex justify-between items-center text-[0.65rem] md:text-[0.7rem] font-mono tracking-widest text-neutral-400">
+                    <span className="text-[#4ADE80] font-black uppercase">{phaseLabel}</span>
+                    <span>{playerProgress} / {sequenceLength || 1} MATCHED</span>
                 </div>
-            )}
+                <p className="text-[0.7rem] md:text-xs text-white/80 font-medium leading-relaxed mt-1">
+                    {statusText}
+                </p>
+            </div>
 
-            {gameOver && (
-                <div className="game-overlay">
-                    <h2 style={{ color: '#f472b6', fontSize: '2.3rem', fontWeight: 900 }}>SIGNAL LOST</h2>
-                    <p style={{ color: '#f8fafc', fontSize: '1.4rem', fontWeight: 900 }}>SCORE: {score}</p>
+            {/* Game Grid Container */}
+            <div className="relative aspect-square w-full bg-black/40 border border-white/[0.04] rounded-2xl p-4 md:p-6 flex items-center justify-center">
+                {/* 3x3 Tile Grid */}
+                <div className="grid grid-cols-3 gap-2 md:gap-3 w-full h-full max-w-[280px] max-h-[280px]">
+                    {Array.from({ length: TILE_COUNT }).map((_, tileId) => {
+                        const isActive = activeTile === tileId;
+                        return (
+                            <button
+                                key={tileId}
+                                type="button"
+                                onClick={() => handleTilePress(tileId)}
+                                disabled={!playing}
+                                aria-label={`Memory tile ${tileId + 1}`}
+                                className={`aspect-square rounded-2xl border transition-all duration-150 relative flex items-center justify-center ${
+                                    isActive 
+                                    ? 'bg-white border-white shadow-[0_0_30px_rgba(255,255,255,0.7)] scale-[1.04] z-10' 
+                                    : 'bg-white/[0.02] border-white/[0.05] hover:bg-white/[0.05] active:scale-95 disabled:pointer-events-none'
+                                }`}
+                            >
+                                <div className={`w-3 h-3 md:w-3.5 md:h-3.5 rounded-full transition-all duration-150 ${isActive ? 'bg-black scale-110 shadow-[0_0_10px_rgba(0,0,0,0.5)]' : 'bg-white/10'}`} />
+                            </button>
+                        );
+                    })}
+                </div>
 
-                    <div style={{ width: '100%', maxWidth: '320px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '0.75rem', alignItems: 'stretch' }}>
+                {/* START SCREEN OVERLAY */}
+                {!playing && !gameOver && (
+                    <div className="absolute inset-0 backdrop-blur-md bg-black/80 flex flex-col items-center justify-center p-4 text-center rounded-2xl z-20 overflow-hidden">
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-2xl md:text-3xl mb-3 md:mb-4 shadow-inner">
+                            🧠
+                        </div>
+                        <h3 className="text-lg md:text-xl font-extrabold text-white mb-1 md:mb-2">Memory Test</h3>
+                        <p className="text-neutral-400 text-[0.65rem] md:text-xs leading-relaxed max-w-[220px] mb-4 md:mb-6">
+                            A sequence of flashing tiles will play. Repeat it exactly. Each round adds one more tile.
+                        </p>
+                        <button
+                            onClick={startGame}
+                            className="h-10 md:h-11 px-6 hover:bg-neutral-200 font-bold rounded-xl text-[0.8rem] md:text-sm transition-all duration-300 shadow-md"
+                            style={{ backgroundColor: '#ffffff', color: '#000000' }}
+                        >
+                            Start Test
+                        </button>
+                    </div>
+                )}
+
+                {/* GAME OVER OVERLAY */}
+                {gameOver && (
+                    <div className="absolute inset-0 backdrop-blur-md bg-black/80 flex flex-col items-center justify-center p-4 text-center rounded-2xl z-20 overflow-hidden">
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-red-500/10 border border-red-500/25 flex items-center justify-center text-2xl md:text-3xl mb-2 md:mb-4">
+                            💥
+                        </div>
+                        <h3 className="text-lg md:text-xl font-extrabold text-white mb-1">Signal Lost</h3>
+                        <p className="text-neutral-400 text-[0.7rem] md:text-xs mb-3 md:mb-4">
+                            You scored <span className="text-white font-bold">{score}</span> points.
+                        </p>
+
+                        <div className="flex flex-col gap-2.5 w-full max-w-[240px]">
                             <input
                                 value={name.toUpperCase()}
                                 onChange={(e) => updateName(e.target.value.toUpperCase())}
                                 placeholder="ENTER NAME"
-                                style={{ padding: '1rem', borderRadius: '12px', background: '#f8fafc', color: '#000', border: '3px solid #000', textAlign: 'center', fontSize: '1rem', fontWeight: 900, minWidth: 0, textTransform: 'uppercase' }}
+                                maxLength={10}
+                                className={`w-full h-10 md:h-12 px-4 rounded-xl bg-black/60 border ${nameError ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : 'border-white/20 focus:border-white/50'} text-white text-center font-bold tracking-widest text-[0.75rem] md:text-sm outline-none uppercase placeholder-neutral-500 transition-colors shadow-inner`}
                             />
-                        </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.75rem' }}>
-                            <button
-                                onClick={submit}
-                                disabled={!trimmedName}
-                                style={{ background: trimmedName ? '#e2e8f0' : '#cbd5e1', color: '#000', padding: '1.05rem 0.75rem', borderRadius: '12px', fontWeight: 900, fontSize: '0.95rem', border: 'none', cursor: trimmedName ? 'pointer' : 'not-allowed' }}
-                            >
-                                EXIT
-                            </button>
-                            <button
-                                onClick={retry}
-                                disabled={!trimmedName}
-                                style={{ background: trimmedName ? '#000' : '#475569', color: '#fff', padding: '1.05rem 0.75rem', borderRadius: '12px', fontWeight: 900, fontSize: '0.95rem', border: 'none', cursor: trimmedName ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.45rem' }}
-                            >
-                                <span>🔄</span> PLAY AGAIN
-                            </button>
+                            <div className="grid grid-cols-2 gap-2 mt-1">
+                                <button
+                                    onClick={submit}
+                                    disabled={isSubmitting}
+                                    className={`h-10 md:h-11 text-[0.7rem] md:text-xs font-bold rounded-xl transition-all duration-300 flex items-center justify-center shadow-md ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-200 cursor-pointer'}`}
+                                    style={{ backgroundColor: '#ffffff', color: '#000000' }}
+                                >
+                                    {isSubmitting ? 'Saving...' : 'Exit'}
+                                </button>
+                                <button
+                                    onClick={retry}
+                                    disabled={isSubmitting}
+                                    className={`h-10 md:h-11 text-[0.7rem] md:text-xs font-bold rounded-xl transition-all duration-300 flex items-center justify-center shadow-md ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-200 cursor-pointer'}`}
+                                    style={{ backgroundColor: '#ffffff', color: '#000000' }}
+                                >
+                                    {isSubmitting ? 'Saving...' : 'Play Again'}
+                                </button>
+                            </div>
                         </div>
-                        <p style={{ fontSize: '0.72rem', color: trimmedName ? '#94a3b8' : '#fca5a5', margin: 0, lineHeight: 1.4 }}>
-                            {trimmedName ? 'Both actions will save this score with the entered name.' : 'Enter a name to enable both EXIT and PLAY AGAIN.'}
-                        </p>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }

@@ -1,333 +1,198 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowRight, CircleDot, ExternalLink, Target, TrendingUp } from 'lucide-react';
-import ProjectMediaShowcase from '../../../components/ProjectMediaShowcase';
-import { projects } from '../../../data/projects';
+import Link from 'next/link';
+import { ArrowLeft, CheckCircle2, CircleDashed, Clock, ExternalLink, Lightbulb, Target, Workflow, Zap } from 'lucide-react';
+import { projects } from '@/data/projects';
+import MermaidChart from '@/components/MermaidChart';
 
-function hasRealLink(url: string) {
-    return Boolean(url) && url !== "#";
-}
+const GithubIcon = ({ size = 18 }: { size?: number }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.02c3.18-.35 6.5-1.56 6.5-7.16 0-1.49-.5-2.7-1.35-3.68.14-.33.6-1.74-.15-3.63 0 0-1.12-.36-3.7 1.38a12.8 12.8 0 0 0-6.7 0c-2.58-1.74-3.7-1.38-3.7-1.38-.75 1.89-.29 3.3-.15 3.63-.85.98-1.35 2.19-1.35 3.68 0 5.6 3.32 6.81 6.5 7.16A4.8 4.8 0 0 0 3 18.28V22" />
+    </svg>
+);
 
-function milestoneTone(state: "done" | "in-progress" | "planned") {
-    if (state === "done") {
-        return {
-            label: "Done",
-            background: "rgba(74, 222, 128, 0.12)",
-            color: "#86efac",
-            border: "rgba(74, 222, 128, 0.28)",
-        };
-    }
+const stateStyle: Record<string, { icon: React.ReactNode; badge: string; color: string }> = {
+    done:        { icon: <CheckCircle2 size={18} style={{ color: '#4ade80', flexShrink: 0 }} />, badge: 'Shipped',      color: '#4ade80' },
+    'in-progress': { icon: <Clock size={18}        style={{ color: '#38bdf8', flexShrink: 0 }} />, badge: 'In Progress',  color: '#38bdf8' },
+    planned:     { icon: <CircleDashed size={18}   style={{ color: '#94a3b8', flexShrink: 0 }} />, badge: 'Planned',      color: '#94a3b8' },
+};
 
-    if (state === "in-progress") {
-        return {
-            label: "In Progress",
-            background: "rgba(6, 182, 212, 0.12)",
-            color: "#67e8f9",
-            border: "rgba(6, 182, 212, 0.28)",
-        };
-    }
-
-    return {
-        label: "Planned",
-        background: "rgba(250, 204, 21, 0.12)",
-        color: "#fde68a",
-        border: "rgba(250, 204, 21, 0.28)",
-    };
-}
-
-export async function generateStaticParams() {
-    return projects.map((project) => ({
-        slug: project.slug,
-    }));
+export function generateStaticParams() {
+    return projects.map((project) => ({ slug: project.slug }));
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const project = projects.find((entry) => entry.slug === slug);
+    const project = projects.find(p => p.slug === slug);
 
     if (!project) {
         notFound();
     }
 
-    const showGithub = hasRealLink(project.links.github);
-    const showLive = hasRealLink(project.links.live);
-
     return (
-        <main
-            className="container"
-            style={{
-                paddingTop: 'calc(var(--nav-height) + 4rem)',
-                paddingBottom: '4rem',
-                minHeight: '100vh',
-            }}
-        >
-            <Link href="/projects" style={{ display: 'inline-block', marginBottom: '2rem', color: 'var(--text-secondary)', textDecoration: 'none' }}>
-                &larr; Back to Projects
-            </Link>
+        <main className="container" style={{ paddingTop: 'calc(var(--nav-height) + 2.5rem)', paddingBottom: '6rem', minHeight: '100vh' }}>
 
-            <div
-                className="glass-card"
-                style={{
-                    padding: 'clamp(1.4rem, 3vw, 3rem)',
-                    borderRadius: '28px',
-                    background: 'linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))',
-                }}
-            >
-                <section
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                        gap: '2rem',
-                        alignItems: 'center',
-                        marginBottom: '3rem',
-                    }}
-                >
-                    <div>
-                        <div
-                            style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '0.55rem',
-                                padding: '0.45rem 0.9rem',
-                                borderRadius: '999px',
-                                border: `1px solid ${project.status === "In Progress" ? 'rgba(6, 182, 212, 0.3)' : 'rgba(74, 222, 128, 0.25)'}`,
-                                background: project.status === "In Progress" ? 'rgba(6, 182, 212, 0.12)' : 'rgba(74, 222, 128, 0.12)',
-                                color: project.status === "In Progress" ? '#67e8f9' : '#86efac',
-                                fontSize: '0.85rem',
-                                fontWeight: 700,
-                                letterSpacing: '0.08em',
-                                textTransform: 'uppercase',
-                                marginBottom: '1.2rem',
-                            }}
-                        >
-                            <CircleDot size={14} />
-                            {project.status}
+            {/* Back Button */}
+            <div style={{ marginBottom: '2rem' }}>
+                <Link href="/projects" className="btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 1.25rem', fontSize: '0.9rem' }}>
+                    <ArrowLeft size={15} /> Back to Projects
+                </Link>
+            </div>
+
+            <div style={{ display: 'grid', gap: '2rem', maxWidth: '900px', margin: '0 auto' }}>
+
+                {/* ── 1. HERO HEADER ─────────────────────────────────────── */}
+                <header style={{ padding: '2.5rem', borderRadius: '24px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    {/* Logo + Title row */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.1rem', marginBottom: '0.85rem' }}>
+                        {project.logoIcon && (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                                src={project.logoIcon}
+                                alt={`${project.title} logo`}
+                                style={{ height: '44px', width: 'auto', objectFit: 'contain', borderRadius: '10px', flexShrink: 0 }}
+                            />
+                        )}
+                        <h1 style={{ color: '#fff', fontSize: '2.2rem', fontWeight: 800, margin: 0, lineHeight: 1.15 }}>{project.title}</h1>
+                    </div>
+
+                    {/* Tagline */}
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.65, maxWidth: '700px', margin: '0 0 1.75rem 0' }}>
+                        {project.tagline}
+                    </p>
+
+                    {/* Action buttons */}
+                    <div style={{ display: 'flex', gap: '0.85rem', flexWrap: 'wrap' }}>
+                        {project.links?.live && project.links.live !== '#' && (
+                            <a href={project.links.live} target="_blank" rel="noreferrer" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.25rem', fontSize: '0.9rem' }}>
+                                View Live <ExternalLink size={15} />
+                            </a>
+                        )}
+                        {project.links?.github && project.links.github !== '#' && (
+                            <a href={project.links.github} target="_blank" rel="noreferrer" className="btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.25rem', fontSize: '0.9rem' }}>
+                                Source Code <GithubIcon size={15} />
+                            </a>
+                        )}
+                    </div>
+                </header>
+
+                {/* ── 2. SUMMARY ─────────────────────────────────────────── */}
+                <section style={{ padding: '2rem 2.5rem', borderRadius: '20px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <h2 style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '0.85rem', opacity: 0.45 }}>Overview</h2>
+                    <p style={{ color: 'rgba(255,255,255,0.82)', fontSize: '1.08rem', lineHeight: 1.8, margin: 0 }}>{project.description}</p>
+                </section>
+
+                {/* ── 3. PROBLEM / SOLUTION (two-column) ─────────────────── */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                    {/* Problem */}
+                    <div style={{ padding: '2rem', borderRadius: '20px', background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.14)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
+                            <Target size={17} style={{ color: '#f87171', flexShrink: 0 }} />
+                            <h2 style={{ color: '#f87171', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 }}>The Problem</h2>
                         </div>
+                        <p style={{ color: 'rgba(255,255,255,0.72)', lineHeight: 1.75, margin: 0 }}>{project.scenario}</p>
+                    </div>
 
-                        <h1 className="heading-lg" style={{ marginBottom: '0.75rem', color: 'var(--text-primary)' }}>{project.title}</h1>
-                        <p style={{ fontSize: '1.2rem', lineHeight: 1.7, color: '#d4d4d8', maxWidth: '58ch', marginBottom: '1.25rem' }}>
-                            {project.tagline}
-                        </p>
-                        <p className="text-body" style={{ maxWidth: '62ch', marginBottom: '1.75rem' }}>
-                            {project.description}
-                        </p>
+                    {/* Solution */}
+                    <div style={{ padding: '2rem', borderRadius: '20px', background: 'rgba(74,222,128,0.04)', border: '1px solid rgba(74,222,128,0.14)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
+                            <Lightbulb size={17} style={{ color: '#4ade80', flexShrink: 0 }} />
+                            <h2 style={{ color: '#4ade80', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 }}>The Solution</h2>
+                        </div>
+                        <p style={{ color: 'rgba(255,255,255,0.72)', lineHeight: 1.75, margin: 0 }}>{project.problemSolved}</p>
+                    </div>
+                </div>
 
-                        <div style={{ display: 'flex', gap: '0.85rem', flexWrap: 'wrap', marginBottom: '1.75rem' }}>
-                            {showGithub && (
-                                <a href={project.links.github} target="_blank" rel="noreferrer" className="btn-outline" style={{ gap: '0.55rem' }}>
-                                    GitHub Repository
-                                </a>
+                {/* ── 4. TECH STACK ───────────────────────────────────────── */}
+                <section style={{ padding: '2rem 2.5rem', borderRadius: '20px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
+                        <Zap size={17} style={{ color: 'var(--accent-primary)' }} />
+                        <h2 style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', margin: 0 }}>Tech Stack</h2>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem' }}>
+                        {project.tech.map(t => (
+                            <div
+                                key={t.name}
+                                className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/5 bg-white/[0.04] transition-all duration-200 hover:bg-white/[0.08] hover:border-white/15 cursor-default"
+                            >
+                                {t.icon && <i className={t.icon} style={{ fontSize: '1.15rem' }}></i>}
+                                <span style={{ fontSize: '0.83rem', fontWeight: 600, color: 'rgba(255,255,255,0.75)' }}>{t.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* ── 5. ARCHITECTURE DIAGRAM ─────────────────────────────── */}
+                {(project.architectureImage || project.mermaidChart) && (
+                    <section style={{ borderRadius: '20px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                        <div style={{ padding: '1.5rem 2.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                            <Workflow size={17} style={{ color: 'var(--accent-primary)' }} />
+                            <h2 style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', margin: 0 }}>Architecture Diagram</h2>
+                        </div>
+                        <div style={{ padding: '2rem' }}>
+                            {project.architectureImage ? (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img
+                                    src={project.architectureImage}
+                                    alt={`${project.title} Architecture Diagram`}
+                                    style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '10px' }}
+                                />
+                            ) : (
+                                project.mermaidChart && <MermaidChart chart={project.mermaidChart} />
                             )}
-                            {showLive && (
-                                <a href={project.links.live} target="_blank" rel="noreferrer" className="btn-primary" style={{ gap: '0.55rem' }}>
-                                    Live Demo <ExternalLink size={16} />
-                                </a>
-                            )}
                         </div>
+                    </section>
+                )}
 
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.8rem' }}>
-                            {project.tech.map((entry) => (
-                                <span
-                                    key={entry.name}
-                                    style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '0.5rem',
-                                        padding: '0.75rem 1rem',
-                                        background: 'rgba(255,255,255,0.04)',
-                                        borderRadius: '999px',
-                                        color: 'var(--text-primary)',
-                                        fontSize: '0.95rem',
-                                        border: '1px solid rgba(255,255,255,0.06)',
-                                    }}
-                                >
-                                    {entry.icon && <i className={entry.icon} style={{ fontSize: '1.15rem' }} />}
-                                    {entry.name}
-                                </span>
-                            ))}
+                {/* ── 6. KEY MODULE HIGHLIGHTS ────────────────────────────── */}
+                {project.progress && project.progress.length > 0 && (
+                    <section>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
+                            <h2 style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', margin: 0, opacity: 0.5 }}>Key Module Highlights</h2>
                         </div>
-                    </div>
-
-                    <div
-                        style={{
-                            minHeight: '360px',
-                            borderRadius: '24px',
-                            overflow: 'hidden',
-                            border: '1px solid rgba(255,255,255,0.08)',
-                            background: '#050505',
-                            boxShadow: '0 24px 80px rgba(0,0,0,0.35)',
-                        }}
-                    >
-                        <img src={project.image} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                </section>
-
-                <section
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-                        gap: '1.25rem',
-                        marginBottom: '3rem',
-                    }}
-                >
-                    <div className="glass-card" style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.03)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.8rem', color: 'var(--accent-secondary)' }}>
-                            <Target size={18} />
-                            <p style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.14em', fontWeight: 800 }}>Scenario</p>
-                        </div>
-                        <p className="text-body">{project.scenario}</p>
-                    </div>
-
-                    <div className="glass-card" style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.03)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.8rem', color: 'var(--accent-primary)' }}>
-                            <TrendingUp size={18} />
-                            <p style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.14em', fontWeight: 800 }}>What It Solved</p>
-                        </div>
-                        <p className="text-body">{project.problemSolved}</p>
-                    </div>
-                </section>
-
-                <section style={{ marginBottom: '3rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', alignItems: 'end', marginBottom: '1.35rem' }}>
-                        <div>
-                            <p style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--accent-primary)', fontWeight: 800, marginBottom: '0.4rem' }}>
-                                Media Demo
-                            </p>
-                            <h2 className="heading-md" style={{ color: '#fff' }}>How it works visually</h2>
-                        </div>
-                        <p style={{ color: 'var(--text-secondary)', maxWidth: '42ch', lineHeight: 1.7 }}>
-                            Each project can now choose its own media layout and include as many screenshots or walkthrough clips as you want.
-                        </p>
-                    </div>
-
-                    <ProjectMediaShowcase media={project.media} display={project.mediaDisplay} projectTitle={project.title} />
-                </section>
-
-                <section
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                        gap: '1.4rem',
-                        marginBottom: '3rem',
-                    }}
-                >
-                    <div className="glass-card" style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.03)' }}>
-                        <p style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--accent-secondary)', fontWeight: 800, marginBottom: '0.5rem' }}>
-                            How To Use
-                        </p>
-                        <h2 style={{ color: '#fff', fontSize: '1.45rem', marginBottom: '1rem' }}>Walkthrough</h2>
-                        <div style={{ display: 'grid', gap: '0.95rem' }}>
-                            {project.howToUse.map((step, index) => (
-                                <div key={step} style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.85rem', alignItems: 'start' }}>
-                                    <div
-                                        style={{
-                                            width: '2rem',
-                                            height: '2rem',
-                                            borderRadius: '999px',
-                                            display: 'grid',
-                                            placeItems: 'center',
-                                            background: 'rgba(6, 182, 212, 0.14)',
-                                            color: '#67e8f9',
-                                            fontWeight: 700,
-                                        }}
-                                    >
-                                        {index + 1}
-                                    </div>
-                                    <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>{step}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="glass-card" style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.03)' }}>
-                        <p style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--accent-primary)', fontWeight: 800, marginBottom: '0.5rem' }}>
-                            Outcomes
-                        </p>
-                        <h2 style={{ color: '#fff', fontSize: '1.45rem', marginBottom: '1rem' }}>Why it matters</h2>
-                        <div style={{ display: 'grid', gap: '0.8rem' }}>
-                            {project.outcomes.map((item) => (
-                                <div key={item} style={{ display: 'flex', gap: '0.75rem', alignItems: 'start' }}>
-                                    <ArrowRight size={18} style={{ color: 'var(--accent-primary)', marginTop: '0.2rem', flexShrink: 0 }} />
-                                    <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>{item}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                <section
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                        gap: '1.4rem',
-                    }}
-                >
-                    <div className="glass-card" style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.03)' }}>
-                        <p style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--accent-primary)', fontWeight: 800, marginBottom: '0.5rem' }}>
-                            Progress
-                        </p>
-                        <h2 style={{ color: '#fff', fontSize: '1.45rem', marginBottom: '1rem' }}>Current build status</h2>
-                        <div style={{ display: 'grid', gap: '0.95rem' }}>
-                            {project.progress.map((entry) => {
-                                const tone = milestoneTone(entry.state);
-
+                        <div style={{ display: 'grid', gap: '0.75rem' }}>
+                            {project.progress.map((m, i) => {
+                                const s = stateStyle[m.state] ?? stateStyle.planned;
                                 return (
                                     <div
-                                        key={entry.title}
+                                        key={i}
                                         style={{
-                                            padding: '1rem 1rem 1.05rem',
+                                            padding: '1.25rem 1.5rem',
                                             borderRadius: '16px',
-                                            background: 'rgba(255,255,255,0.03)',
-                                            border: '1px solid rgba(255,255,255,0.06)',
+                                            background: 'rgba(255,255,255,0.02)',
+                                            border: '1px solid rgba(255,255,255,0.055)',
+                                            display: 'grid',
+                                            gridTemplateColumns: '18px 1fr auto',
+                                            alignItems: 'start',
+                                            gap: '0.85rem',
                                         }}
                                     >
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.8rem', flexWrap: 'wrap', marginBottom: '0.55rem' }}>
-                                            <h3 style={{ color: '#fff', fontSize: '1rem' }}>{entry.title}</h3>
-                                            <span
-                                                style={{
-                                                    padding: '0.35rem 0.7rem',
-                                                    borderRadius: '999px',
-                                                    background: tone.background,
-                                                    border: `1px solid ${tone.border}`,
-                                                    color: tone.color,
-                                                    fontSize: '0.76rem',
-                                                    fontWeight: 700,
-                                                    letterSpacing: '0.08em',
-                                                    textTransform: 'uppercase',
-                                                }}
-                                            >
-                                                {tone.label}
-                                            </span>
+                                        {s.icon}
+                                        <div>
+                                            <h4 style={{ color: '#fff', fontWeight: 700, fontSize: '0.97rem', marginBottom: '0.3rem' }}>{m.title}</h4>
+                                            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0, fontSize: '0.9rem' }}>{m.detail}</p>
                                         </div>
-                                        <p style={{ color: 'var(--text-secondary)', lineHeight: 1.65 }}>{entry.detail}</p>
+                                        <span style={{
+                                            fontSize: '0.72rem',
+                                            fontWeight: 700,
+                                            letterSpacing: '0.06em',
+                                            textTransform: 'uppercase',
+                                            color: s.color,
+                                            background: `${s.color}18`,
+                                            border: `1px solid ${s.color}30`,
+                                            borderRadius: '999px',
+                                            padding: '0.2rem 0.65rem',
+                                            whiteSpace: 'nowrap',
+                                            alignSelf: 'center',
+                                        }}>
+                                            {s.badge}
+                                        </span>
                                     </div>
                                 );
                             })}
                         </div>
-                    </div>
+                    </section>
+                )}
 
-                    <div className="glass-card" style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.03)' }}>
-                        <p style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--accent-secondary)', fontWeight: 800, marginBottom: '0.5rem' }}>
-                            Future Goals
-                        </p>
-                        <h2 style={{ color: '#fff', fontSize: '1.45rem', marginBottom: '1rem' }}>What comes next</h2>
-                        <div style={{ display: 'grid', gap: '0.9rem' }}>
-                            {project.futureGoals.map((goal) => (
-                                <div
-                                    key={goal}
-                                    style={{
-                                        padding: '0.95rem 1rem',
-                                        borderRadius: '16px',
-                                        background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.09), rgba(74, 222, 128, 0.06))',
-                                        border: '1px solid rgba(255,255,255,0.06)',
-                                    }}
-                                >
-                                    <p style={{ color: '#e4e4e7', lineHeight: 1.7 }}>{goal}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
             </div>
         </main>
     );

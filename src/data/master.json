@@ -3,10 +3,10 @@
         "name": "Trupal Patel",
         "title": "Full-Stack Software Engineer",
         "email": "trupal.work@gmail.com",
-        "phone": "+1 943 265 1855",
-        "location": "Camarillo, CA",
-        "storyText": "I am a Full-Stack Software Engineer specializing in building scalable, production-grade SaaS platforms, real-time data systems, and AI-driven applications. With a strong foundation in JavaScript, TypeScript, and modern frontend frameworks like React and Next.js, I focus on delivering high-performance, user-centric solutions backed by robust backend architectures.\n\nMy work spans across multi-tenant SaaS ecosystems, computer vision data pipelines, and enterprise analytics platforms. At Allyvia, I played a key role in engineering a multi-tenant retail operations system with deep integrations into financial systems like QuickBooks, while at AIVID.AI, I contributed to large-scale real-time monitoring platforms processing millions of data points across distributed systems.\n\nI combine strong system design thinking with hands-on engineering, enabling me to architect solutions that are both scalable and maintainable. My passion lies in solving complex problems, optimizing performance, and building systems that operate reliably at scale.",
-        "voiceSummary": "Hi, I'm Trupal Patel. I specialize in building scalable, production-grade Software as a Service platforms, real time systems, and A I driven apps. My work spans from building a multi-tenant retail system for Allyvia with complex QuickBooks integration, to contributing to real-time analytics platforms processing millions of data points at Aivid A I. I combine system design with hands-on engineering to solve complex performance problems. Connect with me on the socials page or download my resume."
+        "phone": "+1 (943) 265-1855",
+        "location": "Atlanta, GA",
+        "storyText": "I am a true all round Software Engineer. I don't box myself into just frontend or backend, and I'm not tied to a single programming language. I thrive on handling the entire software lifecycle, from architecting intricate backend logic and designing seamless user interfaces, all the way to deploying highly scalable production ready systems.\n\nMost recently, as the Founding Software Engineer at Allyvia, I had the opportunity to build a comprehensive SaaS platform from the ground up, touching every part of the stack from React UI design to asynchronous AWS SQS task queues. Before that, at AIVID.AI, I engineered high performance analytics pipelines and optimized Elasticsearch queries for over 200 production sites to ensure everything ran fast and reliably at scale.\n\nBeyond corporate roles, I love building robust systems like StoreDesk, a production grade 5 module retail command center and POS ecosystem I architected from scratch. It seamlessly connects local edge nodes to cloud dashboards and mobile apps via WebSockets, completely eliminating downtime risks for convenience stores. For me, it is all about deeply understanding a problem, designing a scalable architecture, and writing clean code that actually makes a difference.",
+        "voiceSummary": "Hi, I'm Trupal Patel. I am a true all round Software Engineer. I don't box myself into just frontend or backend roles, and I'm not tied to a single language. I handle the entire software lifecycle, from architecting intricate backend logic and designing seamless user interfaces, all the way to deploying highly scalable production ready systems. Most recently, as the Founding Software Engineer at Allyvia, I built a comprehensive SaaS platform from the ground up, touching every part of the stack from React UI design to asynchronous AWS task queues. Before that, at AIVID.AI, I engineered high performance analytics pipelines and optimized Elasticsearch queries for over two hundred production sites. Beyond corporate roles, I also architected StoreDesk, a production grade five module retail command center and POS ecosystem from scratch to eliminate downtime risks for convenience stores. For me, it is all about deeply understanding a problem, designing a scalable architecture, and writing clean code that makes a real impact. I would love to bring this exact same drive and architectural vision to your team. Feel free to connect with me on the socials page or download my resume to get in touch!"
     },
     "experiences": [
         {
@@ -14,122 +14,105 @@
             "company": "Allyvia",
             "url": "https://www.allyvia.co/",
             "logo": "https://framerusercontent.com/images/jTSIYOTP8VdE4S1bbDigdqttM.png",
-            "role": "Software Engineer",
-            "period": "July 2025 – February 2026",
+            "role": "Founding Software Engineer",
+            "period": "Jul 2025 – Apr 2026",
             "achievements": [
-                "Enabled scalable onboarding of multiple organizations.",
-                "Reduced frontend code duplication through modular architecture.",
-                "Delivered secure and enterprise-grade access control.",
-                "Stabilized third-party integrations for production use."
+                "Architected and built the end-to-end SaaS application utilizing a React 19 + TypeScript frontend and a Django 5.0 + Django REST Framework backend.",
+                "Engineered an asynchronous background task runner utilizing AWS SQS queues to offload heavy QuickBooks Online data synchronization and webhook ingestion, improving web server latency.",
+                "Implemented a secure, end-to-end employee onboarding workflow with automated temporary credentials, SendGrid welcome emails, and a PIN-authorized clock-in/out kiosk console.",
+                "Integrated Google Drive API for secure document storage, designing OAuth verification, token refresh cycles, and symmetrically encrypted credential storage.",
+                "Developed a robust CRM Hub featuring leads tracking, deals pipelines, tasks, and call notes, alongside document attachment support for client folders.",
+                "Built an Inventory Synchronization module mapping QuickBooks items to local stock databases, implementing reorder points, stock-on-hand tracking, and PostgreSQL trigram similarity searches.",
+                "Designed a multi-module reporting and analytics engine covering Finance, Inventory, CRM, and Employee shifts, utilizing client-side charts to visualize business intelligence metrics."
             ],
             "deepDive": {
-                "systemOverview": "The system was designed as a full-stack SaaS application where each tenant (company) had isolated data, role-based access control, and configurable modules such as inventory management, CRM, employee tracking, billing, and analytics dashboards.",
-                "responsibilities": "I owned the end-to-end development of critical modules across both frontend and backend layers. On the frontend, I utilized React, TypeScript, and Material UI to build scalable and reusable components. I architected a registry-driven navigation system that dynamically rendered UI elements based on user roles and permissions. On the backend side, I worked with secure API design patterns, JWT-based authentication, and middleware-driven authorization to ensure data integrity and security across tenants.",
+                "systemOverview": "Enterprise workflow, financial management, and CRM platform built with React 19, TypeScript, Material UI, Django 5.0, Django REST Framework, and AWS SQS. Featuring live QuickBooks Online synchronization, Google Drive file storage, CRM pipeline management, employee shifts tracking, and multi-module reports and analytics dashboards.",
+                "responsibilities": "Led the end-to-end full-stack development of the SaaS application. Designed the frontend state management (Redux Toolkit, React Query) and scalable RESTful API endpoints. Configured AWS SQS queue polling, Change Data Capture (CDC) syncing, third-party integrations, and dynamic role-based access control (RBAC).",
                 "challenges": [
-                    "Implementing multi-tenant data isolation while maintaining performance. Each tenant required strict separation of data without duplicating infrastructure unnecessarily.",
-                    "Designing a fine-grained RBAC (Role-Based Access Control) system where UI components, routes, and backend APIs all respected permission boundaries consistently.",
-                    "Integrating QuickBooks APIs, which are complex and stateful, requiring handling asynchronous workflows, webhook reliability, and data synchronization without breaking user experience."
+                    "Ensuring real-time data consistency and high-velocity synchronization with QuickBooks Online while staying within API rate limits and preventing request timeouts.",
+                    "Securing sensitive customer credentials and managing automated token refresh cycles for both QuickBooks and Google Drive OAuth flows.",
+                    "Handling complex, fuzzy search queries across large, high-concurrency database tables (inventory, contacts, transactions) efficiently.",
+                    "Offloading time-consuming data processing tasks from the main HTTP request thread to maintain a responsive user experience.",
+                    "Designing a reliable, stateful clock-in/out console (Kiosk) to manage employee time tracking and shift durations securely.",
+                    "Calculating complex, multi-module business intelligence metrics (utilization rates, conversion funnels, cash flows) in real-time without introducing database locks or loading lags."
                 ],
                 "solutions": [
-                    "Designed a permission-aware rendering system, where UI components were dynamically controlled based on decoded JWT permissions. This ensured both security and flexibility.",
-                    "Introduced a registry-based architecture for navigation and module configuration, significantly reducing code duplication and making it easier to scale new modules.",
-                    "Implemented robust webhook handlers and retry mechanisms, ensuring reliable financial data synchronization even under failure scenarios."
+                    "Implemented QuickBooks Change Data Capture (CDC) sync, checking updates since the last recorded timestamp and caching sync state in a QBSync model.",
+                    "Utilized symmetric database-level cryptography (django-fernet-fields) to store access and refresh tokens, alongside automated background refresh checks.",
+                    "Optimized query performance by annotating PostgreSQL TrigramSimilarity for fast fuzzy string matching on names, SKUs, and descriptions, with SQLite icontains fallbacks.",
+                    "Designed a dedicated queue runner polling AWS SQS to execute background sync tasks and handle webhook events asynchronously.",
+                    "Implemented a PIN-authorized Kiosk dashboard with session locking (/employee/kiosk/login) to manage employee shifts and clock-in/out time logs.",
+                    "Engineered a database-level caching mechanism (AnalyticsCache model) with a 5-minute TTL to store pre-calculated metrics, completely bypassing external API call latency during page loads."
                 ],
                 "impact": [
-                    "Enabled scalable onboarding of multiple organizations",
-                    "Reduced frontend code duplication through modular architecture",
-                    "Delivered secure and enterprise-grade access control",
-                    "Stabilized third-party integrations for production use"
+                    "Successfully synchronized 10 critical accounting entities (Invoices, Bills, Inventory Items, Payments, etc.) between Allyvia and QuickBooks Online, ensuring ledger consistency.",
+                    "Decoupled heavy processing tasks into SQS-backed background jobs, keeping web server latency under 200ms.",
+                    "Created an automated onboarding system that lowered user setup times by sending temporary credentials and tracking active status.",
+                    "Encrypted and secured third-party OAuth access tokens across all active company profiles, preventing credential leakage.",
+                    "Delivered dynamic menu filtering, route guarding, and UI action permissions based on subscription tiers and user roles.",
+                    "Provisioned a secure physical kiosk station allowing zero-friction clock-in/out time entries and generating automated shift durations.",
+                    "Enabled full client pipeline management (leads, deals, and notes) linked directly to company documents and financial invoices.",
+                    "Delivered sub-200ms response times for all reports pages (Finance, Inventory, Employee, CRM, Overview) through efficient backend caching and database aggregates."
                 ]
             }
         },
         {
-            "slug": "aivid-ai-swe",
+            "slug": "aivid-ai",
             "company": "AIVID.AI",
             "url": "https://aivid.ai",
             "logo": "https://aivid.ai/wp-content/uploads/2023/12/Aivid-simbol.png",
             "role": "Software Engineer",
-            "period": "August 2024 – April 2025",
+            "period": "Jan 2023 – Jun 2025",
             "achievements": [
-                "Improved analytics search performance significantly.",
-                "Enabled real-time monitoring across 200+ distinct sites.",
-                "Delivered robust event-driven alerting infrastructure.",
-                "Enhanced system scalability and background job reliability."
+                "Developed enterprise analytics applications deployed across 200+ production sites with Angular, TypeScript, Node.js, and Python.",
+                "Improved Elasticsearch query performance by ~25% through database optimization and design principles.",
+                "Designed robust reporting workflows and automated background services using Oracle databases."
             ],
             "deepDive": {
-                "systemOverview": "The system relied heavily on Elasticsearch for analytics, Node.js for backend processing, and React with Elastic UI for real-time dashboards. Data pipelines handled continuous ingestion from computer vision systems and transformed it into actionable insights.",
-                "responsibilities": "I focused on optimizing Elasticsearch queries and building real-time dashboards that displayed large volumes of analytical data without performance degradation. I also developed automated reporting systems that triggered alerts across multiple communication channels such as email, WhatsApp, Slack, and Twilio. Additionally, I contributed to enabling RTSP-based live streaming, allowing users to visualize real-time processed video feeds.",
+                "systemOverview": "Enterprise-level analytics application and complex data processing pipeline infrastructure operating across 200+ production sites.",
+                "responsibilities": "Developed analytics applications using Angular, TypeScript, Node.js, and Python. Applied database design and optimization principles to Elasticsearch and Oracle databases while managing automated background reporting services.",
                 "challenges": [
-                    "Handling massive-scale data aggregation in Elasticsearch, especially when queries involved complex aggregations across millions of records.",
-                    "Ensuring real-time responsiveness of dashboards without blocking the UI thread or overwhelming the browser."
+                    "Handling large-scale data queries across 200+ production sites without sacrificing system speed.",
+                    "Designing reliable background reporting workflows over Oracle database architectures."
                 ],
                 "solutions": [
-                    "Optimized Elasticsearch queries by restructuring aggregations and indexing strategies, achieving a ~25% performance improvement.",
-                    "Implemented memoization and efficient state management techniques on the frontend to ensure smooth rendering of large datasets.",
-                    "Designed cron-based distributed job handlers that executed dynamic workflows and triggered webhooks reliably."
+                    "Optimized Elasticsearch query structures and indexing strategies, achieving ~25% speed improvement.",
+                    "Engineered robust background workers and automated reporting pipeline services."
                 ],
                 "impact": [
-                    "Improved analytics performance significantly",
-                    "Enabled real-time monitoring across 200+ sites",
-                    "Delivered robust alerting infrastructure",
-                    "Enhanced system scalability and reliability"
-                ]
-            }
-        },
-        {
-            "slug": "aivid-ai-intern",
-            "company": "AIVID.AI",
-            "url": "https://aivid.ai",
-            "logo": "https://aivid.ai/wp-content/uploads/2023/12/Aivid-simbol.png",
-            "role": "Software Engineer Intern",
-            "period": "January 2023 – July 2024",
-            "achievements": [
-                "Delivered multiple production-ready analytics dashboards.",
-                "Improved UI responsiveness rendering massive JSON structures.",
-                "Strengthened internal Elasticsearch and Kibana analytics tooling."
-            ],
-            "deepDive": {
-                "systemOverview": "A framework visualizing computer vision intelligence network streams mapping AI inference metrics at scale.",
-                "responsibilities": "I developed over 35+ dashboards using React, TypeScript, and ApexCharts, focusing on visualizing complex AI-generated datasets. I also contributed to Elasticsearch and Kibana plugin development, gaining deep exposure to internal system pipelines.",
-                "challenges": [
-                    "Rendering large JSON datasets efficiently in the browser without performance bottlenecks was a major hurdle.",
-                    "Understanding and adapting to Elastic UI and Kibana’s complex architecture required rapid learning and experimentation."
-                ],
-                "solutions": [
-                    "Built modular and reusable chart components with optimized data transformations, ensuring smooth rendering even with large payloads."
-                ],
-                "impact": [
-                    "Delivered multiple production-ready dashboards",
-                    "Improved UI responsiveness and performance",
-                    "Strengthened internal analytics tooling"
+                    "Deployed analytics pipelines across 200+ production sites utilizing Angular, TypeScript, Node.js, and Python",
+                    "Improved Elasticsearch query performance by ~25%",
+                    "Designed and managed automated background reporting services and Oracle database workflows"
                 ]
             }
         },
         {
             "slug": "infolabz",
-            "company": "InfoLabz IT Services",
+            "company": "InfoLabz IT Services Pvt. Ltd.",
             "url": "https://infolabz.in",
             "logo": "https://infolabz.in/photos/favicon.png",
-            "role": "React.js Intern",
-            "period": "June 2022 – July 2022",
+            "role": "Frontend Software Engineer",
+            "period": "Jan 2022 – Dec 2022",
             "achievements": [
-                "Built strong foundational knowledge in the React ecosystem.",
-                "Gained hands-on experience with external live API integrations.",
-                "Constructed rigid state management pipelines using Redux hooks."
+                "Developed scalable, responsive web applications utilizing HTML5, CSS3, JavaScript, and React.js.",
+                "Improved application performance with reusable component architecture and Redux state management.",
+                "Integrated RESTful APIs, resolved UI defects, and maintained production environments with cross-functional teams."
             ],
             "deepDive": {
-                "systemOverview": "Consumer-facing responsive web applications targeting real-time public data distribution.",
-                "responsibilities": "I developed a news web application and a COVID-19 live dashboard, both consuming real-time APIs and updating the UI dynamically heavily focused on React and Redux.",
+                "systemOverview": "Scalable, responsive web applications designed to modern web standards.",
+                "responsibilities": "Built responsive user interfaces in React.js, optimized state management with Redux, and collaborated with design and backend teams to integrate REST APIs.",
                 "challenges": [
-                    "Managing asynchronous data flows cleanly on component mount boundaries.",
-                    "Maintaining global state consistency reliably as early developmental challenges."
+                    "Maintaining clean component state and fluid responsive layouts across complex web interfaces.",
+                    "Streamlining RESTful API integrations while reducing UI defects."
                 ],
                 "solutions": [
-                    "Implemented structured Redux patterns and separated concerns between UI rendering limits and active data logic using React hooks."
+                    "Implemented reusable component patterns and Redux state flows.",
+                    "Worked closely with cross-functional teams to resolve production UI defects swiftly."
                 ],
                 "impact": [
-                    "Built strong foundational knowledge in React ecosystem",
-                    "Gained hands-on experience with API integration and state management"
+                    "Developed scalable web applications utilizing HTML5, CSS3, JavaScript, and React.js",
+                    "Improved application performance through reusable components and streamlined Redux state management",
+                    "Integrated RESTful APIs and resolved UI defects in production"
                 ]
             }
         }

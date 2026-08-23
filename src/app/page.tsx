@@ -1,9 +1,9 @@
-import HeroSection from '../components/HeroSection';
+import SinglePageLayout from '../components/SinglePageLayout';
 
 export default function Home() {
     return (
         <main>
-            <HeroSection />
+            <SinglePageLayout />
         </main>
     );
 }

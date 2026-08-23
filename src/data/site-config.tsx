@@ -74,13 +74,11 @@ const SnapchatIcon = ({ size = 24 }: { size?: number }) => (
 );
 
 export const navLinks: NavLink[] = [
-    { href: "/about", label: "About" },
-    { href: "/projects", label: "Work" },
-    { href: "/experience", label: "Experience" },
-    { href: "/game", label: "Take a Break" },
-    { href: "/contact", label: "Contact" },
-    { href: "/social", label: "Socials" },
-    { href: "/resume", label: "Resume" },
+    { href: "/#about", label: "About" },
+    { href: "/#projects", label: "Work" },
+    { href: "/#experience", label: "Experience" },
+    { href: "/game", label: "Are You Smart?" },
+    { href: "/#contact", label: "Contact" },
 ];
 
 export const socialLinks: SocialLink[] = [

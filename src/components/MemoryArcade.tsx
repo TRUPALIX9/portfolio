@@ -1,0 +1,162 @@
+"use client";
+
+import { useCallback, useEffect, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import MemoryGame from './games/MemoryGame';
+import { trackVisitorEvent } from '@/utils/visitor-analytics';
+
+type LeaderboardEntry = {
+    id: number;
+    name: string;
+    score: number;
+    game: string;
+    date: string;
+};
+
+const GAME_ID = 'pattern' as const;
+
+export default function MemoryArcade({
+    standalone = false,
+    route = '/game',
+    shareToken,
+    source,
+}: {
+    standalone?: boolean;
+    route?: string;
+    shareToken?: string;
+    source?: string;
+}) {
+    const reduceMotion = useReducedMotion();
+    const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+    const [highScore, setHighScore] = useState(0);
+    const [newHighCelebration, setNewHighCelebration] = useState<number | null>(null);
+    const [isLoadingBoard, setIsLoadingBoard] = useState(true);
+
+    const fetchLeaderboard = useCallback(async () => {
+        try {
+            const res  = await fetch('/api/leaderboard');
+            const data = await res.json();
+            const entries: LeaderboardEntry[] = Array.isArray(data) ? data : [];
+            const memoryEntries = entries
+                .filter(e => e.game === GAME_ID)
+                .sort((a, b) => b.score - a.score);
+            setLeaderboard(memoryEntries);
+            setHighScore(memoryEntries[0]?.score ?? 0);
+        } catch {
+            setLeaderboard([]);
+        } finally {
+            setIsLoadingBoard(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        void fetchLeaderboard();
+        void trackVisitorEvent({ event: 'page_view', route, shareToken, source });
+    }, [fetchLeaderboard, route, shareToken, source]);
+
+    // Clear celebration after 2.4s
+    useEffect(() => {
+        if (newHighCelebration === null) return;
+        const id = window.setTimeout(() => setNewHighCelebration(null), 2400);
+        return () => window.clearTimeout(id);
+    }, [newHighCelebration]);
+
+    const handleFinished = useCallback(async () => {
+        // MemoryGame already submits score internally; just refresh board
+        const prevHigh = highScore;
+        await fetchLeaderboard();
+        // Check for new high after fetch
+        setLeaderboard(prev => {
+            const top = prev[0]?.score ?? 0;
+            if (top > prevHigh) setNewHighCelebration(top);
+            return prev;
+        });
+        void trackVisitorEvent({ event: 'run_complete', route, shareToken, source, game: GAME_ID });
+    }, [highScore, fetchLeaderboard, route, shareToken, source]);
+
+    return (
+        <div className="w-full max-w-5xl mx-auto px-4 py-8 md:py-16">
+            {/* Header: Single Title */}
+            <motion.div
+                initial={{ opacity: 0, y: reduceMotion ? 0 : 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                className="text-center mb-12 flex flex-col gap-3"
+            >
+                <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                    Can You Remember?
+                </h1>
+            </motion.div>
+ 
+            {/* Game + Leaderboard */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start relative z-10">
+                {/* Game: Left Side */}
+                <motion.div
+                    initial={{ opacity: 0, x: reduceMotion ? 0 : -18 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6, delay: 0.08 }}
+                    className="w-full flex justify-center"
+                    onClick={() => trackVisitorEvent({ event: 'game_open', route, shareToken, source, game: GAME_ID })}
+                >
+                    <MemoryGame onFinished={handleFinished} highScore={highScore} />
+                </motion.div>
+ 
+                {/* Leaderboard panel: Right Side */}
+                <motion.div
+                    initial={{ opacity: 0, x: reduceMotion ? 0 : 18 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6, delay: 0.14 }}
+                    className="bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-3xl p-6 md:p-8 flex flex-col gap-6 shadow-2xl sticky top-24"
+                >
+                    <div>
+                        <span className="text-[#4ADE80] font-bold text-xs uppercase tracking-[0.2em] mb-1 block">Hall of Fame</span>
+                        <h2 className="text-xl font-bold text-white tracking-wide">Global Rankings</h2>
+                    </div>
+ 
+                    {isLoadingBoard ? (
+                        <div className="py-8 text-center text-neutral-500 text-sm font-light">
+                            Loading scores…
+                        </div>
+                    ) : leaderboard.length === 0 ? (
+                        <div className="text-center py-10 px-4 text-xs font-light text-neutral-500 border border-dashed border-white/20 rounded-2xl">
+                            Be the first to set a score.
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-2.5">
+                            {leaderboard.slice(0, 10).map((entry, i) => (
+                                <motion.div
+                                    key={entry.id ?? `${entry.name}-${i}`}
+                                    className="flex justify-between gap-4 items-center bg-white/[0.03] border border-white/[0.06] px-5 py-3.5 rounded-xl hover:bg-white/[0.08] transition-colors shadow-sm"
+                                    initial={{ opacity: 0, x: 12 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.04 }}
+                                >
+                                    <span className="text-sm font-medium tracking-wide flex gap-3 items-center text-white">
+                                        <span className={`text-[0.75rem] font-black w-6 h-6 rounded-lg flex items-center justify-center bg-black/40 border ${
+                                            i === 0 ? 'border-amber-400 text-amber-400' :
+                                            i === 1 ? 'border-neutral-400 text-neutral-400' :
+                                            i === 2 ? 'border-amber-700 text-amber-600' : 'border-white/5 text-neutral-500'
+                                        }`}>
+                                            {i + 1}
+                                        </span>
+                                        {entry.name}
+                                    </span>
+                                    <span className={`font-extrabold text-base ${i === 0 ? 'text-[#4ADE80]' : 'text-white'}`}>
+                                        {entry.score}
+                                    </span>
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
+ 
+                    {/* Date of last entry */}
+                    {leaderboard[0] && (
+                        <div className="mt-2 pt-4 border-t border-white/5 text-[0.7rem] text-neutral-500 text-center font-light">
+                            Last score: {new Date(leaderboard[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </div>
+                    )}
+                </motion.div>
+            </div>
+        </div>
+    );
+}

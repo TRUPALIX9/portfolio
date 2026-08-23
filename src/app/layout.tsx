@@ -1,9 +1,10 @@
 import './globals.css';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 export const metadata = {
-    title: 'Trupal | Software Engineer',
-    description: 'Portfolio of Trupal Patel, Full-Stack Software Engineer',
+    title: 'Trupal Patel | Staff Frontend Architect & Software Engineer',
+    description: 'Portfolio of Trupal Patel — High-performance web applications, edge POS systems, and AI data pipelines.',
 };
 
 export default function RootLayout({
@@ -19,6 +20,7 @@ export default function RootLayout({
             <body>
                 <Navbar />
                 {children}
+                <Footer />
             </body>
         </html>
     );
