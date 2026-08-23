@@ -36,6 +36,7 @@ function NavbarContent() {
   const [isScrollingUp, setIsScrollingUp] = useState(false);
   const [isHoveringTop, setIsHoveringTop] = useState(false);
   const [isAtTop, setIsAtTop] = useState(true);
+  const [isMobileView, setIsMobileView] = useState(false);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
@@ -59,12 +60,19 @@ function NavbarContent() {
       setIsHoveringTop(e.clientY < 120);
     };
 
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth <= 1024);
+    };
+    handleResize();
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('resize', handleResize, { passive: true });
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -130,8 +138,9 @@ function NavbarContent() {
     );
   };
 
-  // Show nav when: at the top, scrolling up, hovering at top, or menu is open
-  const showNav = isAtTop || isScrollingUp || isHoveringTop || isOpen;
+  // Desktop: Only show on hover or if menu is open
+  // Mobile/Tablet: Also show when at the top or scrolling up (since there's no hover)
+  const showNav = isHoveringTop || isOpen || (isMobileView && (isAtTop || isScrollingUp));
 
   return (
     <>
