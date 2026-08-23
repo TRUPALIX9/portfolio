@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         description: 'Portfolio of Trupal Patel — High-performance web applications, edge POS systems, and AI data pipelines.',
     },
     verification: {
-        google: 'gVvu39FUFxE1mWGP9DfVIPF9C8-cy48MZIyEV02CQHY',
+        google: 'ELm9u6dJOxQAaNx5-2-a8-u1wsPVVsjgEBJD9TDN3Jw',
     },
 };
 
