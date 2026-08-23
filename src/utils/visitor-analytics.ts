@@ -40,12 +40,23 @@ type VisitorEventPayload = {
         | "resume_download"
         | "contact_submit"
         | "game_open"
-        | "run_complete";
+        | "run_complete"
+        | "behavior_ping";
     linkName?: string;
     linkUrl?: string;
     game?: string;
     score?: number;
     referrer?: string;
+    hardware?: {
+        connection: string;
+        memory: string | number;
+        cores: string | number;
+    };
+    behavior?: {
+        maxScrollDepth: number;
+        sessionDuration: number;
+        rageClicks: number;
+    };
 };
 
 export async function trackVisitorEvent(payload: VisitorEventPayload) {

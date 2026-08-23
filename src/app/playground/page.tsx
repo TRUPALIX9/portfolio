@@ -57,6 +57,14 @@ type VisitorSession = {
     isBot?: boolean;
     city?: string;
     country?: string;
+    hardware?: {
+        connection: string;
+        memory: string | number;
+        cores: string | number;
+    };
+    maxScrollDepth?: number;
+    sessionDuration?: number;
+    rageClicks?: number;
     started_at: string;
     last_seen_at: string;
     view_count: number;
@@ -101,6 +109,11 @@ type DeviceSummary = {
     city?: string;
     country?: string;
     isBot?: boolean;
+    hardware?: {
+        connection: string;
+        memory: string | number;
+        cores: string | number;
+    };
 };
 
 type PlayerGroup = {
@@ -1083,6 +1096,11 @@ export default function Playground() {
                                     <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
                                         Profile: {device.deviceType || "Desktop"} · {device.os} · {device.browser} {device.isBot && <span style={{ background: "#ef4444", color: "white", padding: "1px 6px", borderRadius: "10px", fontSize: "0.7rem", marginLeft: "4px" }}>🤖 BOT</span>}
                                     </div>
+                                    {device.hardware && (
+                                        <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
+                                            Hardware: {device.hardware.memory}GB RAM · {device.hardware.cores} Cores · {device.hardware.connection}
+                                        </div>
+                                    )}
                                     {(device.ip || device.city) && (
                                         <div style={{ color: "#64748b", fontSize: "0.84rem", lineHeight: 1.5 }}>
                                             Network: {device.ip} {device.city && `· ${device.city}, ${device.country}`}
@@ -1126,9 +1144,21 @@ export default function Playground() {
                                                         {session.deviceType || "Desktop"} · {session.os} · {session.browser} {session.city && `· ${session.city}, ${session.country}`}
                                                     </span>
                                                 )}
+                                                {(session.hardware || session.sessionDuration !== undefined) && (
+                                                    <span style={{ color: "#64748b", fontSize: "0.8rem" }}>
+                                                        {session.hardware ? `${session.hardware.memory}GB RAM · ${session.hardware.cores} Cores` : ''} 
+                                                        {session.sessionDuration !== undefined ? ` · Duration: ${session.sessionDuration}s` : ''}
+                                                        {session.maxScrollDepth !== undefined ? ` · Scroll: ${session.maxScrollDepth}%` : ''}
+                                                    </span>
+                                                )}
                                                 {session.referrer && (
                                                     <span style={{ color: "#64748b", fontSize: "0.8rem" }}>
                                                         Ref: {session.referrer}
+                                                    </span>
+                                                )}
+                                                {!!session.rageClicks && session.rageClicks > 0 && (
+                                                    <span style={{ color: "#ef4444", fontSize: "0.8rem", fontWeight: "bold" }}>
+                                                        ⚠️ {session.rageClicks} Rage Click{session.rageClicks > 1 ? 's' : ''} Detected
                                                     </span>
                                                 )}
                                             </div>

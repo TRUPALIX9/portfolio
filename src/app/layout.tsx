@@ -1,10 +1,26 @@
 import './globals.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import BehavioralTracker from '../components/BehavioralTracker';
+import { GoogleAnalytics } from '@next/third-parties/google';
+import type { Metadata } from 'next';
 
-export const metadata = {
+export const metadata: Metadata = {
     title: 'Trupal Patel | Staff Frontend Architect & Software Engineer',
     description: 'Portfolio of Trupal Patel — High-performance web applications, edge POS systems, and AI data pipelines.',
+    keywords: 'Frontend Architect, Software Engineer, React, Next.js, AI, Edge POS, Web Development',
+    openGraph: {
+        title: 'Trupal Patel | Software Engineer',
+        description: 'Portfolio of Trupal Patel — High-performance web applications, edge POS systems, and AI data pipelines.',
+        url: 'https://true-pal.vercel.app',
+        siteName: 'Trupal Patel Portfolio',
+        type: 'website',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Trupal Patel | Software Engineer',
+        description: 'Portfolio of Trupal Patel — High-performance web applications, edge POS systems, and AI data pipelines.',
+    },
 };
 
 export default function RootLayout({
@@ -21,6 +37,8 @@ export default function RootLayout({
                 <Navbar />
                 {children}
                 <Footer />
+                <BehavioralTracker />
+                <GoogleAnalytics gaId="G-XXXXXXXXXX" />
             </body>
         </html>
     );

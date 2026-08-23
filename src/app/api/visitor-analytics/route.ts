@@ -63,27 +63,31 @@ export async function POST(request: Request) {
         // Basic analytics tracking implementation
         // Upsert device
         if (body.deviceId) {
+            const deviceUpdate: any = {
+                $inc: { 
+                    totalViews: body.event === 'page_view' ? 1 : 0,
+                    totalLinkClicks: body.event === 'link_open' ? 1 : 0,
+                    totalRuns: body.event === 'run_complete' ? 1 : 0,
+                    totalResumeDownloads: body.event === 'resume_download' ? 1 : 0,
+                    totalContacts: body.event === 'contact_submit' ? 1 : 0,
+                },
+                $set: { 
+                    lastSeenAt: new Date().toISOString(),
+                    browser,
+                    os,
+                    deviceType,
+                    ip,
+                    city,
+                    country,
+                    isBot
+                }
+            };
+            if (body.hardware) {
+                deviceUpdate.$set.hardware = body.hardware;
+            }
             await db.collection('visitor_devices').updateOne(
                 { deviceId: body.deviceId },
-                { 
-                    $inc: { 
-                        totalViews: body.event === 'page_view' ? 1 : 0,
-                        totalLinkClicks: body.event === 'link_open' ? 1 : 0,
-                        totalRuns: body.event === 'run_complete' ? 1 : 0,
-                        totalResumeDownloads: body.event === 'resume_download' ? 1 : 0,
-                        totalContacts: body.event === 'contact_submit' ? 1 : 0,
-                    },
-                    $set: { 
-                        lastSeenAt: new Date().toISOString(),
-                        browser,
-                        os,
-                        deviceType,
-                        ip,
-                        city,
-                        country,
-                        isBot
-                    }
-                },
+                deviceUpdate,
                 { upsert: true }
             );
         }
@@ -98,47 +102,63 @@ export async function POST(request: Request) {
                 value: body.score || body.linkUrl || null
             };
 
+            const sessionUpdate: any = {
+                $setOnInsert: {
+                    device_id: body.deviceId,
+                    started_at: new Date().toISOString(),
+                    source: body.source || null,
+                    share_token: body.shareToken || null,
+                    referrer: body.referrer || null,
+                    browser,
+                    os,
+                    deviceType,
+                    isBot,
+                    city,
+                    country
+                },
+                $set: {
+                    last_seen_at: new Date().toISOString(),
+                    route: body.route
+                },
+                $inc: {
+                    view_count: body.event === 'page_view' ? 1 : 0,
+                    link_clicks: body.event === 'link_open' ? 1 : 0,
+                    game_opens: body.event === 'game_open' ? 1 : 0,
+                    completed_runs: body.event === 'run_complete' ? 1 : 0,
+                    resume_opens: body.event === 'resume_open' ? 1 : 0,
+                    resume_downloads: body.event === 'resume_download' ? 1 : 0,
+                    contact_submissions: body.event === 'contact_submit' ? 1 : 0,
+                    total_score: body.score || 0
+                },
+                $addToSet: {
+                    games_played: body.game || null,
+                    link_targets: body.linkUrl || null
+                }
+            };
+
+            if (body.event !== 'behavior_ping') {
+                sessionUpdate.$push = {
+                    recent_events: {
+                        $each: [eventObj],
+                        $slice: -50 // keep last 50 events
+                    }
+                };
+            }
+
+            if (body.hardware) {
+                sessionUpdate.$set.hardware = body.hardware;
+            }
+
+            if (body.behavior) {
+                // If maxScrollDepth is provided, only set it if it's greater than current (using $max, but we can just use $set for now since we send the cumulative max)
+                sessionUpdate.$set.maxScrollDepth = body.behavior.maxScrollDepth;
+                sessionUpdate.$set.sessionDuration = body.behavior.sessionDuration;
+                sessionUpdate.$inc.rageClicks = body.behavior.rageClicks;
+            }
+
             await db.collection('visitor_sessions').updateOne(
                 { session_id: body.sessionId },
-                {
-                    $setOnInsert: {
-                        device_id: body.deviceId,
-                        started_at: new Date().toISOString(),
-                        source: body.source || null,
-                        share_token: body.shareToken || null,
-                        referrer: body.referrer || null,
-                        browser,
-                        os,
-                        deviceType,
-                        isBot,
-                        city,
-                        country
-                    },
-                    $set: {
-                        last_seen_at: new Date().toISOString(),
-                        route: body.route
-                    },
-                    $inc: {
-                        view_count: body.event === 'page_view' ? 1 : 0,
-                        link_clicks: body.event === 'link_open' ? 1 : 0,
-                        game_opens: body.event === 'game_open' ? 1 : 0,
-                        completed_runs: body.event === 'run_complete' ? 1 : 0,
-                        resume_opens: body.event === 'resume_open' ? 1 : 0,
-                        resume_downloads: body.event === 'resume_download' ? 1 : 0,
-                        contact_submissions: body.event === 'contact_submit' ? 1 : 0,
-                        total_score: body.score || 0
-                    },
-                    $push: {
-                        recent_events: {
-                            $each: [eventObj],
-                            $slice: -50 // keep last 50 events
-                        }
-                    },
-                    $addToSet: {
-                        games_played: body.game || null,
-                        link_targets: body.linkName || null
-                    }
-                } as any,
+                sessionUpdate,
                 { upsert: true }
             );
             
