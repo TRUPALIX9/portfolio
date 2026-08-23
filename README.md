@@ -20,6 +20,24 @@ This repo is not a starter anymore. It contains:
 - Playwright
 - Three.js / React Three Fiber
 
+## Live Links & Repositories
+
+### Portfolio & Credentials
+- **Personal Portfolio**: [https://true-pal.vercel.app/](https://true-pal.vercel.app/)
+- **GitHub Profile**: [https://github.com/TRUPALIX9](https://github.com/TRUPALIX9)
+- **Credly AI Mastery Badge**: [View Credential](https://www.credly.com/badges/8acca941-de83-466e-b754-0518b0f25e25)
+
+### Projects & Repositories
+- **StoreDesk Ecosystem**: [GitHub](https://github.com/TRUPALIX9/StoreDesk) | [Live Production](https://store-desk-prod.vercel.app/)
+- **RetailSync SaaS Monorepo**: [GitHub](https://github.com/comp596-spring-2026/RetailSync)
+- **AWS Bedrock Shipping & Logistics Agent**: [GitHub](https://github.com/TRUPALIX9/Shipping-Agent-AWS)
+- **Card Vault Mobile OCR Scanner (React Native Expo)**: [GitHub](https://github.com/TRUPALIX9/card-snap-frontend)
+- **Logic Sprint Offline Brain-Training Game (Flutter)**: [GitHub](https://github.com/TRUPALIX9/logic-sprint)
+- **Web-Warehouse 3D (Next.js 15 + Three.js)**: [GitHub](https://github.com/TRUPALIX9/web-warehouse)
+- **Fire Forecasting ML Pipeline & API**: [GitHub](https://github.com/TRUPALIX9/fire-forecasting)
+- **Motion Detection VMS (C# WinForms + ONVIF)**: [GitHub](https://github.com/TRUPALIX9/Motion-Detection-Windows-App)
+- **Vehicle Log Management System (C# + Windows Service)**: [GitHub](https://github.com/TRUPALIX9/Vehicle-Log-Managment-System)
+
 ## Routes
 
 Main pages:

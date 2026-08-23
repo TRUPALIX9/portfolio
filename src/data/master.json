@@ -64,25 +64,34 @@
             "role": "Software Engineer",
             "period": "Jan 2023 – Jun 2025",
             "achievements": [
-                "Developed enterprise analytics applications deployed across 200+ production sites with Angular, TypeScript, Node.js, and Python.",
-                "Improved Elasticsearch query performance by ~25% through database optimization and design principles.",
-                "Designed robust reporting workflows and automated background services using Oracle databases."
+                "Deployed analytics pipelines and device management portals across 200+ enterprise production sites using Angular, React, TypeScript, Node.js, and Python.",
+                "Improved large-scale Elasticsearch query retrieval speeds by ~25% through structural index mapping and aggregation optimizations.",
+                "Maintained 99% stream uptime across edge camera systems via a custom C# Windows service manager with multi-ISP dynamic failover.",
+                "Cut fraudulent customer return claims by 90% by deploying barcode-triggered C# / EmguCV video capture bots.",
+                "Designed automated background workers and scheduled reporting workflows on top of Oracle database architectures."
             ],
             "deepDive": {
-                "systemOverview": "Enterprise-level analytics application and complex data processing pipeline infrastructure operating across 200+ production sites.",
-                "responsibilities": "Developed analytics applications using Angular, TypeScript, Node.js, and Python. Applied database design and optimization principles to Elasticsearch and Oracle databases while managing automated background reporting services.",
+                "systemOverview": "Enterprise-scale edge computer vision and analytics platform operating across 200+ deployment sites, utilizing Angular, Node.js, React, and Python, alongside localized IoT devices and C# Windows services.",
+                "responsibilities": "Engineered multi-site operations management portals, custom Kibana analytics plugins (React, EUI, ApexCharts), and automated edge video capture bots (C#, EmguCV). Optimized large-scale Elasticsearch data pipelines and built local Python/Docker IoT gate controllers.",
                 "challenges": [
-                    "Handling large-scale data queries across 200+ production sites without sacrificing system speed.",
-                    "Designing reliable background reporting workflows over Oracle database architectures."
+                    "Visualizing and querying high-velocity streaming computer vision event logs efficiently across billions of records.",
+                    "Maintaining reliable, continuous RTSP stream capture from on-premise ONVIF cameras with intermittent internet connections.",
+                    "Reducing false claims on shipping returns without introducing manual oversight delays.",
+                    "Creating a resilient system to execute scheduled tasks, metric digests, and alert deliveries without blocking primary application threads."
                 ],
                 "solutions": [
-                    "Optimized Elasticsearch query structures and indexing strategies, achieving ~25% speed improvement.",
-                    "Engineered robust background workers and automated reporting pipeline services."
+                    "Optimized Elasticsearch document mappings and query DSLs, accelerating retrieval by ~25%.",
+                    "Developed a robust C# WinForms application with NSSM background services to handle stream forwarding and dynamic multi-ISP failover.",
+                    "Built an automated C# and EmguCV tool featuring barcode-triggered recording (scan-to-start / scan-to-stop) and local rolling disk retention.",
+                    "Engineered a decoupled Node.js cron scheduling engine to handle background jobs like email alerts and live Google Sheets data injections.",
+                    "Engineered containerized Python edge daemons in Docker interfacing over serial connections with Arduino microcontrollers and camera feeds, paired with a lightweight Next.js operator UI for local access gate overrides."
                 ],
                 "impact": [
-                    "Deployed analytics pipelines across 200+ production sites utilizing Angular, TypeScript, Node.js, and Python",
-                    "Improved Elasticsearch query performance by ~25%",
-                    "Designed and managed automated background reporting services and Oracle database workflows"
+                    "Successfully managed bot configurations and device health telemetry across 200+ enterprise production sites.",
+                    "Engineered 45+ customizable dashboards for enterprise analytics visualization.",
+                    "Maintained 99% stream uptime despite unpredictable edge network conditions.",
+                    "Reduced fraudulent shipping return claims by 90% via automated scan-to-start video verification.",
+                    "Seamlessly connected serial Arduino microcontrollers with containerized Python edge daemons for local gate access control."
                 ]
             }
         },

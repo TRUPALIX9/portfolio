@@ -95,7 +95,7 @@ export const projects: Project[] = [
             { name: "Google Cloud", icon: "devicon-googlecloud-plain colored" }
         ],
         links: {
-            live: "https://store-desk-adpgsbpyf-store-desk.vercel.app/",
+            live: "https://store-desk-prod.vercel.app/",
             github: "https://github.com/TRUPALIX9/StoreDesk"
         },
         image: "/storedesk_logo.svg",
