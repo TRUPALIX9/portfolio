@@ -113,10 +113,10 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
 
     // Phase 3: Answer appears and question yields the center (0.55→0.75)
     const answerFadeIn = remap(p, 0.55, 0.65);
-    const questionPushUp = lerp(0, -240 * driftScale, remap(p, 0.55, 0.75)); // Push question much higher
+    const questionPushUp = lerp(0, -320, remap(p, 0.55, 0.75)); // Push question much higher consistently
     
-    // Answer rises from below (+280px) up to a staggered position (+80px)
-    const answerRisePhase1 = lerp(280 * driftScale, 80 * driftScale, remap(p, 0.55, 0.75));
+    // Answer rises from below (+320px) up to a staggered position (+120px)
+    const answerRisePhase1 = lerp(320, 120, remap(p, 0.55, 0.75));
 
     // Phase 4: Question fades out, answer takes true center (0.75→0.85)
     const questionFadeOut = lerp(1, 0, remap(p, 0.75, 0.85));
