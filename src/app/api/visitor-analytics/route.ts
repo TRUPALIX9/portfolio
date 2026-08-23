@@ -100,7 +100,7 @@ export async function POST(request: Request) {
                         games_played: body.game || null,
                         link_targets: body.linkName || null
                     }
-                },
+                } as any,
                 { upsert: true }
             );
             
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
                         games_played: null,
                         link_targets: null
                     }
-                }
+                } as any
             );
         }
 

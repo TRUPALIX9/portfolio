@@ -1,3 +1,5 @@
+import { getVisitorDeviceId, getVisitorSessionId } from './visitor-analytics';
+
 const PLAYER_NAME_KEY = 'arcade-player-name';
 
 export function getSavedArcadePlayerName() {
@@ -15,9 +17,13 @@ export async function submitArcadeScore(name: string, score: number, game: strin
     if (!trimmedName) return false;
 
     saveArcadePlayerName(trimmedName);
+    
+    const deviceId = getVisitorDeviceId();
+    const sessionId = getVisitorSessionId();
+
     await fetch('/api/leaderboard', {
         method: 'POST',
-        body: JSON.stringify({ name: trimmedName, score, game }),
+        body: JSON.stringify({ name: trimmedName, score, game, deviceId, sessionId }),
     });
 
     return true;

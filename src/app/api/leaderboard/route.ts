@@ -8,6 +8,8 @@ type LeaderboardEntry = {
     score: number;
     game: string;
     date: string;
+    deviceId?: string | null;
+    sessionId?: string | null;
 };
 
 const DEFAULT_GAME = 'unknown';
@@ -62,6 +64,8 @@ export async function GET(request: Request) {
             score: Number(doc.score) || 0,
             game: doc.game ?? DEFAULT_GAME,
             date: doc.date ?? new Date().toISOString(),
+            ...(adminMode && doc.deviceId ? { deviceId: doc.deviceId } : {}),
+            ...(adminMode && doc.sessionId ? { sessionId: doc.sessionId } : {}),
         }));
 
         if (!adminMode) {
@@ -148,6 +152,8 @@ export async function POST(request: Request) {
             score: incomingScore,
             game: game,
             date: new Date().toISOString(),
+            deviceId: body.deviceId || null,
+            sessionId: body.sessionId || null,
         };
 
         if (shouldInsert) {
@@ -166,6 +172,7 @@ export async function POST(request: Request) {
             score: Number(doc.score) || 0,
             game: doc.game ?? DEFAULT_GAME,
             date: doc.date ?? new Date().toISOString(),
+            // Don't expose deviceId to public via POST response
         }));
 
         return NextResponse.json(leaderboard);
@@ -197,6 +204,8 @@ export async function POST(request: Request) {
                 score: Number(body.score) || 0,
                 game: body.game || DEFAULT_GAME,
                 date: new Date().toISOString(),
+                deviceId: body.deviceId || null,
+                sessionId: body.sessionId || null,
             };
 
             leaderboard.push(entry);

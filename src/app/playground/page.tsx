@@ -10,6 +10,7 @@ type LeaderboardEntry = {
     score: number;
     game: string;
     date: string;
+    deviceId?: string;
 };
 
 type Insights = {
@@ -1064,6 +1065,9 @@ export default function Playground() {
 
                                     <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
                                         Top routes: {device.topRoutes.length ? device.topRoutes.join(", ") : "No routes yet"} · Contacts: {device.totalContacts}
+                                    </div>
+                                    <div style={{ color: "#64748b", fontSize: "0.84rem", lineHeight: 1.5 }}>
+                                        Names used: {Array.from(new Set(scores.filter(s => s.deviceId === device.deviceId).map(s => s.name))).join(", ") || "None"}
                                     </div>
                                 </div>
                             ))}
