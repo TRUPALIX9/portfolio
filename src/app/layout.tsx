@@ -6,12 +6,12 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Trupal Patel | Staff Frontend Architect & Software Engineer',
-    description: 'Portfolio of Trupal Patel — High-performance web applications, edge POS systems, and AI data pipelines.',
-    keywords: 'Frontend Architect, Software Engineer, React, Next.js, AI, Edge POS, Web Development',
+    title: 'Trupal Patel (True Pal) | Staff Frontend Architect & Software Engineer',
+    description: 'Portfolio of Trupal Patel (True Pal) — High-performance web applications, edge POS systems, and AI data pipelines.',
+    keywords: 'True Pal, TruePal, Trupal Patel, Frontend Architect, Software Engineer, React, Next.js, AI, Edge POS, Web Development',
     openGraph: {
-        title: 'Trupal Patel | Software Engineer',
-        description: 'Portfolio of Trupal Patel — High-performance web applications, edge POS systems, and AI data pipelines.',
+        title: 'Trupal Patel (True Pal) | Software Engineer',
+        description: 'Portfolio of Trupal Patel (True Pal) — High-performance web applications, edge POS systems, and AI data pipelines.',
         url: 'https://true-pal.vercel.app',
         siteName: 'Trupal Patel Portfolio',
         type: 'website',
