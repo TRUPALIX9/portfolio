@@ -1211,6 +1211,12 @@ button {
   flex-wrap: wrap;
 }
 
+@media (max-width: 1024px) {
+  .gateway-section {
+    padding-right: 2rem;
+  }
+}
+
 .gateway-tile {
   flex: 1;
   min-width: 320px;

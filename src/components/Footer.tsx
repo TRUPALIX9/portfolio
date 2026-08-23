@@ -44,7 +44,7 @@ export default function Footer() {
                         <Link 
                             href="/" 
                             onClick={(e) => {
-                                if (e.detail === 3) {
+                                if (e.detail === 3 || window.innerWidth <= 768) {
                                     e.preventDefault();
                                     router.push('/social');
                                 }
