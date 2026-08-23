@@ -218,7 +218,7 @@ export default function MemoryGame({ onFinished, highScore = 0 }: { onFinished: 
     const trimmedName = name.trim();
 
     return (
-        <div className="w-full max-w-[420px] bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-3xl p-6 flex flex-col gap-5 md:gap-6 shadow-2xl relative">
+        <div className="w-full max-w-[420px] mx-auto bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-3xl p-6 flex flex-col gap-5 md:gap-6 shadow-2xl relative">
             {/* HUD Status Bar */}
             <div className="flex justify-between items-center gap-4 border-b border-white/5 pb-4">
                 <div className="flex flex-col">

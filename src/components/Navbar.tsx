@@ -130,8 +130,8 @@ function NavbarContent() {
     );
   };
 
-  // Only show nav when hovering at the top or if the mobile menu is open
-  const showNav = isHoveringTop || isOpen;
+  // Show nav when: at the top, scrolling up, hovering at top, or menu is open
+  const showNav = isAtTop || isScrollingUp || isHoveringTop || isOpen;
 
   return (
     <>
