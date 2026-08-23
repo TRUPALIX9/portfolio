@@ -45,6 +45,7 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
     const [p, setP]             = useState(0);
     const [show, setShow]       = useState(true);
     const [entered, setEntered] = useState(false);
+    const [driftScale, setDriftScale] = useState(1);
 
     useEffect(() => {
         setEntered(true);
@@ -56,9 +57,17 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
             setP(progress);
             setShow(rect.bottom > -80);
         };
+        const onResize = () => {
+            setDriftScale(window.innerWidth < 640 ? 0.45 : window.innerWidth < 1024 ? 0.75 : 1);
+        };
         window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onResize, { passive: true });
         onScroll();
-        return () => window.removeEventListener('scroll', onScroll);
+        onResize();
+        return () => {
+            window.removeEventListener('scroll', onScroll);
+            window.removeEventListener('resize', onResize);
+        };
     }, []);
 
     // ── Timing map (spread over 400vh for a slow, hooky feel) ───────────────
@@ -75,22 +84,22 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
     const progressT = remap(p, 0.05, 0.45);
 
     // Words drift positions
-    const soDriftX  = lerp(0, -160, driftT);
-    const soDriftY  = lerp(0, -70,  driftT);
+    const soDriftX  = lerp(0, -160 * driftScale, driftT);
+    const soDriftY  = lerp(0, -70 * driftScale,  driftT);
     const soRotate  = lerp(0, -18,  driftT);
 
-    const areDriftX = lerp(0,  165, driftT);
-    const areDriftY = lerp(0,   85, driftT);
+    const areDriftX = lerp(0,  165 * driftScale, driftT);
+    const areDriftY = lerp(0,   85 * driftScale, driftT);
     const areRotate = lerp(0,   12, driftT);
 
-    const wtfDriftY = lerp(0, -35, driftT);
+    const wtfDriftY = lerp(0, -35 * driftScale, driftT);
     const wtfScale  = lerp(1, 1.06, driftT);
 
-    const engDriftX = lerp(0, -25, driftT);
-    const engDriftY = lerp(0,  45, driftT);
+    const engDriftX = lerp(0, -25 * driftScale, driftT);
+    const engDriftY = lerp(0,  45 * driftScale, driftT);
 
-    const qDriftX   = lerp(0,  55, driftT);
-    const qDriftY   = lerp(0, -65, driftT);
+    const qDriftX   = lerp(0,  55 * driftScale, driftT);
+    const qDriftY   = lerp(0, -65 * driftScale, driftT);
     const qRotate   = lerp(0,  25, driftT);
 
     // Scramble and appearance
@@ -104,10 +113,10 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
 
     // Phase 3: Answer appears and question yields the center (0.55→0.75)
     const answerFadeIn = remap(p, 0.55, 0.65);
-    const questionPushUp = lerp(0, -240, remap(p, 0.55, 0.75)); // Push question much higher
+    const questionPushUp = lerp(0, -240 * driftScale, remap(p, 0.55, 0.75)); // Push question much higher
     
     // Answer rises from below (+280px) up to a staggered position (+80px)
-    const answerRisePhase1 = lerp(280, 80, remap(p, 0.55, 0.75));
+    const answerRisePhase1 = lerp(280 * driftScale, 80 * driftScale, remap(p, 0.55, 0.75));
 
     // Phase 4: Question fades out, answer takes true center (0.75→0.85)
     const questionFadeOut = lerp(1, 0, remap(p, 0.75, 0.85));
@@ -157,7 +166,6 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
                         alignItems: 'center', justifyContent: 'center',
                         textAlign: 'center',
                         padding: '0 1.5rem',
-                        paddingTop: 'var(--nav-height, 80px)',
                         opacity: questionBlockOpacity,
                         transform: `translateY(${questionPushUp}px)`,
                         pointerEvents: questionBlockOpacity < 0.1 ? 'none' : 'auto',
