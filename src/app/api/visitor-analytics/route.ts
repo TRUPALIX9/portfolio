@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/utils/mongodb';
 import { isAuthorizedRequest } from '@/utils/admin';
+import { UAParser } from 'ua-parser-js';
 
 export async function GET(request: Request) {
     if (!(await isAuthorizedRequest(request))) {
@@ -38,6 +39,27 @@ export async function POST(request: Request) {
         const body = await request.json();
         const db = await getDb();
         
+        const userAgent = request.headers.get('user-agent') || '';
+        const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '';
+        const city = request.headers.get('x-vercel-ip-city') || '';
+        const country = request.headers.get('x-vercel-ip-country') || '';
+        
+        let browser = '';
+        let os = '';
+        let deviceType = 'Desktop';
+        let isBot = false;
+
+        if (userAgent) {
+            const parser = new UAParser(userAgent);
+            const result = parser.getResult();
+            browser = result.browser.name || '';
+            os = result.os.name || '';
+            deviceType = result.device.vendor ? `${result.device.vendor} ${result.device.model || ''}`.trim() : result.device.type || 'Desktop';
+            
+            const uaLower = userAgent.toLowerCase();
+            isBot = uaLower.includes('bot') || uaLower.includes('crawler') || uaLower.includes('spider') || uaLower.includes('headless') || (result.device.type as string) === 'bot';
+        }
+
         // Basic analytics tracking implementation
         // Upsert device
         if (body.deviceId) {
@@ -51,7 +73,16 @@ export async function POST(request: Request) {
                         totalResumeDownloads: body.event === 'resume_download' ? 1 : 0,
                         totalContacts: body.event === 'contact_submit' ? 1 : 0,
                     },
-                    $set: { lastSeenAt: new Date().toISOString() }
+                    $set: { 
+                        lastSeenAt: new Date().toISOString(),
+                        browser,
+                        os,
+                        deviceType,
+                        ip,
+                        city,
+                        country,
+                        isBot
+                    }
                 },
                 { upsert: true }
             );
@@ -74,7 +105,14 @@ export async function POST(request: Request) {
                         device_id: body.deviceId,
                         started_at: new Date().toISOString(),
                         source: body.source || null,
-                        share_token: body.shareToken || null
+                        share_token: body.shareToken || null,
+                        referrer: body.referrer || null,
+                        browser,
+                        os,
+                        deviceType,
+                        isBot,
+                        city,
+                        country
                     },
                     $set: {
                         last_seen_at: new Date().toISOString(),

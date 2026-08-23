@@ -45,12 +45,14 @@ type VisitorEventPayload = {
     linkUrl?: string;
     game?: string;
     score?: number;
+    referrer?: string;
 };
 
 export async function trackVisitorEvent(payload: VisitorEventPayload) {
     try {
         const deviceId = getVisitorDeviceId();
         const sessionId = getVisitorSessionId();
+        const referrer = typeof document !== 'undefined' ? document.referrer : '';
 
         await fetch("/api/visitor-analytics", {
             method: "POST",
@@ -61,6 +63,7 @@ export async function trackVisitorEvent(payload: VisitorEventPayload) {
                 ...payload,
                 deviceId,
                 sessionId,
+                referrer,
             }),
             keepalive: true,
         });

@@ -23,6 +23,7 @@
     "react-dom": "^19.2.5",
     "react-hook-form": "^7.86.0",
     "three": "^0.183.2",
+    "ua-parser-js": "^2.0.10",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -33,6 +34,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/three": "^0.185.4",
+    "@types/ua-parser-js": "^0.7.39",
     "autoprefixer": "^10.5.4",
     "dotenv": "^17.4.2",
     "eslint": "^9.39.4",

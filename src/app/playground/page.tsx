@@ -50,6 +50,13 @@ type VisitorSession = {
     share_token?: string | null;
     source?: string | null;
     session_label?: string | null;
+    referrer?: string | null;
+    browser?: string;
+    os?: string;
+    deviceType?: string;
+    isBot?: boolean;
+    city?: string;
+    country?: string;
     started_at: string;
     last_seen_at: string;
     view_count: number;
@@ -87,6 +94,13 @@ type DeviceSummary = {
     totalContacts: number;
     lastSeenAt: string;
     topRoutes: string[];
+    browser?: string;
+    os?: string;
+    deviceType?: string;
+    ip?: string;
+    city?: string;
+    country?: string;
+    isBot?: boolean;
 };
 
 type PlayerGroup = {
@@ -1066,6 +1080,14 @@ export default function Playground() {
                                     <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
                                         Top routes: {device.topRoutes.length ? device.topRoutes.join(", ") : "No routes yet"} · Contacts: {device.totalContacts}
                                     </div>
+                                    <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
+                                        Profile: {device.deviceType || "Desktop"} · {device.os} · {device.browser} {device.isBot && <span style={{ background: "#ef4444", color: "white", padding: "1px 6px", borderRadius: "10px", fontSize: "0.7rem", marginLeft: "4px" }}>🤖 BOT</span>}
+                                    </div>
+                                    {(device.ip || device.city) && (
+                                        <div style={{ color: "#64748b", fontSize: "0.84rem", lineHeight: 1.5 }}>
+                                            Network: {device.ip} {device.city && `· ${device.city}, ${device.country}`}
+                                        </div>
+                                    )}
                                     <div style={{ color: "#64748b", fontSize: "0.84rem", lineHeight: 1.5 }}>
                                         Names used: {Array.from(new Set(scores.filter(s => s.deviceId === device.deviceId).map(s => s.name))).join(", ") || "None"}
                                     </div>
@@ -1089,13 +1111,26 @@ export default function Playground() {
                                     <div key={session.session_id} style={{ padding: "1rem", borderRadius: "18px", background: isSelected ? "linear-gradient(135deg, rgba(15,23,42,0.96), rgba(30,41,59,0.94))" : "rgba(255,255,255,0.03)", border: isSelected ? "1px solid rgba(59,130,246,0.34)" : "1px solid rgba(148,163,184,0.14)", boxShadow: isSelected ? "0 16px 34px rgba(15,23,42,0.18)" : "none", display: "grid", gap: "0.75rem" }}>
                                         <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "start", flexWrap: "wrap" }}>
                                             <div style={{ display: "grid", gap: "0.3rem" }}>
-                                                <strong style={{ fontSize: "0.95rem", color: "#fff" }}>{session.session_label?.trim() || "Unnamed Session"}</strong>
+                                                <strong style={{ fontSize: "0.95rem", color: "#fff", display: "flex", alignItems: "center", gap: "6px" }}>
+                                                    {session.session_label?.trim() || "Unnamed Session"}
+                                                    {session.isBot && <span style={{ background: "#ef4444", color: "white", padding: "1px 6px", borderRadius: "10px", fontSize: "0.7rem" }}>🤖 BOT</span>}
+                                                </strong>
                                                 <span style={{ color: "#64748b", fontSize: "0.84rem" }}>
                                                     {session.route} · {new Date(session.started_at).toLocaleString()}
                                                 </span>
                                                 <span style={{ color: "#64748b", fontSize: "0.8rem" }}>
                                                     {session.device_id} · {session.source || "direct"} {session.share_token ? `· token ${session.share_token.slice(0, 14)}...` : ""}
                                                 </span>
+                                                {(session.browser || session.city) && (
+                                                    <span style={{ color: "#64748b", fontSize: "0.8rem" }}>
+                                                        {session.deviceType || "Desktop"} · {session.os} · {session.browser} {session.city && `· ${session.city}, ${session.country}`}
+                                                    </span>
+                                                )}
+                                                {session.referrer && (
+                                                    <span style={{ color: "#64748b", fontSize: "0.8rem" }}>
+                                                        Ref: {session.referrer}
+                                                    </span>
+                                                )}
                                             </div>
                                             <Pill label={`${session.view_count} views`} />
                                         </div>
