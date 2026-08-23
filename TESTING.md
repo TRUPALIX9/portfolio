@@ -14,7 +14,7 @@ The Playwright suite currently verifies:
 - Mobile smoke interactions for swipe and tap driven gameplay flows.
 - `/playground` rejects invalid keys and unlocks only after a successful server-validated admin fetch.
 
-These tests intentionally mock `/api/leaderboard` so they do not mutate the real Supabase leaderboard during CI or local runs.
+These tests intentionally mock `/api/leaderboard` so they do not mutate the real MongoDB leaderboard during CI or local runs.
 
 ## Manual Device Matrix
 
@@ -73,7 +73,4 @@ These tests intentionally mock `/api/leaderboard` so they do not mutate the real
 - Wipe leaderboard:
   Confirm the table becomes empty and the insight cards reset cleanly.
 
-## Build And Schema Checks
-
 - Run `npm run build` to catch route, type, and Next.js integration issues.
-- Run `node scripts/update-leaderboard-schema.mjs` with `DATABASE_URL` set when upgrading an older Supabase table that was created before the `game` column existed.

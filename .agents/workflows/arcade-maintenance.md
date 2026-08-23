@@ -103,7 +103,7 @@ Current behavior:
 Operational reality:
 - Public reads should never require admin auth.
 - Admin insight reads and deletes must remain protected.
-- If Supabase table setup is missing, public GET currently degrades to `[]`.
+- If MongoDB collection setup is missing, public GET currently degrades to `[]`.
 
 Maintenance rules:
 - Preserve server-side auth checks.
@@ -360,7 +360,7 @@ Before shipping arcade changes:
 - Launch every cabinet at least once.
 - Verify desktop and mobile control copy matches real inputs.
 - Verify names must be entered before save/retry.
-- Verify one score save path works if Supabase is configured.
+- Verify one score save path works if MongoDB is configured.
 - Verify `/playground` admin auth still behaves correctly.
 - Verify `/arcade/[token]` still hides nav and validates tokens.
 

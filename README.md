@@ -1,6 +1,6 @@
 # Trupal Patel Portfolio
 
-A personal portfolio built with Next.js 16, React 19, TypeScript, Framer Motion, and Supabase-backed arcade leaderboards.
+A personal portfolio built with Next.js 16, React 19, TypeScript, Framer Motion, and MongoDB-backed arcade leaderboards.
 
 This repo is not a starter anymore. It contains:
 
@@ -16,7 +16,7 @@ This repo is not a starter anymore. It contains:
 - React 19
 - TypeScript
 - Framer Motion
-- Supabase
+- MongoDB
 - Playwright
 - Three.js / React Three Fiber
 
@@ -78,19 +78,16 @@ The game hub lives in [src/components/GameHub.tsx](/Users/trupal/Projects/portfo
 Create `.env.local` with the values you need:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=...
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
 KEY=...
 SHARE_LINK_SECRET=...
-DATABASE_URL=...
+MONGODB_URI=...
 ```
 
 Notes:
 
 - `KEY` protects the admin playground and admin API actions.
 - `SHARE_LINK_SECRET` signs arcade-only URLs. If omitted, the app falls back to `KEY`.
-- `DATABASE_URL` is used by the schema scripts.
-- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are used by the leaderboard integration.
+- `MONGODB_URI` connects to your MongoDB database for leaderboard tracking.
 
 ## Local Development
 
@@ -118,25 +115,7 @@ Start production mode locally:
 npm run start
 ```
 
-## Leaderboard Setup
 
-If the Supabase `leaderboard` table does not exist yet, create or patch it with the included scripts:
-
-```bash
-node scripts/create-leaderboard-table.mjs
-```
-
-For an existing table that is missing the `game` column:
-
-```bash
-node scripts/update-leaderboard-schema.mjs
-```
-
-Optional verification:
-
-```bash
-node scripts/verify-supabase.mjs
-```
 
 ## Testing
 
@@ -198,7 +177,6 @@ Verified in this workspace:
 
 - `npm run build` passes
 - `npm run test:e2e` passes with `9 passed, 3 skipped`
-- `node scripts/verify-supabase.mjs` passes against the live Supabase project, including insert/select verification on the `leaderboard` table with the `game` column present
 - Playwright needed to be rerun outside the sandbox so the local test server could bind to port `3000`
 
 One existing framework note remains:

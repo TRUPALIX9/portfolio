@@ -31,7 +31,7 @@ submitArcadeScore()     ← src/utils/arcade-player.ts
 POST /api/leaderboard   ← src/app/api/leaderboard/route.ts
         │
         ▼
-Supabase `leaderboard` table
+MongoDB `leaderboard` collection
 ```
 
 ---
@@ -56,7 +56,7 @@ Supabase `leaderboard` table
 3. Player plays → score accumulates via game-internal state
 4. Game over → overlay shows score + name input
 5. Player enters name → submitArcadeScore(name, score, gameId) called
-6. POST /api/leaderboard → Supabase insert → returns updated rankings
+6. POST /api/leaderboard → MongoDB insert → returns updated rankings
 7. GameHub refreshes leaderboard → hall of fame updates
 8. Player exits → back to selection screen
 ```
@@ -165,18 +165,21 @@ Does not change any game logic.
 ## 5. Leaderboard API
 
 **File:** `src/app/api/leaderboard/route.ts`  
-**DB:** Supabase table `leaderboard`
+**DB:** MongoDB collection `leaderboard`
 
 ### Schema
 
-```sql
-CREATE TABLE leaderboard (
-  id    SERIAL PRIMARY KEY,
-  name  TEXT NOT NULL,
-  score INTEGER NOT NULL DEFAULT 0,
-  game  TEXT NOT NULL DEFAULT 'unknown',
-  date  TIMESTAMPTZ NOT NULL DEFAULT now()
-);
+The MongoDB document schema resembles:
+
+```json
+{
+  "_id": "ObjectId",
+  "id": 1234567890,
+  "name": "Player Name",
+  "score": 100,
+  "game": "pattern",
+  "date": "2026-08-23T12:00:00Z"
+}
 ```
 
 ### Endpoints
@@ -282,7 +285,7 @@ Defined in `src/app/globals.css`:
 - `MemoryGame.tsx` — unchanged, game ID remains `'pattern'`
 - Leaderboard API — unchanged, `game = 'pattern'` filter used
 - `submitArcadeScore` utility — unchanged
-- Supabase schema — unchanged
+- MongoDB schema — unchanged
 - Admin playground — unchanged
 - Share token security — unchanged
 - `TrackedGameHub` → replaced by direct `MemoryArcade` wrapper

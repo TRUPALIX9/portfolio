@@ -66,7 +66,6 @@ const techArsenal: Record<string, Skill[] | Record<string, Skill[]>> = {
         { name: "SQL & MySQL", class: "devicon-mysql-plain colored" },
         { name: "Oracle", class: "devicon-oracle-original" },
         { name: "Redis", class: "devicon-redis-plain colored" },
-        { name: "Supabase", class: "devicon-supabase-plain colored" },
         { name: "Firebase", class: "devicon-firebase-plain colored" }
     ]
 };
