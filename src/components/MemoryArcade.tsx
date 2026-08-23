@@ -98,7 +98,7 @@ export default function MemoryArcade({
                     className="w-full flex justify-center"
                     onClick={() => trackVisitorEvent({ event: 'game_open', route, shareToken, source, game: GAME_ID })}
                 >
-                    <MemoryGame onFinished={handleFinished} highScore={highScore} />
+                    <MemoryGame onFinished={handleFinished} highScore={highScore} standalone={standalone} />
                 </motion.div>
  
                 {/* Leaderboard panel: Right Side */}

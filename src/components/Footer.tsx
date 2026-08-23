@@ -22,7 +22,7 @@ export default function Footer() {
     const pathname = usePathname();
     const router = useRouter();
 
-    if (pathname === '/game' || pathname?.startsWith('/arcade')) {
+    if (pathname === '/game' || pathname === '/game-only' || pathname?.startsWith('/arcade')) {
         return null;
     }
 

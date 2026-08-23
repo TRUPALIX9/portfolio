@@ -18,7 +18,7 @@ const TILE_ACCENTS = [
     'rgba(255, 255, 255, 1)',
 ];
 
-export default function MemoryGame({ onFinished, highScore = 0 }: { onFinished: () => void; highScore?: number }) {
+export default function MemoryGame({ onFinished, highScore = 0, standalone = false }: { onFinished: () => void; highScore?: number; standalone?: boolean }) {
     const timeoutsRef = useRef<number[]>([]);
     const sequenceRef = useRef<number[]>([]);
     const inputIndexRef = useRef(0);
@@ -311,15 +311,17 @@ export default function MemoryGame({ onFinished, highScore = 0 }: { onFinished: 
                                 className={`w-full h-10 md:h-12 px-4 rounded-xl bg-black/60 border ${nameError ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : 'border-white/20 focus:border-white/50'} text-white text-center font-bold tracking-widest text-[0.75rem] md:text-sm outline-none uppercase placeholder-neutral-500 transition-colors shadow-inner`}
                             />
 
-                            <div className="grid grid-cols-2 gap-2 mt-1">
-                                <button
-                                    onClick={submit}
-                                    disabled={isSubmitting}
-                                    className={`h-10 md:h-11 text-[0.7rem] md:text-xs font-bold rounded-xl transition-all duration-300 flex items-center justify-center shadow-md ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-200 cursor-pointer'}`}
-                                    style={{ backgroundColor: '#ffffff', color: '#000000' }}
-                                >
-                                    {isSubmitting ? 'Saving...' : 'Exit'}
-                                </button>
+                            <div className={`grid ${standalone ? 'grid-cols-1' : 'grid-cols-2'} gap-2 mt-1`}>
+                                {!standalone && (
+                                    <button
+                                        onClick={submit}
+                                        disabled={isSubmitting}
+                                        className={`h-10 md:h-11 text-[0.7rem] md:text-xs font-bold rounded-xl transition-all duration-300 flex items-center justify-center shadow-md ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-200 cursor-pointer'}`}
+                                        style={{ backgroundColor: '#ffffff', color: '#000000' }}
+                                    >
+                                        {isSubmitting ? 'Saving...' : 'Exit'}
+                                    </button>
+                                )}
                                 <button
                                     onClick={retry}
                                     disabled={isSubmitting}
