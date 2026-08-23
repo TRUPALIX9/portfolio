@@ -21,6 +21,9 @@ export const metadata: Metadata = {
         title: 'Trupal Patel | Software Engineer',
         description: 'Portfolio of Trupal Patel — High-performance web applications, edge POS systems, and AI data pipelines.',
     },
+    verification: {
+        google: 'gVvu39FUFxE1mWGP9DfVIPF9C8-cy48MZIyEV02CQHY',
+    },
 };
 
 export default function RootLayout({
