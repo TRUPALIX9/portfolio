@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Mail, ArrowUp } from 'lucide-react';
 
 const GithubIcon = ({ size = 18 }: { size?: number }) => (
@@ -20,6 +20,7 @@ const LinkedinIcon = ({ size = 18 }: { size?: number }) => (
 
 export default function Footer() {
     const pathname = usePathname();
+    const router = useRouter();
 
     if (pathname === '/game' || pathname?.startsWith('/arcade')) {
         return null;
@@ -40,7 +41,16 @@ export default function Footer() {
             <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
                     <div>
-                        <Link href="/" style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: '#fff' }}>
+                        <Link 
+                            href="/" 
+                            onClick={(e) => {
+                                if (e.detail === 3) {
+                                    e.preventDefault();
+                                    router.push('/social');
+                                }
+                            }}
+                            style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: '#fff' }}
+                        >
                             TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span>
                         </Link>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
