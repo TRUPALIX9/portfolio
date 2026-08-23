@@ -208,6 +208,7 @@ export default function MemoryGame({ onFinished, highScore = 0 }: { onFinished: 
         setIsSubmitting(true);
         try {
             await submitArcadeScore(trimmedName, score, 'pattern');
+            onFinished(); // This triggers leaderboard refresh in parent
         } finally {
             setIsSubmitting(false);
         }
