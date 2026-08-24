@@ -1071,46 +1071,88 @@ export default function Playground() {
                     >
                         <div style={{ display: "grid", gap: "0.85rem" }}>
                             {devices.length === 0 && <EmptyState label="No tracked devices yet." />}
-                            {devices.slice(0, 8).map((device) => (
-                                <div key={device.deviceId} style={{ padding: "1rem", borderRadius: "18px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(148,163,184,0.14)", display: "grid", gap: "0.75rem" }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "start", flexWrap: "wrap" }}>
-                                        <div style={{ display: "grid", gap: "0.25rem" }}>
-                                            <strong style={{ fontSize: "0.95rem", color: "#fff" }}>{device.deviceId}</strong>
-                                            <span style={{ color: "#64748b", fontSize: "0.82rem" }}>
-                                                Last seen {new Date(device.lastSeenAt).toLocaleString()}
-                                            </span>
+                            {devices.slice(0, 8).map((device) => {
+                                const deviceScores = scores.filter((s) => s.deviceId === device.deviceId);
+                                return (
+                                    <div key={device.deviceId} style={{ padding: "1rem", borderRadius: "18px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(148,163,184,0.14)", display: "grid", gap: "0.75rem" }}>
+                                        <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "start", flexWrap: "wrap" }}>
+                                            <div style={{ display: "grid", gap: "0.25rem" }}>
+                                                <strong style={{ fontSize: "0.95rem", color: "#fff" }}>{device.deviceId}</strong>
+                                                <span style={{ color: "#64748b", fontSize: "0.82rem" }}>
+                                                    Last seen {new Date(device.lastSeenAt).toLocaleString()}
+                                                </span>
+                                            </div>
+                                            <Pill label={`${sessions.filter((s) => s.device_id === device.deviceId).length} sessions`} />
                                         </div>
-                                        <Pill label={`${device.sessions} sessions`} />
-                                    </div>
 
-                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "0.6rem" }}>
-                                        <MetricChip label="Views" value={String(device.totalViews)} />
-                                        <MetricChip label="Links" value={String(device.totalLinkClicks)} />
-                                        <MetricChip label="Runs" value={String(device.totalRuns)} />
-                                        <MetricChip label="Resume DL" value={String(device.totalResumeDownloads)} />
-                                    </div>
+                                        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "0.6rem" }}>
+                                            <MetricChip label="Views" value={String(device.totalViews)} />
+                                            <MetricChip label="Links" value={String(device.totalLinkClicks)} />
+                                            <MetricChip label="Runs" value={String(device.totalRuns)} />
+                                            <MetricChip label="Resume DL" value={String(device.totalResumeDownloads)} />
+                                        </div>
 
-                                    <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
-                                        Top routes: {device.topRoutes?.length ? device.topRoutes.join(", ") : "No routes yet"} · Contacts: {device.totalContacts}
-                                    </div>
-                                    <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
-                                        Profile: {device.deviceType || "Desktop"} · {device.os} · {device.browser} {device.isBot && <span style={{ background: "#ef4444", color: "white", padding: "1px 6px", borderRadius: "10px", fontSize: "0.7rem", marginLeft: "4px" }}>🤖 BOT</span>}
-                                    </div>
-                                    {device.hardware && (
                                         <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
-                                            Hardware: {device.hardware.memory}GB RAM · {device.hardware.cores} Cores · {device.hardware.connection}
+                                            Top routes: {device.topRoutes?.length ? device.topRoutes.join(", ") : "No routes yet"} · Contacts: {device.totalContacts}
                                         </div>
-                                    )}
-                                    {(device.ip || device.city) && (
+                                        <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
+                                            Profile: {device.deviceType || "Desktop"} · {device.os} · {device.browser} {device.isBot && <span style={{ background: "#ef4444", color: "white", padding: "1px 6px", borderRadius: "10px", fontSize: "0.7rem", marginLeft: "4px" }}>🤖 BOT</span>}
+                                        </div>
+                                        {device.hardware && (
+                                            <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
+                                                Hardware: {device.hardware.memory}GB RAM · {device.hardware.cores} Cores · {device.hardware.connection}
+                                            </div>
+                                        )}
+                                        {(device.ip || device.city) && (
+                                            <div style={{ color: "#64748b", fontSize: "0.84rem", lineHeight: 1.5 }}>
+                                                Network: {device.ip} {device.city && `· ${device.city}, ${device.country}`}
+                                            </div>
+                                        )}
                                         <div style={{ color: "#64748b", fontSize: "0.84rem", lineHeight: 1.5 }}>
-                                            Network: {device.ip} {device.city && `· ${device.city}, ${device.country}`}
+                                            Names used: {Array.from(new Set(deviceScores.map((s) => s.name))).join(", ") || "None"}
                                         </div>
-                                    )}
-                                    <div style={{ color: "#64748b", fontSize: "0.84rem", lineHeight: 1.5 }}>
-                                        Names used: {Array.from(new Set(scores.filter(s => s.deviceId === device.deviceId).map(s => s.name))).join(", ") || "None"}
+
+                                        {deviceScores.length > 0 && (
+                                            <div style={{ marginTop: "0.45rem", padding: "0.75rem", borderRadius: "12px", background: "rgba(0,0,0,0.22)", border: "1px solid rgba(255,255,255,0.05)", display: "grid", gap: "0.5rem" }}>
+                                                <div style={{ fontSize: "0.74rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "#fca5a5", fontWeight: 800 }}>
+                                                    Arcade Activity ({deviceScores.length} Run{deviceScores.length > 1 ? 's' : ''})
+                                                </div>
+                                                <div style={{ display: "grid", gap: "0.6rem" }}>
+                                                    {Object.entries(
+                                                        deviceScores.reduce((acc, score) => {
+                                                            const existing = acc[score.game] || [];
+                                                            existing.push(score);
+                                                            acc[score.game] = existing;
+                                                            return acc;
+                                                        }, {} as Record<string, LeaderboardEntry[]>)
+                                                    ).map(([game, entries]) => (
+                                                        <div key={game} style={{ paddingLeft: "0.6rem", borderLeft: "2px solid #ef4444", display: "grid", gap: "0.25rem" }}>
+                                                            <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#e2e8f0", display: "flex", alignItems: "center", gap: "6px" }}>
+                                                                <span>🎮 {game.toUpperCase()}</span>
+                                                                <span style={{ fontSize: "0.72rem", color: "#64748b", fontWeight: 500 }}>
+                                                                    ({entries.length} play{entries.length > 1 ? 's' : ''})
+                                                                </span>
+                                                            </div>
+                                                            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                                                                {entries.sort((a, b) => b.score - a.score).map((entry) => (
+                                                                    <div key={entry.id} style={{ fontSize: "0.76rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", padding: "0.15rem 0.45rem", borderRadius: "8px", display: "flex", alignItems: "center", gap: "5px" }}>
+                                                                        <span style={{ color: "#fca5a5", fontWeight: 700 }}>🏆 {entry.score} pts</span>
+                                                                        <span style={{ color: "#64748b" }}>as</span>
+                                                                        <span style={{ color: "#fff", fontWeight: 600 }}>{entry.name}</span>
+                                                                        <span style={{ color: "#475569", fontSize: "0.68rem" }}>
+                                                                            {new Date(entry.date).toLocaleDateString()}
+                                                                        </span>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </Panel>
 
