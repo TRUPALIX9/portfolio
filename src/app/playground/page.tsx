@@ -3,6 +3,7 @@
 import type { CSSProperties, FormEvent } from "react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import MasterVisitorExplorer from "@/components/admin/MasterVisitorExplorer";
 
 type LeaderboardEntry = {
     id: number;
@@ -640,6 +641,24 @@ export default function Playground() {
             .slice(-7);
     }, [scores]);
 
+    const botStats = useMemo(() => {
+        const botsCount = sessions.filter((s) => s.isBot).length;
+        const botPercentage = sessions.length ? Math.round((botsCount / sessions.length) * 100) : 0;
+        return { botsCount, botPercentage };
+    }, [sessions]);
+
+    const resumeStats = useMemo(() => {
+        const downloads = sessions.reduce((sum, s) => sum + (s.resume_downloads || 0), 0);
+        const opens = sessions.reduce((sum, s) => sum + (s.resume_opens || 0), 0);
+        return { downloads, opens };
+    }, [sessions]);
+
+    const outreachStats = useMemo(() => {
+        const messages = contactSubmissions.length;
+        const attempts = sessions.reduce((sum, s) => sum + (s.contact_submissions || 0), 0);
+        return { messages, attempts };
+    }, [sessions, contactSubmissions]);
+
     const filteredScores = useMemo(() => {
         const normalizedSearch = searchTerm.trim().toUpperCase();
 
@@ -820,20 +839,40 @@ export default function Playground() {
                     </div>
                 </section>
 
-                <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem" }}>
-                    <StatCard title="Total Games Played" value={String(scores.length)} subtitle="All recorded arcade runs" accent="#ef4444" />
-                    <StatCard title="Total Points Gained" value={numberFormat(totalScore)} subtitle="Combined score across every submission" accent="#0ea5e9" />
-                    <StatCard title="Average Game Score" value={String(averageScore)} subtitle="Mean score across the full leaderboard" accent="#22c55e" />
-                    <StatCard title="Tracked Players" value={String(uniquePlayers)} subtitle="Unique names currently in the leaderboard" accent="#a855f7" />
-                    <StatCard title="Contact Messages" value={String(contactSubmissions.length)} subtitle={newestContact ? `Latest from ${newestContact.name}` : "No contact submissions yet"} accent="#ec4899" />
-                    <StatCard title="New Messages" value={String(newContacts)} subtitle="Unread outreach waiting on you" accent="#f59e0b" />
-                    <StatCard title="Tracked Sessions" value={String(totalTrackedSessions)} subtitle={`${totalSessionViews} total tracked views captured`} accent="#6366f1" />
-                    <StatCard title="Named Sessions" value={String(namedSessions)} subtitle="Manual labels you can use later for analysis" accent="#14b8a6" />
-                    <StatCard title="Best Performing Game" value={topGame?.game.toUpperCase() ?? "NONE"} subtitle={topGame ? `${topGame.average} average score` : "No game data yet"} accent="#f97316" />
-                    <StatCard title="Highest Activity Day" value={bestDay?.date ?? "NONE"} subtitle={bestDay ? `${bestDay.totalScore} points generated` : "No daily activity yet"} accent="#14b8a6" />
+                <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
+                    <StatCard 
+                        title="Total Sessions" 
+                        value={String(sessions.length)} 
+                        subtitle={`${totalSessionViews} page views across all visitors`} 
+                        accent="#6366f1" 
+                    />
+                    <StatCard 
+                        title="Arcade Momentum" 
+                        value={`${scores.length} runs`} 
+                        subtitle={`${uniquePlayers} players submitted scores`} 
+                        accent="#ef4444" 
+                    />
+                    <StatCard 
+                        title="Resume Intent" 
+                        value={`${resumeStats.downloads} DLs`} 
+                        subtitle={`${resumeStats.opens} views on PDF resume`} 
+                        accent="#22c55e" 
+                    />
+                    <StatCard 
+                        title="Outreach Signals" 
+                        value={`${outreachStats.messages} messages`} 
+                        subtitle={`${outreachStats.attempts} contact submit attempts`} 
+                        accent="#ec4899" 
+                    />
+                    <StatCard 
+                        title="Bot Traffic %" 
+                        value={`${botStats.botPercentage}%`} 
+                        subtitle={`${botStats.botsCount} bot sessions identified`} 
+                        accent="#a855f7" 
+                    />
                 </section>
 
-                <section style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: "1rem" }}>
+                <section style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
                     <Panel
                         title="Route Storyline"
                         description="This is the front-door narrative: who landed on social-only, who stayed in game-only, which routes pushed resume interest, and which paths turned into a message."
@@ -859,22 +898,6 @@ export default function Playground() {
                                     <div style={{ color: "#94a3b8", fontSize: "0.82rem", lineHeight: 1.55 }}>
                                         Sources: {route.topSources.length ? route.topSources.join(", ") : "direct"}.
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    </Panel>
-
-                    <Panel
-                        title="Control Signals"
-                        description="Quick reads on where attention is converting right now across social hubs, arcade pages, resume intent, and direct contact."
-                        dark
-                    >
-                        <div style={{ display: "grid", gap: "0.9rem" }}>
-                            {commandMoments.map((moment) => (
-                                <div key={moment.label} style={{ padding: "1rem", borderRadius: "20px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(148,163,184,0.14)", display: "grid", gap: "0.35rem" }}>
-                                    <span style={{ color: moment.accent, fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.14em", fontWeight: 800 }}>{moment.label}</span>
-                                    <strong style={{ color: "#fff", fontSize: "1.4rem" }}>{moment.value}</strong>
-                                    <span style={{ color: "#cbd5e1", fontSize: "0.84rem", lineHeight: 1.55 }}>{moment.detail}</span>
                                 </div>
                             ))}
                         </div>
@@ -1064,218 +1087,7 @@ export default function Playground() {
                     </Panel>
                 </section>
 
-                <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                    <Panel
-                        title="Device Activity"
-                        description="A persistent device id is saved in the browser so you can see repeat visitors, how many sessions they started, and what kind of activity they generated."
-                    >
-                        <div style={{ display: "grid", gap: "0.85rem" }}>
-                            {devices.length === 0 && <EmptyState label="No tracked devices yet." />}
-                            {devices.slice(0, 8).map((device) => {
-                                const deviceScores = scores.filter((s) => s.deviceId === device.deviceId);
-                                return (
-                                    <div key={device.deviceId} style={{ padding: "1rem", borderRadius: "18px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(148,163,184,0.14)", display: "grid", gap: "0.75rem" }}>
-                                        <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "start", flexWrap: "wrap" }}>
-                                            <div style={{ display: "grid", gap: "0.25rem" }}>
-                                                <strong style={{ fontSize: "0.95rem", color: "#fff" }}>{device.deviceId}</strong>
-                                                <span style={{ color: "#64748b", fontSize: "0.82rem" }}>
-                                                    Last seen {new Date(device.lastSeenAt).toLocaleString()}
-                                                </span>
-                                            </div>
-                                            <Pill label={`${sessions.filter((s) => s.device_id === device.deviceId).length} sessions`} />
-                                        </div>
-
-                                        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "0.6rem" }}>
-                                            <MetricChip label="Views" value={String(device.totalViews)} />
-                                            <MetricChip label="Links" value={String(device.totalLinkClicks)} />
-                                            <MetricChip label="Runs" value={String(device.totalRuns)} />
-                                            <MetricChip label="Resume DL" value={String(device.totalResumeDownloads)} />
-                                        </div>
-
-                                        <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
-                                            Top routes: {device.topRoutes?.length ? device.topRoutes.join(", ") : "No routes yet"} · Contacts: {device.totalContacts}
-                                        </div>
-                                        <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
-                                            Profile: {device.deviceType || "Desktop"} · {device.os} · {device.browser} {device.isBot && <span style={{ background: "#ef4444", color: "white", padding: "1px 6px", borderRadius: "10px", fontSize: "0.7rem", marginLeft: "4px" }}>🤖 BOT</span>}
-                                        </div>
-                                        {device.hardware && (
-                                            <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
-                                                Hardware: {device.hardware.memory}GB RAM · {device.hardware.cores} Cores · {device.hardware.connection}
-                                            </div>
-                                        )}
-                                        {(device.ip || device.city) && (
-                                            <div style={{ color: "#64748b", fontSize: "0.84rem", lineHeight: 1.5 }}>
-                                                Network: {device.ip} {device.city && `· ${device.city}, ${device.country}`}
-                                            </div>
-                                        )}
-                                        <div style={{ color: "#64748b", fontSize: "0.84rem", lineHeight: 1.5 }}>
-                                            Names used: {Array.from(new Set(deviceScores.map((s) => s.name))).join(", ") || "None"}
-                                        </div>
-
-                                        {deviceScores.length > 0 && (
-                                            <div style={{ marginTop: "0.45rem", padding: "0.75rem", borderRadius: "12px", background: "rgba(0,0,0,0.22)", border: "1px solid rgba(255,255,255,0.05)", display: "grid", gap: "0.5rem" }}>
-                                                <div style={{ fontSize: "0.74rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "#fca5a5", fontWeight: 800 }}>
-                                                    Arcade Activity ({deviceScores.length} Run{deviceScores.length > 1 ? 's' : ''})
-                                                </div>
-                                                <div style={{ display: "grid", gap: "0.6rem" }}>
-                                                    {Object.entries(
-                                                        deviceScores.reduce((acc, score) => {
-                                                            const existing = acc[score.game] || [];
-                                                            existing.push(score);
-                                                            acc[score.game] = existing;
-                                                            return acc;
-                                                        }, {} as Record<string, LeaderboardEntry[]>)
-                                                    ).map(([game, entries]) => (
-                                                        <div key={game} style={{ paddingLeft: "0.6rem", borderLeft: "2px solid #ef4444", display: "grid", gap: "0.25rem" }}>
-                                                            <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#e2e8f0", display: "flex", alignItems: "center", gap: "6px" }}>
-                                                                <span>🎮 {game.toUpperCase()}</span>
-                                                                <span style={{ fontSize: "0.72rem", color: "#64748b", fontWeight: 500 }}>
-                                                                    ({entries.length} play{entries.length > 1 ? 's' : ''})
-                                                                </span>
-                                                            </div>
-                                                            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-                                                                {entries.sort((a, b) => b.score - a.score).map((entry) => (
-                                                                    <div key={entry.id} style={{ fontSize: "0.76rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", padding: "0.15rem 0.45rem", borderRadius: "8px", display: "flex", alignItems: "center", gap: "5px" }}>
-                                                                        <span style={{ color: "#fca5a5", fontWeight: 700 }}>🏆 {entry.score} pts</span>
-                                                                        <span style={{ color: "#64748b" }}>as</span>
-                                                                        <span style={{ color: "#fff", fontWeight: 600 }}>{entry.name}</span>
-                                                                        <span style={{ color: "#475569", fontSize: "0.68rem" }}>
-                                                                            {new Date(entry.date).toLocaleDateString()}
-                                                                        </span>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </Panel>
-
-                    <Panel
-                        title="Tracked Sessions"
-                        description="Each session keeps an end-to-end trail of what that visitor did: pages viewed, links opened, games touched, resume actions, and contact submissions."
-                    >
-                        <div style={{ display: "grid", gap: "0.85rem" }}>
-                            {sessions.length === 0 && <EmptyState label="No tracked sessions yet." />}
-                            {sessions.slice(0, 8).map((session) => {
-                                const isEditing = editingSessionId === session.session_id;
-                                const isBusy = busyAction === "rename" && busyTarget === `session-${session.session_id}`;
-                                const isSelected = selectedSession?.session_id === session.session_id;
-
-                                return (
-                                    <div key={session.session_id} style={{ padding: "1rem", borderRadius: "18px", background: isSelected ? "linear-gradient(135deg, rgba(15,23,42,0.96), rgba(30,41,59,0.94))" : "rgba(255,255,255,0.03)", border: isSelected ? "1px solid rgba(59,130,246,0.34)" : "1px solid rgba(148,163,184,0.14)", boxShadow: isSelected ? "0 16px 34px rgba(15,23,42,0.18)" : "none", display: "grid", gap: "0.75rem" }}>
-                                        <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "start", flexWrap: "wrap" }}>
-                                            <div style={{ display: "grid", gap: "0.3rem" }}>
-                                                <strong style={{ fontSize: "0.95rem", color: "#fff", display: "flex", alignItems: "center", gap: "6px" }}>
-                                                    {session.session_label?.trim() || "Unnamed Session"}
-                                                    {session.isBot && <span style={{ background: "#ef4444", color: "white", padding: "1px 6px", borderRadius: "10px", fontSize: "0.7rem" }}>🤖 BOT</span>}
-                                                </strong>
-                                                <span style={{ color: "#64748b", fontSize: "0.84rem" }}>
-                                                    {session.route} · {new Date(session.started_at).toLocaleString()}
-                                                </span>
-                                                <span style={{ color: "#64748b", fontSize: "0.8rem" }}>
-                                                    {session.device_id} · {session.source || "direct"} {session.share_token ? `· token ${session.share_token.slice(0, 14)}...` : ""}
-                                                </span>
-                                                {(session.browser || session.city) && (
-                                                    <span style={{ color: "#64748b", fontSize: "0.8rem" }}>
-                                                        {session.deviceType || "Desktop"} · {session.os} · {session.browser} {session.city && `· ${session.city}, ${session.country}`}
-                                                    </span>
-                                                )}
-                                                {(session.hardware || session.sessionDuration !== undefined) && (
-                                                    <span style={{ color: "#64748b", fontSize: "0.8rem" }}>
-                                                        {session.hardware ? `${session.hardware.memory}GB RAM · ${session.hardware.cores} Cores` : ''} 
-                                                        {session.sessionDuration !== undefined ? ` · Duration: ${session.sessionDuration}s` : ''}
-                                                        {session.maxScrollDepth !== undefined ? ` · Scroll: ${session.maxScrollDepth}%` : ''}
-                                                    </span>
-                                                )}
-                                                {session.referrer && (
-                                                    <span style={{ color: "#64748b", fontSize: "0.8rem" }}>
-                                                        Ref: {session.referrer}
-                                                    </span>
-                                                )}
-                                                {!!session.rageClicks && session.rageClicks > 0 && (
-                                                    <span style={{ color: "#ef4444", fontSize: "0.8rem", fontWeight: "bold" }}>
-                                                        ⚠️ {session.rageClicks} Rage Click{session.rageClicks > 1 ? 's' : ''} Detected
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <Pill label={`${session.view_count} views`} />
-                                        </div>
-
-                                        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "0.6rem" }}>
-                                            <MetricChip label="Links" value={String(session.link_clicks)} />
-                                            <MetricChip label="Opens" value={String(session.game_opens)} />
-                                            <MetricChip label="Runs" value={String(session.completed_runs)} />
-                                            <MetricChip label="Points" value={numberFormat(session.total_score)} />
-                                        </div>
-
-                                        <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
-                                            Games: {session.games_played?.length ? session.games_played.join(", ").toUpperCase() : "None yet"} · Links: {session.link_targets?.length ? session.link_targets.join(", ") : "None yet"}
-                                        </div>
-
-                                        <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
-                                            Resume opens: {session.resume_opens} · Resume downloads: {session.resume_downloads} · Contact submits: {session.contact_submissions} · Best score: {session.best_score}
-                                        </div>
-
-                                        <div style={{ display: "grid", gap: "0.35rem" }}>
-                                            {(session.recent_events || []).slice(0, 4).map((event, index) => (
-                                                <div key={`${session.session_id}-${event.at}-${index}`} style={{ color: "#64748b", fontSize: "0.8rem", lineHeight: 1.45 }}>
-                                                    {new Date(event.at).toLocaleTimeString()} · {event.type} · {event.label || event.route}
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {isEditing ? (
-                                            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto auto", gap: "0.65rem" }}>
-                                                <input
-                                                    value={editingSessionLabel}
-                                                    onChange={(event) => setEditingSessionLabel(event.target.value)}
-                                                    placeholder="Label this session"
-                                                    style={inputStyle}
-                                                />
-                                                <button onClick={saveSessionLabel} disabled={isBusy} style={primaryButtonStyle}>
-                                                    {isBusy ? "Saving..." : "Save"}
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        setEditingSessionId(null);
-                                                        setEditingSessionLabel("");
-                                                    }}
-                                                    style={secondaryButtonStyle}
-                                                >
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
-                                                <button
-                                                    onClick={() => setSelectedSessionId(session.session_id)}
-                                                    style={primaryButtonStyle}
-                                                >
-                                                    Open Timeline
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        setEditingSessionId(session.session_id);
-                                                        setEditingSessionLabel(session.session_label ?? "");
-                                                    }}
-                                                    style={secondaryButtonStyle}
-                                                >
-                                                    Name This Session
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </Panel>
-
+                <section style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
                     <Panel
                         title="Contact Inbox"
                         description="Messages from the contact page land here so you can review them later from the same admin surface."

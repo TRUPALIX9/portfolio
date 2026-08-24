@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import MemoryGame from './games/MemoryGame';
 import { trackVisitorEvent } from '@/utils/visitor-analytics';
@@ -31,6 +31,7 @@ export default function MemoryArcade({
     const [highScore, setHighScore] = useState(0);
     const [newHighCelebration, setNewHighCelebration] = useState<number | null>(null);
     const [isLoadingBoard, setIsLoadingBoard] = useState(true);
+    const hasTrackedGameOpen = useRef(false);
 
     const fetchLeaderboard = useCallback(async () => {
         try {
@@ -96,7 +97,12 @@ export default function MemoryArcade({
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6, delay: 0.08 }}
                     className="w-full flex justify-center"
-                    onClick={() => trackVisitorEvent({ event: 'game_open', route, shareToken, source, game: GAME_ID })}
+                    onClick={() => {
+                        if (!hasTrackedGameOpen.current) {
+                            hasTrackedGameOpen.current = true;
+                            void trackVisitorEvent({ event: 'game_open', route, shareToken, source, game: GAME_ID });
+                        }
+                    }}
                 >
                     <MemoryGame onFinished={handleFinished} highScore={highScore} standalone={standalone} />
                 </motion.div>

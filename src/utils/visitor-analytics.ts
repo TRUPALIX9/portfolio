@@ -59,7 +59,20 @@ type VisitorEventPayload = {
     };
 };
 
+const lastEvents: Record<string, number> = {};
+
 export async function trackVisitorEvent(payload: VisitorEventPayload) {
+    // Throttle high-frequency events (duplicate page_view, game_open, or behavior_ping within 3 seconds)
+    if (payload.event === "page_view" || payload.event === "game_open" || payload.event === "behavior_ping") {
+        const key = `${payload.event}:${payload.route}:${payload.game || ''}`;
+        const now = Date.now();
+        const lastTime = lastEvents[key] || 0;
+        if (now - lastTime < 3000) {
+            return;
+        }
+        lastEvents[key] = now;
+    }
+
     try {
         const deviceId = getVisitorDeviceId();
         const sessionId = getVisitorSessionId();

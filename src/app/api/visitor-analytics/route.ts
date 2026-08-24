@@ -17,13 +17,34 @@ export async function GET(request: Request) {
             .toArray();
 
         const devices = await db.collection('visitor_devices')
-            .find({})
-            .sort({ lastSeenAt: -1 })
-            .limit(100)
+            .aggregate([
+                {
+                    $lookup: {
+                        from: 'visitor_sessions',
+                        localField: 'deviceId',
+                        foreignField: 'device_id',
+                        as: 'sessions'
+                    }
+                },
+                {
+                    $addFields: {
+                        sessions: {
+                            $sortArray: {
+                                input: '$sessions',
+                                sortBy: { last_seen_at: -1 }
+                            }
+                        }
+                    }
+                },
+                {
+                    $sort: { lastSeenAt: -1 }
+                },
+                {
+                    $limit: 100
+                }
+            ])
             .toArray();
 
-        // Map MongoDB ObjectIds to strings if necessary, though returning them as is usually works for Next.js JSON.
-        // We'll return empty arrays if the collections don't exist or are empty.
         return NextResponse.json({
             sessions: sessions.map(s => ({...s, _id: undefined})),
             devices: devices.map(d => ({...d, _id: undefined}))
@@ -189,13 +210,22 @@ export async function PATCH(request: Request) {
             return NextResponse.json({ error: 'Unauthorized key' }, { status: 401 });
         }
 
-        const { sessionId, sessionLabel } = body;
-
-        if (!sessionId || typeof sessionLabel !== 'string') {
-            return NextResponse.json({ error: 'Missing session ID or label' }, { status: 400 });
-        }
+        const { sessionId, sessionLabel, deviceId, customName } = body;
 
         const db = await getDb();
+
+        if (deviceId && typeof customName === 'string') {
+            await db.collection('visitor_devices').updateOne(
+                { deviceId },
+                { $set: { customName: customName.trim() } }
+            );
+            return NextResponse.json({ success: true });
+        }
+
+        if (!sessionId || typeof sessionLabel !== 'string') {
+            return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
+        }
+
         await db.collection('visitor_sessions').updateOne(
             { session_id: sessionId },
             { $set: { session_label: sessionLabel } }
