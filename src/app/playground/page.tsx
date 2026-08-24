@@ -162,7 +162,6 @@ export default function Playground() {
     const [bulkRenameValue, setBulkRenameValue] = useState("");
     const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
     const [editingSessionLabel, setEditingSessionLabel] = useState("");
-    const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
 
     const getAdminHeaders = (includeContentType = false) => {
         const headers: Record<string, string> = {};
@@ -700,18 +699,7 @@ export default function Playground() {
     const totalTrackedSessions = sessions.length;
     const namedSessions = sessions.filter((session) => session.session_label?.trim()).length;
     const totalSessionViews = sessions.reduce((sum, session) => sum + session.view_count, 0);
-    const selectedSession = sessions.find((session) => session.session_id === selectedSessionId) ?? sessions[0] ?? null;
 
-    useEffect(() => {
-        if (!sessions.length) {
-            setSelectedSessionId(null);
-            return;
-        }
-
-        if (!selectedSessionId || !sessions.some((session) => session.session_id === selectedSessionId)) {
-            setSelectedSessionId(sessions[0].session_id);
-        }
-    }, [sessions, selectedSessionId]);
 
     if (!sessionChecked) {
         return (
@@ -783,58 +771,25 @@ export default function Playground() {
         >
             <PlaygroundTopBar authenticated={authenticated} onToggleLock={() => void lockTerminal()} />
             <div style={{ maxWidth: "1340px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-                <section style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.25fr) minmax(300px, 0.75fr)", gap: "1rem", alignItems: "stretch" }}>
+                <section style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
                     <div style={{ padding: "1.5rem", borderRadius: "32px", border: "1px solid rgba(56,189,248,0.18)", background: "linear-gradient(135deg, rgba(2,6,23,0.92), rgba(15,23,42,0.84), rgba(8,47,73,0.72))", boxShadow: "0 28px 80px rgba(0,0,0,0.34)", position: "relative", overflow: "hidden" }}>
                         <div style={{ position: "absolute", inset: "-10% auto auto -4%", width: "280px", height: "280px", borderRadius: "999px", background: "radial-gradient(circle, rgba(56,189,248,0.18), transparent 70%)", pointerEvents: "none" }} />
-                        <div style={{ position: "relative", display: "grid", gap: "1rem" }}>
+                        <div style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1.5rem", flexWrap: "wrap" }}>
                             <div>
                                 <p style={{ margin: 0, fontSize: "0.75rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#38bdf8", fontWeight: 800 }}>Admin Dashboard</p>
                                 <h1 style={{ margin: "0.4rem 0 0", fontSize: "2.5rem", fontWeight: 900, color: "#f8fafc" }}>Arcade Playground Intelligence</h1>
-                                <p style={{ margin: "0.7rem 0 0", color: "#cbd5e1", maxWidth: "760px", lineHeight: 1.7 }}>
+                                <p style={{ margin: "0.7rem 0 0", color: "#cbd5e1", maxWidth: "860px", lineHeight: 1.7 }}>
                                     A black-room control surface for following how people move through your share pages, where they click, when they play, and when browsing turns into resume interest or direct outreach.
                                 </p>
                             </div>
-
-                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "0.8rem" }}>
-                                {commandMoments.map((moment) => (
-                                    <div key={moment.label} style={{ padding: "0.95rem 1rem", borderRadius: "20px", border: "1px solid rgba(148,163,184,0.16)", background: "rgba(255,255,255,0.03)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", boxShadow: `inset 0 0 0 1px ${moment.accent}12` }}>
-                                        <div style={{ color: moment.accent, fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.14em", fontWeight: 800 }}>{moment.label}</div>
-                                        <div style={{ marginTop: "0.45rem", color: "#fff", fontSize: "1.45rem", fontWeight: 900 }}>{moment.value}</div>
-                                        <div style={{ marginTop: "0.25rem", color: "#94a3b8", fontSize: "0.82rem", lineHeight: 1.45 }}>{moment.detail}</div>
-                                    </div>
-                                ))}
+                            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", zIndex: 10 }}>
+                                <button onClick={refreshSnapshot} disabled={loading} style={primaryButtonStyle}>
+                                    {loading ? "Refreshing..." : "Refresh Data"}
+                                </button>
+                                <button onClick={() => void lockTerminal()} style={secondaryButtonStyle}>
+                                    Lock Terminal
+                                </button>
                             </div>
-                        </div>
-                    </div>
-
-                    <div style={{ padding: "1.4rem", borderRadius: "32px", border: "1px solid rgba(168,85,247,0.2)", background: "linear-gradient(180deg, rgba(15,23,42,0.9), rgba(2,6,23,0.92))", boxShadow: "0 24px 70px rgba(0,0,0,0.3)", display: "grid", gap: "1rem", alignContent: "start" }}>
-                        <div>
-                            <p style={{ margin: 0, fontSize: "0.74rem", letterSpacing: "0.16em", textTransform: "uppercase", color: "#a78bfa", fontWeight: 800 }}>Live Storyline</p>
-                            <h2 style={{ margin: "0.35rem 0 0", fontSize: "1.25rem", fontWeight: 900, color: "#fff" }}>Where visitors are really going</h2>
-                        </div>
-
-                        <div style={{ display: "grid", gap: "0.75rem" }}>
-                            {topNarratives.length === 0 && <EmptyState label="No route story available yet." dark />}
-                            {topNarratives.slice(0, 4).map((route, index) => (
-                                <div key={route.route} style={{ padding: "0.95rem 1rem", borderRadius: "20px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(148,163,184,0.14)", display: "grid", gap: "0.4rem" }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "baseline" }}>
-                                        <strong style={{ color: "#f8fafc", fontSize: "0.95rem" }}>{index + 1}. {humanizeRoute(route.route)}</strong>
-                                        <span style={{ color: "#38bdf8", fontWeight: 800 }}>{route.views} views</span>
-                                    </div>
-                                    <span style={{ color: "#94a3b8", fontSize: "0.83rem", lineHeight: 1.45 }}>
-                                        {route.sessions} sessions · {route.links} link opens · {route.runs} runs · {route.resumeDownloads} downloads · {route.contacts} contacts
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-                            <button onClick={refreshSnapshot} disabled={loading} style={secondaryButtonStyle}>
-                                {loading ? "Refreshing..." : "Refresh Data"}
-                            </button>
-                            <button onClick={() => void lockTerminal()} style={darkButtonStyle}>
-                                Lock Terminal
-                            </button>
                         </div>
                     </div>
                 </section>
@@ -1146,163 +1101,6 @@ export default function Playground() {
                     </Panel>
                 </section>
 
-                <Panel
-                    title="Journey Spotlight"
-                    description="Open one visitor session at a time to read the story of what they explored, which actions they took, and how the session unfolded over time."
-                    tone="spotlight"
-                >
-                    {!selectedSession ? (
-                        <EmptyState label="No visitor session selected yet." />
-                    ) : (
-                        <div style={{ display: "grid", gridTemplateColumns: "minmax(320px, 0.9fr) minmax(0, 1.1fr)", gap: "1rem" }}>
-                            <div style={{ display: "grid", gap: "0.9rem" }}>
-                                <div
-                                    style={{
-                                        padding: "1.1rem",
-                                        borderRadius: "24px",
-                                        background: "linear-gradient(180deg, rgba(15,23,42,0.94), rgba(15,23,42,0.82))",
-                                        border: "1px solid rgba(96, 165, 250, 0.2)",
-                                        color: "#e2e8f0",
-                                        boxShadow: "0 22px 48px rgba(15, 23, 42, 0.24)",
-                                        display: "grid",
-                                        gap: "0.8rem",
-                                    }}
-                                >
-                                    <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "start", flexWrap: "wrap" }}>
-                                        <div style={{ display: "grid", gap: "0.3rem" }}>
-                                            <span style={{ fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.18em", color: "#38bdf8", fontWeight: 800 }}>
-                                                Active Session
-                                            </span>
-                                            <strong style={{ fontSize: "1.25rem", color: "#fff" }}>
-                                                {selectedSession.session_label?.trim() || "Unnamed Session"}
-                                            </strong>
-                                            <span style={{ color: "#94a3b8", fontSize: "0.82rem" }}>
-                                                {selectedSession.device_id} · {selectedSession.route}
-                                            </span>
-                                        </div>
-                                        <Pill label={`${selectedSession.view_count} views`} />
-                                    </div>
-
-                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "0.7rem" }}>
-                                        <MetricChip label="Link Opens" value={String(selectedSession.link_clicks)} dark />
-                                        <MetricChip label="Game Opens" value={String(selectedSession.game_opens)} dark />
-                                        <MetricChip label="Runs" value={String(selectedSession.completed_runs)} dark />
-                                        <MetricChip label="Points" value={numberFormat(selectedSession.total_score)} dark />
-                                        <MetricChip label="Resume Opens" value={String(selectedSession.resume_opens)} dark />
-                                        <MetricChip label="Resume DL" value={String(selectedSession.resume_downloads)} dark />
-                                    </div>
-
-                                    <div style={{ display: "grid", gap: "0.45rem", color: "#cbd5e1", fontSize: "0.84rem", lineHeight: 1.55 }}>
-                                        <span>Started: {new Date(selectedSession.started_at).toLocaleString()}</span>
-                                        <span>Last seen: {new Date(selectedSession.last_seen_at).toLocaleString()}</span>
-                                        <span>Source: {selectedSession.source || "direct"} {selectedSession.share_token ? `· token ${selectedSession.share_token.slice(0, 16)}...` : ""}</span>
-                                        <span>Games touched: {selectedSession.games_played?.length ? selectedSession.games_played.join(", ").toUpperCase() : "None"}</span>
-                                        <span>Links opened: {selectedSession.link_targets?.length ? selectedSession.link_targets.join(", ") : "None"}</span>
-                                        <span>Contact submits: {selectedSession.contact_submissions}</span>
-                                    </div>
-                                </div>
-
-                                <div style={{ display: "grid", gap: "0.7rem" }}>
-                                    <span style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.18em", color: "#6366f1", fontWeight: 800 }}>
-                                        Session Navigator
-                                    </span>
-                                    <div style={{ display: "grid", gap: "0.65rem", maxHeight: "360px", overflowY: "auto", paddingRight: "0.2rem" }}>
-                                        {sessions.slice(0, 12).map((session) => {
-                                            const isSelected = session.session_id === selectedSession?.session_id;
-                                            return (
-                                                <button
-                                                    key={session.session_id}
-                                                    onClick={() => setSelectedSessionId(session.session_id)}
-                                                    style={{
-                                                        textAlign: "left",
-                                                        padding: "0.9rem 1rem",
-                                                        borderRadius: "18px",
-                                                        border: isSelected ? "1px solid rgba(59, 130, 246, 0.42)" : "1px solid rgba(148,163,184,0.16)",
-                                                        background: isSelected ? "linear-gradient(135deg, rgba(15,23,42,0.96), rgba(30,41,59,0.92))" : "rgba(255,255,255,0.03)",
-                                                        color: "#f8fafc",
-                                                        boxShadow: isSelected ? "0 16px 34px rgba(15,23,42,0.24)" : "none",
-                                                        display: "grid",
-                                                        gap: "0.28rem",
-                                                    }}
-                                                >
-                                                    <strong style={{ fontSize: "0.9rem" }}>{session.session_label?.trim() || "Unnamed Session"}</strong>
-                                                    <span style={{ fontSize: "0.8rem", opacity: 0.78 }}>{session.route} · {new Date(session.last_seen_at).toLocaleString()}</span>
-                                                    <span style={{ fontSize: "0.76rem", opacity: 0.72 }}>
-                                                        {session.view_count} views · {session.link_clicks} links · {session.completed_runs} runs
-                                                    </span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div
-                                style={{
-                                    padding: "1.15rem",
-                                    borderRadius: "24px",
-                                    background: "linear-gradient(180deg, rgba(15,23,42,0.92), rgba(2,6,23,0.94))",
-                                    border: "1px solid rgba(148, 163, 184, 0.14)",
-                                    boxShadow: "0 18px 42px rgba(0, 0, 0, 0.24)",
-                                    display: "grid",
-                                    gap: "1rem",
-                                }}
-                            >
-                                <div style={{ display: "grid", gap: "0.3rem" }}>
-                                    <span style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.18em", color: "#0f766e", fontWeight: 800 }}>
-                                        Timeline Overview
-                                    </span>
-                                    <h3 style={{ margin: 0, fontSize: "1.2rem", color: "#fff" }}>
-                                        End-to-end session activity
-                                    </h3>
-                                    <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.6 }}>
-                                        This gives you the actual sequence of what the visitor did, so you can tell whether they explored social links, opened the resume, played the arcade, or submitted the contact form.
-                                    </p>
-                                </div>
-
-                                <div style={{ display: "grid", gap: "0.75rem" }}>
-                                    {(!selectedSession.recent_events || selectedSession.recent_events.length === 0) && <EmptyState label="No event timeline recorded for this session yet." />}
-                                    {(selectedSession.recent_events || []).map((event, index) => (
-                                        <div key={`${selectedSession.session_id}-${event.at}-${index}`} style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "0.9rem", alignItems: "start" }}>
-                                            <div style={{ display: "grid", justifyItems: "center", gap: "0.35rem" }}>
-                                                <div style={{ width: "12px", height: "12px", borderRadius: "999px", background: getEventColor(event.type), boxShadow: `0 0 0 6px ${getEventGlow(event.type)}` }} />
-                                                {index !== (selectedSession.recent_events || []).length - 1 && (
-                                                    <div style={{ width: "2px", minHeight: "44px", background: "linear-gradient(180deg, rgba(148,163,184,0.45), rgba(226,232,240,0.12))" }} />
-                                                )}
-                                            </div>
-                                            <div
-                                                style={{
-                                                    padding: "0.9rem 1rem",
-                                                    borderRadius: "18px",
-                                                    background: "rgba(255,255,255,0.03)",
-                                                    border: "1px solid rgba(148,163,184,0.14)",
-                                                    boxShadow: "0 8px 18px rgba(0, 0, 0, 0.14)",
-                                                    display: "grid",
-                                                    gap: "0.25rem",
-                                                }}
-                                            >
-                                                <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
-                                                    <strong style={{ fontSize: "0.92rem", color: "#fff", textTransform: "capitalize" }}>
-                                                        {formatEventLabel(event.type)}
-                                                    </strong>
-                                                    <span style={{ color: "#64748b", fontSize: "0.8rem" }}>
-                                                        {new Date(event.at).toLocaleString()}
-                                                    </span>
-                                                </div>
-                                                <span style={{ color: "#334155", fontSize: "0.86rem", lineHeight: 1.55 }}>
-                                                    {event.label || event.route}
-                                                </span>
-                                                <span style={{ color: "#64748b", fontSize: "0.8rem" }}>
-                                                    Route: {event.route}{event.value ? ` · Value: ${event.value}` : ""}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </Panel>
 
                 <Panel
                     title="Score Curatorship"
@@ -1616,43 +1414,7 @@ function Pill({ label }: { label: string }) {
     );
 }
 
-function formatEventLabel(type: string) {
-    if (type === "page_view") return "Page View";
-    if (type === "link_open") return "Link Opened";
-    if (type === "resume_open") return "Resume Opened";
-    if (type === "resume_download") return "Resume Downloaded";
-    if (type === "contact_submit") return "Contact Submitted";
-    if (type === "game_open") return "Game Opened";
-    if (type === "run_complete") return "Run Completed";
-    return type.replace(/_/g, " ");
-}
 
-function humanizeRoute(route: string) {
-    if (route === "/social-only") return "Social-Only Hub";
-    if (route === "/game-only") return "Game-Only Arcade";
-    if (route === "/arcade-only") return "Arcade-Only Share";
-    if (route === "/social") return "Portfolio Social Page";
-    if (route === "/game") return "Portfolio Arcade Page";
-    if (route === "/resume") return "Resume Page";
-    if (route === "/contact") return "Contact Page";
-    if (route === "/") return "Homepage";
-    return route.replace(/^\//, "").replace(/-/g, " ") || "Unknown Route";
-}
-
-function getEventColor(type: string) {
-    if (type === "page_view") return "#38bdf8";
-    if (type === "link_open") return "#8b5cf6";
-    if (type === "resume_open" || type === "resume_download") return "#22c55e";
-    if (type === "contact_submit") return "#ec4899";
-    if (type === "game_open") return "#f97316";
-    if (type === "run_complete") return "#ef4444";
-    return "#64748b";
-}
-
-function getEventGlow(type: string) {
-    const color = getEventColor(type);
-    return `${color}22`;
-}
 
 function numberFormat(value: number) {
     return new Intl.NumberFormat("en-US").format(value);
@@ -1751,3 +1513,15 @@ const compactDangerButton: CSSProperties = {
     fontWeight: 800,
     cursor: "pointer",
 };
+
+function humanizeRoute(route: string) {
+    if (route === "/social-only") return "Social-Only Hub";
+    if (route === "/game-only") return "Game-Only Arcade";
+    if (route === "/arcade-only") return "Arcade-Only Share";
+    if (route === "/social") return "Portfolio Social Page";
+    if (route === "/game") return "Portfolio Arcade Page";
+    if (route === "/resume") return "Resume Page";
+    if (route === "/contact") return "Contact Page";
+    if (route === "/") return "Homepage";
+    return route.replace(/^\//, "").replace(/-/g, " ") || "Unknown Route";
+}
