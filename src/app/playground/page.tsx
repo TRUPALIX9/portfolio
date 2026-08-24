@@ -1088,6 +1088,16 @@ export default function Playground() {
                 </section>
 
                 <section style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
+                    <MasterVisitorExplorer
+                        devices={devices}
+                        sessions={sessions}
+                        scores={scores}
+                        getAdminHeaders={getAdminHeaders}
+                        onRefresh={refreshSnapshot}
+                    />
+                </section>
+
+                <section style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
                     <Panel
                         title="Contact Inbox"
                         description="Messages from the contact page land here so you can review them later from the same admin surface."
