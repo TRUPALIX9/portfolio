@@ -1091,7 +1091,7 @@ export default function Playground() {
                                     </div>
 
                                     <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
-                                        Top routes: {device.topRoutes.length ? device.topRoutes.join(", ") : "No routes yet"} · Contacts: {device.totalContacts}
+                                        Top routes: {device.topRoutes?.length ? device.topRoutes.join(", ") : "No routes yet"} · Contacts: {device.totalContacts}
                                     </div>
                                     <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
                                         Profile: {device.deviceType || "Desktop"} · {device.os} · {device.browser} {device.isBot && <span style={{ background: "#ef4444", color: "white", padding: "1px 6px", borderRadius: "10px", fontSize: "0.7rem", marginLeft: "4px" }}>🤖 BOT</span>}
@@ -1173,7 +1173,7 @@ export default function Playground() {
                                         </div>
 
                                         <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
-                                            Games: {session.games_played.length ? session.games_played.join(", ").toUpperCase() : "None yet"} · Links: {session.link_targets.length ? session.link_targets.join(", ") : "None yet"}
+                                            Games: {session.games_played?.length ? session.games_played.join(", ").toUpperCase() : "None yet"} · Links: {session.link_targets?.length ? session.link_targets.join(", ") : "None yet"}
                                         </div>
 
                                         <div style={{ color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
@@ -1181,7 +1181,7 @@ export default function Playground() {
                                         </div>
 
                                         <div style={{ display: "grid", gap: "0.35rem" }}>
-                                            {session.recent_events.slice(0, 4).map((event, index) => (
+                                            {(session.recent_events || []).slice(0, 4).map((event, index) => (
                                                 <div key={`${session.session_id}-${event.at}-${index}`} style={{ color: "#64748b", fontSize: "0.8rem", lineHeight: 1.45 }}>
                                                     {new Date(event.at).toLocaleTimeString()} · {event.type} · {event.label || event.route}
                                                 </div>
@@ -1332,8 +1332,8 @@ export default function Playground() {
                                         <span>Started: {new Date(selectedSession.started_at).toLocaleString()}</span>
                                         <span>Last seen: {new Date(selectedSession.last_seen_at).toLocaleString()}</span>
                                         <span>Source: {selectedSession.source || "direct"} {selectedSession.share_token ? `· token ${selectedSession.share_token.slice(0, 16)}...` : ""}</span>
-                                        <span>Games touched: {selectedSession.games_played.length ? selectedSession.games_played.join(", ").toUpperCase() : "None"}</span>
-                                        <span>Links opened: {selectedSession.link_targets.length ? selectedSession.link_targets.join(", ") : "None"}</span>
+                                        <span>Games touched: {selectedSession.games_played?.length ? selectedSession.games_played.join(", ").toUpperCase() : "None"}</span>
+                                        <span>Links opened: {selectedSession.link_targets?.length ? selectedSession.link_targets.join(", ") : "None"}</span>
                                         <span>Contact submits: {selectedSession.contact_submissions}</span>
                                     </div>
                                 </div>
@@ -1344,7 +1344,7 @@ export default function Playground() {
                                     </span>
                                     <div style={{ display: "grid", gap: "0.65rem", maxHeight: "360px", overflowY: "auto", paddingRight: "0.2rem" }}>
                                         {sessions.slice(0, 12).map((session) => {
-                                            const isSelected = session.session_id === selectedSession.session_id;
+                                            const isSelected = session.session_id === selectedSession?.session_id;
                                             return (
                                                 <button
                                                     key={session.session_id}
@@ -1397,12 +1397,12 @@ export default function Playground() {
                                 </div>
 
                                 <div style={{ display: "grid", gap: "0.75rem" }}>
-                                    {selectedSession.recent_events.length === 0 && <EmptyState label="No event timeline recorded for this session yet." />}
-                                    {selectedSession.recent_events.map((event, index) => (
+                                    {(!selectedSession.recent_events || selectedSession.recent_events.length === 0) && <EmptyState label="No event timeline recorded for this session yet." />}
+                                    {(selectedSession.recent_events || []).map((event, index) => (
                                         <div key={`${selectedSession.session_id}-${event.at}-${index}`} style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "0.9rem", alignItems: "start" }}>
                                             <div style={{ display: "grid", justifyItems: "center", gap: "0.35rem" }}>
                                                 <div style={{ width: "12px", height: "12px", borderRadius: "999px", background: getEventColor(event.type), boxShadow: `0 0 0 6px ${getEventGlow(event.type)}` }} />
-                                                {index !== selectedSession.recent_events.length - 1 && (
+                                                {index !== (selectedSession.recent_events || []).length - 1 && (
                                                     <div style={{ width: "2px", minHeight: "44px", background: "linear-gradient(180deg, rgba(148,163,184,0.45), rgba(226,232,240,0.12))" }} />
                                                 )}
                                             </div>
