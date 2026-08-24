@@ -171,14 +171,8 @@ Internal maintenance notes live in:
 - [.agents/workflows/arcade-maintenance.md](/Users/trupal/Projects/portfolio/.agents/workflows/arcade-maintenance.md)
 - [.agents/workflows/game-development.md](/Users/trupal/Projects/portfolio/.agents/workflows/game-development.md)
 
-## Current Verification Status
+- `npm run build` passes successfully locally
+- `npm run test:e2e` passes
+- All favicon assets have been moved to the public root and configured via the Next.js `metadata.icons` API
+- The site title is configured as "True Pal" across all browser tabs, OpenGraph, and Twitter tags
 
-Verified in this workspace:
-
-- `npm run build` passes
-- `npm run test:e2e` passes with `9 passed, 3 skipped`
-- Playwright needed to be rerun outside the sandbox so the local test server could bind to port `3000`
-
-One existing framework note remains:
-
-- Next.js warns that the `middleware.ts` convention should eventually move to `proxy`
