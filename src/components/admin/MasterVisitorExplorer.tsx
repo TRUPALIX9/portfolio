@@ -215,6 +215,8 @@ export default function MasterVisitorExplorer({
     const [wipeResult, setWipeResult] = useState<{ success: boolean; msg: string } | null>(null);
 
     // Device Storyline state
+    const [activeStoryDeviceId, setActiveStoryDeviceId] = useState<string | null>(null);
+    const [storySessionPage, setStorySessionPage] = useState(1);
     const [deviceSidebarPage, setDeviceSidebarPage] = useState(1);
     const devicesPerSidebarPage = 12;
 
@@ -325,6 +327,25 @@ export default function MasterVisitorExplorer({
         const start = (page - 1) * devicesPerSidebarPage;
         return deviceStory.slice(start, start + devicesPerSidebarPage);
     }, [deviceStory, deviceSidebarPage, deviceSidebarTotalPages]);
+
+    const selectedStoryDevice = useMemo(() => {
+        return deviceStory.find(d => d.deviceId === activeStoryDeviceId) || null;
+    }, [deviceStory, activeStoryDeviceId]);
+
+    const selectedStorySessions = useMemo(() => {
+        if (!activeStoryDeviceId) return [];
+        return validSessions
+            .filter(s => s.device_id === activeStoryDeviceId)
+            .sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime());
+    }, [validSessions, activeStoryDeviceId]);
+
+    const storySessionsPerPage = 5;
+    const storyTotalSessionPages = Math.max(1, Math.ceil(selectedStorySessions.length / storySessionsPerPage));
+    const paginatedStorySessions = useMemo(() => {
+        const page = Math.min(storySessionPage, storyTotalSessionPages);
+        const start = (page - 1) * storySessionsPerPage;
+        return selectedStorySessions.slice(start, start + storySessionsPerPage);
+    }, [selectedStorySessions, storySessionPage, storyTotalSessionPages]);
 
     const filteredDevices = useMemo(() => {
         return validDevices
@@ -759,92 +780,186 @@ export default function MasterVisitorExplorer({
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-3">
-                    {paginatedDeviceStory.map(d => (
-                        <div key={d.deviceId} className="bg-neutral-950/50 border border-white/[0.05] rounded-2xl p-4 md:p-5 flex flex-col md:flex-row gap-4 md:gap-6 hover:bg-neutral-900/50 transition-colors md:items-center">
-                            
-                            {/* Left Column: Identity */}
-                            <div className="flex-1 md:max-w-[300px] flex flex-col gap-1.5 md:border-r border-white/[0.05] md:pr-6 shrink-0">
-                                <div className="flex justify-between md:justify-start md:gap-3 items-center w-full">
-                                    <div className="flex items-center gap-2">
-                                        {d.isBot ? (
-                                            <Cpu className="w-4 h-4 text-red-400" />
-                                        ) : d.deviceType?.toLowerCase().includes("iphone") || d.deviceType?.toLowerCase().includes("android") || d.deviceType?.toLowerCase().includes("mobile") ? (
-                                            <Smartphone className="w-4 h-4 text-[#a78bfa]" />
-                                        ) : (
-                                            <Laptop className="w-4 h-4 text-[#38bdf8]" />
-                                        )}
-                                        <span className="font-mono text-sm text-white font-bold" title={d.ip}>{d.ip}</span>
+                <div className="flex flex-col md:flex-row gap-6 min-h-[500px]">
+                    {/* Left Pane: Device List */}
+                    <div className="w-full md:w-80 flex flex-col gap-4 shrink-0 border-b md:border-b-0 md:border-r border-white/[0.05] pb-6 md:pb-0 md:pr-6">
+                        <div className="flex flex-col gap-2">
+                            {paginatedDeviceStory.map(d => (
+                                <button
+                                    key={d.deviceId}
+                                    onClick={() => {
+                                        setActiveStoryDeviceId(d.deviceId);
+                                        setStorySessionPage(1);
+                                    }}
+                                    className={`flex flex-col gap-1.5 p-3.5 rounded-2xl border text-left transition-all ${
+                                        activeStoryDeviceId === d.deviceId 
+                                            ? "bg-[#38bdf8]/10 border-[#38bdf8]/30 shadow-inner" 
+                                            : "bg-neutral-950/50 border-white/[0.05] hover:bg-neutral-900/50 hover:border-white/[0.1]"
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between w-full">
+                                        <div className="flex items-center gap-2">
+                                            {d.isBot ? (
+                                                <Cpu className="w-4 h-4 text-red-400" />
+                                            ) : d.deviceType?.toLowerCase().includes("iphone") || d.deviceType?.toLowerCase().includes("android") || d.deviceType?.toLowerCase().includes("mobile") ? (
+                                                <Smartphone className="w-4 h-4 text-[#a78bfa]" />
+                                            ) : (
+                                                <Laptop className="w-4 h-4 text-[#38bdf8]" />
+                                            )}
+                                            <span className={`font-mono text-sm font-bold truncate ${activeStoryDeviceId === d.deviceId ? "text-[#38bdf8]" : "text-white"}`}>
+                                                {d.ip}
+                                            </span>
+                                        </div>
+                                        <span className={`${activeStoryDeviceId === d.deviceId ? 'bg-[#38bdf8] text-neutral-950' : 'bg-white/10 text-white'} px-2 py-0.5 rounded-lg text-[10px] font-black shrink-0`}>
+                                            {d.sessions}
+                                        </span>
                                     </div>
-                                    <span className="bg-[#38bdf8]/20 text-[#38bdf8] px-2 py-0.5 rounded-lg text-xs font-black shrink-0">
-                                        {d.sessions} {d.sessions === 1 ? 'visit' : 'visits'}
+                                    <span className="text-xs text-neutral-400 truncate">
+                                        {[d.city, d.os, d.browser].filter(Boolean).join(" · ") || "Unknown Device"}
                                     </span>
-                                </div>
-                                <span className="text-xs text-neutral-400">
-                                    {[d.city, d.os, d.browser].filter(Boolean).join(" · ") || "Unknown Device"}
-                                </span>
-                                <span className="text-[11px] text-neutral-600 mt-1">
-                                    Last seen: {new Date(d.lastSeenAt).toLocaleDateString()}
-                                </span>
-                            </div>
-
-                            {/* Right Column: Activity */}
-                            <div className="flex-[2] flex flex-col gap-3 min-w-0">
-                                <div className="flex flex-wrap gap-1.5">
-                                    {d.routes.map(r => (
-                                        <span key={r} className="bg-white/5 border border-white/10 px-2 py-0.5 rounded-md text-[10px] text-neutral-300">
-                                            {humanizeRoute(r)}
-                                        </span>
-                                    ))}
-                                </div>
-
-                                <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
-                                    {d.games.length > 0 && (
-                                        <span className="text-neutral-500 flex items-center gap-1.5">
-                                            Games: <strong className="text-emerald-400 font-medium">{d.games.join(', ')}</strong>
-                                        </span>
-                                    )}
-                                    {d.maxScore > 0 && (
-                                        <span className="text-neutral-500 flex items-center gap-1.5">
-                                            Best Score: <strong className="text-yellow-400 font-bold">{d.maxScore}</strong>
-                                        </span>
-                                    )}
-                                    {d.totalContacts > 0 && (
-                                        <span className="text-neutral-500 flex items-center gap-1.5">
-                                            Messages: <strong className="text-white font-medium">{d.totalContacts}</strong>
-                                        </span>
-                                    )}
-                                    {d.totalDownloads > 0 && (
-                                        <span className="text-neutral-500 flex items-center gap-1.5">
-                                            Resume DLs: <strong className="text-white font-medium">{d.totalDownloads}</strong>
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-
+                                    <span className="text-[10px] text-neutral-500 mt-1">
+                                        Last seen: {new Date(d.lastSeenAt).toLocaleDateString()}
+                                    </span>
+                                </button>
+                            ))}
                         </div>
-                    ))}
-                </div>
-
-                {deviceSidebarTotalPages > 1 && (
-                    <div className="flex justify-center items-center gap-4 mt-2">
-                        <button
-                            onClick={() => setDeviceSidebarPage(p => Math.max(1, p - 1))}
-                            disabled={deviceSidebarPage === 1}
-                            className="px-4 py-2 rounded-xl text-sm font-bold bg-neutral-900 border border-white/[0.1] text-white hover:bg-neutral-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                        >
-                            Previous
-                        </button>
-                        <span className="text-sm text-neutral-400 font-medium">Page {deviceSidebarPage} of {deviceSidebarTotalPages}</span>
-                        <button
-                            onClick={() => setDeviceSidebarPage(p => Math.min(deviceSidebarTotalPages, p + 1))}
-                            disabled={deviceSidebarPage === deviceSidebarTotalPages}
-                            className="px-4 py-2 rounded-xl text-sm font-bold bg-neutral-900 border border-white/[0.1] text-white hover:bg-neutral-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                        >
-                            Next
-                        </button>
+                        
+                        {/* Device List Pagination */}
+                        {deviceSidebarTotalPages > 1 && (
+                            <div className="flex justify-between items-center mt-auto pt-4 border-t border-white/[0.05]">
+                                <button
+                                    onClick={() => setDeviceSidebarPage(p => Math.max(1, p - 1))}
+                                    disabled={deviceSidebarPage === 1}
+                                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-neutral-900 border border-white/[0.1] text-white hover:bg-neutral-800 disabled:opacity-30 transition-all"
+                                >
+                                    Prev
+                                </button>
+                                <span className="text-xs text-neutral-500 font-medium">{deviceSidebarPage} / {deviceSidebarTotalPages}</span>
+                                <button
+                                    onClick={() => setDeviceSidebarPage(p => Math.min(deviceSidebarTotalPages, p + 1))}
+                                    disabled={deviceSidebarPage === deviceSidebarTotalPages}
+                                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-neutral-900 border border-white/[0.1] text-white hover:bg-neutral-800 disabled:opacity-30 transition-all"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
                     </div>
-                )}
+
+                    {/* Right Pane: Activity Detail */}
+                    <div className="flex-1 flex flex-col gap-6 min-w-0">
+                        {selectedStoryDevice ? (
+                            <div className="flex flex-col gap-6">
+                                {/* Aggregate Summary */}
+                                <div className="bg-neutral-950/40 border border-white/[0.05] rounded-2xl p-5 flex flex-col gap-4 shadow-inner">
+                                    <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm">
+                                        {selectedStoryDevice.games.length > 0 && (
+                                            <span className="text-neutral-400 flex items-center gap-2">
+                                                Games played: <strong className="text-emerald-400">{selectedStoryDevice.games.join(', ')}</strong>
+                                            </span>
+                                        )}
+                                        {selectedStoryDevice.maxScore > 0 && (
+                                            <span className="text-neutral-400 flex items-center gap-2">
+                                                High Score: <strong className="text-yellow-400">{selectedStoryDevice.maxScore}</strong>
+                                            </span>
+                                        )}
+                                        {selectedStoryDevice.totalContacts > 0 && (
+                                            <span className="text-neutral-400 flex items-center gap-2">
+                                                Messages: <strong className="text-white">{selectedStoryDevice.totalContacts}</strong>
+                                            </span>
+                                        )}
+                                        {selectedStoryDevice.totalDownloads > 0 && (
+                                            <span className="text-neutral-400 flex items-center gap-2">
+                                                Resume DLs: <strong className="text-white">{selectedStoryDevice.totalDownloads}</strong>
+                                            </span>
+                                        )}
+                                        {/* If no major actions, show simple views summary */}
+                                        {selectedStoryDevice.games.length === 0 && selectedStoryDevice.totalContacts === 0 && selectedStoryDevice.totalDownloads === 0 && (
+                                            <span className="text-neutral-400 flex items-center gap-2">
+                                                Total Page Views: <strong className="text-white">{selectedStoryDevice.totalViews}</strong>
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedStoryDevice.routes.map(r => (
+                                            <span key={r} className="bg-white/5 border border-white/10 px-2 py-1 rounded-lg text-xs text-neutral-300">
+                                                {humanizeRoute(r)}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Sessions Timeline */}
+                                <div className="flex flex-col gap-4">
+                                    <h4 className="text-white font-bold tracking-wide flex justify-between items-center">
+                                        Session Timeline
+                                        <span className="text-xs text-neutral-500 font-normal">{selectedStorySessions.length} total sessions</span>
+                                    </h4>
+                                    
+                                    <div className="flex flex-col gap-0">
+                                        {paginatedStorySessions.map((session, idx) => (
+                                            <div key={session.session_id} className="flex gap-4 group">
+                                                {/* Timeline Line */}
+                                                <div className="flex flex-col items-center">
+                                                    <div className="w-2.5 h-2.5 rounded-full bg-[#38bdf8]/50 border-2 border-[#38bdf8] mt-1.5 group-hover:bg-[#38bdf8] transition-colors shrink-0" />
+                                                    {idx < paginatedStorySessions.length - 1 && <div className="w-px h-full bg-white/[0.05] mt-2 group-hover:bg-white/[0.1] transition-colors" />}
+                                                </div>
+                                                
+                                                {/* Session Details */}
+                                                <div className="flex-1 bg-neutral-950/30 border border-white/[0.05] rounded-2xl p-4 mb-3 flex flex-col gap-2 hover:bg-neutral-900/50 transition-colors">
+                                                    <div className="flex justify-between items-start">
+                                                        <span className="text-sm font-bold text-white">{humanizeRoute(session.route)}</span>
+                                                        <span className="text-xs text-neutral-500 font-mono">
+                                                            {new Date(session.started_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs">
+                                                        <span className="text-neutral-400">Views: <strong className="text-neutral-200">{session.view_count}</strong></span>
+                                                        {(session.sessionDuration || 0) > 0 && (
+                                                            <span className="text-neutral-400">Time: <strong className="text-neutral-200">{Math.round(session.sessionDuration! / 1000)}s</strong></span>
+                                                        )}
+                                                        {session.source && (
+                                                            <span className="text-neutral-400">From: <strong className="text-neutral-200">{normalizeReferrer(session.source)}</strong></span>
+                                                        )}
+                                                        {(session.completed_runs || 0) > 0 && (
+                                                            <span className="text-emerald-400 font-medium">Played {session.completed_runs} rounds</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Session Pagination */}
+                                    {storyTotalSessionPages > 1 && (
+                                        <div className="flex justify-between items-center pt-2">
+                                            <button
+                                                onClick={() => setStorySessionPage(p => Math.max(1, p - 1))}
+                                                disabled={storySessionPage === 1}
+                                                className="px-3 py-1.5 rounded-lg text-xs font-bold bg-neutral-900 border border-white/[0.1] text-white hover:bg-neutral-800 disabled:opacity-30 transition-all"
+                                            >
+                                                Prev
+                                            </button>
+                                            <span className="text-xs text-neutral-500 font-medium">{storySessionPage} / {storyTotalSessionPages}</span>
+                                            <button
+                                                onClick={() => setStorySessionPage(p => Math.min(storyTotalSessionPages, p + 1))}
+                                                disabled={storySessionPage === storyTotalSessionPages}
+                                                className="px-3 py-1.5 rounded-lg text-xs font-bold bg-neutral-900 border border-white/[0.1] text-white hover:bg-neutral-800 disabled:opacity-30 transition-all"
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex-1 flex items-center justify-center border-2 border-dashed border-white/[0.05] rounded-3xl p-10 min-h-[300px]">
+                                <span className="text-neutral-500 text-sm font-medium">Select a device from the left to view its activity storyline</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </section>
 
             {/* ── IP Wiper ────────────────────────────────── */}
