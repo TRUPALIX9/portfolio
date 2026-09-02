@@ -164,9 +164,10 @@ function NavbarContent() {
             <button
               type="button"
               onClick={() => scrollToSection('hero')}
-              style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', fontFamily: 'inherit' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', fontFamily: 'inherit' }}
             >
-              TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span>
+              <Image src="/favicon.svg" alt="Logo" width={28} height={28} priority style={{ objectFit: 'contain' }} />
+              <span>TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span></span>
             </button>
           ) : (
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: 'inherit' }}>
