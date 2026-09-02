@@ -111,7 +111,7 @@ export default function SpaceScene({ scrollProgress = 0 }: { scrollProgress?: nu
 
                 <Suspense fallback={null}>
                     <CameraRig scrollProgress={scrollProgress} />
-                    <StarField     count={15000} />
+                    <StarField     count={2500} />
                 </Suspense>
             </Canvas>
 
