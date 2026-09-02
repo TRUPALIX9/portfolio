@@ -123,13 +123,12 @@ export default function Footer() {
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <style>{`
                         @keyframes spin2d {
-                            0%   { transform: rotateY(0deg); }
-                            100% { transform: rotateY(360deg); }
+                            from { transform: rotate(0deg); }
+                            to   { transform: rotate(360deg); }
                         }
                         .favicon-spin2d {
-                            animation: spin2d 6s linear infinite;
+                            animation: spin2d 8s linear infinite;
                             display: block;
-                            transform-style: preserve-3d;
                         }
                     `}</style>
                     <Image
