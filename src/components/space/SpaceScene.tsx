@@ -4,18 +4,19 @@ import * as THREE from 'three';
 import StarField     from './StarField';
 
 // ── CameraRig ────────────────────────────────────────────────────────────────
+const PATH_PRESETS = [
+    { rx: 200, ry: 100, frx: 0.002, fry: 0.003, phx: 0, phy: Math.PI / 2 }, // Winding snake
+    { rx: -250, ry: -150, frx: 0.0015, fry: 0.002, phx: Math.PI, phy: 0 }, // Wide left sweep
+    { rx: 150, ry: -200, frx: 0.003, fry: 0.0015, phx: Math.PI / 4, phy: Math.PI }, // Corkscrew right
+    { rx: -100, ry: 250, frx: 0.0025, fry: 0.0025, phx: 0, phy: Math.PI / 4 }, // Vertical drop curl
+    { rx: 300, ry: 50, frx: 0.0015, fry: 0.004, phx: Math.PI / 2, phy: Math.PI * 1.5 } // Aggressive horizontal slalom
+];
+
 function CameraRig() {
     const { camera } = useThree();
     const mouse = useRef({ x: 0, y: 0, nx: 0, ny: 0, vx: 0, vy: 0 });
     const scrollYRef = useRef(0);
-    const pathSeed = useRef({
-        rx: (Math.random() - 0.5) * 350,
-        ry: (Math.random() - 0.5) * 250,
-        frx: 0.0015 + Math.random() * 0.002,
-        fry: 0.0015 + Math.random() * 0.002,
-        phx: Math.random() * Math.PI * 2,
-        phy: Math.random() * Math.PI * 2,
-    });
+    const pathSeed = useRef(PATH_PRESETS[Math.floor(Math.random() * 5)]);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
