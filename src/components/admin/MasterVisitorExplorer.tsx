@@ -304,6 +304,7 @@ export default function MasterVisitorExplorer({
                 browser: d.browser || "",
                 os: d.os || "",
                 deviceType: d.deviceType || "",
+                isBot: d.isBot || false,
                 sessions: dSessions.length,
                 routes,
                 games,
@@ -758,59 +759,69 @@ export default function MasterVisitorExplorer({
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="flex flex-col gap-3">
                     {paginatedDeviceStory.map(d => (
-                        <div key={d.deviceId} className="bg-neutral-950/50 border border-white/[0.05] rounded-2xl p-4 flex flex-col gap-3 hover:bg-neutral-900/50 transition-colors">
-                            <div className="flex justify-between items-start gap-2">
-                                <div className="flex flex-col min-w-0">
-                                    <span className="font-mono text-sm text-[#38bdf8] truncate font-bold" title={d.ip}>{d.ip}</span>
-                                    <span className="text-xs text-neutral-400 truncate mt-0.5">
-                                        {[d.city, d.os, d.browser].filter(Boolean).join(" · ") || "Unknown Device"}
+                        <div key={d.deviceId} className="bg-neutral-950/50 border border-white/[0.05] rounded-2xl p-4 md:p-5 flex flex-col md:flex-row gap-4 md:gap-6 hover:bg-neutral-900/50 transition-colors md:items-center">
+                            
+                            {/* Left Column: Identity */}
+                            <div className="flex-1 md:max-w-[300px] flex flex-col gap-1.5 md:border-r border-white/[0.05] md:pr-6 shrink-0">
+                                <div className="flex justify-between md:justify-start md:gap-3 items-center w-full">
+                                    <div className="flex items-center gap-2">
+                                        {d.isBot ? (
+                                            <Cpu className="w-4 h-4 text-red-400" />
+                                        ) : d.deviceType?.toLowerCase().includes("iphone") || d.deviceType?.toLowerCase().includes("android") || d.deviceType?.toLowerCase().includes("mobile") ? (
+                                            <Smartphone className="w-4 h-4 text-[#a78bfa]" />
+                                        ) : (
+                                            <Laptop className="w-4 h-4 text-[#38bdf8]" />
+                                        )}
+                                        <span className="font-mono text-sm text-white font-bold" title={d.ip}>{d.ip}</span>
+                                    </div>
+                                    <span className="bg-[#38bdf8]/20 text-[#38bdf8] px-2 py-0.5 rounded-lg text-xs font-black shrink-0">
+                                        {d.sessions} {d.sessions === 1 ? 'visit' : 'visits'}
                                     </span>
                                 </div>
-                                <span className="bg-[#38bdf8]/20 text-[#38bdf8] px-2 py-0.5 rounded-lg text-xs font-black shrink-0">
-                                    {d.sessions} {d.sessions === 1 ? 'visit' : 'visits'}
+                                <span className="text-xs text-neutral-400">
+                                    {[d.city, d.os, d.browser].filter(Boolean).join(" · ") || "Unknown Device"}
+                                </span>
+                                <span className="text-[11px] text-neutral-600 mt-1">
+                                    Last seen: {new Date(d.lastSeenAt).toLocaleDateString()}
                                 </span>
                             </div>
 
-                            <div className="flex flex-wrap gap-1.5">
-                                {d.routes.map(r => (
-                                    <span key={r} className="bg-white/5 border border-white/10 px-2 py-0.5 rounded-md text-[10px] text-neutral-300">
-                                        {humanizeRoute(r)}
-                                    </span>
-                                ))}
-                            </div>
+                            {/* Right Column: Activity */}
+                            <div className="flex-[2] flex flex-col gap-3 min-w-0">
+                                <div className="flex flex-wrap gap-1.5">
+                                    {d.routes.map(r => (
+                                        <span key={r} className="bg-white/5 border border-white/10 px-2 py-0.5 rounded-md text-[10px] text-neutral-300">
+                                            {humanizeRoute(r)}
+                                        </span>
+                                    ))}
+                                </div>
 
-                            <div className="flex flex-col gap-1.5 mt-1 pt-3 border-t border-white/[0.05]">
-                                {d.games.length > 0 && (
-                                    <div className="flex justify-between text-xs">
-                                        <span className="text-neutral-500">Games:</span>
-                                        <span className="text-emerald-400 font-medium">{d.games.join(', ')}</span>
-                                    </div>
-                                )}
-                                {d.maxScore > 0 && (
-                                    <div className="flex justify-between text-xs">
-                                        <span className="text-neutral-500">Best Score:</span>
-                                        <span className="text-yellow-400 font-bold">{d.maxScore}</span>
-                                    </div>
-                                )}
-                                {d.totalContacts > 0 && (
-                                    <div className="flex justify-between text-xs">
-                                        <span className="text-neutral-500">Messages Sent:</span>
-                                        <span className="text-white font-medium">{d.totalContacts}</span>
-                                    </div>
-                                )}
-                                {d.totalDownloads > 0 && (
-                                    <div className="flex justify-between text-xs">
-                                        <span className="text-neutral-500">Resume DLs:</span>
-                                        <span className="text-white font-medium">{d.totalDownloads}</span>
-                                    </div>
-                                )}
-                                <div className="flex justify-between text-xs mt-1">
-                                    <span className="text-neutral-500">Last seen:</span>
-                                    <span className="text-neutral-400">{new Date(d.lastSeenAt).toLocaleDateString()}</span>
+                                <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
+                                    {d.games.length > 0 && (
+                                        <span className="text-neutral-500 flex items-center gap-1.5">
+                                            Games: <strong className="text-emerald-400 font-medium">{d.games.join(', ')}</strong>
+                                        </span>
+                                    )}
+                                    {d.maxScore > 0 && (
+                                        <span className="text-neutral-500 flex items-center gap-1.5">
+                                            Best Score: <strong className="text-yellow-400 font-bold">{d.maxScore}</strong>
+                                        </span>
+                                    )}
+                                    {d.totalContacts > 0 && (
+                                        <span className="text-neutral-500 flex items-center gap-1.5">
+                                            Messages: <strong className="text-white font-medium">{d.totalContacts}</strong>
+                                        </span>
+                                    )}
+                                    {d.totalDownloads > 0 && (
+                                        <span className="text-neutral-500 flex items-center gap-1.5">
+                                            Resume DLs: <strong className="text-white font-medium">{d.totalDownloads}</strong>
+                                        </span>
+                                    )}
                                 </div>
                             </div>
+
                         </div>
                     ))}
                 </div>
