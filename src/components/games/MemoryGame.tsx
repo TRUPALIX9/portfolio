@@ -223,15 +223,10 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
     return (
         <div className="w-full max-w-[420px] mx-auto bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-3xl p-6 flex flex-col gap-5 md:gap-6 shadow-2xl relative">
             {/* HUD Status Bar */}
-            <div className="flex justify-between items-center gap-4 border-b border-white/5 pb-4">
-                
-                <div className="flex flex-col">
-                    <span className="text-[0.65rem] font-bold uppercase tracking-widest text-neutral-500">Score</span>
-                    <span className="text-xl md:text-2xl font-black text-white leading-tight">{score}</span>
-                </div>
-                                <div className="flex flex-col items-end">
-                    <span className="text-[0.65rem] font-bold uppercase tracking-widest text-neutral-500">High Score</span>
-                    <span className="text-xl md:text-2xl font-black text-[#4ADE80] leading-tight">{highScore}</span>
+            <div className="flex justify-center items-center border-b border-white/5 pb-4">
+                <div className="flex flex-col items-center">
+                    <span className="text-[0.65rem] font-bold uppercase tracking-widest text-neutral-500">Current Score</span>
+                    <span className="text-2xl md:text-3xl font-black text-white leading-tight">{score}</span>
                 </div>
             </div>
 
