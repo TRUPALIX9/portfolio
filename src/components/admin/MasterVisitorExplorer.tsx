@@ -319,7 +319,7 @@ export default function MasterVisitorExplorer({
                 return true;
             })
             .sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
-    }, [devices, sessions, searchTerm, activeTab, activeRoute, activeRef]);
+    }, [validDevices, validSessions, searchTerm, activeTab, activeRoute, activeRef]);
 
     const totalPages = Math.max(1, Math.ceil(filteredDevices.length / devicesPerPage));
     const paginatedDevices = useMemo(() => {
@@ -387,38 +387,42 @@ export default function MasterVisitorExplorer({
                 {/* Right Content */}
                 <div className="flex-1 flex flex-col gap-5 min-w-0">
                     <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 border-b border-white/[0.05] pb-4">
-                        <div className="flex bg-neutral-950/60 p-1 rounded-xl border border-white/[0.08]">
+                        {/* Device Type Tabs */}
+                        <div className="flex bg-neutral-900 rounded-xl border border-white/[0.10] overflow-hidden shadow-inner shrink-0">
                             {(["all", "mobile", "pc", "bot"] as const).map(tab => (
                                 <button
                                     key={tab}
                                     onClick={() => { setActiveTab(tab); setCurrentPage(1); }}
-                                    className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
-                                        activeTab === tab ? "bg-white/[0.1] text-white" : "text-neutral-500 hover:text-neutral-300"
+                                    className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest transition-all duration-200 border-r border-white/[0.06] last:border-r-0 ${
+                                        activeTab === tab
+                                            ? "bg-[#38bdf8] text-neutral-950 shadow-md"
+                                            : "text-neutral-500 hover:text-white hover:bg-white/[0.06]"
                                     }`}
                                 >
                                     {tab}
                                 </button>
                             ))}
                         </div>
-                        
-                        <div className="relative min-w-[240px]">
-                            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-500">
+
+                        {/* Search */}
+                        <div className="relative flex-1 min-w-[260px]">
+                            <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400">
                                 <Search className="w-4 h-4" />
                             </span>
                             <input
                                 type="text"
-                                placeholder="Search IP, location, OS..."
+                                placeholder="Search by IP, city, OS, browser..."
                                 value={searchTerm}
                                 onChange={(e) => {
                                     setSearchTerm(e.target.value);
                                     setCurrentPage(1);
                                 }}
-                                className="w-full bg-neutral-950/60 border border-white/[0.1] rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#4ADE80] transition-colors"
+                                className="w-full h-11 bg-neutral-900 border border-white/[0.10] rounded-xl pl-11 pr-10 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-[#38bdf8]/60 focus:bg-neutral-900/80 transition-colors shadow-inner"
                             />
                             {searchTerm && (
-                                <button 
-                                    onClick={() => setSearchTerm("")} 
-                                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-400 hover:text-white"
+                                <button
+                                    onClick={() => setSearchTerm("")}
+                                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-500 hover:text-white transition-colors"
                                 >
                                     <X className="w-4 h-4" />
                                 </button>
@@ -642,39 +646,40 @@ export default function MasterVisitorExplorer({
 
                     {/* Pagination Controls */}
                     {totalPages > 1 && (
-                        <div className="flex justify-between items-center text-sm text-neutral-400 mt-2 px-2">
-                            <div>
-                                Showing <strong className="text-white">{Math.min(filteredDevices.length, (currentPage - 1) * devicesPerPage + 1)}</strong> -{" "}
-                                <strong className="text-white">{Math.min(filteredDevices.length, currentPage * devicesPerPage)}</strong> of{" "}
-                                <strong className="text-white">{filteredDevices.length}</strong>
-                            </div>
+                        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mt-3 px-2 py-3 border-t border-white/[0.06]">
+                            <p className="text-sm text-neutral-400">
+                                Showing{" "}
+                                <span className="text-white font-bold">{Math.min(filteredDevices.length, (currentPage - 1) * devicesPerPage + 1)}</span>
+                                {" – "}
+                                <span className="text-white font-bold">{Math.min(filteredDevices.length, currentPage * devicesPerPage)}</span>
+                                {" of "}
+                                <span className="text-[#38bdf8] font-black">{filteredDevices.length}</span>
+                                {" visitors"}
+                            </p>
 
-                            {/* Standard Page Number Buttons */}
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                                     disabled={currentPage === 1}
-                                    className="p-2 bg-neutral-950 border border-white/[0.08] text-neutral-300 hover:text-white rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-900/60 transition-colors"
+                                    className="w-9 h-9 flex items-center justify-center rounded-lg bg-neutral-800 border border-white/[0.10] text-white hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                                 >
                                     <ChevronRight className="w-4 h-4 rotate-180" />
                                 </button>
-                                
+
                                 {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
-                                    let pageNum = currentPage;
+                                    let pageNum = i + 1;
                                     if (currentPage <= 3) pageNum = i + 1;
                                     else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
                                     else pageNum = currentPage - 2 + i;
-                                    
                                     if (pageNum <= 0 || pageNum > totalPages) return null;
-
                                     return (
                                         <button
                                             key={pageNum}
                                             onClick={() => setCurrentPage(pageNum)}
-                                            className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-colors ${
-                                                currentPage === pageNum 
-                                                    ? "bg-[#38bdf8] text-black" 
-                                                    : "bg-neutral-950 border border-white/[0.08] text-neutral-400 hover:text-white hover:bg-neutral-900/60"
+                                            className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold transition-all ${
+                                                currentPage === pageNum
+                                                    ? "bg-[#38bdf8] text-neutral-950 shadow-md"
+                                                    : "bg-neutral-800 border border-white/[0.10] text-neutral-300 hover:text-white hover:bg-neutral-700"
                                             }`}
                                         >
                                             {pageNum}
@@ -685,7 +690,7 @@ export default function MasterVisitorExplorer({
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="p-2 bg-neutral-950 border border-white/[0.08] text-neutral-300 hover:text-white rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-900/60 transition-colors"
+                                    className="w-9 h-9 flex items-center justify-center rounded-lg bg-neutral-800 border border-white/[0.10] text-white hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                                 >
                                     <ChevronRight className="w-4 h-4" />
                                 </button>
@@ -694,6 +699,7 @@ export default function MasterVisitorExplorer({
                     )}
                 </div>
             </div>
+
 
             {/* ── IP Wiper ────────────────────────────────── */}
             <div className="border border-red-500/20 rounded-2xl p-5 bg-red-950/10 flex flex-col gap-4">
