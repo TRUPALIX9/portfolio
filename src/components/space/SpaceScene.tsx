@@ -41,14 +41,14 @@ function CameraRig({ scrollProgress }: { scrollProgress: number }) {
         const my = mouse.current.y;
 
         // ── Mouse parallax ───────────────────────────────────────────────────
-        const targetX = mx * 70;
-        const targetY = my * 70;
-        camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, 3.5 * delta);
-        camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY, 3.5 * delta);
+        const targetX = mx * 150;
+        const targetY = my * 150;
+        camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, 0.8 * delta);
+        camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY, 0.8 * delta);
 
         // Camera head-tilt from mouse
-        camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, -mx * 0.08, 3 * delta);
-        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x,  my * 0.06, 3 * delta);
+        camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, -mx * 0.15, 1.0 * delta);
+        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x,  my * 0.10, 1.0 * delta);
 
         // Z zoom from page scroll
         const targetZ = scrollYRef.current * 0.25;
@@ -61,7 +61,7 @@ function CameraRig({ scrollProgress }: { scrollProgress: number }) {
 
         // Lateral sweep — camera pans right as SO/ARE split (stars stream left)
         const sweepX = driftT * 30;
-        camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX + sweepX, 3.5 * delta);
+        camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX + sweepX, 0.8 * delta);
 
         // Z push — camera rushes forward into the star field during drift
         // (creates a "flying through space" sensation)
@@ -70,7 +70,7 @@ function CameraRig({ scrollProgress }: { scrollProgress: number }) {
 
         // Y dip — camera dips then rises again
         const sweepY = driftT * -25;
-        camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY + sweepY, 2 * delta);
+        camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY + sweepY, 0.8 * delta);
 
         // Roll — starfield tilts during drift
         const targetRoll = driftT * 0.35;
@@ -78,7 +78,7 @@ function CameraRig({ scrollProgress }: { scrollProgress: number }) {
 
         // Pitch — camera nose-dips slightly during drift (adds depth)
         const targetPitch = driftT * 0.15;
-        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, my * 0.03 + targetPitch, 2.5 * delta);
+        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, my * 0.10 + targetPitch, 1.0 * delta);
 
         // ── Answer phase (0.55→0.85): camera stays centered since driftT is 0 ────────
         // (no extra logic needed because driftT smoothly returned to 0)
