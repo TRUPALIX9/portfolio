@@ -188,7 +188,7 @@ export default function MemoryArcade({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 flex items-center justify-center p-6 md:p-8 bg-black/80 backdrop-blur-sm"
                         onClick={() => setShowHelp(false)}
                     >
                         <motion.div 
@@ -226,7 +226,7 @@ export default function MemoryArcade({
 
                             <button 
                                 onClick={() => setShowHelp(false)}
-                                className="w-full h-14 bg-white hover:bg-neutral-200 text-black font-black text-sm md:text-base tracking-widest rounded-xl transition-colors"
+                                className="w-full h-14 !bg-white hover:!bg-neutral-200 !text-black font-black text-sm md:text-base tracking-widest rounded-xl transition-colors"
                             >
                                 GOT IT
                             </button>
