@@ -295,10 +295,7 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
                 {/* START SCREEN OVERLAY */}
                 {!playing && !gameOver && (
                     <div className="absolute inset-0 backdrop-blur-md bg-black/80 flex flex-col items-center justify-center p-4 text-center rounded-2xl z-20 overflow-hidden">
-                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-2xl md:text-3xl mb-3 md:mb-4 shadow-inner">
-                            🧠
-                        </div>
-                        <h3 className="text-lg md:text-xl font-extrabold text-white mb-1 md:mb-2">Memory Test</h3>
+                                                <h3 className="text-lg md:text-xl font-extrabold text-white mb-1 md:mb-2">Memory Test</h3>
                         <p className="text-neutral-400 text-[0.7rem] md:text-xs font-medium leading-relaxed max-w-[220px] mb-6">
                             Memorize the pattern. Tap it back.
                         </p>

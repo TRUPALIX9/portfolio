@@ -175,10 +175,7 @@ export default function MemoryArcade({
                         className="bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-4 shadow-2xl flex items-center justify-between hover:bg-white/[0.05] transition-colors w-full text-left cursor-pointer"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-sm">
-                                🧠
-                            </div>
-                            <span className="text-sm font-bold text-white tracking-wide">How to play?</span>
+                                                        <span className="text-sm font-bold text-white tracking-wide">How to play?</span>
                         </div>
                         <span className="text-white/50">→</span>
                     </motion.button>
@@ -207,10 +204,7 @@ export default function MemoryArcade({
                             >
                                 ✕
                             </button>
-                            <div className="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-2xl mb-4">
-                                🧠
-                            </div>
-                            <h3 className="text-xl font-extrabold text-white mb-2">How to Play</h3>
+                                                        <h3 className="text-xl font-extrabold text-white mb-2">How to Play</h3>
                             <p className="text-neutral-300 text-sm leading-relaxed mb-6">
                                 1. Watch the tiles flash in a specific order.<br/>
                                 2. Wait for the <b>GREEN BORDER</b> signal.<br/>
