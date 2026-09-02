@@ -134,8 +134,8 @@ export default function Footer() {
                     <Image
                         src="/favicon.svg"
                         alt="Logo"
-                        width={40}
-                        height={40}
+                        width={80}
+                        height={80}
                         className="favicon-spin2d"
                         style={{ objectFit: 'contain', opacity: 0.7 }}
                     />
