@@ -386,14 +386,14 @@ export default function MasterVisitorExplorer({
 
                 {/* Right Content */}
                 <div className="flex-1 flex flex-col gap-5 min-w-0">
-                    <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 border-b border-white/[0.05] pb-4">
+                    <div className="flex flex-wrap items-center gap-3 border-b border-white/[0.05] pb-4">
                         {/* Device Type Tabs */}
                         <div className="flex bg-neutral-900 rounded-xl border border-white/[0.10] overflow-hidden shadow-inner shrink-0">
                             {(["all", "mobile", "pc", "bot"] as const).map(tab => (
                                 <button
                                     key={tab}
                                     onClick={() => { setActiveTab(tab); setCurrentPage(1); }}
-                                    className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest transition-all duration-200 border-r border-white/[0.06] last:border-r-0 ${
+                                    className={`px-6 py-2.5 text-xs font-black uppercase tracking-widest transition-all duration-200 border-r border-white/[0.06] last:border-r-0 whitespace-nowrap ${
                                         activeTab === tab
                                             ? "bg-[#38bdf8] text-neutral-950 shadow-md"
                                             : "text-neutral-500 hover:text-white hover:bg-white/[0.06]"
@@ -404,20 +404,20 @@ export default function MasterVisitorExplorer({
                             ))}
                         </div>
 
-                        {/* Search */}
-                        <div className="relative flex-1 min-w-[260px]">
+                        {/* Search — fixed width, not stretching */}
+                        <div className="relative w-64 shrink-0">
                             <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400">
                                 <Search className="w-4 h-4" />
                             </span>
                             <input
                                 type="text"
-                                placeholder="Search by IP, city, OS, browser..."
+                                placeholder="IP, city, OS..."
                                 value={searchTerm}
                                 onChange={(e) => {
                                     setSearchTerm(e.target.value);
                                     setCurrentPage(1);
                                 }}
-                                className="w-full h-11 bg-neutral-900 border border-white/[0.10] rounded-xl pl-11 pr-10 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-[#38bdf8]/60 focus:bg-neutral-900/80 transition-colors shadow-inner"
+                                className="w-full h-11 bg-neutral-900 border border-white/[0.10] rounded-xl pl-11 pr-10 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-[#38bdf8]/60 transition-colors shadow-inner"
                             />
                             {searchTerm && (
                                 <button
