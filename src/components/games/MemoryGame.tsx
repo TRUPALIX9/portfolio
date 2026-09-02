@@ -30,7 +30,7 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
     const roundTokenRef = useRef(0);
 
     const [score, setScore] = useState(0);
-    const [round, setRound] = useState(1);
+    
     const [phaseLabel, setPhaseLabel] = useState('READY');
     const [statusText, setStatusText] = useState('WATCH THE CHAIN, THEN REPEAT IT');
     const [playerProgress, setPlayerProgress] = useState(0);
@@ -101,7 +101,7 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
         sequenceRef.current = nextSequence;
         inputIndexRef.current = 0;
         canInputRef.current = false;
-        setRound(nextSequence.length);
+        
         setSequenceLength(nextSequence.length);
         setPlayerProgress(0);
         setPhaseLabel('WATCH');
@@ -142,7 +142,7 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
         playingRef.current = true;
         canInputRef.current = false;
         setScore(0);
-        setRound(1);
+        
         setSequenceLength(0);
         setPlayerProgress(0);
         setGameOver(false);
@@ -235,11 +235,7 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
                     <span className="text-[0.65rem] font-bold uppercase tracking-widest text-neutral-500">Score</span>
                     <span className="text-xl md:text-2xl font-black text-white leading-tight">{score}</span>
                 </div>
-                <div className="flex flex-col items-center">
-                    <span className="text-[0.65rem] font-bold uppercase tracking-widest text-neutral-500">Round</span>
-                    <span className="text-xl md:text-2xl font-black text-white leading-tight">{round}</span>
-                </div>
-                <div className="flex flex-col items-end">
+                                <div className="flex flex-col items-end">
                     <span className="text-[0.65rem] font-bold uppercase tracking-widest text-neutral-500">High Score</span>
                     <span className="text-xl md:text-2xl font-black text-[#4ADE80] leading-tight">{highScore}</span>
                 </div>
