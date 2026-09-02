@@ -10,9 +10,9 @@ export default function StarField({ count = 6000 }) {
     const positions = useMemo(() => {
         const pos = new Float32Array(count * 3);
         for (let i = 0; i < count; i++) {
-            pos[i * 3] = (Math.random() - 0.5) * 2500; // X
-            pos[i * 3 + 1] = (Math.random() - 0.5) * 2500; // Y
-            pos[i * 3 + 2] = (Math.random() - 0.5) * 2500; // Z
+            pos[i * 3] = (Math.random() - 0.5) * 1200; // X
+            pos[i * 3 + 1] = (Math.random() - 0.5) * 1200; // Y
+            pos[i * 3 + 2] = (Math.random() - 0.5) * 1200; // Z
         }
         return pos;
     }, [count]);
@@ -20,15 +20,15 @@ export default function StarField({ count = 6000 }) {
     useFrame((state, delta) => {
         if (!pointsRef.current) return;
         // Gentle rotation for the entire galaxy
-        pointsRef.current.rotation.y += delta * 0.04;
-        pointsRef.current.rotation.x += delta * 0.02;
+        pointsRef.current.rotation.y += delta * 0.02;
+        pointsRef.current.rotation.x += delta * 0.01;
     });
 
     const vertexShader = `
         void main() {
             vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
             // Even smaller stars
-            gl_PointSize = (6.0 * (300.0 / -mvPosition.z));
+            gl_PointSize = (9.0 * (300.0 / -mvPosition.z));
             gl_Position = projectionMatrix * mvPosition;
         }
     `;

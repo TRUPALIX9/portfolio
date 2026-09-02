@@ -51,7 +51,7 @@ function CameraRig({ scrollProgress }: { scrollProgress: number }) {
         camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x,  my * 0.10, 1.0 * delta);
 
         // Z zoom from page scroll
-        const targetZ = scrollYRef.current * 0.25;
+        const targetZ = scrollYRef.current * 0.18;
         camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 2 * delta);
 
         // ── Scroll-phase: drift arc (words splitting apart then assembling, 0.05→0.55)
@@ -65,7 +65,7 @@ function CameraRig({ scrollProgress }: { scrollProgress: number }) {
 
         // Z push — camera rushes forward into the star field during drift
         // (creates a "flying through space" sensation)
-        const sweepZ = driftT * -70;
+        const sweepZ = driftT * -40;
         camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ + sweepZ, 2 * delta);
 
         // Y dip — camera dips then rises again
@@ -111,7 +111,7 @@ export default function SpaceScene({ scrollProgress = 0 }: { scrollProgress?: nu
 
                 <Suspense fallback={null}>
                     <CameraRig scrollProgress={scrollProgress} />
-                    <StarField     count={2500} />
+                    <StarField     count={2000} />
                 </Suspense>
             </Canvas>
 
