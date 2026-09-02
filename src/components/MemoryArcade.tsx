@@ -196,40 +196,37 @@ export default function MemoryArcade({
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.95, opacity: 0, y: 20 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-neutral-900 border border-white/10 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl relative"
+                            className="bg-neutral-900 border border-white/10 rounded-[2rem] p-7 md:p-10 max-w-md w-full shadow-2xl relative"
                         >
                             <button 
                                 onClick={() => setShowHelp(false)}
-                                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-white/50 hover:text-white bg-white/5 rounded-full"
+                                className="absolute top-5 right-5 md:top-6 md:right-6 w-9 h-9 flex items-center justify-center text-white/40 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-colors"
                             >
                                 ✕
                             </button>
-                                                        <h3 className="text-xl font-extrabold text-white mb-6">How to Play</h3>
                             
-                            <div className="flex flex-col gap-4 text-sm text-neutral-300 text-left mb-6">
-                                <div className="flex items-start gap-3">
-                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 text-white flex items-center justify-center font-bold text-xs mt-0.5">1</span>
-                                    <p>Watch the tiles flash in a specific order.</p>
+                            <h3 className="text-2xl md:text-3xl font-extrabold text-white mb-6 md:mb-8 text-left">How to Play</h3>
+                            
+                            <div className="flex flex-col gap-5 md:gap-6 text-[0.95rem] md:text-base text-neutral-300 text-left mb-8 md:mb-10">
+                                <div className="flex items-start gap-4">
+                                    <span className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-white/10 text-white flex items-center justify-center font-bold text-sm md:text-base mt-0.5 md:mt-0">1</span>
+                                    <p className="leading-relaxed">Watch the tiles flash in a specific order.</p>
                                 </div>
-                                <div className="flex items-start gap-3">
-                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 text-white flex items-center justify-center font-bold text-xs mt-0.5">2</span>
-                                    <p>Wait for the game board to glow <b className="text-emerald-400">GREEN</b>.</p>
+                                <div className="flex items-start gap-4">
+                                    <span className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-white/10 text-white flex items-center justify-center font-bold text-sm md:text-base mt-0.5 md:mt-0">2</span>
+                                    <p className="leading-relaxed">Wait for the game board to glow <b className="text-emerald-400">GREEN</b>.</p>
                                 </div>
-                                <div className="flex items-start gap-3">
-                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 text-white flex items-center justify-center font-bold text-xs mt-0.5">3</span>
-                                    <p>Tap the tiles in the <b>exact same sequence</b>.</p>
+                                <div className="flex items-start gap-4">
+                                    <span className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-white/10 text-white flex items-center justify-center font-bold text-sm md:text-base mt-0.5 md:mt-0">3</span>
+                                    <p className="leading-relaxed">Tap the tiles in the <b>exact same sequence</b>.</p>
                                 </div>
                             </div>
 
-                            <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 mb-8 text-left">
-                                <p className="text-white/70 text-[0.75rem] font-medium leading-relaxed">
-                                    <b className="text-white">Goal:</b> Each successful round adds one more tile to the sequence. One wrong tap, and it's over!
-                                </p>
-                            </div>
+                            
 
                             <button 
                                 onClick={() => setShowHelp(false)}
-                                className="w-full h-12 bg-white hover:bg-neutral-200 text-black font-black tracking-widest rounded-xl transition-colors"
+                                className="w-full h-14 bg-white hover:bg-neutral-200 text-black font-black text-sm md:text-base tracking-widest rounded-xl transition-colors"
                             >
                                 GOT IT
                             </button>
