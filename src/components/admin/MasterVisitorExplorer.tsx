@@ -215,9 +215,8 @@ export default function MasterVisitorExplorer({
     const [wipeResult, setWipeResult] = useState<{ success: boolean; msg: string } | null>(null);
 
     // Device Storyline state
-    const [activeDevice, setActiveDevice] = useState<string>("all");
     const [deviceSidebarPage, setDeviceSidebarPage] = useState(1);
-    const devicesPerSidebarPage = 8;
+    const devicesPerSidebarPage = 12;
 
     const handleToggleExpand = (deviceId: string) => {
         setExpandedDeviceIds(prev => ({
@@ -288,15 +287,33 @@ export default function MasterVisitorExplorer({
         return validDevices.map(d => {
             const dSessions = validSessions.filter(s => s.device_id === d.deviceId);
             const routes = [...new Set(dSessions.map(s => s.route))];
+            const games = [...new Set(dSessions.flatMap(s => s.games_played || []))];
             const city = d.city ? decodeURIComponent(d.city) : "";
+            
+            const totalViews = dSessions.reduce((acc, s) => acc + (s.view_count || 0), 0);
+            const totalContacts = dSessions.reduce((acc, s) => acc + (s.contact_submissions || 0), 0);
+            const totalDownloads = dSessions.reduce((acc, s) => acc + (s.resume_downloads || 0), 0);
+            const gameOpens = dSessions.reduce((acc, s) => acc + (s.game_opens || 0), 0);
+            const completedRuns = dSessions.reduce((acc, s) => acc + (s.completed_runs || 0), 0);
+            const maxScore = Math.max(0, ...dSessions.map(s => s.best_score || s.total_score || 0));
+
             return {
                 deviceId: d.deviceId,
                 ip: d.ip || "—",
                 city,
                 browser: d.browser || "",
                 os: d.os || "",
+                deviceType: d.deviceType || "",
                 sessions: dSessions.length,
                 routes,
+                games,
+                totalViews,
+                totalContacts,
+                totalDownloads,
+                gameOpens,
+                completedRuns,
+                maxScore,
+                lastSeenAt: d.lastSeenAt || dSessions.sort((a,b) => new Date(b.last_seen_at).getTime() - new Date(a.last_seen_at).getTime())[0]?.last_seen_at
             };
         }).sort((a, b) => b.sessions - a.sessions);
     }, [validDevices, validSessions]);
@@ -311,13 +328,9 @@ export default function MasterVisitorExplorer({
     const filteredDevices = useMemo(() => {
         return validDevices
             .filter(device => {
-                
-
                 if (activeTab === "bot" && !device.isBot) return false;
                 if (activeTab === "mobile" && !(device.deviceType?.toLowerCase().includes("iphone") || device.deviceType?.toLowerCase().includes("android") || device.deviceType?.toLowerCase().includes("mobile"))) return false;
                 if (activeTab === "pc" && (device.deviceType?.toLowerCase().includes("iphone") || device.deviceType?.toLowerCase().includes("android") || device.deviceType?.toLowerCase().includes("mobile") || device.isBot)) return false;
-
-                if (activeDevice !== "all" && device.deviceId !== activeDevice) return false;
 
                 if (activeRoute !== "all") {
                     const deviceSessions = validSessions.filter(s => s.device_id === device.deviceId);
@@ -340,17 +353,16 @@ export default function MasterVisitorExplorer({
                     const nameMatch = device.customName?.toLowerCase().includes(searchLower);
                     const idMatch = device.deviceId.toLowerCase().includes(searchLower);
                     const ipMatch = device.ip?.toLowerCase().includes(searchLower);
-                    const cityMatch = device.city ? decodeURIComponent(device.city).toLowerCase().includes(searchLower) : false;
-                    const osMatch = device.os?.toLowerCase().includes(searchLower);
-                    const browserMatch = device.browser?.toLowerCase().includes(searchLower);
-
-                    return nameMatch || idMatch || ipMatch || cityMatch || osMatch || browserMatch;
+                    const locMatch = `${device.city} ${device.country}`.toLowerCase().includes(searchLower);
+                    const techMatch = `${device.os} ${device.browser} ${device.deviceType}`.toLowerCase().includes(searchLower);
+                    
+                    return nameMatch || idMatch || ipMatch || locMatch || techMatch;
                 }
 
                 return true;
             })
             .sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
-    }, [validDevices, validSessions, searchTerm, activeTab, activeRoute, activeRef, activeDevice]);
+    }, [validDevices, validSessions, searchTerm, activeTab, activeRoute, activeRef]);
 
     const totalPages = Math.max(1, Math.ceil(filteredDevices.length / devicesPerPage));
     const paginatedDevices = useMemo(() => {
@@ -360,22 +372,23 @@ export default function MasterVisitorExplorer({
     }, [filteredDevices, currentPage, totalPages]);
 
     return (
-        <section className="bg-neutral-900/[0.12] backdrop-blur-xl border border-white/[0.05] rounded-[32px] p-6 flex flex-col gap-6 shadow-2xl">
-            <div className="flex flex-col md:flex-row gap-6 items-start">
+        <div className="flex flex-col gap-8">
+            <section className="bg-neutral-900/[0.12] backdrop-blur-xl border border-white/[0.05] rounded-[32px] p-6 flex flex-col gap-6 shadow-2xl">
+                <div className="flex flex-col md:flex-row gap-6 items-start">
                 {/* Left Navigation */}
                 <div className="w-full md:w-64 shrink-0 flex flex-col gap-3">
 
                     {/* Device Type Filter */}
                     <h4 className="font-bold text-white text-lg tracking-wide border-b border-white/[0.05] pb-2">Device Type</h4>
-                    <div className="grid grid-cols-4 gap-1 bg-neutral-950/60 rounded-xl p-1 border border-white/[0.08]">
+                    <div className="grid grid-cols-2 gap-1.5">
                         {(["all", "mobile", "pc", "bot"] as const).map(tab => (
                             <button
                                 key={tab}
                                 onClick={() => { setActiveTab(tab); setCurrentPage(1); }}
-                                className={`py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all duration-200 ${
+                                className={`py-2.5 text-xs font-black uppercase tracking-widest rounded-xl border transition-all duration-200 ${
                                     activeTab === tab
-                                        ? "bg-[#38bdf8] text-neutral-950 shadow-md"
-                                        : "text-neutral-500 hover:text-white hover:bg-white/[0.06]"
+                                        ? "bg-white text-black border-white shadow-md"
+                                        : "bg-neutral-950/60 border-white/[0.08] text-neutral-500 hover:text-white hover:border-white/20"
                                 }`}
                             >
                                 {tab}
@@ -431,63 +444,6 @@ export default function MasterVisitorExplorer({
                                 <span className="bg-neutral-950 px-2 py-0.5 rounded-full text-[10px]">{r.count}</span>
                             </button>
                         ))}
-                    </div>
-
-                    {/* Device Storyline */}
-                    <h4 className="font-bold text-white text-lg tracking-wide border-b border-white/[0.05] pb-2 mt-4">Device Storyline</h4>
-                    <div className="flex flex-col gap-1">
-                        <button
-                            onClick={() => { setActiveDevice("all"); setCurrentPage(1); }}
-                            className={`flex justify-between items-center px-3 py-2 rounded-xl text-sm transition-colors ${
-                                activeDevice === "all" ? "bg-[#38bdf8]/20 text-[#38bdf8] font-bold" : "text-neutral-400 hover:bg-white/[0.05] hover:text-white"
-                            }`}
-                        >
-                            <span>All Devices</span>
-                            <span className="bg-neutral-950 px-2 py-0.5 rounded-full text-[10px]">{validDevices.length}</span>
-                        </button>
-                        {paginatedDeviceStory.map(d => (
-                            <button
-                                key={d.deviceId}
-                                onClick={() => { setActiveDevice(d.deviceId); setCurrentPage(1); }}
-                                className={`flex flex-col gap-1 px-3 py-2 rounded-xl text-left transition-colors ${
-                                    activeDevice === d.deviceId ? "bg-[#38bdf8]/20 text-[#38bdf8]" : "text-neutral-400 hover:bg-white/[0.05] hover:text-white"
-                                }`}
-                            >
-                                <div className="flex justify-between items-center w-full">
-                                    <span className="font-mono text-[11px] truncate max-w-[120px]" title={d.ip}>{d.ip}</span>
-                                    <span className="bg-neutral-950 px-2 py-0.5 rounded-full text-[10px] shrink-0">{d.sessions}</span>
-                                </div>
-                                <span className="text-[10px] text-neutral-500 truncate max-w-full">
-                                    {[d.city, d.os, d.browser].filter(Boolean).join(" · ") || "Unknown"}
-                                </span>
-                                {d.routes.length > 0 && (
-                                    <span className="text-[10px] text-neutral-600 truncate max-w-full">
-                                        → {d.routes.map(r => humanizeRoute(r)).join(", ")}
-                                    </span>
-                                )}
-                            </button>
-                        ))}
-
-                        {/* Sidebar pagination */}
-                        {deviceSidebarTotalPages > 1 && (
-                            <div className="flex items-center justify-between mt-2 px-1">
-                                <button
-                                    onClick={() => setDeviceSidebarPage(p => Math.max(1, p - 1))}
-                                    disabled={deviceSidebarPage === 1}
-                                    className="text-[10px] text-neutral-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    ← Prev
-                                </button>
-                                <span className="text-[10px] text-neutral-600">{deviceSidebarPage}/{deviceSidebarTotalPages}</span>
-                                <button
-                                    onClick={() => setDeviceSidebarPage(p => Math.min(deviceSidebarTotalPages, p + 1))}
-                                    disabled={deviceSidebarPage === deviceSidebarTotalPages}
-                                    className="text-[10px] text-neutral-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    Next →
-                                </button>
-                            </div>
-                        )}
                     </div>
                 </div>
 
@@ -788,8 +744,97 @@ export default function MasterVisitorExplorer({
                         </div>
                     )}
                 </div>
-            </div>
+                </div>
+            </section>
 
+            {/* ── Device Storyline ────────────────────────── */}
+            <section className="bg-neutral-900/[0.12] backdrop-blur-xl border border-white/[0.05] rounded-[32px] p-6 flex flex-col gap-6 shadow-2xl">
+                <div className="flex items-center justify-between border-b border-white/[0.05] pb-4">
+                    <div className="flex items-center gap-4">
+                        <h3 className="text-xl font-bold text-white tracking-wide">Device Storyline</h3>
+                        <span className="bg-neutral-950/60 border border-white/[0.08] px-3 py-1 rounded-full text-xs text-neutral-400 font-medium">
+                            {validDevices.length} Total Devices
+                        </span>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {paginatedDeviceStory.map(d => (
+                        <div key={d.deviceId} className="bg-neutral-950/50 border border-white/[0.05] rounded-2xl p-4 flex flex-col gap-3 hover:bg-neutral-900/50 transition-colors">
+                            <div className="flex justify-between items-start gap-2">
+                                <div className="flex flex-col min-w-0">
+                                    <span className="font-mono text-sm text-[#38bdf8] truncate font-bold" title={d.ip}>{d.ip}</span>
+                                    <span className="text-xs text-neutral-400 truncate mt-0.5">
+                                        {[d.city, d.os, d.browser].filter(Boolean).join(" · ") || "Unknown Device"}
+                                    </span>
+                                </div>
+                                <span className="bg-[#38bdf8]/20 text-[#38bdf8] px-2 py-0.5 rounded-lg text-xs font-black shrink-0">
+                                    {d.sessions} {d.sessions === 1 ? 'visit' : 'visits'}
+                                </span>
+                            </div>
+
+                            <div className="flex flex-wrap gap-1.5">
+                                {d.routes.map(r => (
+                                    <span key={r} className="bg-white/5 border border-white/10 px-2 py-0.5 rounded-md text-[10px] text-neutral-300">
+                                        {humanizeRoute(r)}
+                                    </span>
+                                ))}
+                            </div>
+
+                            <div className="flex flex-col gap-1.5 mt-1 pt-3 border-t border-white/[0.05]">
+                                {d.games.length > 0 && (
+                                    <div className="flex justify-between text-xs">
+                                        <span className="text-neutral-500">Games:</span>
+                                        <span className="text-emerald-400 font-medium">{d.games.join(', ')}</span>
+                                    </div>
+                                )}
+                                {d.maxScore > 0 && (
+                                    <div className="flex justify-between text-xs">
+                                        <span className="text-neutral-500">Best Score:</span>
+                                        <span className="text-yellow-400 font-bold">{d.maxScore}</span>
+                                    </div>
+                                )}
+                                {d.totalContacts > 0 && (
+                                    <div className="flex justify-between text-xs">
+                                        <span className="text-neutral-500">Messages Sent:</span>
+                                        <span className="text-white font-medium">{d.totalContacts}</span>
+                                    </div>
+                                )}
+                                {d.totalDownloads > 0 && (
+                                    <div className="flex justify-between text-xs">
+                                        <span className="text-neutral-500">Resume DLs:</span>
+                                        <span className="text-white font-medium">{d.totalDownloads}</span>
+                                    </div>
+                                )}
+                                <div className="flex justify-between text-xs mt-1">
+                                    <span className="text-neutral-500">Last seen:</span>
+                                    <span className="text-neutral-400">{new Date(d.lastSeenAt).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {deviceSidebarTotalPages > 1 && (
+                    <div className="flex justify-center items-center gap-4 mt-2">
+                        <button
+                            onClick={() => setDeviceSidebarPage(p => Math.max(1, p - 1))}
+                            disabled={deviceSidebarPage === 1}
+                            className="px-4 py-2 rounded-xl text-sm font-bold bg-neutral-900 border border-white/[0.1] text-white hover:bg-neutral-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        >
+                            Previous
+                        </button>
+                        <span className="text-sm text-neutral-400 font-medium">Page {deviceSidebarPage} of {deviceSidebarTotalPages}</span>
+                        <button
+                            onClick={() => setDeviceSidebarPage(p => Math.min(deviceSidebarTotalPages, p + 1))}
+                            disabled={deviceSidebarPage === deviceSidebarTotalPages}
+                            className="px-4 py-2 rounded-xl text-sm font-bold bg-neutral-900 border border-white/[0.1] text-white hover:bg-neutral-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
+            </section>
 
             {/* ── IP Wiper ────────────────────────────────── */}
             <div className="border border-red-500/20 rounded-2xl p-5 bg-red-950/10 flex flex-col gap-4">
@@ -840,6 +885,6 @@ export default function MasterVisitorExplorer({
                     </p>
                 )}
             </div>
-        </section>
+        </div>
     );
 }
