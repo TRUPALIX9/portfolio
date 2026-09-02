@@ -90,7 +90,7 @@ export default function MemoryArcade({
             </motion.div>
  
             {/* Game + Leaderboard */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-12 lg:gap-16 items-start relative z-10">
                 {/* Game: Left Side */}
                 <motion.div
                     initial={{ opacity: 0, x: reduceMotion ? 0 : -18 }}
