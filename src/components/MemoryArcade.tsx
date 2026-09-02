@@ -116,7 +116,7 @@ export default function MemoryArcade({
                         transition={{ duration: 0.6, delay: 0.14 }}
                         className="bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-3xl p-6 md:p-8 flex flex-col gap-6 shadow-2xl"
                     >
-                    <div>
+                    <div className="text-center">
                         <span className="text-[#4ADE80] font-bold text-xs uppercase tracking-[0.2em] mb-1 block">Hall of Fame</span>
                         <h2 className="text-xl font-bold text-white tracking-wide">Global Rankings</h2>
                     </div>
@@ -139,8 +139,8 @@ export default function MemoryArcade({
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: i * 0.04 }}
                                 >
-                                    <span className="text-sm font-medium tracking-wide flex gap-3 items-center text-white">
-                                        <span className={`text-[0.75rem] font-black w-6 h-6 rounded-lg flex items-center justify-center bg-black/40 border ${
+                                    <span className="text-sm font-medium tracking-wide flex gap-3 items-center text-white truncate pr-4">
+                                        <span className={`text-[0.75rem] font-black min-w-[28px] h-7 px-1.5 rounded-lg flex-shrink-0 flex items-center justify-center bg-black/40 border ${
                                             i === 0 ? 'border-amber-400 text-amber-400' :
                                             i === 1 ? 'border-neutral-400 text-neutral-400' :
                                             i === 2 ? 'border-amber-700 text-amber-600' : 'border-white/5 text-neutral-500'
