@@ -6,7 +6,7 @@ import { HelpCircle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { getSavedArcadePlayerName, saveArcadePlayerName, submitArcadeScore } from '@/utils/arcade-player';
 
-const TILE_COUNT = 4;
+const TILE_COUNT = 9;
 
 const TILE_ACCENTS = [
     'rgba(255, 255, 255, 1)',
@@ -254,8 +254,8 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
 
             {/* Game Grid Container */}
             <div className="relative aspect-square w-full bg-black/40 border border-white/[0.04] rounded-2xl p-4 md:p-6 flex items-center justify-center">
-                {/* 2x2 Tile Grid */}
-                <div className="grid grid-cols-2 gap-4 md:gap-6 w-full h-full max-w-[320px] max-h-[320px]">
+                {/* 3x3 Tile Grid */}
+                <div className="grid grid-cols-3 gap-2 md:gap-3 w-full h-full max-w-[280px] max-h-[280px]">
                     {Array.from({ length: TILE_COUNT }).map((_, tileId) => {
                         const isActive = activeTile === tileId;
                         return (
