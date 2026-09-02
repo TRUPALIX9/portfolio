@@ -214,6 +214,11 @@ export default function MasterVisitorExplorer({
     const [wipeBusy, setWipeBusy] = useState(false);
     const [wipeResult, setWipeResult] = useState<{ success: boolean; msg: string } | null>(null);
 
+    // Device Storyline state
+    const [activeDevice, setActiveDevice] = useState<string>("all");
+    const [deviceSidebarPage, setDeviceSidebarPage] = useState(1);
+    const devicesPerSidebarPage = 8;
+
     const handleToggleExpand = (deviceId: string) => {
         setExpandedDeviceIds(prev => ({
             ...prev,
@@ -279,6 +284,30 @@ export default function MasterVisitorExplorer({
         return Object.entries(refs).map(([ref, count]) => ({ ref, count })).sort((a, b) => b.count - a.count);
     }, [validSessions]);
 
+    const deviceStory = useMemo(() => {
+        return validDevices.map(d => {
+            const dSessions = validSessions.filter(s => s.device_id === d.deviceId);
+            const routes = [...new Set(dSessions.map(s => s.route))];
+            const city = d.city ? decodeURIComponent(d.city) : "";
+            return {
+                deviceId: d.deviceId,
+                ip: d.ip || "—",
+                city,
+                browser: d.browser || "",
+                os: d.os || "",
+                sessions: dSessions.length,
+                routes,
+            };
+        }).sort((a, b) => b.sessions - a.sessions);
+    }, [validDevices, validSessions]);
+
+    const deviceSidebarTotalPages = Math.max(1, Math.ceil(deviceStory.length / devicesPerSidebarPage));
+    const paginatedDeviceStory = useMemo(() => {
+        const page = Math.min(deviceSidebarPage, deviceSidebarTotalPages);
+        const start = (page - 1) * devicesPerSidebarPage;
+        return deviceStory.slice(start, start + devicesPerSidebarPage);
+    }, [deviceStory, deviceSidebarPage, deviceSidebarTotalPages]);
+
     const filteredDevices = useMemo(() => {
         return validDevices
             .filter(device => {
@@ -287,7 +316,9 @@ export default function MasterVisitorExplorer({
                 if (activeTab === "bot" && !device.isBot) return false;
                 if (activeTab === "mobile" && !(device.deviceType?.toLowerCase().includes("iphone") || device.deviceType?.toLowerCase().includes("android") || device.deviceType?.toLowerCase().includes("mobile"))) return false;
                 if (activeTab === "pc" && (device.deviceType?.toLowerCase().includes("iphone") || device.deviceType?.toLowerCase().includes("android") || device.deviceType?.toLowerCase().includes("mobile") || device.isBot)) return false;
-                
+
+                if (activeDevice !== "all" && device.deviceId !== activeDevice) return false;
+
                 if (activeRoute !== "all") {
                     const deviceSessions = validSessions.filter(s => s.device_id === device.deviceId);
                     if (!deviceSessions.some(s => s.route === activeRoute)) {
@@ -319,7 +350,7 @@ export default function MasterVisitorExplorer({
                 return true;
             })
             .sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
-    }, [validDevices, validSessions, searchTerm, activeTab, activeRoute, activeRef]);
+    }, [validDevices, validSessions, searchTerm, activeTab, activeRoute, activeRef, activeDevice]);
 
     const totalPages = Math.max(1, Math.ceil(filteredDevices.length / devicesPerPage));
     const paginatedDevices = useMemo(() => {
@@ -381,6 +412,63 @@ export default function MasterVisitorExplorer({
                                 <span className="bg-neutral-950 px-2 py-0.5 rounded-full text-[10px]">{r.count}</span>
                             </button>
                         ))}
+                    </div>
+
+                    {/* Device Storyline */}
+                    <h4 className="font-bold text-white text-lg tracking-wide border-b border-white/[0.05] pb-2 mt-4">Device Storyline</h4>
+                    <div className="flex flex-col gap-1">
+                        <button
+                            onClick={() => { setActiveDevice("all"); setCurrentPage(1); }}
+                            className={`flex justify-between items-center px-3 py-2 rounded-xl text-sm transition-colors ${
+                                activeDevice === "all" ? "bg-[#38bdf8]/20 text-[#38bdf8] font-bold" : "text-neutral-400 hover:bg-white/[0.05] hover:text-white"
+                            }`}
+                        >
+                            <span>All Devices</span>
+                            <span className="bg-neutral-950 px-2 py-0.5 rounded-full text-[10px]">{validDevices.length}</span>
+                        </button>
+                        {paginatedDeviceStory.map(d => (
+                            <button
+                                key={d.deviceId}
+                                onClick={() => { setActiveDevice(d.deviceId); setCurrentPage(1); }}
+                                className={`flex flex-col gap-1 px-3 py-2 rounded-xl text-left transition-colors ${
+                                    activeDevice === d.deviceId ? "bg-[#38bdf8]/20 text-[#38bdf8]" : "text-neutral-400 hover:bg-white/[0.05] hover:text-white"
+                                }`}
+                            >
+                                <div className="flex justify-between items-center w-full">
+                                    <span className="font-mono text-[11px] truncate max-w-[120px]" title={d.ip}>{d.ip}</span>
+                                    <span className="bg-neutral-950 px-2 py-0.5 rounded-full text-[10px] shrink-0">{d.sessions}</span>
+                                </div>
+                                <span className="text-[10px] text-neutral-500 truncate max-w-full">
+                                    {[d.city, d.os, d.browser].filter(Boolean).join(" · ") || "Unknown"}
+                                </span>
+                                {d.routes.length > 0 && (
+                                    <span className="text-[10px] text-neutral-600 truncate max-w-full">
+                                        → {d.routes.map(r => humanizeRoute(r)).join(", ")}
+                                    </span>
+                                )}
+                            </button>
+                        ))}
+
+                        {/* Sidebar pagination */}
+                        {deviceSidebarTotalPages > 1 && (
+                            <div className="flex items-center justify-between mt-2 px-1">
+                                <button
+                                    onClick={() => setDeviceSidebarPage(p => Math.max(1, p - 1))}
+                                    disabled={deviceSidebarPage === 1}
+                                    className="text-[10px] text-neutral-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    ← Prev
+                                </button>
+                                <span className="text-[10px] text-neutral-600">{deviceSidebarPage}/{deviceSidebarTotalPages}</span>
+                                <button
+                                    onClick={() => setDeviceSidebarPage(p => Math.min(deviceSidebarTotalPages, p + 1))}
+                                    disabled={deviceSidebarPage === deviceSidebarTotalPages}
+                                    className="text-[10px] text-neutral-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Next →
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
