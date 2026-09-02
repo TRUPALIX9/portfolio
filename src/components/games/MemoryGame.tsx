@@ -222,34 +222,30 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
 
     return (
         <div className="w-full max-w-[420px] mx-auto bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-3xl p-6 flex flex-col gap-5 md:gap-6 shadow-2xl relative">
-            {/* HUD Status Bar */}
-            <div className="flex justify-center items-center border-b border-white/5 pb-4">
+            {/* HUD Status Bar & Instructions */}
+            <div className="flex flex-col items-center justify-center border-b border-white/5 pb-5 gap-3">
+                {/* Score */}
                 <div className="flex flex-col items-center">
-                    <span className="text-[0.65rem] font-bold uppercase tracking-widest text-neutral-500">Current Score</span>
-                    <span className="text-2xl md:text-3xl font-black text-white leading-tight">{score}</span>
+                    <span className="text-[0.65rem] font-bold uppercase tracking-widest text-neutral-500 mb-0.5">Current Score</span>
+                    <span className="text-3xl md:text-4xl font-black text-white leading-none">{score}</span>
                 </div>
-            </div>
 
-            {/* Instruction Panel */}
-            <div className={`bg-white/[0.02] border border-white/[0.06] p-4 md:p-5 rounded-2xl flex flex-col gap-1.5 md:gap-2 text-center shadow-sm transition-colors duration-300 ${
-                phaseLabel === 'WATCH' ? 'bg-red-500/[0.02] border-red-500/20' : 
-                phaseLabel === 'REPEAT' ? 'bg-emerald-500/[0.02] border-emerald-500/20' : ''
-            }`}>
-                <div className="flex justify-center items-center text-[0.7rem] md:text-[0.75rem] font-mono tracking-widest">
-                    <span className={`font-black uppercase ${
+                {/* Instructions */}
+                <div className="flex flex-col items-center text-center gap-0.5">
+                    <span className={`text-[0.65rem] md:text-[0.7rem] font-black uppercase tracking-widest ${
                         phaseLabel === 'WATCH' ? 'text-red-400' : 
                         (phaseLabel === 'REPEAT' || phaseLabel === 'SUCCESS') ? 'text-emerald-400' : 
                         phaseLabel === 'GAME OVER' ? 'text-red-500' : 'text-neutral-400'
                     }`}>
                         {phaseLabel}
                     </span>
+                    <p className={`text-[0.7rem] md:text-xs font-bold leading-none ${
+                        phaseLabel === 'WATCH' ? 'text-red-400' : 
+                        phaseLabel === 'REPEAT' ? 'text-emerald-400' : 'text-white/70'
+                    }`}>
+                        {statusText}
+                    </p>
                 </div>
-                <p className={`text-[0.7rem] md:text-xs font-bold leading-relaxed mt-1 ${
-                    phaseLabel === 'WATCH' ? 'text-red-400' : 
-                    phaseLabel === 'REPEAT' ? 'text-emerald-400' : 'text-white/80'
-                }`}>
-                    {statusText}
-                </p>
             </div>
 
             {/* Game Grid Container */}
