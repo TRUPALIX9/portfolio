@@ -33,26 +33,24 @@ function CameraRig() {
         };
 
         // Track scroll direction for cycle detection
-        let lastScrollY = window.scrollY;
-        let reachedBottom = false;
+        let pendingSeed: typeof PATH_PRESETS[0] | null = null;
         const handleScroll = () => {
             const currentY = window.scrollY;
             const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-            const atBottom = currentY >= maxScroll - 50;
-            const atTop = currentY <= 50;
-            const goingUp = currentY < lastScrollY;
 
-            // Phase 1: user scrolls to bottom
-            if (atBottom) reachedBottom = true;
-
-            // Phase 2: after hitting bottom, user scrolls back to top → full cycle done → re-roll
-            if (reachedBottom && atTop && goingUp) {
-                reachedBottom = false;
+            // Queue a new path when user reaches the bottom (only once per trip)
+            if (currentY >= maxScroll - 80 && !pendingSeed) {
                 const nextIdx = Math.floor(Math.random() * PATH_PRESETS.length);
-                pathSeed.current = PATH_PRESETS[nextIdx];
+                pendingSeed = PATH_PRESETS[nextIdx];
             }
 
-            lastScrollY = currentY;
+            // Apply the queued seed ONLY when scrollY is back at absolute zero —
+            // all presets evaluate to exactly (0,0) at targetZ=0, so there's zero visual jump.
+            if (currentY === 0 && pendingSeed) {
+                pathSeed.current = pendingSeed;
+                pendingSeed = null;
+            }
+
             scrollYRef.current = currentY;
         };
         scrollYRef.current = window.scrollY;
