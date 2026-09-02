@@ -298,8 +298,7 @@ export default function MasterVisitorExplorer({
                 if (activeRef !== "all") {
                     const deviceSessions = validSessions.filter(s => s.device_id === device.deviceId);
                     if (!deviceSessions.some(s => {
-                        const src = s.source || s.referrer || "direct";
-                        return src === activeRef;
+                        return normalizeReferrer(s.source || s.referrer || "") === activeRef;
                     })) {
                         return false;
                     }
