@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import { Mail, ArrowUp } from 'lucide-react';
@@ -91,9 +92,10 @@ export default function Footer() {
                             onPointerUp={handlePointerUpOrLeave}
                             onPointerLeave={handlePointerUpOrLeave}
                             onContextMenu={(e) => { e.preventDefault(); }} // Prevent mobile context menu from breaking hold
-                            style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: '#fff' }}
+                            style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: '#fff' }}
                         >
-                            TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span>
+                            <Image src="/favicon.svg" alt="Logo" width={26} height={26} style={{ objectFit: 'contain' }} />
+                            <span>TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span></span>
                         </Link>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
                             Full-Stack Systems Engineer & Creative Technologist.

@@ -2,6 +2,7 @@
 import { useState, Suspense, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { LinkedinIcon, navLinks } from '@/data/site-config';
 
@@ -168,8 +169,9 @@ function NavbarContent() {
               TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span>
             </button>
           ) : (
-            <Link href="/" style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: 'inherit' }}>
-              TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span>
+            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: 'inherit' }}>
+              <Image src="/favicon.svg" alt="Logo" width={28} height={28} priority style={{ objectFit: 'contain' }} />
+              <span>TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span></span>
             </Link>
           )}
 
