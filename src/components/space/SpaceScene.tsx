@@ -6,30 +6,39 @@ import StarField     from './StarField';
 // ── CameraRig ────────────────────────────────────────────────────────────────
 function CameraRig({ scrollProgress }: { scrollProgress: number }) {
     const { camera } = useThree();
-    const mouse       = useRef({ x: 0, y: 0, vx: 0, vy: 0 }); // include velocity
-    const scrollYRef  = useRef(0);
-    const progressRef = useRef(0);
+    const mouse = useRef({ x: 0, y: 0, nx: 0, ny: 0, vx: 0, vy: 0 });
+    const progressRef = useRef(scrollProgress);
+    const scrollYRef = useRef(0);
+    const pathSeed = useRef({
+        rx: (Math.random() - 0.5) * 350,
+        ry: (Math.random() - 0.5) * 250,
+        frx: 0.0015 + Math.random() * 0.002,
+        fry: 0.0015 + Math.random() * 0.002,
+        phx: Math.random() * Math.PI * 2,
+        phy: Math.random() * Math.PI * 2,
+    });
 
     useEffect(() => {
-        let prevX = 0, prevY = 0;
-
         const handleMouseMove = (e: MouseEvent) => {
             const nx = (e.clientX / window.innerWidth) * 2 - 1;
             const ny = -(e.clientY / window.innerHeight) * 2 + 1;
+            const prevX = mouse.current.nx;
+            const prevY = mouse.current.ny;
             mouse.current.vx = nx - prevX;
             mouse.current.vy = ny - prevY;
-            mouse.current.x  = nx;
-            mouse.current.y  = ny;
-            prevX = nx; prevY = ny;
+            mouse.current.nx = nx;
+            mouse.current.ny = ny;
+            mouse.current.x = THREE.MathUtils.lerp(mouse.current.x, nx, 0.1);
+            mouse.current.y = THREE.MathUtils.lerp(mouse.current.y, ny, 0.1);
         };
         const handleScroll = () => { scrollYRef.current = window.scrollY; };
         scrollYRef.current = window.scrollY;
-
+        
         window.addEventListener('mousemove', handleMouseMove, { passive: true });
-        window.addEventListener('scroll',    handleScroll,    { passive: true });
+        window.addEventListener('scroll', handleScroll, { passive: true });
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('scroll',    handleScroll);
+            window.removeEventListener('scroll', handleScroll);
         };
     }, []);
 
@@ -39,23 +48,29 @@ function CameraRig({ scrollProgress }: { scrollProgress: number }) {
         const sp = progressRef.current;
         const mx = mouse.current.x;
         const my = mouse.current.y;
+        
+        // Z zoom from page scroll
+        const targetZ = scrollYRef.current * 0.18;
 
-        // ── Mouse parallax ───────────────────────────────────────────────────
-        const targetX = mx * 150;
-        const targetY = my * 150;
+        // ── Random Winding Path ──────────────────────────────────────────────
+        const seed = pathSeed.current;
+        // Deterministic procedural path based purely on Z-depth (allows "time travel" reverse tracking)
+        const scrollPathX = Math.sin(targetZ * seed.frx + seed.phx) * seed.rx - Math.sin(seed.phx) * seed.rx;
+        const scrollPathY = Math.cos(targetZ * seed.fry + seed.phy) * seed.ry - Math.cos(seed.phy) * seed.ry;
+
+        // ── Mouse parallax + Path combination ────────────────────────────────
+        const targetX = mx * 150 + scrollPathX;
+        const targetY = my * 150 + scrollPathY;
         camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, 0.8 * delta);
         camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY, 0.8 * delta);
 
-        // Camera head-tilt from mouse
-        camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, -mx * 0.15, 1.0 * delta);
-        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x,  my * 0.10, 1.0 * delta);
-
-        // Z zoom from page scroll
-        const targetZ = scrollYRef.current * 0.18;
-        camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 2 * delta);
-
+        // Camera head-tilt from mouse + path curve leaning
+        const tangentX = Math.cos(targetZ * seed.frx + seed.phx) * seed.rx * seed.frx;
+        const tangentY = -Math.sin(targetZ * seed.fry + seed.phy) * seed.ry * seed.fry;
+        
+        camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, -mx * 0.15 - tangentX * 0.4, 1.0 * delta);
+        
         // ── Scroll-phase: drift arc (words splitting apart then assembling, 0.05→0.55)
-        // driftArc goes 0 -> 1, so driftT goes 0 -> 1 -> 0 (sine wave)
         const driftArc = sp < 0.05 ? 0 : (sp > 0.55 ? 0 : THREE.MathUtils.mapLinear(sp, 0.05, 0.55, 0, 1));
         const driftT = Math.sin(driftArc * Math.PI);
 
@@ -64,7 +79,6 @@ function CameraRig({ scrollProgress }: { scrollProgress: number }) {
         camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX + sweepX, 0.8 * delta);
 
         // Z push — camera rushes forward into the star field during drift
-        // (creates a "flying through space" sensation)
         const sweepZ = driftT * -40;
         camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ + sweepZ, 2 * delta);
 
@@ -78,12 +92,8 @@ function CameraRig({ scrollProgress }: { scrollProgress: number }) {
 
         // Pitch — camera nose-dips slightly during drift (adds depth)
         const targetPitch = driftT * 0.15;
-        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, my * 0.10 + targetPitch, 1.0 * delta);
-
-        // ── Answer phase (0.55→0.85): camera stays centered since driftT is 0 ────────
-        // (no extra logic needed because driftT smoothly returned to 0)
+        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, my * 0.10 + tangentY * 0.4 + targetPitch, 1.0 * delta);
     });
-
 
     return null;
 }
@@ -111,7 +121,7 @@ export default function SpaceScene({ scrollProgress = 0 }: { scrollProgress?: nu
 
                 <Suspense fallback={null}>
                     <CameraRig scrollProgress={scrollProgress} />
-                    <StarField     count={1500} />
+                    <StarField     count={3000} />
                 </Suspense>
             </Canvas>
 
