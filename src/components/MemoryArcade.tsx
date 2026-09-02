@@ -107,13 +107,15 @@ export default function MemoryArcade({
                     <MemoryGame onFinished={handleFinished} highScore={highScore} standalone={standalone} />
                 </motion.div>
  
-                {/* Leaderboard panel: Right Side */}
-                <motion.div
-                    initial={{ opacity: 0, x: reduceMotion ? 0 : 18 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.6, delay: 0.14 }}
-                    className="bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-3xl p-6 md:p-8 flex flex-col gap-6 shadow-2xl sticky top-24"
-                >
+                {/* Right Side Column */}
+                <div className="flex flex-col gap-6 sticky top-24">
+                    {/* Leaderboard panel */}
+                    <motion.div
+                        initial={{ opacity: 0, x: reduceMotion ? 0 : 18 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6, delay: 0.14 }}
+                        className="bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-3xl p-6 md:p-8 flex flex-col gap-6 shadow-2xl"
+                    >
                     <div>
                         <span className="text-[#4ADE80] font-bold text-xs uppercase tracking-[0.2em] mb-1 block">Hall of Fame</span>
                         <h2 className="text-xl font-bold text-white tracking-wide">Global Rankings</h2>
@@ -161,7 +163,31 @@ export default function MemoryArcade({
                             Last score: {new Date(leaderboard[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </div>
                     )}
-                </motion.div>
+                    </motion.div>
+
+                    {/* How To Play Panel */}
+                    <motion.div
+                        initial={{ opacity: 0, x: reduceMotion ? 0 : 18 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-3xl p-6 shadow-2xl flex flex-col gap-3"
+                    >
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-sm">
+                                🧠
+                            </div>
+                            <h2 className="text-base font-bold text-white tracking-wide">How to Play</h2>
+                        </div>
+                        <ul className="text-neutral-400 text-[0.8rem] space-y-2 leading-relaxed ml-1">
+                            <li><strong className="text-white">1.</strong> Watch the tiles flash in order.</li>
+                            <li><strong className="text-white">2.</strong> Wait for the "YOUR TURN" signal.</li>
+                            <li><strong className="text-white">3.</strong> Tap the tiles in the exact same sequence.</li>
+                        </ul>
+                        <div className="mt-2 pt-3 border-t border-white/5 text-[0.7rem] text-emerald-400/80 font-medium italic">
+                            Tip: This is a tapping game, not a swipe-to-unlock screen!
+                        </div>
+                    </motion.div>
+                </div>
             </div>
         </div>
     );

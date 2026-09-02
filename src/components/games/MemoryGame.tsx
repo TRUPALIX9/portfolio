@@ -40,7 +40,7 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
     const [playing, setPlaying] = useState(false);
     const [name, setName] = useState('');
     const [nameError, setNameError] = useState(false);
-    const [showHelp, setShowHelp] = useState(false);
+    
     const [isTouch, setIsTouch] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
@@ -223,14 +223,8 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
     return (
         <div className="w-full max-w-[420px] mx-auto bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-3xl p-6 flex flex-col gap-5 md:gap-6 shadow-2xl relative">
             {/* HUD Status Bar */}
-            <div className="flex justify-between items-center gap-4 border-b border-white/5 pb-4 relative">
-                <button 
-                    onClick={() => setShowHelp(true)}
-                    className="absolute -top-3 -right-3 md:-top-4 md:-right-4 w-8 h-8 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 flex items-center justify-center text-neutral-400 hover:text-white transition-colors z-20"
-                    title="How to Play"
-                >
-                    <HelpCircle size={14} />
-                </button>
+            <div className="flex justify-between items-center gap-4 border-b border-white/5 pb-4">
+                
                 <div className="flex flex-col">
                     <span className="text-[0.65rem] font-bold uppercase tracking-widest text-neutral-500">Score</span>
                     <span className="text-xl md:text-2xl font-black text-white leading-tight">{score}</span>
@@ -340,50 +334,7 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
                     </div>
                 )}
             </div>
-        {/* HOW TO PLAY MODAL */}
-            <AnimatePresence>
-                {showHelp && (
-                    <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-                        onClick={() => setShowHelp(false)}
-                    >
-                        <motion.div 
-                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="bg-neutral-900 border border-white/10 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl relative"
-                        >
-                            <button 
-                                onClick={() => setShowHelp(false)}
-                                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-white/50 hover:text-white bg-white/5 rounded-full"
-                            >
-                                ✕
-                            </button>
-                            <div className="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-2xl mb-4">
-                                🧠
-                            </div>
-                            <h3 className="text-xl font-extrabold text-white mb-2">How to Play</h3>
-                            <p className="text-neutral-300 text-sm leading-relaxed mb-6">
-                                1. Watch the tiles flash in a specific order.<br/>
-                                2. Wait for the <b>"YOUR TURN"</b> signal.<br/>
-                                3. Tap the tiles in the <b>exact same sequence</b>.<br/>
-                                4. Each successful round adds one more tile to the sequence!<br/><br/>
-                                <i>Tip: It's a tapping game, not a swipe-to-unlock!</i>
-                            </p>
-                            <button 
-                                onClick={() => setShowHelp(false)}
-                                className="w-full h-12 bg-white text-black font-bold rounded-xl"
-                            >
-                                Got it
-                            </button>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+        
         </div>
     );
 }
