@@ -264,10 +264,17 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
                     ? 'bg-red-900/30 border-2 border-red-600 shadow-[0_0_60px_rgba(220,38,38,0.4)]'
                     : 'bg-black/40 border border-white/[0.04]'
             }`}>
-                {/* 3x3 Tile Grid */}
-                <div className="grid grid-cols-3 gap-2 md:gap-3 w-full h-full max-w-[280px] max-h-[280px]">
+                {/* 3x3 Tile Grid - Tic Tac Toe Style */}
+                <div className="grid grid-cols-3 w-full h-full max-w-[280px] max-h-[280px]">
                     {Array.from({ length: TILE_COUNT }).map((_, tileId) => {
                         const isActive = activeTile === tileId;
+                        
+                        // Tic-Tac-Toe border logic
+                        const isRightEdge = tileId % 3 === 2;
+                        const isBottomEdge = tileId >= 6;
+                        
+                        const borderClasses = `${!isRightEdge ? 'border-r-4 border-white/60' : ''} ${!isBottomEdge ? 'border-b-4 border-white/60' : ''}`;
+                        
                         return (
                             <button
                                 key={tileId}
@@ -275,10 +282,10 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
                                 onClick={() => handleTilePress(tileId)}
                                 disabled={!playing}
                                 aria-label={`Memory tile ${tileId + 1}`}
-                                className={`aspect-square rounded-2xl border transition-all duration-150 relative flex items-center justify-center ${
+                                className={`aspect-square transition-all duration-100 relative ${borderClasses} ${
                                     isActive 
-                                    ? 'bg-white border-white shadow-[0_0_30px_rgba(255,255,255,0.7)] scale-[1.04] z-10' 
-                                    : 'bg-white/[0.02] border-white/[0.05] hover:bg-white/[0.05] active:scale-95 disabled:pointer-events-none'
+                                    ? '!bg-white shadow-[0_0_40px_rgba(255,255,255,0.9)] z-10 scale-[1.02]' 
+                                    : 'bg-transparent hover:bg-white/10 active:bg-white/20 disabled:pointer-events-none'
                                 }`}
                             >
                             </button>
