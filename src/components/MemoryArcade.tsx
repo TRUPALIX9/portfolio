@@ -196,16 +196,11 @@ export default function MemoryArcade({
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.95, opacity: 0, y: 20 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-neutral-900 border border-white/10 rounded-[2rem] p-7 md:p-10 max-w-md w-full max-h-[85vh] overflow-y-auto shadow-2xl relative custom-scrollbar"
+                            className="bg-neutral-900 border border-white/10 rounded-[2rem] p-7 md:p-10 max-w-[360px] w-full max-h-[85vh] overflow-y-auto shadow-2xl relative custom-scrollbar mx-auto"
                         >
-                            <button 
-                                onClick={() => setShowHelp(false)}
-                                className="absolute top-5 right-5 md:top-6 md:right-6 w-9 h-9 flex items-center justify-center text-white/40 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-colors"
-                            >
-                                ✕
-                            </button>
                             
-                            <h3 className="text-2xl md:text-3xl font-extrabold text-white mb-6 md:mb-8 text-left pr-10">How to Play</h3>
+                            
+                            <h3 className="text-2xl md:text-3xl font-extrabold text-white mb-6 md:mb-8 text-center">How to Play</h3>
                             
                             <div className="flex flex-col gap-5 md:gap-6 text-[0.95rem] md:text-base text-neutral-300 text-left mb-8 md:mb-10">
                                 <div className="flex items-start gap-4">
