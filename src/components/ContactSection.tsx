@@ -124,102 +124,109 @@ export default function ContactSection() {
                     </div>
 
                     {/* Right Column: Sleek message dispatch form */}
-                    <form 
-                        onSubmit={handleSubmit(onSubmit)} 
-                        className="w-full h-auto bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6 md:p-10 flex flex-col gap-6 md:gap-8 shadow-2xl relative overflow-hidden"
+                    <form
+                        onSubmit={handleSubmit(onSubmit)}
+                        className="w-full bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-2xl shadow-2xl relative overflow-hidden flex flex-col"
                     >
                         {/* Decorative background glow */}
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] rounded-full blur-3xl pointer-events-none" />
 
-                        <div className="flex flex-col gap-1.5 relative z-10 shrink-0 text-center">
+                        {/* Header */}
+                        <div className="px-6 md:px-10 pt-8 md:pt-10 pb-6 border-b border-white/[0.06] text-center relative z-10">
                             <h3 className="text-xl md:text-2xl font-black text-white tracking-wide">
                                 Send a Message
                             </h3>
-                            <p className="text-neutral-400 text-sm md:text-base font-light">
+                            <p className="text-neutral-500 text-sm mt-1.5 font-light">
                                 Fill out the form below for instant dispatch.
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10 shrink-0">
-                            <div className="flex flex-col gap-3">
-                                <label className="text-white text-xs font-semibold uppercase tracking-wider">Name</label>
-                                <input
-                                    {...register('name')}
-                                    placeholder="Your name"
-                                    className={`w-full h-14 rounded-xl border bg-black/40 text-white px-4 text-sm outline-none transition-all duration-300 shrink-0 ${
-                                        errors.name 
-                                        ? 'border-red-500/50 focus:border-red-500' 
-                                        : touchedFields.name 
-                                            ? 'border-emerald-500/30 focus:border-emerald-500' 
+                        {/* Fields */}
+                        <div className="px-6 md:px-10 py-7 flex flex-col gap-5 relative z-10">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-white text-xs font-semibold uppercase tracking-wider">Name</label>
+                                    <input
+                                        {...register('name')}
+                                        placeholder="Your name"
+                                        className={`w-full h-12 rounded-xl border bg-black/40 text-white px-4 text-sm outline-none transition-all duration-300 ${
+                                            errors.name
+                                            ? 'border-red-500/50 focus:border-red-500'
+                                            : touchedFields.name
+                                                ? 'border-emerald-500/30 focus:border-emerald-500'
+                                                : 'border-white/10 focus:border-white focus:bg-black/60'
+                                        }`}
+                                    />
+                                    {errors.name && (
+                                        <span className="text-red-400 text-xs flex items-center gap-1.5 font-medium">
+                                            <AlertCircle size={12} /> {errors.name.message}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-white text-xs font-semibold uppercase tracking-wider">Contact Info</label>
+                                    <input
+                                        {...register('contact')}
+                                        placeholder="Email or phone number"
+                                        className={`w-full h-12 rounded-xl border bg-black/40 text-white px-4 text-sm outline-none transition-all duration-300 ${
+                                            errors.contact
+                                            ? 'border-red-500/50 focus:border-red-500'
+                                            : touchedFields.contact
+                                                ? 'border-emerald-500/30 focus:border-emerald-500'
+                                                : 'border-white/10 focus:border-white focus:bg-black/60'
+                                        }`}
+                                    />
+                                    {errors.contact && (
+                                        <span className="text-red-400 text-xs flex items-center gap-1.5 font-medium">
+                                            <AlertCircle size={12} /> {errors.contact.message}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <label className="text-white text-xs font-semibold uppercase tracking-wider">Message</label>
+                                <textarea
+                                    {...register('message')}
+                                    placeholder="Tell me about what you're building or how I can help..."
+                                    className={`w-full h-36 md:h-44 rounded-xl border bg-black/40 text-white p-4 text-sm outline-none resize-none transition-all duration-300 ${
+                                        errors.message
+                                        ? 'border-red-500/50 focus:border-red-500'
+                                        : touchedFields.message
+                                            ? 'border-emerald-500/30 focus:border-emerald-500'
                                             : 'border-white/10 focus:border-white focus:bg-black/60'
                                     }`}
                                 />
-                                {errors.name && (
-                                    <span className="text-red-400 text-xs flex items-center gap-1.5 mt-1 font-medium shrink-0">
-                                        <AlertCircle size={12} /> {errors.name.message}
-                                    </span>
-                                )}
-                            </div>
-
-                            <div className="flex flex-col gap-3">
-                                <label className="text-white text-xs font-semibold uppercase tracking-wider">Contact Info</label>
-                                <input
-                                    {...register('contact')}
-                                    placeholder="Email or phone number"
-                                    className={`w-full h-14 rounded-xl border bg-black/40 text-white px-4 text-sm outline-none transition-all duration-300 shrink-0 ${
-                                        errors.contact 
-                                        ? 'border-red-500/50 focus:border-red-500' 
-                                        : touchedFields.contact 
-                                            ? 'border-emerald-500/30 focus:border-emerald-500' 
-                                            : 'border-white/10 focus:border-white focus:bg-black/60'
-                                    }`}
-                                />
-                                {errors.contact && (
-                                    <span className="text-red-400 text-xs flex items-center gap-1.5 mt-1 font-medium shrink-0">
-                                        <AlertCircle size={12} /> {errors.contact.message}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col gap-3 relative z-10 shrink-0">
-                            <label className="text-white text-xs font-semibold uppercase tracking-wider">Message</label>
-                            <textarea
-                                {...register('message')}
-                                placeholder="Tell me about what you're building or how I can help..."
-                                className={`w-full h-40 md:h-48 rounded-xl border bg-black/40 text-white p-4 text-sm outline-none resize-none transition-all duration-300 shrink-0 ${
-                                    errors.message 
-                                    ? 'border-red-500/50 focus:border-red-500' 
-                                    : touchedFields.message 
-                                        ? 'border-emerald-500/30 focus:border-emerald-500' 
-                                        : 'border-white/10 focus:border-white focus:bg-black/60'
-                                }`}
-                            />
-                            {errors.message && (
-                                <span className="text-red-400 text-xs flex items-center gap-1.5 mt-1 font-medium shrink-0">
+                                {errors.message && (
+                                    <span className="text-red-400 text-xs flex items-center gap-1.5 font-medium">
                                         <AlertCircle size={12} /> {errors.message.message}
                                     </span>
+                                )}
+                            </div>
+
+                            {status && (
+                                <div className={`p-4 rounded-xl border flex items-center gap-2.5 text-sm transition-all duration-300 ${isSuccess ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-red-500/10 border-red-500/25 text-red-400'}`}>
+                                    {isSuccess ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                                    <span>{status}</span>
+                                </div>
                             )}
                         </div>
 
-                        {status && (
-                            <div className={`p-4 rounded-xl border flex items-center gap-2.5 text-sm relative z-10 transition-all duration-300 shrink-0 ${isSuccess ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-red-500/10 border-red-500/25 text-red-400'}`}>
-                                {isSuccess ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-                                <span>{status}</span>
-                            </div>
-                        )}
-
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            style={{ backgroundColor: '#EAEAEA', color: '#111111' }}
-                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#EAEAEA'; }}
-                            className="group w-full h-14 flex-shrink-0 flex items-center justify-center text-[15px] gap-2 font-bold rounded-xl transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none relative z-10 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50"
-                        >
-                            <Send size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
-                            {isSubmitting ? 'Sending Message...' : 'Send Message'}
-                        </button>
+                        {/* Footer / Submit */}
+                        <div className="px-6 md:px-10 pb-8 md:pb-10 relative z-10">
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                style={{ backgroundColor: '#EAEAEA', color: '#111111' }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#EAEAEA'; }}
+                                className="group w-full h-13 flex items-center justify-center text-[15px] gap-2 font-bold rounded-xl transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50"
+                            >
+                                <Send size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+                                {isSubmitting ? 'Sending Message...' : 'Send Message'}
+                            </button>
+                        </div>
                     </form>
                 </div>
             </motion.div>
