@@ -4,10 +4,9 @@ import * as THREE from 'three';
 import StarField     from './StarField';
 
 // ── CameraRig ────────────────────────────────────────────────────────────────
-function CameraRig({ scrollProgress }: { scrollProgress: number }) {
+function CameraRig() {
     const { camera } = useThree();
     const mouse = useRef({ x: 0, y: 0, nx: 0, ny: 0, vx: 0, vy: 0 });
-    const progressRef = useRef(scrollProgress);
     const scrollYRef = useRef(0);
     const pathSeed = useRef({
         rx: (Math.random() - 0.5) * 350,
@@ -42,10 +41,10 @@ function CameraRig({ scrollProgress }: { scrollProgress: number }) {
         };
     }, []);
 
-    useEffect(() => { progressRef.current = scrollProgress; }, [scrollProgress]);
+    
 
     useFrame((_, delta) => {
-        const sp = progressRef.current;
+        const sp = Math.max(0, Math.min(1, scrollYRef.current / (window.innerHeight * 6)));
         const mx = mouse.current.x;
         const my = mouse.current.y;
         
@@ -120,7 +119,7 @@ export default function SpaceScene({ scrollProgress = 0 }: { scrollProgress?: nu
                 <pointLight     position={[-10, -10, -10]} intensity={1.0} color="#4ade80" />
 
                 <Suspense fallback={null}>
-                    <CameraRig scrollProgress={scrollProgress} />
+                    <CameraRig />
                     <StarField     count={3000} />
                 </Suspense>
             </Canvas>

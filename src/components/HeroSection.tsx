@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 
@@ -46,6 +46,8 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
     const [show, setShow]       = useState(true);
     const [entered, setEntered] = useState(false);
     const [driftScale, setDriftScale] = useState(1);
+
+    const spaceSceneMemo = useMemo(() => <SpaceScene />, []);
 
     useEffect(() => {
         setEntered(true);
@@ -151,7 +153,7 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
                     pointerEvents: panelOpacity < 0.05 ? 'none' : 'auto',
                 }}>
                     <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-                        <SpaceScene scrollProgress={p} />
+                        {spaceSceneMemo}
                     </div>
 
                     <div style={{
