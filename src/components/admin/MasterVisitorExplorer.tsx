@@ -178,6 +178,18 @@ function humanizeRoute(route: string) {
     return route.replace(/^\//, "").replace(/-/g, " ") || "Unknown";
 }
 
+function normalizeReferrer(ref: string): string {
+    if (!ref) return "Direct";
+    const r = ref.toLowerCase();
+    if (r.includes("instagram")) return "Instagram";
+    if (r.includes("linkedin")) return "LinkedIn";
+    if (r.includes("github")) return "GitHub";
+    if (r.includes("twitter") || r.includes("t.co")) return "X (Twitter)";
+    if (r.includes("vercel")) return "Vercel";
+    if (r.includes("google")) return "Google";
+    return ref;
+}
+
 export default function MasterVisitorExplorer({
     devices,
     sessions,
@@ -186,6 +198,7 @@ export default function MasterVisitorExplorer({
     getAdminHeaders,
     onRefresh
 }: MasterVisitorExplorerProps) {
+
     const [searchTerm, setSearchTerm] = useState("");
     const [activeTab, setActiveTab] = useState<"all" | "mobile" | "pc" | "bot">("all");
     const [activeRoute, setActiveRoute] = useState<string>("all");
@@ -201,37 +214,55 @@ export default function MasterVisitorExplorer({
             [deviceId]: !prev[deviceId]
         }));
     };
+    const validDevices = useMemo(() => {
+        return devices.filter(d => {
+            const city = d.city ? decodeURIComponent(d.city).trim().toLowerCase() : "";
+            const ip = d.ip || "";
+            return city !== "la grange" && city !== "stockbridge" && ip !== "75.139.41.49";
+        });
+    }, [devices]);
+
+    const validDeviceIds = useMemo(() => new Set(validDevices.map(d => d.deviceId)), [validDevices]);
+
+    const validSessions = useMemo(() => {
+        return sessions.filter(s => validDeviceIds.has(s.device_id));
+    }, [sessions, validDeviceIds]);
+
+    const dynamicRouteStory = useMemo(() => {
+        const counts: Record<string, number> = {};
+        for (const s of validSessions) {
+            counts[s.route] = (counts[s.route] || 0) + 1;
+        }
+        return Object.entries(counts).map(([route, count]) => ({ route, sessions: count })).sort((a, b) => b.sessions - a.sessions);
+    }, [validSessions]);
 
     const refStory = useMemo(() => {
         const refs: Record<string, number> = {};
-        for (const s of sessions) {
-            const r = s.source || s.referrer || "direct";
+        for (const s of validSessions) {
+            const r = normalizeReferrer(s.source || s.referrer || "");
             refs[r] = (refs[r] || 0) + 1;
         }
         return Object.entries(refs).map(([ref, count]) => ({ ref, count })).sort((a, b) => b.count - a.count);
-    }, [sessions]);
+    }, [validSessions]);
 
     const filteredDevices = useMemo(() => {
-        return devices
+        return validDevices
             .filter(device => {
-                const city = device.city ? decodeURIComponent(device.city).trim() : "";
-                if (city.toLowerCase() === "la grange" || city.toLowerCase() === "stockbridge") {
-                    return false; // Ignore owner devices
-                }
+                
 
                 if (activeTab === "bot" && !device.isBot) return false;
                 if (activeTab === "mobile" && !(device.deviceType?.toLowerCase().includes("iphone") || device.deviceType?.toLowerCase().includes("android") || device.deviceType?.toLowerCase().includes("mobile"))) return false;
                 if (activeTab === "pc" && (device.deviceType?.toLowerCase().includes("iphone") || device.deviceType?.toLowerCase().includes("android") || device.deviceType?.toLowerCase().includes("mobile") || device.isBot)) return false;
                 
                 if (activeRoute !== "all") {
-                    const deviceSessions = sessions.filter(s => s.device_id === device.deviceId);
+                    const deviceSessions = validSessions.filter(s => s.device_id === device.deviceId);
                     if (!deviceSessions.some(s => s.route === activeRoute)) {
                         return false;
                     }
                 }
 
                 if (activeRef !== "all") {
-                    const deviceSessions = sessions.filter(s => s.device_id === device.deviceId);
+                    const deviceSessions = validSessions.filter(s => s.device_id === device.deviceId);
                     if (!deviceSessions.some(s => {
                         const src = s.source || s.referrer || "direct";
                         return src === activeRef;
@@ -278,9 +309,9 @@ export default function MasterVisitorExplorer({
                             }`}
                         >
                             <span>All Routes</span>
-                            <span className="bg-neutral-950 px-2 py-0.5 rounded-full text-[10px]">{sessions.length}</span>
+                            <span className="bg-neutral-950 px-2 py-0.5 rounded-full text-[10px]">{validSessions.length}</span>
                         </button>
-                        {routeStory.map(route => (
+                        {dynamicRouteStory.map(route => (
                             <button
                                 key={route.route}
                                 onClick={() => { setActiveRoute(route.route); setCurrentPage(1); }}
@@ -303,7 +334,7 @@ export default function MasterVisitorExplorer({
                             }`}
                         >
                             <span>All Sources</span>
-                            <span className="bg-neutral-950 px-2 py-0.5 rounded-full text-[10px]">{sessions.length}</span>
+                            <span className="bg-neutral-950 px-2 py-0.5 rounded-full text-[10px]">{validSessions.length}</span>
                         </button>
                         {refStory.map(r => (
                             <button

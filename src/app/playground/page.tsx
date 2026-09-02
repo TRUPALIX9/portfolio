@@ -1309,7 +1309,7 @@ function PlaygroundTopBar({
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
-                    <Link
+                    <a
                         href="/"
                         style={{
                             padding: "0.8rem 1rem",
@@ -1322,7 +1322,7 @@ function PlaygroundTopBar({
                         }}
                     >
                         Back to Website
-                    </Link>
+                    </a>
 
                     <button
                         onClick={onToggleLock}

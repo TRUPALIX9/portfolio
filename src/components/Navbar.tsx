@@ -170,10 +170,10 @@ function NavbarContent() {
               <span>TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span></span>
             </button>
           ) : (
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: 'inherit' }}>
+            <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: 'inherit' }}>
               <Image src="/favicon.svg" alt="Logo" width={28} height={28} priority style={{ objectFit: 'contain' }} />
               <span>TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span></span>
-            </Link>
+            </a>
           )}
 
           <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
@@ -185,9 +185,9 @@ function NavbarContent() {
                   &larr; Go to Projects
                 </Link>
               ) : (
-                <Link href="/" className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem' }}>
+                <a href="/" className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem' }}>
                   &larr; Back to Home
-                </Link>
+                </a>
               )}
             </div>
 
