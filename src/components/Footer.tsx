@@ -83,22 +83,23 @@ export default function Footer() {
     return (
         <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(5, 5, 5, 0.8)', backdropFilter: 'blur(16px)', marginBottom: '3rem' }} className="py-12">
             <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+
+                {/* Top row: name/tagline + social icons */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
                     <div>
-                        <Link 
-                            href="/" 
+                        <Link
+                            href="/"
                             onClick={handleSecretClick}
                             onPointerDown={handlePointerDown}
                             onPointerUp={handlePointerUpOrLeave}
                             onPointerLeave={handlePointerUpOrLeave}
-                            onContextMenu={(e) => { e.preventDefault(); }} // Prevent mobile context menu from breaking hold
-                            style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: '#fff' }}
+                            onContextMenu={(e) => { e.preventDefault(); }}
+                            style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: '#fff' }}
                         >
-                            <Image src="/favicon.svg" alt="Logo" width={26} height={26} style={{ objectFit: 'contain' }} />
                             <span>TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span></span>
                         </Link>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
-                            Full-Stack Systems Engineer & Creative Technologist.
+                            Full-Stack Systems Engineer &amp; Creative Technologist.
                         </p>
                     </div>
 
@@ -118,6 +119,30 @@ export default function Footer() {
                     </div>
                 </div>
 
+                {/* Center: spinning favicon */}
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <style>{`
+                        @keyframes spin2d {
+                            0%   { transform: rotateY(0deg); }
+                            100% { transform: rotateY(360deg); }
+                        }
+                        .favicon-spin2d {
+                            animation: spin2d 6s linear infinite;
+                            display: block;
+                            transform-style: preserve-3d;
+                        }
+                    `}</style>
+                    <Image
+                        src="/favicon.svg"
+                        alt="Logo"
+                        width={40}
+                        height={40}
+                        className="favicon-spin2d"
+                        style={{ objectFit: 'contain', opacity: 0.7 }}
+                    />
+                </div>
+
+                {/* Bottom row: copyright + nav links */}
                 <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                     <p>© {new Date().getFullYear()} Trupal Patel. All rights reserved.</p>
                     <div style={{ display: 'flex', gap: '1.5rem' }}>
