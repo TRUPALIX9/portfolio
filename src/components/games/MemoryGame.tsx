@@ -32,7 +32,7 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
     const [score, setScore] = useState(0);
     
     const [phaseLabel, setPhaseLabel] = useState('READY');
-    const [statusText, setStatusText] = useState('WATCH THE CHAIN, THEN REPEAT IT');
+    const [statusText, setStatusText] = useState('Press start to begin. Watch the tiles closely.');
     const [playerProgress, setPlayerProgress] = useState(0);
     const [sequenceLength, setSequenceLength] = useState(0);
     const [activeTile, setActiveTile] = useState<number | null>(null);
@@ -105,7 +105,7 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
         setSequenceLength(nextSequence.length);
         setPlayerProgress(0);
         setPhaseLabel('WATCH');
-        setStatusText('LOCK IN THE FULL PATTERN');
+        setStatusText('Memorize the flashing sequence...');
         setActiveTile(null);
 
         const flashDuration = Math.max(260, 500 - nextSequence.length * 16);
@@ -130,7 +130,7 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
             if (!playingRef.current || token !== roundTokenRef.current) return;
             canInputRef.current = true;
             setPhaseLabel('REPEAT');
-            setStatusText(isTouch ? 'TAP THE TILES IN THE SAME ORDER' : 'CLICK THE TILES IN THE SAME ORDER');
+            setStatusText(isTouch ? 'Your turn! Tap the tiles in the exact order.' : 'Your turn! Click the tiles in the exact order.');
         }, delay + 100);
     };
 
@@ -147,8 +147,8 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
         setPlayerProgress(0);
         setGameOver(false);
         setPlaying(true);
-        setPhaseLabel('BOOT');
-        setStatusText('CALIBRATING MEMORY CHAMBER');
+        setPhaseLabel('STARTING');
+        setStatusText('Get ready...');
         setActiveTile(null);
         beginRound();
     };
@@ -160,10 +160,10 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
         const expectedTile = sequenceRef.current[inputIndexRef.current];
 
         if (tileId !== expectedTile) {
-            setPhaseLabel('BROKEN');
-            setStatusText('WRONG TILE. SIGNAL LOST.');
+            setPhaseLabel('GAME OVER');
+            setStatusText('Wrong tile! Sequence broken.');
             canInputRef.current = false;
-            queueTimeout(() => endGame('BROKEN', 'WRONG TILE. SIGNAL LOST.'), 220);
+            queueTimeout(() => endGame('BROKEN', 'Wrong tile! Sequence broken.'), 220);
             return;
         }
 
@@ -175,8 +175,8 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
             const nextScore = scoreRef.current + 1;
             scoreRef.current = nextScore;
             setScore(nextScore);
-            setPhaseLabel('LOCKED');
-            setStatusText('CHAIN STABLE. NEXT LINK LOADING.');
+            setPhaseLabel('SUCCESS');
+            setStatusText('Correct! Adding another tile...');
             queueTimeout(() => {
                 if (!playingRef.current) return;
                 beginRound();
