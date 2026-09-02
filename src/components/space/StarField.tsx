@@ -20,8 +20,8 @@ export default function StarField({ count = 6000 }) {
     useFrame((state, delta) => {
         if (!pointsRef.current) return;
         // Gentle rotation for the entire galaxy
-        pointsRef.current.rotation.y += delta * 0.02;
-        pointsRef.current.rotation.x += delta * 0.01;
+        pointsRef.current.rotation.y += delta * 0.04;
+        pointsRef.current.rotation.x += delta * 0.02;
     });
 
     const vertexShader = `
