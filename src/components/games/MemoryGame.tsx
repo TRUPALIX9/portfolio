@@ -264,9 +264,21 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
                     : 'bg-black/40 border border-white/[0.04]'
             }`}>
                 {/* 3x3 Tile Grid - Tic Tac Toe Style */}
-                <div className="grid grid-cols-3 gap-1.5 w-full h-full max-w-[280px] max-h-[280px] bg-white/30">
+                <div className="grid grid-cols-3 w-full h-full max-w-[280px] max-h-[280px]">
                     {Array.from({ length: TILE_COUNT }).map((_, tileId) => {
                         const isActive = activeTile === tileId;
+                        
+                        const isRightEdge = tileId % 3 === 2;
+                        const isBottomEdge = tileId >= 6;
+                        
+                        // Solid white 4px inner borders to create the # grid
+                        let borderClasses = "border-solid border-white ";
+                        if (!isRightEdge) borderClasses += "border-r-[4px] ";
+                        else borderClasses += "border-r-0 ";
+                        
+                        if (!isBottomEdge) borderClasses += "border-b-[4px] ";
+                        else borderClasses += "border-b-0 ";
+                        
                         return (
                             <button
                                 key={tileId}
@@ -274,10 +286,10 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
                                 onClick={() => handleTilePress(tileId)}
                                 disabled={!playing}
                                 aria-label={`Memory tile ${tileId + 1}`}
-                                className={`aspect-square transition-all duration-100 relative ${
+                                className={`aspect-square transition-all duration-75 relative ${borderClasses} ${
                                     isActive 
-                                    ? 'bg-white shadow-[0_0_40px_rgba(255,255,255,0.9)] z-10 scale-105' 
-                                    : 'bg-[#111] hover:bg-[#222] active:bg-[#333] disabled:pointer-events-none'
+                                    ? '!bg-white shadow-[0_0_40px_rgba(255,255,255,1)] z-10 scale-105' 
+                                    : 'bg-transparent hover:bg-white/10 active:bg-white/20 disabled:pointer-events-none'
                                 }`}
                             >
                             </button>
@@ -318,7 +330,7 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
                             transition={{ delay: 0.1, type: "spring", bounce: 0.5 }}
                             className="text-3xl md:text-4xl font-black text-red-500 mb-6 tracking-widest uppercase drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]"
                         >
-                            Wrong
+                            FAILED
                         </motion.h3>
 
                         <motion.div 
