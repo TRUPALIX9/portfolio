@@ -84,7 +84,7 @@ export default function SinglePageLayout() {
 
                 {/* Gateway section: satellite pages */}
                 <motion.div
-                    className="gateway-section"
+                    className="gateway-section mt-32 mb-12"
                     initial={{ opacity: 0, y: 32 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: '-60px' }}

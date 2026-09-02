@@ -126,7 +126,7 @@ export default function ContactSection() {
                     {/* Right Column: Sleek message dispatch form */}
                     <form 
                         onSubmit={handleSubmit(onSubmit)} 
-                        className="w-full h-auto bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-3xl p-8 md:p-10 flex flex-col gap-6 shadow-2xl relative overflow-hidden"
+                        className="w-full h-auto bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-3xl p-8 md:p-10 flex flex-col gap-8 shadow-2xl relative overflow-hidden"
                     >
                         {/* Decorative background glow */}
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] rounded-full blur-3xl pointer-events-none" />
@@ -140,13 +140,13 @@ export default function ContactSection() {
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10 shrink-0">
-                            <div className="flex flex-col gap-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10 shrink-0">
+                            <div className="flex flex-col gap-3">
                                 <label className="text-white text-xs font-semibold uppercase tracking-wider">Name</label>
                                 <input
                                     {...register('name')}
                                     placeholder="Your name"
-                                    className={`w-full h-12 rounded-xl border bg-black/40 text-white px-4 text-sm outline-none transition-all duration-300 shrink-0 ${
+                                    className={`w-full h-14 rounded-xl border bg-black/40 text-white px-4 text-sm outline-none transition-all duration-300 shrink-0 ${
                                         errors.name 
                                         ? 'border-red-500/50 focus:border-red-500' 
                                         : touchedFields.name 
@@ -161,12 +161,12 @@ export default function ContactSection() {
                                 )}
                             </div>
 
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-3">
                                 <label className="text-white text-xs font-semibold uppercase tracking-wider">Contact Info</label>
                                 <input
                                     {...register('contact')}
                                     placeholder="Email or phone number"
-                                    className={`w-full h-12 rounded-xl border bg-black/40 text-white px-4 text-sm outline-none transition-all duration-300 shrink-0 ${
+                                    className={`w-full h-14 rounded-xl border bg-black/40 text-white px-4 text-sm outline-none transition-all duration-300 shrink-0 ${
                                         errors.contact 
                                         ? 'border-red-500/50 focus:border-red-500' 
                                         : touchedFields.contact 
@@ -182,7 +182,7 @@ export default function ContactSection() {
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-2 relative z-10 shrink-0">
+                        <div className="flex flex-col gap-3 relative z-10 shrink-0">
                             <label className="text-white text-xs font-semibold uppercase tracking-wider">Message</label>
                             <textarea
                                 {...register('message')}
@@ -215,7 +215,7 @@ export default function ContactSection() {
                             style={{ backgroundColor: '#EAEAEA', color: '#111111' }}
                             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF'; }}
                             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#EAEAEA'; }}
-                            className="group w-full h-12 flex-shrink-0 flex items-center justify-center gap-2 font-bold rounded-xl transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none relative z-10 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50"
+                            className="group w-full h-14 flex-shrink-0 flex items-center justify-center text-[15px] gap-2 font-bold rounded-xl transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none relative z-10 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50"
                         >
                             <Send size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
                             {isSubmitting ? 'Sending Message...' : 'Send Message'}

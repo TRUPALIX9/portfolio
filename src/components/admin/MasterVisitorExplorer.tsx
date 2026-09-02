@@ -5,19 +5,13 @@ import {
     Search, 
     ChevronRight, 
     ChevronDown, 
-    Check, 
-    Edit2, 
     X, 
     Laptop, 
-    Smartphone, 
-    Globe, 
-    Calendar, 
-    Clock, 
-    User, 
-    Award, 
-    FileText, 
-    Bot, 
-    AlertTriangle 
+    Smartphone,
+    Globe,
+    Calendar,
+    Clock,
+    Cpu
 } from "lucide-react";
 
 type LeaderboardEntry = {
@@ -64,6 +58,10 @@ type VisitorSession = {
     resume_opens: number;
     resume_downloads: number;
     contact_submissions: number;
+    utm_source?: string | null;
+    utm_medium?: string | null;
+    utm_campaign?: string | null;
+    route_times?: Record<string, number>;
     recent_events?: Array<{
         at: string;
         type: string;
@@ -75,7 +73,7 @@ type VisitorSession = {
 
 type DeviceSummary = {
     deviceId: string;
-    sessions: number; // dynamically computed or backend aggregated
+    sessions: number;
     totalViews: number;
     totalLinkClicks: number;
     totalRuns: number;
@@ -98,15 +96,26 @@ type DeviceSummary = {
     };
 };
 
+type RouteStoryEntry = {
+    route: string;
+    sessions: number;
+    views: number;
+    links: number;
+    runs: number;
+    resumeDownloads: number;
+    contacts: number;
+    topSources: string[];
+};
+
 type MasterVisitorExplorerProps = {
     devices: DeviceSummary[];
     sessions: VisitorSession[];
     scores: LeaderboardEntry[];
+    routeStory: RouteStoryEntry[];
     getAdminHeaders: (includeContentType?: boolean) => Record<string, string>;
     onRefresh: () => Promise<void>;
 };
 
-// Geolocation cleaner
 function formatLoc(city?: string, country?: string) {
     if (!city && !country) return "Unknown Location";
     const cleanCity = city ? decodeURIComponent(city).trim() : "";
@@ -115,7 +124,35 @@ function formatLoc(city?: string, country?: string) {
     return cleanCity || cleanCountry;
 }
 
-// Check local/test IPs
+function formatHardware(hw?: { memory: string | number; cores: string | number; connection: string; batteryLevel?: string; isCharging?: boolean; exactModel?: string; }) {
+    if (!hw) return "Unknown hardware specs";
+    
+    let mem = String(hw.memory);
+    if (mem.toLowerCase() === "unknown" || mem === "") {
+        mem = "Unknown RAM";
+    } else {
+        mem = `${mem}GB RAM`;
+    }
+
+    let cores = String(hw.cores);
+    if (cores.toLowerCase() === "unknown" || cores === "") {
+        cores = "Unknown Cores";
+    } else {
+        cores = `${cores} Cores`;
+    }
+
+    let conn = hw.connection || "Unknown Network";
+    
+    let res = `${mem} · ${cores} · ${conn}`;
+    if (hw.batteryLevel && hw.batteryLevel !== "unknown") {
+        res += ` · 🔋 ${hw.batteryLevel} ${hw.isCharging ? '(Charging)' : ''}`;
+    }
+    if (hw.exactModel && hw.exactModel !== "unknown") {
+        res += ` · 📱 ${hw.exactModel}`;
+    }
+    return res;
+}
+
 export function isLocalIp(ip?: string) {
     if (!ip) return false;
     const cleanIp = ip.trim().toLowerCase();
@@ -125,112 +162,37 @@ export function isLocalIp(ip?: string) {
         cleanIp === "localhost" ||
         cleanIp.startsWith("192.168.") ||
         cleanIp.startsWith("10.") ||
-        cleanIp.startsWith("172.16.") ||
-        cleanIp.startsWith("172.17.") ||
-        cleanIp.startsWith("172.18.") ||
-        cleanIp.startsWith("172.19.") ||
-        cleanIp.startsWith("172.20.") ||
-        cleanIp.startsWith("172.21.") ||
-        cleanIp.startsWith("172.22.") ||
-        cleanIp.startsWith("172.23.") ||
-        cleanIp.startsWith("172.24.") ||
-        cleanIp.startsWith("172.25.") ||
-        cleanIp.startsWith("172.26.") ||
-        cleanIp.startsWith("172.27.") ||
-        cleanIp.startsWith("172.28.") ||
-        cleanIp.startsWith("172.29.") ||
-        cleanIp.startsWith("172.30.") ||
-        cleanIp.startsWith("172.31.")
+        cleanIp.startsWith("172.")
     );
 }
 
-// Generate insight badge
-export function getDeviceInsight(device: DeviceSummary, deviceSessions: VisitorSession[]) {
-    if (device.isBot) {
-        return {
-            type: "bot",
-            label: "Bot / Crawler",
-            description: `🤖 Automated Bot / Crawler · ${device.browser || "Unknown"}`,
-            colorClass: "bg-red-500/10 text-red-400 border border-red-500/20"
-        };
-    }
-
-    const totalRuns = device.totalRuns || 0;
-    const sessionCount = deviceSessions.length;
-    const totalViews = device.totalViews || 0;
-
-    // Calculate average session duration
-    const totalDuration = deviceSessions.reduce((sum, s) => sum + (s.sessionDuration || 0), 0);
-    const avgDuration = sessionCount ? Math.round(totalDuration / sessionCount) : 0;
-
-    if (totalRuns >= 10) {
-        return {
-            type: "power-gamer",
-            label: "Power Gamer",
-            description: `🕹️ Power Gamer · ${totalRuns} runs across ${sessionCount} session(s)`,
-            colorClass: "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-        };
-    }
-
-    if (totalRuns > 0) {
-        return {
-            type: "casual-player",
-            label: "Casual Player",
-            description: `🎮 Casual Player · Played ${totalRuns} time(s) · Avg stay: ${avgDuration}s`,
-            colorClass: "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
-        };
-    }
-
-    // Check contact page visits or resume interaction
-    const hasContact = device.totalContacts > 0 || deviceSessions.some(s => s.contact_submissions > 0 || s.route === "/contact");
-    const hasResume = device.totalResumeDownloads > 0 || deviceSessions.some(s => s.resume_downloads > 0 || s.resume_opens > 0);
-    if (hasContact || hasResume) {
-        return {
-            type: "high-intent",
-            label: "High-Intent Lead",
-            description: "💼 High-Intent Lead · Visited contact page or viewed resume",
-            colorClass: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-        };
-    }
-
-    if (totalViews <= 2 && avgDuration < 15) {
-        return {
-            type: "bounce",
-            label: "Quick Glance",
-            description: `⚡ Quick Glance · Bounced in ${avgDuration}s after ${totalViews} page(s)`,
-            colorClass: "bg-neutral-800 text-neutral-400 border border-neutral-700"
-        };
-    }
-
-    return {
-        type: "explorer",
-        label: "Active Explorer",
-        description: `🔍 Active Explorer · Browsed ${totalViews} page(s) across ${sessionCount} session(s)`,
-        colorClass: "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
-    };
+function humanizeRoute(route: string) {
+    if (route === "/social-only") return "Social Only";
+    if (route === "/game-only") return "Game Only";
+    if (route === "/arcade-only") return "Arcade Only";
+    if (route === "/social") return "Social";
+    if (route === "/game") return "Game";
+    if (route === "/resume") return "Resume";
+    if (route === "/contact") return "Contact";
+    if (route === "/") return "Home";
+    return route.replace(/^\//, "").replace(/-/g, " ") || "Unknown";
 }
 
 export default function MasterVisitorExplorer({
     devices,
     sessions,
     scores,
+    routeStory,
     getAdminHeaders,
     onRefresh
 }: MasterVisitorExplorerProps) {
     const [searchTerm, setSearchTerm] = useState("");
-    const [excludeBotsAndLocal, setExcludeBotsAndLocal] = useState(true);
+    const [activeTab, setActiveTab] = useState<"all" | "mobile" | "pc" | "bot">("all");
+    const [activeRoute, setActiveRoute] = useState<string>("all");
+    const [activeRef, setActiveRef] = useState<string>("all");
     const [expandedDeviceIds, setExpandedDeviceIds] = useState<Record<string, boolean>>({});
-    
-    // Inline Renaming State
-    const [editingDeviceId, setEditingDeviceId] = useState<string | null>(null);
-    const [renameValue, setRenameValue] = useState("");
-    const [isSavingRename, setIsSavingRename] = useState(false);
-
-    // Primary Device Pagination
     const [currentPage, setCurrentPage] = useState(1);
-    const devicesPerPage = 5;
-
-    // Session Drawer Local Pagination
+    const devicesPerPage = 12;
     const [sessionPages, setSessionPages] = useState<Record<string, number>>({});
 
     const handleToggleExpand = (deviceId: string) => {
@@ -240,49 +202,44 @@ export default function MasterVisitorExplorer({
         }));
     };
 
-    const handleStartRename = (device: DeviceSummary) => {
-        setEditingDeviceId(device.deviceId);
-        setRenameValue(device.customName || "");
-    };
-
-    const handleCancelRename = () => {
-        setEditingDeviceId(null);
-        setRenameValue("");
-    };
-
-    const handleSaveRename = async (deviceId: string) => {
-        setIsSavingRename(true);
-        try {
-            const res = await fetch("/api/visitor-analytics", {
-                method: "PATCH",
-                headers: getAdminHeaders(true),
-                body: JSON.stringify({
-                    deviceId,
-                    customName: renameValue.trim()
-                })
-            });
-
-            if (!res.ok) throw new Error("Rename failed");
-            await onRefresh();
-            setEditingDeviceId(null);
-        } catch (err) {
-            alert(err instanceof Error ? err.message : "Error saving alias");
-        } finally {
-            setIsSavingRename(false);
+    const refStory = useMemo(() => {
+        const refs: Record<string, number> = {};
+        for (const s of sessions) {
+            const r = s.source || s.referrer || "direct";
+            refs[r] = (refs[r] || 0) + 1;
         }
-    };
+        return Object.entries(refs).map(([ref, count]) => ({ ref, count })).sort((a, b) => b.count - a.count);
+    }, [sessions]);
 
-    // Filter devices and count sessions
     const filteredDevices = useMemo(() => {
         return devices
             .filter(device => {
-                // Exclude Bots & Local IPs if checked
-                if (excludeBotsAndLocal) {
-                    if (device.isBot) return false;
-                    if (isLocalIp(device.ip)) return false;
+                const city = device.city ? decodeURIComponent(device.city).trim() : "";
+                if (city.toLowerCase() === "la grange" || city.toLowerCase() === "stockbridge") {
+                    return false; // Ignore owner devices
                 }
 
-                // Match search term
+                if (activeTab === "bot" && !device.isBot) return false;
+                if (activeTab === "mobile" && !(device.deviceType?.toLowerCase().includes("iphone") || device.deviceType?.toLowerCase().includes("android") || device.deviceType?.toLowerCase().includes("mobile"))) return false;
+                if (activeTab === "pc" && (device.deviceType?.toLowerCase().includes("iphone") || device.deviceType?.toLowerCase().includes("android") || device.deviceType?.toLowerCase().includes("mobile") || device.isBot)) return false;
+                
+                if (activeRoute !== "all") {
+                    const deviceSessions = sessions.filter(s => s.device_id === device.deviceId);
+                    if (!deviceSessions.some(s => s.route === activeRoute)) {
+                        return false;
+                    }
+                }
+
+                if (activeRef !== "all") {
+                    const deviceSessions = sessions.filter(s => s.device_id === device.deviceId);
+                    if (!deviceSessions.some(s => {
+                        const src = s.source || s.referrer || "direct";
+                        return src === activeRef;
+                    })) {
+                        return false;
+                    }
+                }
+
                 if (searchTerm.trim() !== "") {
                     const searchLower = searchTerm.toLowerCase();
                     const nameMatch = device.customName?.toLowerCase().includes(searchLower);
@@ -296,10 +253,10 @@ export default function MasterVisitorExplorer({
                 }
 
                 return true;
-            });
-    }, [devices, searchTerm, excludeBotsAndLocal]);
+            })
+            .sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
+    }, [devices, sessions, searchTerm, activeTab, activeRoute, activeRef]);
 
-    // Handle primary pagination boundary reset
     const totalPages = Math.max(1, Math.ceil(filteredDevices.length / devicesPerPage));
     const paginatedDevices = useMemo(() => {
         const page = Math.min(currentPage, totalPages);
@@ -309,457 +266,370 @@ export default function MasterVisitorExplorer({
 
     return (
         <section className="bg-neutral-900/[0.12] backdrop-blur-xl border border-white/[0.05] rounded-[32px] p-6 flex flex-col gap-6 shadow-2xl">
-            {/* Top Control Bar */}
-            <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 border-b border-white/[0.05] pb-5">
-                <div className="flex flex-col gap-1">
-                    <h3 className="text-xl font-bold text-white tracking-wide">Master Visitor Explorer</h3>
-                    <p className="text-neutral-400 text-xs leading-normal">
-                        Inspect persistent visitor profiles, rename browser fingerprints, and track collapse-nested navigation sessions.
-                    </p>
-                </div>
-                
-                <div className="flex flex-wrap items-center gap-4">
-                    {/* Search Input */}
-                    <div className="relative min-w-[240px] flex-1 md:flex-none">
-                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-500">
-                            <Search className="w-4 h-4" />
-                        </span>
-                        <input
-                            type="text"
-                            placeholder="Search alias, ID, IP, location..."
-                            value={searchTerm}
-                            onChange={(e) => {
-                                setSearchTerm(e.target.value);
-                                setCurrentPage(1);
-                            }}
-                            className="w-full bg-neutral-950/60 border border-white/[0.1] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#4ADE80] transition-colors"
-                        />
-                        {searchTerm && (
-                            <button 
-                                onClick={() => setSearchTerm("")} 
-                                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-400 hover:text-white"
-                            >
-                                <X className="w-4 h-4" />
-                            </button>
-                        )}
-                    </div>
-
-                    {/* Exclude Bots & Test IP Checkbox */}
-                    <label className="flex items-center gap-2.5 text-sm text-neutral-300 font-medium select-none cursor-pointer bg-neutral-950/40 px-4 py-2.5 border border-white/[0.06] rounded-xl hover:bg-neutral-900/60 transition-colors">
-                        <input
-                            type="checkbox"
-                            checked={excludeBotsAndLocal}
-                            onChange={(e) => {
-                                setExcludeBotsAndLocal(e.target.checked);
-                                setCurrentPage(1);
-                            }}
-                            className="rounded accent-[#4ADE80] bg-neutral-950 border-white/[0.1] text-[#4ADE80]"
-                        />
-                        <span>Filter Bots & Local IPs</span>
-                    </label>
-
-                    {/* Filtered Count */}
-                    <div className="bg-neutral-950/60 border border-white/[0.08] text-[#4ADE80] px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider">
-                        {filteredDevices.length} visitor profile{filteredDevices.length !== 1 ? "s" : ""}
-                    </div>
-                </div>
-            </div>
-
-            {/* Device Feeds List */}
-            <div className="flex flex-col gap-4">
-                {filteredDevices.length === 0 ? (
-                    <div className="py-12 text-center text-neutral-500 text-sm border border-dashed border-white/[0.06] rounded-2xl bg-neutral-950/20">
-                        No visitor profiles match your search criteria.
-                    </div>
-                ) : (
-                    paginatedDevices.map((device) => {
-                        // Match sessions dynamically
-                        const deviceSessions = sessions.filter((s) => s.device_id === device.deviceId);
-                        const isExpanded = expandedDeviceIds[device.deviceId] || false;
-                        const deviceScores = scores.filter((s) => s.deviceId === device.deviceId);
-                        const insight = getDeviceInsight(device, deviceSessions);
-
-                        // Local session pagination
-                        const sessionPage = sessionPages[device.deviceId] || 1;
-                        const sessionsPerPage = 3;
-                        const totalSessionPages = Math.max(1, Math.ceil(deviceSessions.length / sessionsPerPage));
-                        const paginatedSessions = deviceSessions.slice(
-                            (sessionPage - 1) * sessionsPerPage,
-                            sessionPage * sessionsPerPage
-                        );
-
-                        const isEditing = editingDeviceId === device.deviceId;
-
-                        return (
-                            <div 
-                                key={device.deviceId} 
-                                className={`border border-white/[0.06] rounded-2xl bg-neutral-950/20 transition-all ${
-                                    isExpanded ? "border-[#4ADE80]/30 shadow-[0_12px_32px_rgba(0,0,0,0.4)]" : "hover:border-white/[0.12] hover:bg-neutral-950/30"
+            <div className="flex flex-col md:flex-row gap-6 items-start">
+                {/* Left Navigation */}
+                <div className="w-full md:w-56 shrink-0 flex flex-col gap-3">
+                    <h4 className="font-bold text-white text-lg tracking-wide border-b border-white/[0.05] pb-2">Route Storyline</h4>
+                    <div className="flex flex-col gap-1.5">
+                        <button
+                            onClick={() => { setActiveRoute("all"); setCurrentPage(1); }}
+                            className={`flex justify-between items-center px-3 py-2 rounded-xl text-sm transition-colors ${
+                                activeRoute === "all" ? "bg-[#38bdf8]/20 text-[#38bdf8] font-bold" : "text-neutral-400 hover:bg-white/[0.05] hover:text-white"
+                            }`}
+                        >
+                            <span>All Routes</span>
+                            <span className="bg-neutral-950 px-2 py-0.5 rounded-full text-[10px]">{sessions.length}</span>
+                        </button>
+                        {routeStory.map(route => (
+                            <button
+                                key={route.route}
+                                onClick={() => { setActiveRoute(route.route); setCurrentPage(1); }}
+                                className={`flex justify-between items-center px-3 py-2 rounded-xl text-sm transition-colors ${
+                                    activeRoute === route.route ? "bg-[#38bdf8]/20 text-[#38bdf8] font-bold" : "text-neutral-400 hover:bg-white/[0.05] hover:text-white"
                                 }`}
                             >
-                                {/* Device Header Row */}
-                                <div className="p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                                    <div className="flex-1 flex flex-col gap-2">
-                                        <div className="flex flex-wrap items-center gap-3">
-                                            {/* Custom Name Alias Editor */}
-                                            {isEditing ? (
-                                                <div className="flex items-center gap-2 max-w-[320px]">
-                                                    <input
-                                                        type="text"
-                                                        value={renameValue}
-                                                        onChange={(e) => setRenameValue(e.target.value)}
-                                                        placeholder="Alias name"
-                                                        className="bg-neutral-950 border border-white/[0.15] text-[#4ADE80] font-bold text-sm px-2.5 py-1 rounded focus:outline-none focus:border-[#4ADE80]"
-                                                        disabled={isSavingRename}
-                                                    />
-                                                    <button 
-                                                        onClick={() => handleSaveRename(device.deviceId)} 
-                                                        disabled={isSavingRename}
-                                                        className="p-1.5 text-emerald-400 hover:bg-emerald-500/10 rounded transition-colors"
-                                                    >
-                                                        <Check className="w-4 h-4" />
-                                                    </button>
-                                                    <button 
-                                                        onClick={handleCancelRename} 
-                                                        disabled={isSavingRename}
-                                                        className="p-1.5 text-red-400 hover:bg-red-500/10 rounded transition-colors"
-                                                    >
-                                                        <X className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center gap-2 group">
-                                                    {device.customName ? (
-                                                        <span className="font-extrabold text-[#fca5a5] text-base tracking-wide uppercase">
-                                                            {device.customName}
+                                <span className="uppercase tracking-widest text-[11px] truncate max-w-[120px]" title={humanizeRoute(route.route)}>{humanizeRoute(route.route)}</span>
+                                <span className="bg-neutral-950 px-2 py-0.5 rounded-full text-[10px]">{route.sessions}</span>
+                            </button>
+                        ))}
+                    </div>
+
+                    <h4 className="font-bold text-white text-lg tracking-wide border-b border-white/[0.05] pb-2 mt-4">Sources</h4>
+                    <div className="flex flex-col gap-1.5">
+                        <button
+                            onClick={() => { setActiveRef("all"); setCurrentPage(1); }}
+                            className={`flex justify-between items-center px-3 py-2 rounded-xl text-sm transition-colors ${
+                                activeRef === "all" ? "bg-[#38bdf8]/20 text-[#38bdf8] font-bold" : "text-neutral-400 hover:bg-white/[0.05] hover:text-white"
+                            }`}
+                        >
+                            <span>All Sources</span>
+                            <span className="bg-neutral-950 px-2 py-0.5 rounded-full text-[10px]">{sessions.length}</span>
+                        </button>
+                        {refStory.map(r => (
+                            <button
+                                key={r.ref}
+                                onClick={() => { setActiveRef(r.ref); setCurrentPage(1); }}
+                                className={`flex justify-between items-center px-3 py-2 rounded-xl text-sm transition-colors ${
+                                    activeRef === r.ref ? "bg-[#38bdf8]/20 text-[#38bdf8] font-bold" : "text-neutral-400 hover:bg-white/[0.05] hover:text-white"
+                                }`}
+                            >
+                                <span className="uppercase tracking-widest text-[11px] max-w-[140px] truncate" title={r.ref}>{r.ref}</span>
+                                <span className="bg-neutral-950 px-2 py-0.5 rounded-full text-[10px]">{r.count}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Right Content */}
+                <div className="flex-1 flex flex-col gap-5 min-w-0">
+                    <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 border-b border-white/[0.05] pb-4">
+                        <div className="flex bg-neutral-950/60 p-1 rounded-xl border border-white/[0.08]">
+                            {(["all", "mobile", "pc", "bot"] as const).map(tab => (
+                                <button
+                                    key={tab}
+                                    onClick={() => { setActiveTab(tab); setCurrentPage(1); }}
+                                    className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
+                                        activeTab === tab ? "bg-white/[0.1] text-white" : "text-neutral-500 hover:text-neutral-300"
+                                    }`}
+                                >
+                                    {tab}
+                                </button>
+                            ))}
+                        </div>
+                        
+                        <div className="relative min-w-[240px]">
+                            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-500">
+                                <Search className="w-4 h-4" />
+                            </span>
+                            <input
+                                type="text"
+                                placeholder="Search IP, location, OS..."
+                                value={searchTerm}
+                                onChange={(e) => {
+                                    setSearchTerm(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                                className="w-full bg-neutral-950/60 border border-white/[0.1] rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#4ADE80] transition-colors"
+                            />
+                            {searchTerm && (
+                                <button 
+                                    onClick={() => setSearchTerm("")} 
+                                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-400 hover:text-white"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-0 border border-white/[0.08] rounded-2xl overflow-hidden bg-neutral-950/30 shadow-xl relative">
+                        {/* Table Header */}
+                        <div className="grid grid-cols-[1fr_1.2fr_1fr_120px] gap-4 p-4 border-b border-white/[0.08] bg-neutral-900/60 text-xs font-black uppercase tracking-widest text-neutral-500">
+                            <div>Profile & Device</div>
+                            <div>Location & Network</div>
+                            <div>Engagement</div>
+                            <div className="text-right">Activity</div>
+                        </div>
+
+                        {filteredDevices.length === 0 ? (
+                            <div className="py-16 text-center text-neutral-500 text-sm">
+                                No visitor profiles match your search criteria.
+                            </div>
+                        ) : (
+                            <div className="flex flex-col divide-y divide-white/[0.04]">
+                                {paginatedDevices.map((device) => {
+                                    const deviceSessions = sessions.filter((s) => s.device_id === device.deviceId);
+                                    const isExpanded = expandedDeviceIds[device.deviceId] || false;
+                                    const profileName = `${device.os || "Apple"} Profile`;
+                                    const isMobile = device.deviceType?.toLowerCase().includes("iphone") || device.deviceType?.toLowerCase().includes("android") || device.deviceType?.toLowerCase().includes("mobile");
+
+                                    // Local session pagination for expanded view
+                                    const sessionPage = sessionPages[device.deviceId] || 1;
+                                    const sessionsPerPage = 3;
+                                    const totalSessionPages = Math.max(1, Math.ceil(deviceSessions.length / sessionsPerPage));
+                                    const paginatedSessions = deviceSessions.slice(
+                                        (sessionPage - 1) * sessionsPerPage,
+                                        sessionPage * sessionsPerPage
+                                    );
+
+                                    return (
+                                        <div key={device.deviceId} className="flex flex-col hover:bg-white/[0.02] transition-colors">
+                                            {/* Table Row */}
+                                            <div 
+                                                onClick={() => handleToggleExpand(device.deviceId)}
+                                                className="grid grid-cols-[1fr_1.2fr_1fr_120px] gap-4 p-4 items-center cursor-pointer"
+                                            >
+                                                {/* Profile Col */}
+                                                <div className="flex flex-col gap-1 min-w-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-extrabold text-[#fca5a5] text-sm tracking-wide uppercase truncate">
+                                                            {profileName}
                                                         </span>
-                                                    ) : (
-                                                        <span className="text-neutral-500 text-sm italic font-medium">
-                                                            Unnamed Profile
-                                                        </span>
-                                                    )}
-                                                    <button 
-                                                        onClick={() => handleStartRename(device)} 
-                                                        className="opacity-0 group-hover:opacity-100 p-1 text-neutral-400 hover:text-white rounded transition-all"
-                                                        title="Rename profile alias"
-                                                    >
-                                                        <Edit2 className="w-3.5 h-3.5" />
-                                                    </button>
+                                                        {device.isBot && <span className="bg-red-500/20 text-red-400 text-[9px] px-1.5 py-0.5 rounded font-black tracking-wider uppercase">Bot</span>}
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 text-xs text-neutral-500 truncate">
+                                                        {isMobile ? <Smartphone className="w-3.5 h-3.5 text-[#a78bfa]" /> : <Laptop className="w-3.5 h-3.5 text-[#38bdf8]" />}
+                                                        <span className="truncate">{device.deviceType || "Desktop"} · {device.browser}</span>
+                                                    </div>
                                                 </div>
-                                            )}
 
-                                            {/* Fingerprint ID label */}
-                                            <span className="text-neutral-500 text-xs font-mono bg-neutral-900/60 border border-white/[0.04] px-2.5 py-0.5 rounded-lg select-all">
-                                                {device.deviceId}
-                                            </span>
+                                                {/* Location Col */}
+                                                <div className="flex flex-col gap-1 min-w-0">
+                                                    <div className="flex items-center gap-1.5 text-neutral-300 text-sm truncate">
+                                                        <Globe className="w-3.5 h-3.5 text-[#38bdf8] shrink-0" />
+                                                        <span className="truncate">{formatLoc(device.city, device.country)}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 text-xs text-neutral-500 font-mono">
+                                                        <span className="truncate">{device.ip || "Unknown IP"}</span>
+                                                    </div>
+                                                </div>
 
-                                            {/* Geolocation metadata */}
-                                            <span className="text-neutral-400 text-xs bg-neutral-900/40 border border-white/[0.04] px-2 py-0.5 rounded-lg flex items-center gap-1.5">
-                                                <Globe className="w-3 h-3 text-[#38bdf8]" />
-                                                {formatLoc(device.city, device.country)}
-                                            </span>
-                                        </div>
+                                                {/* Engagement Col */}
+                                                <div className="flex flex-col gap-1 min-w-0 justify-center">
+                                                    <div className="flex gap-2 text-xs font-bold text-neutral-300">
+                                                        <span title="Sessions">{deviceSessions.length} sesh</span>
+                                                        <span className="text-neutral-600">·</span>
+                                                        <span title="Page Views">{device.totalViews} views</span>
+                                                    </div>
+                                                    <div className="flex gap-2 text-[10px] font-medium text-neutral-500 uppercase tracking-widest">
+                                                        {device.totalRuns > 0 && <span className="text-amber-400">{device.totalRuns} runs</span>}
+                                                        {device.totalContacts > 0 && <span className="text-pink-400">{device.totalContacts} msg</span>}
+                                                    </div>
+                                                </div>
 
-                                        {/* Insight Pill & Desc */}
-                                        <div className="flex flex-wrap items-center gap-2.5">
-                                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${insight.colorClass}`}>
-                                                {insight.label}
-                                            </span>
-                                            <span className="text-neutral-400 text-xs leading-normal">
-                                                {insight.description}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Action items right */}
-                                    <div className="flex items-center gap-4">
-                                        <div className="text-right hidden md:block">
-                                            <div className="text-neutral-500 text-[10px] font-black uppercase tracking-wider">Last Activity</div>
-                                            <div className="text-white text-xs font-medium mt-0.5">
-                                                {new Date(device.lastSeenAt).toLocaleString()}
-                                            </div>
-                                        </div>
-
-                                        {/* Expand Chevron button */}
-                                        <button 
-                                            onClick={() => handleToggleExpand(device.deviceId)}
-                                            className={`p-2.5 rounded-xl border border-white/[0.06] bg-neutral-900/40 text-neutral-400 hover:text-white hover:border-white/[0.12] transition-all flex items-center gap-1.5 text-xs font-black uppercase tracking-wider ${
-                                                isExpanded ? "border-[#4ADE80]/30 text-white" : ""
-                                            }`}
-                                        >
-                                            <span>{deviceSessions.length} Session{deviceSessions.length !== 1 ? "s" : ""}</span>
-                                            {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Expanded Drawer */}
-                                {isExpanded && (
-                                    <div className="border-t border-white/[0.05] p-5 bg-neutral-950/40 rounded-b-2xl flex flex-col gap-5">
-                                        {/* Device Stats Row */}
-                                        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                                            <div className="bg-neutral-900/60 border border-white/[0.04] p-3.5 rounded-xl text-center">
-                                                <div className="text-neutral-500 text-[10px] font-black uppercase tracking-widest">Page Views</div>
-                                                <div className="text-white text-lg font-black mt-1">{device.totalViews}</div>
-                                            </div>
-                                            <div className="bg-neutral-900/60 border border-white/[0.04] p-3.5 rounded-xl text-center">
-                                                <div className="text-neutral-500 text-[10px] font-black uppercase tracking-widest">Outbound Clicks</div>
-                                                <div className="text-white text-lg font-black mt-1">{device.totalLinkClicks}</div>
-                                            </div>
-                                            <div className="bg-neutral-900/60 border border-white/[0.04] p-3.5 rounded-xl text-center">
-                                                <div className="text-neutral-500 text-[10px] font-black uppercase tracking-widest">Arcade Runs</div>
-                                                <div className="text-white text-lg font-black mt-1">{device.totalRuns}</div>
-                                            </div>
-                                            <div className="bg-neutral-900/60 border border-white/[0.04] p-3.5 rounded-xl text-center">
-                                                <div className="text-neutral-500 text-[10px] font-black uppercase tracking-widest">Resume DLs</div>
-                                                <div className="text-white text-lg font-black mt-1">{device.totalResumeDownloads}</div>
-                                            </div>
-                                            <div className="bg-neutral-900/60 border border-white/[0.04] p-3.5 rounded-xl text-center col-span-2 md:col-span-1">
-                                                <div className="text-neutral-500 text-[10px] font-black uppercase tracking-widest">Contacts</div>
-                                                <div className="text-white text-lg font-black mt-1">{device.totalContacts}</div>
-                                            </div>
-                                        </div>
-
-                                        {/* Device Profile Details */}
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-neutral-400 bg-neutral-900/20 p-4 border border-white/[0.04] rounded-xl">
-                                            <div className="flex flex-col gap-1.5">
-                                                <div className="text-neutral-500 text-[10px] font-black uppercase tracking-wider">Client Fingerprint</div>
-                                                <div className="text-white flex items-center gap-1.5">
-                                                    {device.deviceType?.toLowerCase().includes("iphone") || device.deviceType?.toLowerCase().includes("android") ? (
-                                                        <Smartphone className="w-3.5 h-3.5 text-[#a78bfa]" />
-                                                    ) : (
-                                                        <Laptop className="w-3.5 h-3.5 text-[#38bdf8]" />
-                                                    )}
-                                                    <span>{device.deviceType || "Desktop"} · {device.os} · {device.browser}</span>
+                                                {/* Activity Col */}
+                                                <div className="flex flex-col items-end gap-1 text-right">
+                                                    <div className="text-white text-xs font-medium">
+                                                        {new Date(device.lastSeenAt).toLocaleDateString()}
+                                                    </div>
+                                                    <div className="text-neutral-500 text-xs">
+                                                        {new Date(device.lastSeenAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                            <div className="flex flex-col gap-1.5">
-                                                <div className="text-neutral-500 text-[10px] font-black uppercase tracking-wider">Network Address</div>
-                                                <div className="text-white font-mono">
-                                                    {device.ip || "Unknown IP"}{" "}
-                                                    {device.ip && isLocalIp(device.ip) && (
-                                                        <span className="text-[10px] bg-neutral-800 text-neutral-400 px-1.5 py-0.5 rounded border border-neutral-700 ml-1">
-                                                            LOCAL/TEST IP
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
+                                            {/* Expanded Drawer */}
+                                            {isExpanded && (
+                                                <div className="p-5 bg-neutral-950/60 border-t border-white/[0.04] flex flex-col gap-5 shadow-[inset_0_4px_24px_rgba(0,0,0,0.2)]">
+                                                    
+                                                    {/* Hardware Specs row */}
+                                                    <div className="flex items-center gap-2 text-xs text-neutral-500 font-medium bg-neutral-900/50 px-3 py-2 rounded-lg border border-white/[0.04]">
+                                                        <Cpu className="w-3.5 h-3.5 text-neutral-400" />
+                                                        <span>System Hardware:</span>
+                                                        <span className="text-neutral-300">{formatHardware(device.hardware)}</span>
+                                                    </div>
 
-                                            <div className="flex flex-col gap-1.5">
-                                                <div className="text-neutral-500 text-[10px] font-black uppercase tracking-wider">System Hardware</div>
-                                                <div className="text-white">
-                                                    {device.hardware ? (
-                                                        `${device.hardware.memory}GB RAM · ${device.hardware.cores} CPU Cores · ${device.hardware.connection}`
-                                                    ) : (
-                                                        "Unknown hardware specs"
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
+                                                    <div className="flex flex-col gap-3.5">
+                                                        <div className="flex justify-between items-center border-b border-white/[0.05] pb-2">
+                                                            <h4 className="text-xs font-black uppercase tracking-widest text-[#4ADE80]">
+                                                                Activity Logs
+                                                            </h4>
+                                                            
+                                                            {totalSessionPages > 1 && (
+                                                                <div className="flex items-center gap-2">
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setSessionPages(prev => ({
+                                                                                ...prev,
+                                                                                [device.deviceId]: Math.max(1, (prev[device.deviceId] || 1) - 1)
+                                                                            }));
+                                                                        }}
+                                                                        disabled={sessionPage === 1}
+                                                                        className="px-2.5 py-1 bg-neutral-900 text-xs text-neutral-400 hover:text-white rounded border border-white/[0.05] disabled:opacity-40 disabled:cursor-not-allowed"
+                                                                    >
+                                                                        Prev
+                                                                    </button>
+                                                                    <span className="text-[10px] text-neutral-500 font-bold uppercase">
+                                                                        {sessionPage} / {totalSessionPages}
+                                                                    </span>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setSessionPages(prev => ({
+                                                                                ...prev,
+                                                                                [device.deviceId]: Math.min(totalSessionPages, (prev[device.deviceId] || 1) + 1)
+                                                                            }));
+                                                                        }}
+                                                                        disabled={sessionPage === totalSessionPages}
+                                                                        className="px-2.5 py-1 bg-neutral-900 text-xs text-neutral-400 hover:text-white rounded border border-white/[0.05] disabled:opacity-40 disabled:cursor-not-allowed"
+                                                                    >
+                                                                        Next
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
 
-                                        {/* Nested Device-Wide Arcade Runs List */}
-                                        {deviceScores.length > 0 && (
-                                            <div className="bg-neutral-950/60 border border-white/[0.05] p-4 rounded-xl flex flex-col gap-3">
-                                                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-amber-400">
-                                                    <Award className="w-4 h-4" />
-                                                    <span>Linked Arcade Submissions ({deviceScores.length})</span>
-                                                </div>
-
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                    {Object.entries(
-                                                        deviceScores.reduce((acc, score) => {
-                                                            const existing = acc[score.game] || [];
-                                                            existing.push(score);
-                                                            acc[score.game] = existing;
-                                                            return acc;
-                                                        }, {} as Record<string, LeaderboardEntry[]>)
-                                                    ).map(([game, entries]) => (
-                                                        <div key={game} className="p-3 bg-neutral-900/40 border border-white/[0.04] rounded-lg flex flex-col gap-2">
-                                                            <div className="text-xs font-extrabold text-neutral-300 uppercase tracking-wider flex items-center gap-1.5">
-                                                                <span>🎮 {game}</span>
-                                                                <span className="text-neutral-500 font-medium">({entries.length} play{entries.length !== 1 ? "s" : ""})</span>
+                                                        {deviceSessions.length === 0 ? (
+                                                            <div className="py-4 text-center text-neutral-600 text-xs">
+                                                                No session logs stored for this profile.
                                                             </div>
-                                                            <div className="flex flex-wrap gap-2">
-                                                                {entries.sort((a, b) => b.score - a.score).map((entry) => (
-                                                                    <div key={entry.id} className="text-[11px] bg-neutral-900 border border-white/[0.05] px-2.5 py-1 rounded flex items-center gap-2">
-                                                                        <span className="text-red-400 font-black">🏆 {entry.score} pts</span>
-                                                                        <span className="text-neutral-500">as</span>
-                                                                        <span className="text-white font-extrabold">{entry.name}</span>
-                                                                        <span className="text-neutral-600 font-mono text-[9px]">
-                                                                            {new Date(entry.date).toLocaleDateString()}
-                                                                        </span>
+                                                        ) : (
+                                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                                                                {paginatedSessions.map((session) => (
+                                                                    <div key={session.session_id} className="p-4 rounded-xl border border-white/[0.04] bg-neutral-900/40 flex flex-col gap-3">
+                                                                        <div className="flex flex-wrap justify-between items-start gap-2">
+                                                                            <div className="flex flex-col gap-0.5">
+                                                                                <strong className="text-white text-xs font-bold flex items-center gap-2">
+                                                                                    {session.session_label?.trim() || "Session"}
+                                                                                </strong>
+                                                                                <span className="text-neutral-500 text-[10px] flex items-center gap-1.5 mt-0.5">
+                                                                                    <Calendar className="w-3 h-3" />
+                                                                                    {new Date(session.started_at).toLocaleString()}
+                                                                                </span>
+                                                                            </div>
+                                                                            <span className="text-[10px] text-neutral-400 bg-neutral-950 px-2 py-0.5 rounded border border-white/[0.05]">
+                                                                                Source: {session.utm_source || session.source || session.referrer || "direct"}
+                                                                            </span>
+                                                                            {session.utm_campaign && (
+                                                                                <span className="text-[10px] text-[#4ADE80] bg-[#4ADE80]/10 px-2 py-0.5 rounded border border-[#4ADE80]/20 font-bold uppercase tracking-wider">
+                                                                                    {session.utm_campaign}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+
+                                                                        <div className="flex flex-wrap gap-2.5 text-[10px] text-neutral-300 font-bold uppercase tracking-wider">
+                                                                            <span className="bg-neutral-950/80 px-2 py-1 border border-white/[0.04] rounded text-emerald-400">
+                                                                                Time Spent: {session.sessionDuration || 0}s
+                                                                            </span>
+                                                                        </div>
+
+                                                                        <div className="text-[11px] text-neutral-400 leading-normal flex flex-col gap-1.5 mt-2">
+                                                                            <span className="font-extrabold text-neutral-500 uppercase tracking-widest text-[9px]">Active Dwell Time by Route:</span>
+                                                                            {session.route_times && Object.keys(session.route_times).length > 0 ? (
+                                                                                <div className="flex flex-wrap gap-2">
+                                                                                    {Object.entries(session.route_times).sort((a, b) => b[1] - a[1]).map(([r, time]) => (
+                                                                                        <span key={r} className="bg-neutral-950/80 px-2 py-1 border border-white/[0.04] rounded text-emerald-400 font-mono text-[9px]">
+                                                                                            {humanizeRoute(r.replace(/_/g, '/'))}: {time}s
+                                                                                        </span>
+                                                                                    ))}
+                                                                                </div>
+                                                                            ) : (
+                                                                                <span className="text-neutral-600 text-xs italic">No route dwell times recorded yet.</span>
+                                                                            )}
+                                                                        </div>
+                                                                        
+                                                                        <div className="text-[11px] text-neutral-400 leading-normal flex flex-col gap-1.5 mt-2">
+                                                                            <span className="font-extrabold text-neutral-500 uppercase tracking-widest text-[9px]">Activity Log:</span>
+                                                                            {session.recent_events && session.recent_events.length > 0 ? (
+                                                                                <div className="flex flex-col gap-1 pl-2 border-l-2 border-neutral-800">
+                                                                                    {session.recent_events.map((ev, i) => (
+                                                                                        <div key={i} className="flex justify-between items-center bg-neutral-950/40 px-2 py-1 rounded hover:bg-neutral-900/60 transition-colors">
+                                                                                            <span className="text-white font-medium truncate pr-2">{ev.route} <span className="text-neutral-600 font-normal">({ev.type})</span></span>
+                                                                                            <span className="text-neutral-500 text-[9px] font-mono shrink-0">{new Date(ev.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            ) : (
+                                                                                <span className="text-neutral-600 text-xs italic">No specific page activity recorded.</span>
+                                                                            )}
+                                                                        </div>
                                                                     </div>
                                                                 ))}
                                                             </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Nested Collapsible Sessions drawer */}
-                                        <div className="flex flex-col gap-3.5">
-                                            <div className="flex justify-between items-center border-b border-white/[0.05] pb-2">
-                                                <h4 className="text-xs font-black uppercase tracking-widest text-[#4ADE80]">
-                                                    Sessions Log ({deviceSessions.length})
-                                                </h4>
-                                                
-                                                {/* Localized Session Pagination Controls */}
-                                                {totalSessionPages > 1 && (
-                                                    <div className="flex items-center gap-2">
-                                                        <button
-                                                            onClick={() => {
-                                                                setSessionPages(prev => ({
-                                                                    ...prev,
-                                                                    [device.deviceId]: Math.max(1, (prev[device.deviceId] || 1) - 1)
-                                                                }));
-                                                            }}
-                                                            disabled={sessionPage === 1}
-                                                            className="px-2.5 py-1 bg-neutral-900 text-xs text-neutral-400 hover:text-white rounded border border-white/[0.05] disabled:opacity-40 disabled:cursor-not-allowed"
-                                                        >
-                                                            Prev
-                                                        </button>
-                                                        <span className="text-[10px] text-neutral-500 font-bold uppercase">
-                                                            {sessionPage} / {totalSessionPages}
-                                                        </span>
-                                                        <button
-                                                            onClick={() => {
-                                                                setSessionPages(prev => ({
-                                                                    ...prev,
-                                                                    [device.deviceId]: Math.min(totalSessionPages, (prev[device.deviceId] || 1) + 1)
-                                                                }));
-                                                            }}
-                                                            disabled={sessionPage === totalSessionPages}
-                                                            className="px-2.5 py-1 bg-neutral-900 text-xs text-neutral-400 hover:text-white rounded border border-white/[0.05] disabled:opacity-40 disabled:cursor-not-allowed"
-                                                        >
-                                                            Next
-                                                        </button>
+                                                        )}
                                                     </div>
-                                                )}
-                                            </div>
-
-                                            {deviceSessions.length === 0 ? (
-                                                <div className="py-4 text-center text-neutral-600 text-xs">
-                                                    No session logs stored for this fingerprint.
-                                                </div>
-                                            ) : (
-                                                <div className="flex flex-col gap-3">
-                                                    {paginatedSessions.map((session) => (
-                                                        <div key={session.session_id} className="p-4 rounded-xl border border-white/[0.04] bg-neutral-900/40 flex flex-col gap-3">
-                                                            <div className="flex flex-wrap justify-between items-start gap-2">
-                                                                <div className="flex flex-col gap-0.5">
-                                                                    <strong className="text-white text-xs font-bold flex items-center gap-2">
-                                                                        {session.session_label?.trim() || "Unnamed Session"}
-                                                                        <span className="text-[10px] font-mono text-neutral-500 font-normal">
-                                                                            ({session.session_id.slice(-8)})
-                                                                        </span>
-                                                                    </strong>
-                                                                    <span className="text-neutral-500 text-[10px] flex items-center gap-1.5 mt-0.5">
-                                                                        <Calendar className="w-3 h-3" />
-                                                                        {new Date(session.started_at).toLocaleString()}
-                                                                        <span>·</span>
-                                                                        <Clock className="w-3 h-3" />
-                                                                        Active {new Date(session.last_seen_at).toLocaleTimeString()}
-                                                                    </span>
-                                                                </div>
-
-                                                                {/* Referrer source badge */}
-                                                                <span className="text-[10px] text-neutral-400 bg-neutral-950 px-2 py-0.5 rounded border border-white/[0.05]">
-                                                                    Ref: {session.source || session.referrer || "direct"}
-                                                                </span>
-                                                            </div>
-
-                                                            {/* Session Badges Row */}
-                                                            <div className="flex flex-wrap gap-2.5 text-[10px] text-neutral-300 font-bold uppercase tracking-wider">
-                                                                <span className="bg-neutral-950/80 px-2 py-1 border border-white/[0.04] rounded">
-                                                                    {session.view_count} views
-                                                                </span>
-                                                                <span className="bg-neutral-950/80 px-2 py-1 border border-white/[0.04] rounded text-emerald-400">
-                                                                    Duration: {session.sessionDuration || 0}s
-                                                                </span>
-                                                                <span className="bg-neutral-950/80 px-2 py-1 border border-white/[0.04] rounded text-[#38bdf8]">
-                                                                    Scroll: {session.maxScrollDepth || 0}%
-                                                                </span>
-                                                                {session.rageClicks ? (
-                                                                    <span className="bg-red-500/10 border border-red-500/20 px-2 py-1 rounded text-red-400 flex items-center gap-1">
-                                                                        <AlertTriangle className="w-3 h-3" />
-                                                                        {session.rageClicks} rage click(s)
-                                                                    </span>
-                                                                ) : null}
-                                                                {session.completed_runs ? (
-                                                                    <span className="bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded text-amber-400">
-                                                                        runs: {session.completed_runs} · pts: {session.total_score}
-                                                                    </span>
-                                                                ) : null}
-                                                            </div>
-
-                                                            {/* Games Played and Targets */}
-                                                            <div className="text-[11px] text-neutral-400 leading-normal flex flex-col gap-1">
-                                                                <div>
-                                                                    <span className="font-extrabold text-neutral-500 uppercase tracking-widest text-[9px] mr-2">Games:</span>
-                                                                    {session.games_played?.length ? (
-                                                                        <span className="text-white bg-neutral-900 border border-white/[0.04] px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">
-                                                                            {session.games_played.join(", ")}
-                                                                        </span>
-                                                                    ) : (
-                                                                        "None yet"
-                                                                    )}
-                                                                </div>
-                                                                <div>
-                                                                    <span className="font-extrabold text-neutral-500 uppercase tracking-widest text-[9px] mr-2">Links Tap:</span>
-                                                                    {session.link_targets?.length ? (
-                                                                        <span className="text-white text-[10px]">
-                                                                            {session.link_targets.join(", ")}
-                                                                        </span>
-                                                                    ) : (
-                                                                        "None clicked"
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    ))}
                                                 </div>
                                             )}
                                         </div>
-                                    </div>
-                                )}
+                                    );
+                                })}
                             </div>
-                        );
-                    })
-                )}
-            </div>
-
-            {/* Master Device Pagination Panel */}
-            {totalPages > 1 && (
-                <div className="flex justify-between items-center border-t border-white/[0.05] pt-4 text-sm text-neutral-400">
-                    <div>
-                        Showing <strong className="text-white">{Math.min(filteredDevices.length, (currentPage - 1) * devicesPerPage + 1)}</strong> -{" "}
-                        <strong className="text-white">{Math.min(filteredDevices.length, currentPage * devicesPerPage)}</strong> of{" "}
-                        <strong className="text-white">{filteredDevices.length}</strong> visitor profile(s)
+                        )}
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                            disabled={currentPage === 1}
-                            className="px-4 py-2 bg-neutral-950 border border-white/[0.08] text-neutral-300 hover:text-white rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-900/60 transition-colors"
-                        >
-                            Previous
-                        </button>
-                        <span className="text-xs font-black uppercase tracking-wider text-[#4ADE80]">
-                            Page {currentPage} of {totalPages}
-                        </span>
-                        <button
-                            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                            disabled={currentPage === totalPages}
-                            className="px-4 py-2 bg-neutral-950 border border-white/[0.08] text-neutral-300 hover:text-white rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-900/60 transition-colors"
-                        >
-                            Next
-                        </button>
-                    </div>
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="flex justify-between items-center text-sm text-neutral-400 mt-2 px-2">
+                            <div>
+                                Showing <strong className="text-white">{Math.min(filteredDevices.length, (currentPage - 1) * devicesPerPage + 1)}</strong> -{" "}
+                                <strong className="text-white">{Math.min(filteredDevices.length, currentPage * devicesPerPage)}</strong> of{" "}
+                                <strong className="text-white">{filteredDevices.length}</strong>
+                            </div>
+
+                            {/* Standard Page Number Buttons */}
+                            <div className="flex items-center gap-1.5">
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                    disabled={currentPage === 1}
+                                    className="p-2 bg-neutral-950 border border-white/[0.08] text-neutral-300 hover:text-white rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-900/60 transition-colors"
+                                >
+                                    <ChevronRight className="w-4 h-4 rotate-180" />
+                                </button>
+                                
+                                {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
+                                    let pageNum = currentPage;
+                                    if (currentPage <= 3) pageNum = i + 1;
+                                    else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
+                                    else pageNum = currentPage - 2 + i;
+                                    
+                                    if (pageNum <= 0 || pageNum > totalPages) return null;
+
+                                    return (
+                                        <button
+                                            key={pageNum}
+                                            onClick={() => setCurrentPage(pageNum)}
+                                            className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-colors ${
+                                                currentPage === pageNum 
+                                                    ? "bg-[#38bdf8] text-black" 
+                                                    : "bg-neutral-950 border border-white/[0.08] text-neutral-400 hover:text-white hover:bg-neutral-900/60"
+                                            }`}
+                                        >
+                                            {pageNum}
+                                        </button>
+                                    );
+                                })}
+
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="p-2 bg-neutral-950 border border-white/[0.08] text-neutral-300 hover:text-white rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-900/60 transition-colors"
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
-            )}
+            </div>
         </section>
     );
 }

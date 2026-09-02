@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
+import { useState, useRef, useEffect } from 'react';
 import { Mail, ArrowUp } from 'lucide-react';
 
 const GithubIcon = ({ size = 18 }: { size?: number }) => (
@@ -21,6 +22,48 @@ const LinkedinIcon = ({ size = 18 }: { size?: number }) => (
 export default function Footer() {
     const pathname = usePathname();
     const router = useRouter();
+
+    const [clickCount, setClickCount] = useState(0);
+    const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const holdTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const handlePointerDown = () => {
+        if (holdTimeoutRef.current) clearTimeout(holdTimeoutRef.current);
+        holdTimeoutRef.current = setTimeout(() => {
+            router.push('/social-only');
+        }, 2000);
+    };
+
+    const handlePointerUpOrLeave = () => {
+        if (holdTimeoutRef.current) {
+            clearTimeout(holdTimeoutRef.current);
+            holdTimeoutRef.current = null;
+        }
+    };
+
+    const handleSecretClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        const nextCount = clickCount + 1;
+        setClickCount(nextCount);
+        
+        if (nextCount >= 5) {
+            router.push('/social-only');
+            setClickCount(0);
+            if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+            return;
+        }
+
+        if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = setTimeout(() => {
+            setClickCount(0);
+            if (pathname !== '/') {
+                router.push('/');
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }, 400);
+    };
+
 
     if (pathname === '/game' || pathname === '/game-only' || pathname?.startsWith('/arcade')) {
         return null;
@@ -43,12 +86,11 @@ export default function Footer() {
                     <div>
                         <Link 
                             href="/" 
-                            onClick={(e) => {
-                                if (e.detail === 3 || window.innerWidth <= 768) {
-                                    e.preventDefault();
-                                    router.push('/social');
-                                }
-                            }}
+                            onClick={handleSecretClick}
+                            onPointerDown={handlePointerDown}
+                            onPointerUp={handlePointerUpOrLeave}
+                            onPointerLeave={handlePointerUpOrLeave}
+                            onContextMenu={(e) => { e.preventDefault(); }} // Prevent mobile context menu from breaking hold
                             style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: '#fff' }}
                         >
                             TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span>

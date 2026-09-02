@@ -51,11 +51,20 @@ type VisitorEventPayload = {
         connection: string;
         memory: string | number;
         cores: string | number;
+        batteryLevel?: string;
+        isCharging?: boolean;
+        exactModel?: string;
+        };
+    utm?: {
+        source?: string;
+        medium?: string;
+        campaign?: string;
     };
     behavior?: {
         maxScrollDepth: number;
         sessionDuration: number;
         rageClicks: number;
+        activeTimePerRoute?: Record<string, number>;
     };
 };
 

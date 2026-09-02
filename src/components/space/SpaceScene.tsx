@@ -47,11 +47,11 @@ function CameraRig({ scrollProgress }: { scrollProgress: number }) {
         camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY, 3.5 * delta);
 
         // Camera head-tilt from mouse
-        camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, -mx * 0.04, 3 * delta);
-        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x,  my * 0.03, 3 * delta);
+        camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, -mx * 0.08, 3 * delta);
+        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x,  my * 0.06, 3 * delta);
 
         // Z zoom from page scroll
-        const targetZ = scrollYRef.current * 0.12;
+        const targetZ = scrollYRef.current * 0.25;
         camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 2 * delta);
 
         // ── Scroll-phase: drift arc (words splitting apart then assembling, 0.05→0.55)
@@ -65,19 +65,19 @@ function CameraRig({ scrollProgress }: { scrollProgress: number }) {
 
         // Z push — camera rushes forward into the star field during drift
         // (creates a "flying through space" sensation)
-        const sweepZ = driftT * -25;
+        const sweepZ = driftT * -70;
         camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ + sweepZ, 2 * delta);
 
         // Y dip — camera dips then rises again
-        const sweepY = driftT * -14;
+        const sweepY = driftT * -25;
         camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY + sweepY, 2 * delta);
 
         // Roll — starfield tilts during drift
-        const targetRoll = driftT * 0.14;
+        const targetRoll = driftT * 0.35;
         camera.rotation.z = THREE.MathUtils.lerp(camera.rotation.z, targetRoll, 2.5 * delta);
 
         // Pitch — camera nose-dips slightly during drift (adds depth)
-        const targetPitch = driftT * 0.05;
+        const targetPitch = driftT * 0.15;
         camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, my * 0.03 + targetPitch, 2.5 * delta);
 
         // ── Answer phase (0.55→0.85): camera stays centered since driftT is 0 ────────
@@ -111,7 +111,7 @@ export default function SpaceScene({ scrollProgress = 0 }: { scrollProgress?: nu
 
                 <Suspense fallback={null}>
                     <CameraRig scrollProgress={scrollProgress} />
-                    <StarField     count={1800} />
+                    <StarField     count={15000} />
                 </Suspense>
             </Canvas>
 

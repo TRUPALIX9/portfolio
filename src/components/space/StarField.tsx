@@ -10,9 +10,9 @@ export default function StarField({ count = 6000 }) {
     const positions = useMemo(() => {
         const pos = new Float32Array(count * 3);
         for (let i = 0; i < count; i++) {
-            pos[i * 3] = (Math.random() - 0.5) * 800; // X
-            pos[i * 3 + 1] = (Math.random() - 0.5) * 800; // Y
-            pos[i * 3 + 2] = (Math.random() - 0.5) * 800; // Z
+            pos[i * 3] = (Math.random() - 0.5) * 2500; // X
+            pos[i * 3 + 1] = (Math.random() - 0.5) * 2500; // Y
+            pos[i * 3 + 2] = (Math.random() - 0.5) * 2500; // Z
         }
         return pos;
     }, [count]);

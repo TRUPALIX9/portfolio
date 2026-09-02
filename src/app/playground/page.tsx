@@ -156,6 +156,7 @@ export default function Playground() {
     const [gameFilter, setGameFilter] = useState("all");
     const [sortMode, setSortMode] = useState<"newest" | "oldest" | "score_high" | "score_low">("newest");
     const [currentPage, setCurrentPage] = useState(1);
+    const [playerGroupsPage, setPlayerGroupsPage] = useState(1);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [editingName, setEditingName] = useState("");
     const [editingPlayerName, setEditingPlayerName] = useState<string | null>(null);
@@ -640,6 +641,23 @@ export default function Playground() {
             .slice(-7);
     }, [scores]);
 
+    const deviceStats = useMemo(() => {
+        let mobile = 0;
+        let pc = 0;
+        sessions.forEach(s => {
+            if (s.isBot) return; // Exclude bots from human device ratio
+            const type = s.deviceType?.toLowerCase() || '';
+            if (type.includes('iphone') || type.includes('android') || type.includes('mobile')) {
+                mobile++;
+            } else {
+                pc++;
+            }
+        });
+        const total = mobile + pc;
+        const mobilePct = total ? Math.round((mobile / total) * 100) : 0;
+        return { mobile, pc, mobilePct };
+    }, [sessions]);
+
     const botStats = useMemo(() => {
         const botsCount = sessions.filter((s) => s.isBot).length;
         const botPercentage = sessions.length ? Math.round((botsCount / sessions.length) * 100) : 0;
@@ -825,82 +843,23 @@ export default function Playground() {
                         subtitle={`${botStats.botsCount} bot sessions identified`} 
                         accent="#a855f7" 
                     />
+                    <StatCard 
+                        title="Mobile vs PC" 
+                        value={`${deviceStats.mobilePct}% Mobile`} 
+                        subtitle={`${deviceStats.mobile} mobile / ${deviceStats.pc} desktop`} 
+                        accent="#eab308" 
+                    />
                 </section>
 
                 <section style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
-                    <Panel
-                        title="Route Storyline"
-                        description="This is the front-door narrative: who landed on social-only, who stayed in game-only, which routes pushed resume interest, and which paths turned into a message."
-                        tone="spotlight"
-                    >
-                        <div style={{ display: "grid", gap: "0.8rem" }}>
-                            {topNarratives.length === 0 && <EmptyState label="No route analytics recorded yet." dark />}
-                            {topNarratives.map((route) => (
-                                <div key={route.route} style={{ padding: "1rem", borderRadius: "20px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(148,163,184,0.14)", display: "grid", gap: "0.75rem" }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "baseline", flexWrap: "wrap" }}>
-                                        <strong style={{ color: "#fff", fontSize: "0.96rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                                            {humanizeRoute(route.route)}
-                                        </strong>
-                                        <span style={{ color: "#94a3b8", fontWeight: 700 }}>{route.sessions} sessions</span>
-                                    </div>
-                                    <BarMeter value={route.views} max={Math.max(...topNarratives.map((entry) => entry.views), 1)} color="#38bdf8" label={`${numberFormat(route.views)} tracked views`} dark />
-                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "0.6rem" }}>
-                                        <MetricChip label="Links" value={String(route.links)} dark />
-                                        <MetricChip label="Runs" value={String(route.runs)} dark />
-                                        <MetricChip label="Resume" value={String(route.resumeDownloads)} dark />
-                                        <MetricChip label="Contact" value={String(route.contacts)} dark />
-                                    </div>
-                                    <div style={{ color: "#94a3b8", fontSize: "0.82rem", lineHeight: 1.55 }}>
-                                        Sources: {route.topSources.length ? route.topSources.join(", ") : "direct"}.
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </Panel>
-                </section>
-
-                <section style={{ display: "grid", gridTemplateColumns: "1.15fr 0.85fr", gap: "1rem" }}>
-                    <Panel
-                        title="Game-Wise Insight"
-                        description="See which games are actually driving sessions, score volume, and strongest player output."
-                    >
-                        <div style={{ display: "grid", gap: "0.8rem" }}>
-                            {gameBreakdown.length === 0 && <EmptyState label="No game insight available yet." />}
-                            {gameBreakdown.map((game) => (
-                                <div key={game.game} style={{ padding: "1rem", borderRadius: "18px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(148,163,184,0.14)", display: "grid", gap: "0.75rem" }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "baseline", flexWrap: "wrap" }}>
-                                        <strong style={{ fontSize: "0.95rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>{game.game}</strong>
-                                        <span style={{ color: "#94a3b8", fontWeight: 700 }}>{game.plays} plays</span>
-                                    </div>
-                                    <BarMeter value={game.total} max={Math.max(...gameBreakdown.map((entry) => entry.total), 1)} color="#ef4444" label={`${numberFormat(game.total)} total points`} />
-                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "0.6rem" }}>
-                                        <MetricChip label="Average" value={String(game.average)} />
-                                        <MetricChip label="Best" value={String(game.best)} />
-                                        <MetricChip label="Volume" value={String(game.plays)} />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </Panel>
-
-                    <Panel
-                        title="Activity Trend"
-                        description="Recent scoring trend to catch burst traffic days, tests, or leaderboard spam windows."
-                        dark
-                    >
-                        <div style={{ display: "grid", gap: "0.9rem" }}>
-                            {activityTrend.length === 0 && <EmptyState label="No trend data available yet." dark />}
-                            {activityTrend.map((day) => (
-                                <div key={day.date} style={{ display: "grid", gap: "0.35rem" }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem" }}>
-                                        <span style={{ color: "#e2e8f0", fontWeight: 700 }}>{day.date}</span>
-                                        <span style={{ color: "#f8fafc", fontWeight: 900 }}>{day.score} pts</span>
-                                    </div>
-                                    <BarMeter value={day.score} max={Math.max(...activityTrend.map((entry) => entry.score), 1)} color="#22d3ee" label={`${day.plays} runs`} dark />
-                                </div>
-                            ))}
-                        </div>
-                    </Panel>
+                    <MasterVisitorExplorer
+                        devices={devices}
+                        sessions={sessions}
+                        scores={scores}
+                        routeStory={routeStory}
+                        getAdminHeaders={getAdminHeaders}
+                        onRefresh={refreshSnapshot}
+                    />
                 </section>
 
                 <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
@@ -908,9 +867,11 @@ export default function Playground() {
                         title="Player Groups"
                         description="Grouped by player name so you can spot heavy users, rename clusters, or suspicious repeat entries."
                     >
+
                         <div style={{ display: "grid", gap: "0.8rem" }}>
                             {playerGroups.length === 0 && <EmptyState label="No player groups yet." />}
-                            {playerGroups.slice(0, 8).map((player) => {
+                            {playerGroups.slice((playerGroupsPage - 1) * 8, playerGroupsPage * 8).map((player) => {
+
                                 const isEditing = editingPlayerName === player.name;
                                 return (
                                     <div key={player.name} style={{ padding: "1rem", borderRadius: "18px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(148,163,184,0.14)", display: "grid", gap: "0.8rem" }}>
@@ -963,11 +924,37 @@ export default function Playground() {
                                                 Rename Player Group
                                             </button>
                                         )}
+
                                     </div>
                                 );
                             })}
+                            
+                            {playerGroups.length > 8 && (
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem" }}>
+                                    <span style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                                        Showing {Math.min(playerGroups.length, (playerGroupsPage - 1) * 8 + 1)} - {Math.min(playerGroups.length, playerGroupsPage * 8)} of {playerGroups.length}
+                                    </span>
+                                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                                        <button 
+                                            onClick={() => setPlayerGroupsPage(p => Math.max(1, p - 1))}
+                                            disabled={playerGroupsPage === 1}
+                                            style={{ ...secondaryButtonStyle, opacity: playerGroupsPage === 1 ? 0.5 : 1, padding: "0.4rem 0.8rem", fontSize: "0.8rem" }}
+                                        >
+                                            Prev
+                                        </button>
+                                        <button 
+                                            onClick={() => setPlayerGroupsPage(p => Math.min(Math.ceil(playerGroups.length / 8), p + 1))}
+                                            disabled={playerGroupsPage >= Math.ceil(playerGroups.length / 8)}
+                                            style={{ ...secondaryButtonStyle, opacity: playerGroupsPage >= Math.ceil(playerGroups.length / 8) ? 0.5 : 1, padding: "0.4rem 0.8rem", fontSize: "0.8rem" }}
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </Panel>
+
 
                     <Panel
                         title="Share Links + Reset"
@@ -1043,16 +1030,6 @@ export default function Playground() {
                 </section>
 
                 <section style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
-                    <MasterVisitorExplorer
-                        devices={devices}
-                        sessions={sessions}
-                        scores={scores}
-                        getAdminHeaders={getAdminHeaders}
-                        onRefresh={refreshSnapshot}
-                    />
-                </section>
-
-                <section style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
                     <Panel
                         title="Contact Inbox"
                         description="Messages from the contact page land here so you can review them later from the same admin surface."
@@ -1094,11 +1071,13 @@ export default function Playground() {
                                                 </button>
                                             </div>
                                         </div>
+
                                     </div>
                                 );
                             })}
-                        </div>
+                                                    </div>
                     </Panel>
+
                 </section>
 
 
@@ -1515,13 +1494,13 @@ const compactDangerButton: CSSProperties = {
 };
 
 function humanizeRoute(route: string) {
-    if (route === "/social-only") return "Social-Only Hub";
-    if (route === "/game-only") return "Game-Only Arcade";
-    if (route === "/arcade-only") return "Arcade-Only Share";
-    if (route === "/social") return "Portfolio Social Page";
-    if (route === "/game") return "Portfolio Arcade Page";
-    if (route === "/resume") return "Resume Page";
-    if (route === "/contact") return "Contact Page";
-    if (route === "/") return "Homepage";
-    return route.replace(/^\//, "").replace(/-/g, " ") || "Unknown Route";
+    if (route === "/social-only") return "Social Only";
+    if (route === "/game-only") return "Game Only";
+    if (route === "/arcade-only") return "Arcade Only";
+    if (route === "/social") return "Social";
+    if (route === "/game") return "Game";
+    if (route === "/resume") return "Resume";
+    if (route === "/contact") return "Contact";
+    if (route === "/") return "Home";
+    return route.replace(/^\//, "").replace(/-/g, " ") || "Unknown";
 }

@@ -62,8 +62,29 @@ export async function POST(request: Request) {
         
         const userAgent = request.headers.get('user-agent') || '';
         const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '';
-        const city = request.headers.get('x-vercel-ip-city') || '';
-        const country = request.headers.get('x-vercel-ip-country') || '';
+        const vercelCity = request.headers.get('x-vercel-ip-city') || '';
+        const vercelCountry = request.headers.get('x-vercel-ip-country') || '';
+        let actualCity = '';
+        let actualCountry = '';
+
+        if (ip) {
+            const isLocal = ['127.0.0.1', '::1', 'localhost'].includes(ip) || ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.');
+            if (!isLocal) {
+                try {
+                    const ipRes = await fetch(`http://ip-api.com/json/${ip}?fields=city,country`, { cache: 'force-cache' });
+                    if (ipRes.ok) {
+                        const ipData = await ipRes.json();
+                        if (ipData.city) actualCity = ipData.city;
+                        if (ipData.country) actualCountry = ipData.country;
+                    }
+                } catch (e) {
+                    // Silent fail
+                }
+            }
+        }
+        
+        const city = actualCity || vercelCity;
+        const country = actualCountry || vercelCountry;
         
         let browser = '';
         let os = '';
@@ -98,8 +119,12 @@ export async function POST(request: Request) {
                     os,
                     deviceType,
                     ip,
-                    city,
-                    country,
+                    ...(city ? { city } : {}),
+                    ...(country ? { country } : {}),
+                    vercel_city: vercelCity,
+                    vercel_country: vercelCountry,
+                    actual_city: actualCity,
+                    actual_country: actualCountry,
                     isBot
                 }
             };
@@ -135,7 +160,14 @@ export async function POST(request: Request) {
                     deviceType,
                     isBot,
                     city,
-                    country
+                    country,
+                    vercel_city: vercelCity,
+                    vercel_country: vercelCountry,
+                    actual_city: actualCity,
+                    actual_country: actualCountry,
+                    utm_source: body.utm?.source || null,
+                    utm_medium: body.utm?.medium || null,
+                    utm_campaign: body.utm?.campaign || null
                 },
                 $set: {
                     last_seen_at: new Date().toISOString(),
@@ -175,6 +207,14 @@ export async function POST(request: Request) {
                 sessionUpdate.$set.maxScrollDepth = body.behavior.maxScrollDepth;
                 sessionUpdate.$set.sessionDuration = body.behavior.sessionDuration;
                 sessionUpdate.$inc.rageClicks = body.behavior.rageClicks;
+                
+                if (body.behavior.activeTimePerRoute) {
+                    sessionUpdate.$max = sessionUpdate.$max || {};
+                    for (const [r, time] of Object.entries(body.behavior.activeTimePerRoute)) {
+                        const cleanRoute = r.replace(/\./g, '_'); // MongoDB keys can't contain .
+                        sessionUpdate.$max[`route_times.${cleanRoute}`] = time;
+                    }
+                }
             }
 
             await db.collection('visitor_sessions').updateOne(
