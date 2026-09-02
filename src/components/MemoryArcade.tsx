@@ -184,47 +184,48 @@ export default function MemoryArcade({
         {/* HOW TO PLAY MODAL */}
             <AnimatePresence>
                 {showHelp && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-6 md:p-8 bg-black/80 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 bg-black/80 backdrop-blur-sm"
                         onClick={() => setShowHelp(false)}
                     >
-                        <motion.div 
+                        <motion.div
                             initial={{ scale: 0.95, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.95, opacity: 0, y: 20 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-neutral-900 border border-white/10 rounded-[2rem] p-7 md:p-10 max-w-[360px] w-full max-h-[85vh] overflow-y-auto shadow-2xl relative custom-scrollbar mx-auto"
+                            className="bg-neutral-900 border border-white/10 rounded-2xl max-w-sm w-full shadow-2xl mx-auto overflow-hidden"
                         >
-                            
-                            
-                            <h3 className="text-2xl md:text-3xl font-extrabold text-white mb-6 md:mb-8 text-center">How to Play</h3>
-                            
-                            <div className="flex flex-col gap-5 md:gap-6 text-[0.95rem] md:text-base text-neutral-300 text-left mb-8 md:mb-10">
-                                <div className="flex items-start gap-4">
-                                    <span className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-white/10 text-white flex items-center justify-center font-bold text-sm md:text-base mt-0.5 md:mt-0">1</span>
-                                    <p className="leading-relaxed">Watch the tiles flash in a specific order.</p>
-                                </div>
-                                <div className="flex items-start gap-4">
-                                    <span className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-white/10 text-white flex items-center justify-center font-bold text-sm md:text-base mt-0.5 md:mt-0">2</span>
-                                    <p className="leading-relaxed">Wait for the game board to glow <b className="text-emerald-400">GREEN</b>.</p>
-                                </div>
-                                <div className="flex items-start gap-4">
-                                    <span className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-white/10 text-white flex items-center justify-center font-bold text-sm md:text-base mt-0.5 md:mt-0">3</span>
-                                    <p className="leading-relaxed">Tap the tiles in the <b>exact same sequence</b>.</p>
-                                </div>
+                            {/* Header */}
+                            <div className="px-6 pt-6 pb-4 border-b border-white/[0.06]">
+                                <h3 className="text-xl font-extrabold text-white text-center tracking-wide">How to Play</h3>
                             </div>
 
-                            
+                            {/* Steps */}
+                            <div className="px-6 py-5 flex flex-col gap-4 text-sm text-neutral-300">
+                                {[
+                                    "Watch the tiles flash in a specific order.",
+                                    <>Wait for the game board to glow <b className="text-emerald-400">GREEN</b>.</>,
+                                    <>Tap the tiles in the <b className="text-white">exact same sequence</b>.</>
+                                ].map((text, i) => (
+                                    <div key={i} className="flex items-start gap-3">
+                                        <span className="flex-shrink-0 w-7 h-7 rounded-full bg-white/10 text-white flex items-center justify-center font-bold text-xs mt-0.5">{i + 1}</span>
+                                        <p className="leading-relaxed pt-0.5">{text}</p>
+                                    </div>
+                                ))}
+                            </div>
 
-                            <button 
-                                onClick={() => setShowHelp(false)}
-                                className="w-full h-14 !bg-white hover:!bg-neutral-200 !text-black font-black text-sm md:text-base tracking-widest rounded-xl transition-colors"
-                            >
-                                GOT IT
-                            </button>
+                            {/* Button */}
+                            <div className="px-6 pb-6">
+                                <button
+                                    onClick={() => setShowHelp(false)}
+                                    className="w-full h-12 bg-white hover:bg-neutral-100 text-black font-black text-sm tracking-widest rounded-xl transition-colors"
+                                >
+                                    GOT IT
+                                </button>
+                            </div>
                         </motion.div>
                     </motion.div>
                 )}
