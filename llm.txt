@@ -1,48 +1,50 @@
-# Trupal Patel Portfolio & Arcade - Architecture & Telemetry Guide
+# Trupal Patel (True Pal) - Professional Profile & Context
 
 ## Overview
-This is a high-performance, interactive portfolio and web arcade built with Next.js (App Router), React, Three.js (React Three Fiber), and MongoDB. It is designed not just to showcase projects, but to deeply track visitor engagement, hardware telemetry, and recruiter intent through a custom-built analytics engine.
+**Trupal Patel** (also known online as **True Pal** or **TrupalIX9**) is a high-performance Full-Stack Software Engineer and Systems Architect. He handles the entire software lifecycle, from architecting intricate backend logic and designing seamless user interfaces, all the way to deploying highly scalable production-ready systems. 
 
-## Core Tech Stack
-- **Framework**: Next.js 14+ (App Router)
-- **3D Engine**: React Three Fiber / Three.js
-- **Database**: MongoDB (via native `mongodb` driver)
-- **Styling**: Tailwind CSS
-- **Deployment**: Vercel (Edge runtime supported, but heavily leans on serverless Node for full API compatibility)
+He does not box himself into just frontend or backend roles, nor is he tied to a single language. His expertise spans React, Next.js, Node.js, Python, C#, MongoDB, PostgreSQL, and AWS.
 
-## Key Directories
-- `/src/app`: Next.js App Router endpoints.
-- `/src/app/api`: Backend serverless functions (Telemetry, Leaderboards).
-- `/src/components`: Reusable UI components.
-- `/src/components/space`: WebGL 3D background components.
-- `/src/components/admin`: UI for the `/playground` admin dashboard.
-- `/src/utils`: Helper functions, tracking hooks, and database connectors.
+## Career History
 
-## Advanced Telemetry Engine (`BehavioralTracker.tsx` & `/api/visitor-analytics`)
-The portfolio features a highly aggressive, privacy-respecting telemetry system designed to extract maximal signal from visitors:
-1. **Active Dwell Time per Route**: Uses `IntersectionObserver` and `document.visibilityState` to precisely track how many seconds a user is actively looking at a specific route (e.g., `/resume`). It pauses when the tab is backgrounded.
-2. **Hardware Fingerprinting**: Captures CPU Cores, RAM (`deviceMemory`), Network Type (`connection.effectiveType`).
-3. **Advanced Device Telemetry**: Leverages modern `navigator.userAgentData.getHighEntropyValues(['model'])` to extract exact Android/Chromium device models (e.g., `SM-G998B`), and queries `navigator.getBattery()` for battery percentage and charging status.
-4. **Dual-IP Geolocation**: Captures Vercel's edge header (`x-vercel-ip-city`) but independently executes a server-side fetch to `ip-api.com` for high-fidelity raw IP geographic data. Both are stored.
-5. **UTM Attribution**: Automatically scrapes `utm_source`, `utm_medium`, and `utm_campaign` on the first ping to definitively attribute traffic to social posts (e.g., LinkedIn, Twitter).
-6. **Interaction Tracking**: Tracks maximum scroll depth, rage clicks, and specific engagement events (Resume Downloads, Game Opens, Run Completes).
+### Founding Software Engineer @ Allyvia (Jul 2024 – Present)
+Allyvia is a comprehensive SaaS platform built to streamline B2B operations. Trupal engineered the platform from the ground up:
+- **Tech Stack**: Next.js 14, React, Tailwind CSS, Django (Python), PostgreSQL, AWS (S3, EC2, SQS), Redis.
+- **Key Achievements**:
+  - Architected a robust multi-tenant role-based access control (RBAC) system supporting hierarchical permissions (Owner, Admin, Manager, Standard).
+  - Built a 5-module ecosystem covering Employee Management, Inventory Tracking, CRM, Financial ledgers, and Analytics.
+  - Implemented seamless QuickBooks Online bidirectional integration via OAuth 2.0, utilizing CDC (Change Data Capture) and background AWS SQS workers.
+  - Designed a secure physical Employee Kiosk system with PIN-based locking for shift clock-ins.
+  - Optimized database aggregations with caching, dropping report load times to sub-200ms.
 
-## Admin Dashboard (`/playground`)
-The `/playground` route is a secured admin surface.
-- **Master Visitor Explorer**: A dense, paginated data table that renders all visitor sessions. It features tabbed filtering (All, Mobile, PC, Bot), visually compares Vercel vs Actual IP geolocation, displays exact device models and battery specs, and lists active dwell times for every route the user visited.
-- **Player Groups**: Tracks repeat arcade players and high scores, allowing bulk renaming of anonymous or duplicate players.
+### Software Engineer @ AIVID.AI (Jan 2023 – Jun 2025)
+AIVID.AI provides enterprise-scale edge computer vision and analytics across 200+ deployment sites.
+- **Tech Stack**: React, Angular, TypeScript, Node.js, Python, C# (WinForms/NSSM), Elasticsearch, Docker.
+- **Key Achievements**:
+  - Built analytics pipelines and operations portals deployed across 200+ enterprise sites.
+  - Reduced fraudulent customer return claims by 90% by engineering a C# / EmguCV barcode-triggered video capture bot.
+  - Improved massive-scale Elasticsearch query retrieval speeds by ~25% using optimized DSL aggregations.
+  - Developed multi-ISP dynamic failover systems for uninterrupted edge RTSP camera stream capturing.
+  - Integrated serial Arduino microcontrollers with containerized Python edge daemons for local gate access control.
 
-## Cinematic WebGL Background (`SpaceScene.tsx`)
-The site features a deeply immersive, zero-gravity 3D space scene.
-- **StarField**: Generates a massive 2500x2500 box with 2,500 additive-blending particles. It has a constant ambient rotation.
-- **CameraRig**: Features a "zero-gravity floaty drift" where the camera `lerp` heavily lags behind the mouse (`0.8 * delta`), creating a weighty, floating sensation.
-- **Scroll Physics**: Scrolling down physically pushes the camera deep into the Z-axis of the starfield. At specific scroll phases (the "drift phase"), the camera dynamically rolls, pitches down, and accelerates forward to create a hyperspeed effect.
+### Frontend Software Engineer @ InfoLabz (Jan 2022 – Dec 2022)
+- **Tech Stack**: React.js, Redux, HTML5, CSS3.
+- **Key Achievements**:
+  - Developed scalable, highly responsive user interfaces and robust state management utilizing Redux.
+  - Collaborated across teams to seamlessly integrate RESTful APIs and eliminate UI defects.
 
-## Hidden Mechanics
-- **Footer Secret**: Tapping the "TRUPAL PATEL" logo in the footer exactly 5 times rapidly, or long-pressing it for 2 seconds, instantly unlocks and navigates to the hidden `/social-only` hub. Mobile devices have `onContextMenu` disabled on the logo to prevent the native "Copy Link" modal from breaking the 2-second hold.
+## Independent Projects
 
-## Best Practices & Rules for AI Agents
-1. **Telemetry Integrity**: Do NOT remove the `behavior_ping` logic. Ensure all new routes are properly registered in `VisitorEventPayload`.
-2. **Hardware Fallbacks**: iOS WebKit strictly blocks `deviceMemory` and `getHighEntropyValues`. UI layers must gracefully render `Unknown Memory` or hide the badge if data is missing. Do not print `unknownGB RAM`.
-3. **Sandbox Restrictions**: Do not attempt to query MAC Addresses, IMEIs, or Phone Numbers. The web sandbox strictly prevents this.
-4. **Three.js Performance**: Avoid putting heavy logic inside `useFrame`. Keep `StarField` particle counts below 3,000 to maintain 60 FPS on low-end mobile devices.
+### StoreDesk
+A production-grade, 5-module retail command center and Point-of-Sale (POS) ecosystem built from scratch.
+- **Focus**: Eliminating downtime risks for convenience stores with offline-first edge capabilities and ultra-fast transaction processing.
+
+## Professional Philosophy
+"For me, it is all about deeply understanding a problem, designing a scalable architecture, and writing clean code that makes a real impact. I would love to bring this exact same drive and architectural vision to your team."
+
+## Connect
+- **Unique Identifier / SEO Key**: TrupalIX9
+- **Email**: trupal.work@gmail.com
+- **LinkedIn**: linkedin.com/in/trupalix
+- **GitHub**: github.com/TRUPALIX9
+- **Portfolio**: https://true-pal.vercel.app

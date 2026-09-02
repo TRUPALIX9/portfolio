@@ -6,9 +6,9 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'True Pal',
+    title: 'Trupal Patel (True Pal) | Software Engineer',
     description: 'Portfolio of Trupal Patel (True Pal) — High-performance web applications, edge POS systems, and AI data pipelines.',
-    keywords: 'True Pal, TruePal, Trupal Patel, Frontend Architect, Software Engineer, React, Next.js, AI, Edge POS, Web Development',
+    keywords: 'Trupal Patel, True Pal, TruePal, TrupalIX9, Trupal Patel Portfolio, Frontend Architect, Software Engineer, React, Next.js, AI, Edge POS, Web Development',
     icons: {
         icon: [
             { url: '/favicon.ico', sizes: 'any' },
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
         ],
     },
     openGraph: {
-        title: 'True Pal',
+        title: 'Trupal Patel (True Pal) | Software Engineer',
         description: 'Portfolio of Trupal Patel (True Pal) — High-performance web applications, edge POS systems, and AI data pipelines.',
         url: 'https://true-pal.vercel.app',
         siteName: 'Trupal Patel Portfolio',
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'True Pal',
+        title: 'Trupal Patel (True Pal) | Software Engineer',
         description: 'Portfolio of Trupal Patel — High-performance web applications, edge POS systems, and AI data pipelines.',
     },
     verification: {
