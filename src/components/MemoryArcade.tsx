@@ -188,7 +188,7 @@ export default function MemoryArcade({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm"
                         onClick={() => setShowHelp(false)}
                     >
                         <motion.div 
@@ -196,7 +196,7 @@ export default function MemoryArcade({
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.95, opacity: 0, y: 20 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-neutral-900 border border-white/10 rounded-[2rem] p-7 md:p-10 max-w-md w-full shadow-2xl relative"
+                            className="bg-neutral-900 border border-white/10 rounded-[2rem] p-7 md:p-10 max-w-md w-full max-h-[85vh] overflow-y-auto shadow-2xl relative custom-scrollbar"
                         >
                             <button 
                                 onClick={() => setShowHelp(false)}
@@ -205,7 +205,7 @@ export default function MemoryArcade({
                                 ✕
                             </button>
                             
-                            <h3 className="text-2xl md:text-3xl font-extrabold text-white mb-6 md:mb-8 text-left">How to Play</h3>
+                            <h3 className="text-2xl md:text-3xl font-extrabold text-white mb-6 md:mb-8 text-left pr-10">How to Play</h3>
                             
                             <div className="flex flex-col gap-5 md:gap-6 text-[0.95rem] md:text-base text-neutral-300 text-left mb-8 md:mb-10">
                                 <div className="flex items-start gap-4">
