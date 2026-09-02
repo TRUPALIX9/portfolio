@@ -277,3 +277,40 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: 'Failed to update session' }, { status: 500 });
     }
 }
+
+export async function DELETE(request: Request) {
+    try {
+        const body = await request.json();
+        
+        if (!(await isAuthorizedRequest(request, body))) {
+            return NextResponse.json({ error: 'Unauthorized key' }, { status: 401 });
+        }
+        
+        const { targetIp } = body;
+        if (!targetIp) {
+            return NextResponse.json({ error: 'IP address required' }, { status: 400 });
+        }
+        
+        const db = await getDb();
+        
+        const devices = await db.collection('visitor_devices').find({ ip: targetIp }).toArray();
+        const deviceIds = devices.map(d => d.deviceId);
+        
+        let deletedSessions = 0;
+        if (deviceIds.length > 0) {
+            const sessionsResult = await db.collection('visitor_sessions').deleteMany({ device_id: { $in: deviceIds } });
+            deletedSessions = sessionsResult.deletedCount;
+        }
+        
+        const devicesResult = await db.collection('visitor_devices').deleteMany({ ip: targetIp });
+        
+        return NextResponse.json({ 
+            success: true, 
+            deletedDevices: devicesResult.deletedCount, 
+            deletedSessions 
+        });
+    } catch (e) {
+        console.error('Failed to wipe IP data:', e);
+        return NextResponse.json({ error: 'Failed to delete data' }, { status: 500 });
+    }
+}

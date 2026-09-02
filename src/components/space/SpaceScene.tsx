@@ -31,7 +31,30 @@ function CameraRig() {
             mouse.current.x = THREE.MathUtils.lerp(mouse.current.x, nx, 0.1);
             mouse.current.y = THREE.MathUtils.lerp(mouse.current.y, ny, 0.1);
         };
-        const handleScroll = () => { scrollYRef.current = window.scrollY; };
+
+        // Track scroll direction for cycle detection
+        let lastScrollY = window.scrollY;
+        let reachedBottom = false;
+        const handleScroll = () => {
+            const currentY = window.scrollY;
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            const atBottom = currentY >= maxScroll - 50;
+            const atTop = currentY <= 50;
+            const goingUp = currentY < lastScrollY;
+
+            // Phase 1: user scrolls to bottom
+            if (atBottom) reachedBottom = true;
+
+            // Phase 2: after hitting bottom, user scrolls back to top → full cycle done → re-roll
+            if (reachedBottom && atTop && goingUp) {
+                reachedBottom = false;
+                const nextIdx = Math.floor(Math.random() * PATH_PRESETS.length);
+                pathSeed.current = PATH_PRESETS[nextIdx];
+            }
+
+            lastScrollY = currentY;
+            scrollYRef.current = currentY;
+        };
         scrollYRef.current = window.scrollY;
         
         window.addEventListener('mousemove', handleMouseMove, { passive: true });

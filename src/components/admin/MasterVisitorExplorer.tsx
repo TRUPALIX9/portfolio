@@ -208,12 +208,46 @@ export default function MasterVisitorExplorer({
     const devicesPerPage = 12;
     const [sessionPages, setSessionPages] = useState<Record<string, number>>({});
 
+    // IP Wiper state
+    const [wipeIpInput, setWipeIpInput] = useState("");
+    const [wipeConfirm, setWipeConfirm] = useState(false);
+    const [wipeBusy, setWipeBusy] = useState(false);
+    const [wipeResult, setWipeResult] = useState<{ success: boolean; msg: string } | null>(null);
+
     const handleToggleExpand = (deviceId: string) => {
         setExpandedDeviceIds(prev => ({
             ...prev,
             [deviceId]: !prev[deviceId]
         }));
     };
+
+    const handleWipeIp = async () => {
+        const ip = wipeIpInput.trim();
+        if (!ip) return;
+        setWipeBusy(true);
+        setWipeResult(null);
+        try {
+            const res = await fetch("/api/visitor-analytics", {
+                method: "DELETE",
+                headers: getAdminHeaders(true),
+                body: JSON.stringify({ targetIp: ip }),
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                setWipeResult({ success: true, msg: `✓ Wiped ${data.deletedDevices} device(s) and ${data.deletedSessions} session(s) for ${ip}` });
+                setWipeIpInput("");
+                setWipeConfirm(false);
+                await onRefresh();
+            } else {
+                setWipeResult({ success: false, msg: data.error || "Failed to wipe." });
+            }
+        } catch {
+            setWipeResult({ success: false, msg: "Network error — could not wipe." });
+        } finally {
+            setWipeBusy(false);
+        }
+    };
+
     const validDevices = useMemo(() => {
         return devices.filter(d => {
             const city = d.city ? decodeURIComponent(d.city).trim().toLowerCase() : "";
@@ -660,6 +694,56 @@ export default function MasterVisitorExplorer({
                         </div>
                     )}
                 </div>
+            </div>
+
+            {/* ── IP Wiper ────────────────────────────────── */}
+            <div className="border border-red-500/20 rounded-2xl p-5 bg-red-950/10 flex flex-col gap-4">
+                <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+                    <h4 className="font-black text-sm uppercase tracking-widest text-red-400">Wipe IP Data</h4>
+                    <span className="text-xs text-neutral-500 ml-auto">Deletes all devices + sessions for a given IP from the database</span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                    <input
+                        type="text"
+                        placeholder="Paste IP address e.g. 75.139.41.49"
+                        value={wipeIpInput}
+                        onChange={e => { setWipeIpInput(e.target.value); setWipeConfirm(false); setWipeResult(null); }}
+                        className="flex-1 h-11 bg-neutral-950/60 border border-red-500/20 rounded-xl px-4 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-red-500/60 transition-colors font-mono"
+                    />
+                    {!wipeConfirm ? (
+                        <button
+                            onClick={() => { if (wipeIpInput.trim()) setWipeConfirm(true); }}
+                            disabled={!wipeIpInput.trim()}
+                            className="h-11 px-5 rounded-xl text-sm font-bold bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 hover:border-red-500/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all shrink-0"
+                        >
+                            Delete IP
+                        </button>
+                    ) : (
+                        <div className="flex gap-2 shrink-0">
+                            <button
+                                onClick={handleWipeIp}
+                                disabled={wipeBusy}
+                                className="h-11 px-5 rounded-xl text-sm font-black bg-red-600 text-white hover:bg-red-500 disabled:opacity-50 transition-all shrink-0"
+                            >
+                                {wipeBusy ? "Wiping…" : `⚠ Confirm — Wipe ${wipeIpInput.trim()}`}
+                            </button>
+                            <button
+                                onClick={() => setWipeConfirm(false)}
+                                className="h-11 px-4 rounded-xl text-sm font-bold border border-white/[0.08] text-neutral-400 hover:text-white hover:bg-white/[0.05] transition-all"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                {wipeResult && (
+                    <p className={`text-sm font-semibold ${wipeResult.success ? "text-emerald-400" : "text-red-400"}`}>
+                        {wipeResult.msg}
+                    </p>
+                )}
             </div>
         </section>
     );
