@@ -124,6 +124,20 @@ function formatLoc(city?: string, country?: string) {
     return cleanCity || cleanCountry;
 }
 
+function formatTimeAgo(dateString: string | Date) {
+    const seconds = Math.floor((new Date().getTime() - new Date(dateString).getTime()) / 1000);
+    if (seconds < 60) return `${seconds}s ago`;
+    const m = Math.floor(seconds / 60);
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(seconds / 3600);
+    if (h < 24) return `${h}h ago`;
+    const d = Math.floor(seconds / 86400);
+    if (d < 30) return `${d}d ago`;
+    const mo = Math.floor(seconds / 2592000);
+    if (mo < 12) return `${mo}mo ago`;
+    return `${Math.floor(seconds / 31536000)}y ago`;
+}
+
 function formatHardware(hw?: { memory: string | number; cores: string | number; connection: string; batteryLevel?: string; isCharging?: boolean; exactModel?: string; }) {
     if (!hw) return "Unknown hardware specs";
     
@@ -346,6 +360,14 @@ export default function MasterVisitorExplorer({
         const start = (page - 1) * storySessionsPerPage;
         return selectedStorySessions.slice(start, start + storySessionsPerPage);
     }, [selectedStorySessions, storySessionPage, storyTotalSessionPages]);
+
+    const [expandedRecentId, setExpandedRecentId] = useState<string | null>(null);
+
+    const recentDevices = useMemo(() => {
+        return [...deviceStory]
+            .sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime())
+            .slice(0, 10);
+    }, [deviceStory]);
 
     const filteredDevices = useMemo(() => {
         return validDevices
@@ -959,6 +981,146 @@ export default function MasterVisitorExplorer({
                             </div>
                         )}
                     </div>
+                </div>
+            </section>
+
+            {/* ── Recent Activity Feed ────────────────────── */}
+            <section className="bg-neutral-900/[0.12] backdrop-blur-xl border border-white/[0.05] rounded-[32px] p-6 flex flex-col gap-6 shadow-2xl">
+                <div className="flex items-center justify-between border-b border-white/[0.05] pb-4">
+                    <div className="flex items-center gap-4">
+                        <h3 className="text-xl font-bold text-white tracking-wide">Recent Activity Feed</h3>
+                        <span className="bg-[#4ade80]/10 border border-[#4ade80]/20 text-[#4ade80] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] animate-pulse"></span>
+                            Live
+                        </span>
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                    {recentDevices.map((d, idx) => {
+                        const isExpanded = expandedRecentId === d.deviceId;
+                        const deviceSessions = validSessions
+                            .filter(s => s.device_id === d.deviceId)
+                            .sort((a,b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime());
+                        const latestSession = deviceSessions[0];
+                        
+                        return (
+                            <div key={d.deviceId} className="flex flex-col bg-neutral-950/40 border border-white/[0.05] rounded-2xl overflow-hidden transition-all">
+                                {/* Feed Header (Clickable) */}
+                                <div 
+                                    onClick={() => setExpandedRecentId(isExpanded ? null : d.deviceId)}
+                                    className="flex items-center justify-between p-4 md:p-5 hover:bg-neutral-900/50 cursor-pointer select-none"
+                                >
+                                    <div className="flex items-center gap-4 min-w-0">
+                                        <div className="flex flex-col gap-1.5 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                {d.isBot ? (
+                                                    <Cpu className="w-4 h-4 text-red-400" />
+                                                ) : d.deviceType?.toLowerCase().includes("iphone") || d.deviceType?.toLowerCase().includes("android") || d.deviceType?.toLowerCase().includes("mobile") ? (
+                                                    <Smartphone className="w-4 h-4 text-[#a78bfa]" />
+                                                ) : (
+                                                    <Laptop className="w-4 h-4 text-[#38bdf8]" />
+                                                )}
+                                                <span className="font-mono text-sm text-[#38bdf8] font-bold truncate">{d.ip}</span>
+                                                <span className="text-xs text-neutral-400 hidden sm:block truncate">
+                                                    {[d.city, d.os, d.browser].filter(Boolean).join(" · ")}
+                                                </span>
+                                            </div>
+                                            <span className="text-xs text-neutral-300 flex items-center gap-1.5 truncate">
+                                                {latestSession ? (
+                                                    <>
+                                                        <span className="text-neutral-500">Visited</span> 
+                                                        <strong className="text-white px-2 py-0.5 bg-white/5 rounded-md border border-white/10">{humanizeRoute(latestSession.route)}</strong>
+                                                        {(latestSession.completed_runs || 0) > 0 && <span className="text-emerald-400 font-medium ml-1">and played a game!</span>}
+                                                        {latestSession.route === '/contact' && <span className="text-pink-400 font-medium ml-1">looking at contact form</span>}
+                                                    </>
+                                                ) : "Active"}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-4 shrink-0 pl-4">
+                                        <div className="text-xs text-neutral-500 font-mono text-right flex flex-col items-end">
+                                            {formatTimeAgo(d.lastSeenAt)}
+                                            {idx === 0 && <span className="text-[9px] uppercase tracking-wider text-emerald-500 font-bold mt-0.5">Most Recent</span>}
+                                        </div>
+                                        <ChevronDown className={`w-5 h-5 text-neutral-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                                    </div>
+                                </div>
+
+                                {/* Feed Detail (Expanded) */}
+                                {isExpanded && (
+                                    <div className="p-5 md:p-6 bg-neutral-900/40 border-t border-white/[0.05] flex flex-col gap-6 shadow-inner">
+                                        {/* Aggregate Summary */}
+                                        <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm">
+                                            {d.games.length > 0 && (
+                                                <span className="text-neutral-400 flex items-center gap-2">
+                                                    Games played: <strong className="text-emerald-400">{d.games.join(', ')}</strong>
+                                                </span>
+                                            )}
+                                            {d.maxScore > 0 && (
+                                                <span className="text-neutral-400 flex items-center gap-2">
+                                                    High Score: <strong className="text-yellow-400">{d.maxScore}</strong>
+                                                </span>
+                                            )}
+                                            {d.totalContacts > 0 && (
+                                                <span className="text-neutral-400 flex items-center gap-2">
+                                                    Messages: <strong className="text-white">{d.totalContacts}</strong>
+                                                </span>
+                                            )}
+                                            {d.totalDownloads > 0 && (
+                                                <span className="text-neutral-400 flex items-center gap-2">
+                                                    Resume DLs: <strong className="text-white">{d.totalDownloads}</strong>
+                                                </span>
+                                            )}
+                                            {d.games.length === 0 && d.totalContacts === 0 && d.totalDownloads === 0 && (
+                                                <span className="text-neutral-400 flex items-center gap-2">
+                                                    Total Page Views: <strong className="text-white">{d.totalViews}</strong>
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="flex flex-col gap-4">
+                                            <h4 className="text-white font-bold tracking-wide flex justify-between items-center text-sm border-b border-white/[0.05] pb-2">
+                                                All Past Sessions
+                                                <span className="text-xs text-neutral-500 font-normal">{deviceSessions.length} total</span>
+                                            </h4>
+                                            
+                                            <div className="flex flex-col gap-0 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+                                                {deviceSessions.map((session, sidx) => (
+                                                    <div key={session.session_id} className="flex gap-4 group">
+                                                        <div className="flex flex-col items-center">
+                                                            <div className="w-2.5 h-2.5 rounded-full bg-[#38bdf8]/50 border-2 border-[#38bdf8] mt-1.5 group-hover:bg-[#38bdf8] transition-colors shrink-0" />
+                                                            {sidx < deviceSessions.length - 1 && <div className="w-px h-full bg-white/[0.05] mt-2 group-hover:bg-white/[0.1] transition-colors" />}
+                                                        </div>
+                                                        <div className="flex-1 bg-neutral-950/60 border border-white/[0.05] rounded-2xl p-4 mb-3 flex flex-col gap-2 hover:bg-neutral-900/80 transition-colors">
+                                                            <div className="flex justify-between items-start">
+                                                                <span className="text-sm font-bold text-white">{humanizeRoute(session.route)}</span>
+                                                                <span className="text-xs text-neutral-500 font-mono">
+                                                                    {new Date(session.started_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs">
+                                                                <span className="text-neutral-400">Views: <strong className="text-neutral-200">{session.view_count}</strong></span>
+                                                                {(session.sessionDuration || 0) > 0 && (
+                                                                    <span className="text-neutral-400">Time: <strong className="text-neutral-200">{Math.round(session.sessionDuration! / 1000)}s</strong></span>
+                                                                )}
+                                                                {session.source && (
+                                                                    <span className="text-neutral-400">From: <strong className="text-neutral-200">{normalizeReferrer(session.source)}</strong></span>
+                                                                )}
+                                                                {(session.completed_runs || 0) > 0 && (
+                                                                    <span className="text-emerald-400 font-medium">Played {session.completed_runs} rounds</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             </section>
 
