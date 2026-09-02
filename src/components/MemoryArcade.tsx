@@ -141,7 +141,7 @@ export default function MemoryArcade({
                                     transition={{ delay: i * 0.04 }}
                                 >
                                     <span className="text-sm font-medium tracking-wide flex gap-3 items-center text-white truncate pr-4">
-                                        <span className={`text-[0.75rem] font-black min-w-[28px] h-7 px-1.5 rounded-lg flex-shrink-0 flex items-center justify-center bg-black/40 border ${
+                                        <span className={`text-[0.75rem] font-black min-w-[32px] md:min-w-[36px] h-7 px-2 rounded-lg flex-shrink-0 flex items-center justify-center bg-black/40 border ${
                                             i === 0 ? 'border-amber-400 text-amber-400' :
                                             i === 1 ? 'border-neutral-400 text-neutral-400' :
                                             i === 2 ? 'border-amber-700 text-amber-600' : 'border-white/5 text-neutral-500'
