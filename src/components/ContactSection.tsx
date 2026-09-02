@@ -126,7 +126,7 @@ export default function ContactSection() {
                     {/* Right Column: Sleek message dispatch form */}
                     <form 
                         onSubmit={handleSubmit(onSubmit)} 
-                        className="w-full h-auto bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-3xl p-8 md:p-10 flex flex-col gap-8 shadow-2xl relative overflow-hidden"
+                        className="w-full h-auto bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6 md:p-10 flex flex-col gap-6 md:gap-8 shadow-2xl relative overflow-hidden"
                     >
                         {/* Decorative background glow */}
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] rounded-full blur-3xl pointer-events-none" />
@@ -187,7 +187,7 @@ export default function ContactSection() {
                             <textarea
                                 {...register('message')}
                                 placeholder="Tell me about what you're building or how I can help..."
-                                className={`w-full h-32 rounded-xl border bg-black/40 text-white p-4 text-sm outline-none resize-none transition-all duration-300 shrink-0 ${
+                                className={`w-full h-40 md:h-48 rounded-xl border bg-black/40 text-white p-4 text-sm outline-none resize-none transition-all duration-300 shrink-0 ${
                                     errors.message 
                                     ? 'border-red-500/50 focus:border-red-500' 
                                     : touchedFields.message 
