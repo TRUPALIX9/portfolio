@@ -133,11 +133,11 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
 
     return (
         <>
-            {/* 400vh spacer */}
+            {/* 700vh spacer */}
             <section
                 ref={sectionRef}
                 id="hero"
-                style={{ position: 'relative', height: '400vh', width: '100%' }}
+                style={{ position: 'relative', height: '700vh', width: '100%' }}
             />
 
             {show && (
