@@ -254,14 +254,14 @@ export default function MemoryGame({ onFinished, highScore = 0, standalone = fal
                 transition={{ duration: 0.5, ease: "easeInOut" }}
                 className={`relative aspect-square w-full rounded-2xl p-4 md:p-6 flex items-center justify-center transition-all duration-300 ${
                 phaseLabel === 'WATCH' 
-                    ? 'bg-black/60 border-2 border-red-500/60 shadow-[0_0_40px_rgba(239,68,68,0.15)]' 
+                    ? 'bg-black border-2 border-red-500/60 shadow-[0_0_40px_rgba(239,68,68,0.15)]' 
                     : phaseLabel === 'REPEAT' 
-                    ? 'bg-black/60 border-2 border-emerald-500/60 shadow-[0_0_40px_rgba(52,211,153,0.15)]' 
+                    ? 'bg-black border-2 border-emerald-500/60 shadow-[0_0_40px_rgba(52,211,153,0.15)]' 
                     : phaseLabel === 'SUCCESS'
                     ? 'bg-emerald-500/20 border-2 border-emerald-400 shadow-[0_0_60px_rgba(52,211,153,0.4)]'
                     : phaseLabel === 'GAME OVER'
                     ? 'bg-red-900/30 border-2 border-red-600 shadow-[0_0_60px_rgba(220,38,38,0.4)]'
-                    : 'bg-black/40 border border-white/[0.04]'
+                    : 'bg-black border border-white/[0.04]'
             }`}>
                 {/* 3x3 Tile Grid - Tic Tac Toe Style */}
                 <div className="grid grid-cols-3 w-full h-full max-w-[280px] max-h-[280px]">
