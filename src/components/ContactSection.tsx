@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useState, useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,6 +22,9 @@ export default function ContactSection() {
     const [status, setStatus] = useState<string | null>(null);
     const [isSuccess, setIsSuccess] = useState(false);
 
+    const sectionRef = useRef<HTMLElement>(null);
+    const isInView = useInView(sectionRef, { once: true, margin: "-100px 0px" });
+
     const {
         register,
         handleSubmit,
@@ -38,12 +41,14 @@ export default function ContactSection() {
     });
 
     useEffect(() => {
-        void trackVisitorEvent({
-            event: 'page_view',
-            route: '/contact',
-            source: 'contact-page',
-        });
-    }, []);
+        if (isInView) {
+            void trackVisitorEvent({
+                event: 'page_view',
+                route: '/contact',
+                source: 'contact-page',
+            });
+        }
+    }, [isInView]);
 
     const onSubmit = async (data: ContactFormData) => {
         setStatus(null);
@@ -93,7 +98,7 @@ export default function ContactSection() {
     };
 
     return (
-        <section id="contact" className="section container pt-24 md:pt-32 pb-6 md:pb-8" style={{ minHeight: 'auto' }}>
+        <section id="contact" ref={sectionRef} className="section container pt-24 md:pt-32 pb-6 md:pb-8" style={{ minHeight: 'auto' }}>
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
