@@ -68,6 +68,36 @@ export async function POST(request: Request) {
         let actualCountry = '';
 
         if (ip) {
+            const ignoredPrefixes = [
+                '205.169.39.',
+                '104.197.69.',
+                '135.232.20.',
+                '9.169.121.',
+                '57.141.18.',
+                '66.220.149.',
+                '74.179.70.',
+                '72.152.84.',
+                '108.62.96.',
+                '23.19.226.',
+                '52.86.64.',
+                '23.111.255.',
+                '93.177.72.',
+                '52.55.1.',
+                '108.62.235.'
+            ];
+            for (const prefix of ignoredPrefixes) {
+                if (ip.startsWith(prefix)) {
+                    return NextResponse.json({ success: true, ignored: true });
+                }
+            }
+        }
+
+        // Also ignore synthetic vercel tests / bots with server hardware (e.g. >= 32 cores)
+        if (body.hardware && body.hardware.hardwareConcurrency >= 32) {
+            return NextResponse.json({ success: true, ignored: true });
+        }
+
+        if (ip) {
             const isLocal = ['127.0.0.1', '::1', 'localhost'].includes(ip) || ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.');
             if (!isLocal) {
                 try {
@@ -101,6 +131,16 @@ export async function POST(request: Request) {
             const uaLower = userAgent.toLowerCase();
             isBot = uaLower.includes('bot') || uaLower.includes('crawler') || uaLower.includes('spider') || uaLower.includes('headless') || (result.device.type as string) === 'bot';
         }
+        
+        let isSuspicious = false;
+        if (ip && body.deviceId) {
+            // Mark as suspicious if this IP has been seen with a different device ID (different configuration)
+            const otherDevicesCount = await db.collection('visitor_devices').countDocuments({
+                ip: ip,
+                deviceId: { $ne: body.deviceId }
+            });
+            if (otherDevicesCount > 0) isSuspicious = true;
+        }
 
         // Basic analytics tracking implementation
         // Upsert device
@@ -125,7 +165,8 @@ export async function POST(request: Request) {
                     vercel_country: vercelCountry,
                     actual_city: actualCity,
                     actual_country: actualCountry,
-                    isBot
+                    isBot,
+                    isSuspicious
                 }
             };
             if (body.hardware) {
@@ -159,6 +200,7 @@ export async function POST(request: Request) {
                     os,
                     deviceType,
                     isBot,
+                    isSuspicious,
                     city,
                     country,
                     vercel_city: vercelCity,
