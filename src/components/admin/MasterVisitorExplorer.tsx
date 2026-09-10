@@ -6,6 +6,8 @@ import {
     Search, 
     ChevronRight, 
     ChevronLeft,
+    ChevronDown,
+    ChevronUp,
     Laptop, 
     Smartphone,
     Globe,
@@ -14,7 +16,10 @@ import {
     Activity,
     Clock, Gamepad2, Eye, MousePointerClick, MapPin, CalendarDays, RefreshCw,
     Filter,
-    ShieldAlert
+    ShieldAlert,
+    LayoutTemplate,
+    ListTree,
+    History
 } from "lucide-react";
 
 type LeaderboardEntry = {
@@ -165,76 +170,43 @@ function normalizeReferrer(ref: string): string {
 export default function MasterVisitorExplorer({
     devices,
     sessions,
+    routeStory,
     getAdminHeaders,
     onRefresh
 }: MasterVisitorExplorerProps) {
+    // Global Filters
     const [searchTerm, setSearchTerm] = useState("");
     const [activeTab, setActiveTab] = useState<"all" | "mobile" | "pc" | "bot">("all");
-    
-    // Pagination for Y Box
-    const [yPage, setYPage] = useState(1);
-    const devicesPerPage = 10;
 
-    // Pagination for Z Box
-    const [zPage, setZPage] = useState(1);
-    const sessionsPerPage = 5;
-
-    const [activeDeviceId, setActiveDeviceId] = useState<string | null>(null);
-
-    // Filtering out the owner IPs or whatever was hardcoded
-    const validDevices = useMemo(() => {
-        return devices.filter(d => {
-            const city = d.city ? decodeURIComponent(d.city).trim().toLowerCase() : "";
-            const ip = d.ip || "";
-            return city !== "la grange" && city !== "stockbridge" && ip !== "75.139.41.49";
-        });
-    }, [devices]);
-
+    // Memoize global valid devices based on search and filters
     const filteredDevices = useMemo(() => {
-        return validDevices
-            .filter(device => {
-                if (activeTab === "bot" && !device.isBot) return false;
-                const isMob = device.deviceType?.toLowerCase().includes("iphone") || device.deviceType?.toLowerCase().includes("android") || device.deviceType?.toLowerCase().includes("mobile");
-                if (activeTab === "mobile" && !isMob) return false;
-                if (activeTab === "pc" && (isMob || device.isBot)) return false;
+        return devices.filter(device => {
+            const city = device.city ? decodeURIComponent(device.city).trim().toLowerCase() : "";
+            const ip = device.ip || "";
+            if (city === "la grange" || city === "stockbridge" || ip === "75.139.41.49") return false;
 
-                if (searchTerm.trim() !== "") {
-                    const searchLower = searchTerm.toLowerCase();
-                    const nameMatch = device.customName?.toLowerCase().includes(searchLower);
-                    const ipMatch = device.ip?.toLowerCase().includes(searchLower);
-                    const locMatch = `${device.city} ${device.country}`.toLowerCase().includes(searchLower);
-                    const techMatch = `${device.os} ${device.browser} ${device.deviceType}`.toLowerCase().includes(searchLower);
-                    return nameMatch || ipMatch || locMatch || techMatch;
-                }
-                return true;
-            })
-            .sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
-    }, [validDevices, searchTerm, activeTab]);
+            if (activeTab === "bot" && !device.isBot) return false;
+            const isMob = device.deviceType?.toLowerCase().includes("iphone") || device.deviceType?.toLowerCase().includes("android") || device.deviceType?.toLowerCase().includes("mobile");
+            if (activeTab === "mobile" && !isMob) return false;
+            if (activeTab === "pc" && (isMob || device.isBot)) return false;
 
-    const yTotalPages = Math.max(1, Math.ceil(filteredDevices.length / devicesPerPage));
-    const paginatedDevices = useMemo(() => {
-        const page = Math.min(yPage, yTotalPages);
-        const start = (page - 1) * devicesPerPage;
-        return filteredDevices.slice(start, start + devicesPerPage);
-    }, [filteredDevices, yPage, yTotalPages]);
+            if (searchTerm.trim() !== "") {
+                const searchLower = searchTerm.toLowerCase();
+                const nameMatch = device.customName?.toLowerCase().includes(searchLower);
+                const ipMatch = device.ip?.toLowerCase().includes(searchLower);
+                const locMatch = `${device.city} ${device.country}`.toLowerCase().includes(searchLower);
+                const techMatch = `${device.os} ${device.browser} ${device.deviceType}`.toLowerCase().includes(searchLower);
+                return nameMatch || ipMatch || locMatch || techMatch;
+            }
+            return true;
+        }).sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
+    }, [devices, searchTerm, activeTab]);
 
-    const activeDevice = useMemo(() => {
-        return validDevices.find(d => d.deviceId === activeDeviceId) || paginatedDevices[0] || null;
-    }, [validDevices, activeDeviceId, paginatedDevices]);
+    const filteredDeviceIds = useMemo(() => new Set(filteredDevices.map(d => d.deviceId)), [filteredDevices]);
 
-    const activeDeviceSessions = useMemo(() => {
-        if (!activeDevice) return [];
-        return sessions
-            .filter(s => s.device_id === activeDevice.deviceId)
-            .sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime());
-    }, [sessions, activeDevice]);
-
-    const zTotalPages = Math.max(1, Math.ceil(activeDeviceSessions.length / sessionsPerPage));
-    const paginatedSessions = useMemo(() => {
-        const page = Math.min(zPage, zTotalPages);
-        const start = (page - 1) * sessionsPerPage;
-        return activeDeviceSessions.slice(start, start + sessionsPerPage);
-    }, [activeDeviceSessions, zPage, zTotalPages]);
+    const filteredSessions = useMemo(() => {
+        return sessions.filter(s => filteredDeviceIds.has(s.device_id));
+    }, [sessions, filteredDeviceIds]);
 
     const handleWipeSpecificIp = async (ip: string) => {
         if (!ip) return;
@@ -257,19 +229,19 @@ export default function MasterVisitorExplorer({
     };
 
     return (
-        <div className="flex flex-col gap-6 font-sans">
-            {/* X BOX: Top Stats & Filters */}
-            <div className="bg-gradient-to-br from-neutral-900/90 to-neutral-800/80 backdrop-blur-2xl border border-white/[0.05] rounded-2xl p-5 shadow-lg flex flex-col gap-4">
+        <div className="flex flex-col gap-12 font-sans">
+            {/* GLOBAL HEADER & FILTERS */}
+            <div className="bg-gradient-to-br from-neutral-900/90 to-neutral-800/80 backdrop-blur-2xl border border-white/[0.05] rounded-2xl p-5 shadow-lg flex flex-col gap-5 sticky top-4 z-50">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-3 w-full md:w-auto">
                         <Activity className="w-5 h-5 text-indigo-400" />
-                        <h2 className="text-lg font-bold text-white tracking-wide">Traffic Explorer</h2>
-                        <span className="bg-neutral-900 border border-neutral-700 px-3 py-1 rounded-lg text-xs text-neutral-300 font-medium">
-                            {filteredDevices.length} Results
+                        <h2 className="text-xl font-bold text-white tracking-wide">Traffic Explorer</h2>
+                        <span className="bg-white/[0.02] border border-white/[0.05] px-3 py-1 rounded-lg text-xs text-neutral-300 font-medium">
+                            {filteredDevices.length} Devices
                         </span>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
                         <div className="relative flex-1 md:w-64">
                             <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500">
                                 <Search className="w-4 h-4" />
@@ -278,22 +250,19 @@ export default function MasterVisitorExplorer({
                                 type="text"
                                 placeholder="Search IP, OS, location..."
                                 value={searchTerm}
-                                onChange={(e) => {
-                                    setSearchTerm(e.target.value);
-                                    setYPage(1);
-                                }}
-                                className="w-full h-10 bg-white/[0.02] border border-white/[0.05] shadow-sm rounded-xl pl-10 pr-4 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-indigo-500/50 transition-colors"
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full h-10 bg-black/40 border border-white/[0.05] rounded-xl pl-10 pr-4 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-inner"
                             />
                         </div>
-                        <div className="flex bg-white/[0.02] border border-white/[0.05] shadow-sm rounded-xl p-1 shrink-0">
+                        <div className="flex bg-white/[0.02] border border-white/[0.05] rounded-xl p-1 shrink-0">
                             {(["all", "mobile", "pc", "bot"] as const).map(tab => (
                                 <button
                                     key={tab}
-                                    onClick={() => { setActiveTab(tab); setYPage(1); }}
-                                    className={`px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all ${
+                                    onClick={() => setActiveTab(tab)}
+                                    className={`px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all ${
                                         activeTab === tab 
-                                            ? "bg-neutral-700 text-white shadow-sm" 
-                                            : "text-neutral-500 hover:text-neutral-300"
+                                            ? "bg-neutral-700/80 text-white shadow-sm" 
+                                            : "text-neutral-500 hover:text-neutral-300 hover:bg-white/[0.02]"
                                     }`}
                                 >
                                     {tab}
@@ -304,231 +273,482 @@ export default function MasterVisitorExplorer({
                 </div>
             </div>
 
-            {/* MAIN LAYOUT: Y BOX (Left) and Z BOX (Right) */}
-            <div className="flex flex-col md:flex-row gap-6 items-start">
-                
-                {/* Y BOX: Sidebar List */}
-                <div className="w-full md:w-[340px] shrink-0 flex flex-col gap-4">
-                    <div className="bg-gradient-to-br from-neutral-900/90 to-neutral-800/80 backdrop-blur-2xl border border-white/[0.05] rounded-2xl p-4 flex flex-col gap-2 min-h-[500px]">
-                        {paginatedDevices.map(device => {
-                            const isMob = device.deviceType?.toLowerCase().includes("iphone") || device.deviceType?.toLowerCase().includes("android") || device.deviceType?.toLowerCase().includes("mobile");
-                            const isActive = activeDevice?.deviceId === device.deviceId;
-                            return (
-                                <button
-                                    key={device.deviceId}
-                                    onClick={() => { setActiveDeviceId(device.deviceId); setZPage(1); }}
-                                    className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-all ${
-                                        isActive 
-                                            ? "bg-indigo-500/10 border-indigo-500/40 shadow-[inset_0_0_20px_rgba(99,102,241,0.05)] ring-1 ring-indigo-500/20" 
-                                            : "bg-white/[0.02] border-white/[0.05] hover:bg-white/[0.06] hover:border-white/[0.1] hover:shadow-lg hover:shadow-black/20"
-                                    }`}
-                                >
-                                    <div className="mt-1">
-                                        {device.isBot ? (
-                                            <Cpu className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-neutral-400'}`} />
-                                        ) : isMob ? (
-                                            <Smartphone className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-neutral-400'}`} />
-                                        ) : (
-                                            <Laptop className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-neutral-400'}`} />
-                                        )}
-                                    </div>
-                                    <div className="flex flex-col gap-1 min-w-0 flex-1">
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-bold text-white text-sm truncate">
-                                                {device.os || "Apple"} Profile
-                                            </span>
-                                            {device.isBot && <span className="bg-red-500/20 text-red-400 text-[9px] px-1.5 py-0.5 rounded font-black tracking-wider uppercase">Bot</span>}
-                                            {device.isSuspicious && <span className="bg-orange-500/20 text-orange-400 text-[9px] px-1.5 py-0.5 rounded font-black tracking-wider uppercase">Sus</span>}
-                                        </div>
-                                        <div className="flex items-center gap-1.5 text-xs text-neutral-400 truncate">
-                                            <Globe className="w-3 h-3" />
-                                            <span className="truncate">{formatLoc(device.city, device.country)}</span>
-                                        </div>
-                                        <div className="text-[10px] font-mono text-neutral-500">{device.ip}</div>
-                                    </div>
-                                </button>
-                            );
-                        })}
-                        {paginatedDevices.length === 0 && (
-                            <div className="py-12 text-center text-sm text-neutral-500">No visitors found.</div>
-                        )}
-                    </div>
-                    
-                    {/* Y Pagination */}
-                    {yTotalPages > 1 && (
-                        <div className="flex items-center justify-between bg-neutral-800 border border-neutral-700/50 rounded-xl p-2 px-4">
-                            <button 
-                                onClick={() => setYPage(p => Math.max(1, p - 1))}
-                                disabled={yPage === 1}
-                                className="p-1.5 hover:bg-neutral-700 rounded-lg disabled:opacity-30 transition-colors"
+            {/* MODULE A: ROUTE EXPLORER */}
+            <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-2 px-2">
+                    <ListTree className="w-5 h-5 text-indigo-400" />
+                    <h2 className="text-xl font-bold text-white tracking-wide">Page Explorer</h2>
+                </div>
+                <RouteCentricView 
+                    routeStory={routeStory} 
+                    filteredDevices={filteredDevices} 
+                    filteredSessions={filteredSessions} 
+                />
+            </div>
+
+            {/* MODULE B: DEVICE EXPLORER */}
+            <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-2 px-2">
+                    <LayoutTemplate className="w-5 h-5 text-emerald-400" />
+                    <h2 className="text-xl font-bold text-white tracking-wide">Device Explorer</h2>
+                </div>
+                <DeviceCentricView 
+                    filteredDevices={filteredDevices} 
+                    filteredSessions={filteredSessions} 
+                    handleWipeSpecificIp={handleWipeSpecificIp}
+                />
+            </div>
+
+            {/* MODULE C: RECENT ACTIVITY */}
+            <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-2 px-2">
+                    <History className="w-5 h-5 text-amber-400" />
+                    <h2 className="text-xl font-bold text-white tracking-wide">Live Activity Feed</h2>
+                </div>
+                <RecentActivityView 
+                    filteredDevices={filteredDevices}
+                    filteredSessions={filteredSessions}
+                    handleWipeSpecificIp={handleWipeSpecificIp}
+                />
+            </div>
+        </div>
+    );
+}
+
+// -----------------------------------------------------------------------------
+// MODULE A: ROUTE CENTRIC VIEW
+// -----------------------------------------------------------------------------
+function RouteCentricView({ routeStory, filteredDevices, filteredSessions }: { routeStory: RouteStoryEntry[], filteredDevices: DeviceSummary[], filteredSessions: VisitorSession[] }) {
+    const [yPage, setYPage] = useState(1);
+    const routesPerPage = 8;
+    const [activeRoute, setActiveRoute] = useState<string | null>(null);
+
+    // Filter to only show routes that have sessions in the currently filtered sessions
+    const activeRouteStory = useMemo(() => {
+        const availableRoutes = new Set(filteredSessions.map(s => s.route));
+        return routeStory.filter(r => availableRoutes.has(r.route)).sort((a,b) => b.views - a.views);
+    }, [routeStory, filteredSessions]);
+
+    const yTotalPages = Math.max(1, Math.ceil(activeRouteStory.length / routesPerPage));
+    const paginatedRoutes = activeRouteStory.slice((yPage - 1) * routesPerPage, yPage * routesPerPage);
+
+    const selectedRoute = activeRoute || (paginatedRoutes[0]?.route || null);
+    
+    const devicesOnRoute = useMemo(() => {
+        if (!selectedRoute) return [];
+        const deviceIds = new Set(filteredSessions.filter(s => s.route === selectedRoute).map(s => s.device_id));
+        return filteredDevices.filter(d => deviceIds.has(d.deviceId));
+    }, [filteredSessions, filteredDevices, selectedRoute]);
+
+    const [zPage, setZPage] = useState(1);
+    const devicesPerPageZ = 6;
+    const zTotalPages = Math.max(1, Math.ceil(devicesOnRoute.length / devicesPerPageZ));
+    const paginatedDevicesZ = devicesOnRoute.slice((zPage - 1) * devicesPerPageZ, zPage * devicesPerPageZ);
+
+    const [expandedDevice, setExpandedDevice] = useState<string | null>(null);
+
+    return (
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+            {/* Y BOX: Routes */}
+            <div className="w-full md:w-[340px] shrink-0 flex flex-col gap-4">
+                <div className="bg-gradient-to-br from-neutral-900/90 to-neutral-800/80 backdrop-blur-2xl border border-white/[0.05] rounded-2xl p-4 flex flex-col gap-2 min-h-[500px]">
+                    <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2 px-2">Pages Visited</h3>
+                    {paginatedRoutes.map(route => {
+                        const isActive = selectedRoute === route.route;
+                        return (
+                            <button
+                                key={route.route}
+                                onClick={() => { setActiveRoute(route.route); setZPage(1); setExpandedDevice(null); }}
+                                className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all ${
+                                    isActive 
+                                        ? "bg-indigo-500/10 border-indigo-500/40 shadow-[inset_0_0_20px_rgba(99,102,241,0.05)] ring-1 ring-indigo-500/20" 
+                                        : "bg-white/[0.02] border-white/[0.05] hover:bg-white/[0.06] hover:border-white/[0.1]"
+                                }`}
                             >
-                                <ChevronLeft className="w-4 h-4 text-white" />
+                                <div className="flex flex-col gap-1 min-w-0">
+                                    <span className={`font-bold text-sm truncate ${isActive ? 'text-indigo-400' : 'text-white'}`}>
+                                        {humanizeRoute(route.route)}
+                                    </span>
+                                    <span className="text-[10px] text-neutral-500 font-mono truncate">{route.route}</span>
+                                </div>
+                                <div className="flex flex-col items-end gap-1">
+                                    <span className="text-xs font-bold text-white">{route.views}</span>
+                                    <span className="text-[10px] uppercase text-neutral-500">views</span>
+                                </div>
                             </button>
-                            <span className="text-xs font-bold text-neutral-400 tracking-widest">
-                                PAGE {yPage} / {yTotalPages}
-                            </span>
-                            <button 
-                                onClick={() => setYPage(p => Math.min(yTotalPages, p + 1))}
-                                disabled={yPage === yTotalPages}
-                                className="p-1.5 hover:bg-neutral-700 rounded-lg disabled:opacity-30 transition-colors"
-                            >
-                                <ChevronRight className="w-4 h-4 text-white" />
-                            </button>
-                        </div>
+                        );
+                    })}
+                    {paginatedRoutes.length === 0 && (
+                        <div className="py-12 text-center text-sm text-neutral-500">No routes match filters.</div>
                     )}
                 </div>
+                
+                {/* Y Pagination */}
+                {yTotalPages > 1 && (
+                    <div className="flex items-center justify-between bg-gradient-to-br from-neutral-900/90 to-neutral-800/80 border border-white/[0.05] rounded-xl p-2 px-4">
+                        <button onClick={() => setYPage(p => Math.max(1, p - 1))} disabled={yPage === 1} className="p-1.5 hover:bg-neutral-700 rounded-lg disabled:opacity-30 transition-colors">
+                            <ChevronLeft className="w-4 h-4 text-white" />
+                        </button>
+                        <span className="text-xs font-bold text-neutral-400 tracking-widest">PAGE {yPage} / {yTotalPages}</span>
+                        <button onClick={() => setYPage(p => Math.min(yTotalPages, p + 1))} disabled={yPage === yTotalPages} className="p-1.5 hover:bg-neutral-700 rounded-lg disabled:opacity-30 transition-colors">
+                            <ChevronRight className="w-4 h-4 text-white" />
+                        </button>
+                    </div>
+                )}
+            </div>
 
-                {/* Z BOX: Main Detail View */}
-                <div className="flex-1 flex flex-col gap-4 min-w-0">
-                    {activeDevice ? (
-                        <>
-                            <div className="bg-gradient-to-br from-neutral-900/90 to-neutral-800/80 backdrop-blur-2xl border border-white/[0.05] rounded-2xl p-6 shadow-xl flex flex-col gap-6">
-                                {/* Header / Identity */}
-                                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-neutral-700/50 pb-5">
-                                    <div className="flex flex-col gap-2">
-                                        <div className="flex items-center gap-3">
-                                            <h3 className="text-2xl font-black text-white tracking-wide">
-                                                {activeDevice.os || "Apple"} Profile
-                                            </h3>
-                                            {activeDevice.isBot && <span className="bg-red-500/20 text-red-400 text-xs px-2 py-0.5 rounded font-black tracking-wider uppercase">Bot</span>}
-                                            {activeDevice.isSuspicious && <span className="bg-orange-500/20 text-orange-400 text-xs px-2 py-0.5 rounded font-black tracking-wider uppercase flex items-center gap-1"><ShieldAlert className="w-3 h-3"/> Suspicious</span>}
-                                        </div>
-                                        <div className="flex items-center gap-3 text-sm text-neutral-400">
-                                            <span>{activeDevice.browser}</span>
-                                            <span className="w-1 h-1 rounded-full bg-neutral-600" />
-                                            <span>{activeDevice.deviceType || "Desktop"}</span>
-                                            <span className="w-1 h-1 rounded-full bg-neutral-600" />
-                                            <span className="font-mono">{activeDevice.deviceId}</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-col items-start md:items-end gap-2">
-                                        <button 
-                                            onClick={() => handleWipeSpecificIp(activeDevice.ip || '')}
-                                            className="flex items-center gap-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors"
-                                        >
-                                            <Trash2 className="w-3.5 h-3.5" />
-                                            Delete IP
-                                        </button>
-                                        <div className="text-xs text-neutral-500">
-                                            Last seen {new Date(activeDevice.lastSeenAt).toLocaleString()}
-                                        </div>
-                                    </div>
-                                </div>
+            {/* Z BOX: Devices on this route */}
+            <div className="flex-1 flex flex-col gap-4 min-w-0">
+                <div className="bg-gradient-to-br from-neutral-900/90 to-neutral-800/80 backdrop-blur-2xl border border-white/[0.05] rounded-2xl p-6 shadow-xl flex flex-col gap-6 min-h-[500px]">
+                    <div className="flex items-center justify-between border-b border-white/[0.05] pb-4">
+                        <h3 className="text-lg font-bold text-white tracking-wide flex items-center gap-2">
+                            <ListTree className="w-5 h-5 text-indigo-400" />
+                            Devices visiting {selectedRoute ? humanizeRoute(selectedRoute) : '...'}
+                        </h3>
+                        <span className="bg-white/[0.02] border border-white/[0.05] px-3 py-1 rounded-lg text-xs text-neutral-300 font-medium">
+                            {devicesOnRoute.length} Devices
+                        </span>
+                    </div>
 
-                                {/* Metrics Grid */}
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div className="bg-white/[0.02] border border-white/[0.05] shadow-sm rounded-xl p-4 flex flex-col gap-1">
-                                        <div className="flex items-center gap-2 mb-1"><CalendarDays className="w-3.5 h-3.5 text-indigo-400" /><span className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Sessions</span></div>
-                                        <span className="text-2xl font-black text-white">{activeDeviceSessions.length}</span>
-                                    </div>
-                                    <div className="bg-white/[0.02] border border-white/[0.05] shadow-sm rounded-xl p-4 flex flex-col gap-1">
-                                        <div className="flex items-center gap-2 mb-1"><Eye className="w-3.5 h-3.5 text-emerald-400" /><span className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Page Views</span></div>
-                                        <span className="text-2xl font-black text-white">{activeDevice.totalViews}</span>
-                                    </div>
-                                    <div className="bg-white/[0.02] border border-white/[0.05] shadow-sm rounded-xl p-4 flex flex-col gap-1">
-                                        <div className="flex items-center gap-2 mb-1"><MousePointerClick className="w-3.5 h-3.5 text-amber-400" /><span className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Interactions</span></div>
-                                        <span className="text-2xl font-black text-white">{activeDevice.totalLinkClicks + activeDevice.totalRuns}</span>
-                                    </div>
-                                    <div className="bg-white/[0.02] border border-white/[0.05] shadow-sm rounded-xl p-4 flex flex-col gap-1">
-                                        <div className="flex items-center gap-2 mb-1"><MapPin className="w-3.5 h-3.5 text-rose-400" /><span className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Location</span></div>
-                                        <span className="text-sm font-bold text-white truncate leading-tight mt-1" title={formatLoc(activeDevice.city, activeDevice.country)}>{formatLoc(activeDevice.city, activeDevice.country)}</span>
-                                        <span className="text-[10px] text-neutral-500 font-mono mt-0.5">{activeDevice.ip}</span>
-                                    </div>
-                                </div>
-
-                                {/* Hardware Details */}
-                                <div className="flex items-center gap-3 text-xs text-neutral-400 bg-white/[0.02] border border-white/[0.05] shadow-sm px-4 py-3 rounded-xl">
-                                    <Cpu className="w-4 h-4 text-indigo-400" />
-                                    <span className="font-medium text-neutral-300">System Hardware:</span>
-                                    <span>{formatHardware(activeDevice.hardware)}</span>
-                                </div>
-                            </div>
-
-                            {/* Z BOX: Session History */}
-                            <div className="bg-gradient-to-br from-neutral-900/90 to-neutral-800/80 backdrop-blur-2xl border border-white/[0.05] rounded-2xl p-6 shadow-xl flex flex-col gap-6">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-lg font-bold text-white tracking-wide">Session History</h3>
-                                    <div className="bg-neutral-900 border border-neutral-700 px-3 py-1 rounded-lg text-xs text-neutral-300 font-medium">
-                                        {activeDeviceSessions.length} total sessions
-                                    </div>
-                                </div>
-                                
-                                <div className="flex flex-col gap-4">
-                                    {paginatedSessions.map((session, sidx) => (
-                                        <div key={session.session_id} className="flex gap-4 group">
-                                            <div className="flex flex-col items-center">
-                                                <div className="w-3 h-3 rounded-full bg-indigo-500/50 border-2 border-indigo-500 mt-2 shrink-0 group-hover:bg-indigo-400 transition-colors" />
-                                                {sidx < paginatedSessions.length - 1 && <div className="w-px h-full bg-neutral-700 my-2 group-hover:bg-neutral-600 transition-colors" />}
+                    <div className="flex flex-col gap-3">
+                        {paginatedDevicesZ.map(device => {
+                            const isMob = device.deviceType?.toLowerCase().includes("iphone") || device.deviceType?.toLowerCase().includes("android") || device.deviceType?.toLowerCase().includes("mobile");
+                            const isExp = expandedDevice === device.deviceId;
+                            const deviceRouteSessions = filteredSessions.filter(s => s.device_id === device.deviceId && s.route === selectedRoute);
+                            
+                            return (
+                                <div key={device.deviceId} className="flex flex-col bg-white/[0.02] border border-white/[0.05] rounded-xl overflow-hidden transition-all shadow-sm">
+                                    <button 
+                                        onClick={() => setExpandedDevice(isExp ? null : device.deviceId)}
+                                        className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            {device.isBot ? <Cpu className="w-5 h-5 text-neutral-400" /> : isMob ? <Smartphone className="w-5 h-5 text-neutral-400" /> : <Laptop className="w-5 h-5 text-neutral-400" />}
+                                            <div className="flex flex-col items-start gap-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-white text-sm">{device.os || "Apple"} Profile</span>
+                                                    {device.isBot && <span className="bg-red-500/20 text-red-400 text-[9px] px-1.5 py-0.5 rounded font-black tracking-wider uppercase">Bot</span>}
+                                                    {device.isSuspicious && <span className="bg-orange-500/20 text-orange-400 text-[9px] px-1.5 py-0.5 rounded font-black tracking-wider uppercase">Sus</span>}
+                                                </div>
+                                                <div className="text-xs text-neutral-500 flex items-center gap-1.5">
+                                                    <Globe className="w-3 h-3" /> {formatLoc(device.city, device.country)} <span className="mx-1">•</span> <span className="font-mono">{device.ip}</span>
+                                                </div>
                                             </div>
-                                            <div className="flex-1 bg-white/[0.02] border border-white/[0.05] shadow-sm rounded-xl p-5 mb-2 flex flex-col gap-3 hover:bg-neutral-900/80 hover:border-neutral-600 transition-all shadow-sm">
-                                                <div className="flex flex-wrap justify-between items-start gap-2 border-b border-neutral-700/50 pb-3">
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="text-right hidden sm:flex flex-col">
+                                                <span className="text-xs font-bold text-white">{deviceRouteSessions.length} sessions</span>
+                                                <span className="text-[10px] text-neutral-500 uppercase">on this page</span>
+                                            </div>
+                                            {isExp ? <ChevronUp className="w-4 h-4 text-neutral-500" /> : <ChevronDown className="w-4 h-4 text-neutral-500" />}
+                                        </div>
+                                    </button>
+                                    
+                                    {isExp && (
+                                        <div className="p-4 bg-black/20 border-t border-white/[0.05] flex flex-col gap-3">
+                                            {deviceRouteSessions.map((sesh, idx) => (
+                                                <div key={sesh.session_id} className="flex justify-between items-center bg-white/[0.02] p-3 rounded-lg border border-white/[0.05]">
                                                     <div className="flex flex-col gap-1">
-                                                        <span className="text-sm font-black text-white uppercase tracking-wider">{humanizeRoute(session.route)}</span>
-                                                        <span className="text-xs text-neutral-400 flex items-center gap-1.5">
-                                                            <Clock className="w-3.5 h-3.5" />
-                                                            {new Date(session.started_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                                                        <span className="text-xs font-bold text-neutral-300 flex items-center gap-1.5">
+                                                            <Clock className="w-3 h-3" /> {new Date(sesh.started_at).toLocaleString()}
                                                         </span>
+                                                        <span className="text-[10px] text-neutral-500 uppercase">Ref: {normalizeReferrer(sesh.source || '')}</span>
                                                     </div>
-                                                    <span className="bg-neutral-800 border border-neutral-700 text-neutral-300 text-[10px] font-bold uppercase px-2 py-1 rounded-md">
-                                                        {normalizeReferrer(session.source)}
-                                                    </span>
-                                                </div>
-                                                <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm">
-                                                    <div className="flex flex-col gap-0.5">
-                                                        <span className="text-[10px] text-neutral-500 font-bold uppercase">Views</span>
-                                                        <span className="text-neutral-200 font-medium">{session.view_count}</span>
-                                                    </div>
-                                                    {(session.sessionDuration || 0) > 0 && (
-                                                        <div className="flex flex-col gap-0.5">
+                                                    <div className="flex gap-4">
+                                                        <div className="flex flex-col items-end">
+                                                            <span className="text-[10px] text-neutral-500 font-bold uppercase">Views</span>
+                                                            <span className="text-xs font-medium text-emerald-400">{sesh.view_count}</span>
+                                                        </div>
+                                                        <div className="flex flex-col items-end">
                                                             <span className="text-[10px] text-neutral-500 font-bold uppercase">Time</span>
-                                                            <span className="text-neutral-200 font-medium">{Math.round(session.sessionDuration! / 1000)}s</span>
+                                                            <span className="text-xs font-medium text-amber-400">{Math.round((sesh.sessionDuration || 0)/1000)}s</span>
                                                         </div>
-                                                    )}
-                                                    {(session.completed_runs || 0) > 0 && (
-                                                        <div className="flex flex-col gap-0.5">
-                                                            <span className="text-[10px] text-emerald-500 font-bold uppercase">Games Played</span>
-                                                            <span className="text-emerald-400 font-medium">{session.completed_runs} rounds</span>
-                                                        </div>
-                                                    )}
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            ))}
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
+                            );
+                        })}
+                        {paginatedDevicesZ.length === 0 && <div className="text-center py-10 text-neutral-500 text-sm">No devices found.</div>}
+                    </div>
 
-                                {/* Z Pagination */}
-                                {zTotalPages > 1 && (
-                                    <div className="flex items-center justify-between border-t border-neutral-700/50 pt-4 mt-2">
-                                        <button 
-                                            onClick={() => setZPage(p => Math.max(1, p - 1))}
-                                            disabled={zPage === 1}
-                                            className="px-4 py-2 bg-white/[0.02] border border-white/[0.05] shadow-sm text-sm font-bold text-white rounded-lg disabled:opacity-30 hover:bg-neutral-700 transition-colors"
-                                        >
-                                            Prev
-                                        </button>
-                                        <span className="text-xs font-bold text-neutral-400 tracking-widest">
-                                            PAGE {zPage} / {zTotalPages}
-                                        </span>
-                                        <button 
-                                            onClick={() => setZPage(p => Math.min(zTotalPages, p + 1))}
-                                            disabled={zPage === zTotalPages}
-                                            className="px-4 py-2 bg-white/[0.02] border border-white/[0.05] shadow-sm text-sm font-bold text-white rounded-lg disabled:opacity-30 hover:bg-neutral-700 transition-colors"
-                                        >
-                                            Next
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </>
-                    ) : (
-                        <div className="bg-gradient-to-br from-neutral-900/90 to-neutral-800/80 backdrop-blur-2xl border border-white/[0.05] rounded-2xl p-12 shadow-xl flex flex-col items-center justify-center text-center h-full min-h-[400px]">
-                            <Filter className="w-12 h-12 text-neutral-600 mb-4" />
-                            <h3 className="text-xl font-bold text-neutral-300">No Device Selected</h3>
-                            <p className="text-neutral-500 mt-2 max-w-sm">Select a visitor from the sidebar to view their full device storyline, metrics, and session history.</p>
+                    {zTotalPages > 1 && (
+                        <div className="flex items-center justify-between border-t border-white/[0.05] pt-4 mt-auto">
+                            <button onClick={() => setZPage(p => Math.max(1, p - 1))} disabled={zPage === 1} className="px-4 py-2 bg-white/[0.02] border border-white/[0.05] text-sm font-bold text-white rounded-lg disabled:opacity-30 hover:bg-white/[0.04]">Prev</button>
+                            <span className="text-xs font-bold text-neutral-400 tracking-widest">PAGE {zPage} / {zTotalPages}</span>
+                            <button onClick={() => setZPage(p => Math.min(zTotalPages, p + 1))} disabled={zPage === zTotalPages} className="px-4 py-2 bg-white/[0.02] border border-white/[0.05] text-sm font-bold text-white rounded-lg disabled:opacity-30 hover:bg-white/[0.04]">Next</button>
                         </div>
                     )}
                 </div>
             </div>
+        </div>
+    );
+}
+
+// -----------------------------------------------------------------------------
+// MODULE B: DEVICE CENTRIC VIEW
+// -----------------------------------------------------------------------------
+function DeviceCentricView({ filteredDevices, filteredSessions, handleWipeSpecificIp }: { filteredDevices: DeviceSummary[], filteredSessions: VisitorSession[], handleWipeSpecificIp: (ip: string) => void }) {
+    const [yPage, setYPage] = useState(1);
+    const devicesPerPage = 10;
+    const [zPage, setZPage] = useState(1);
+    const sessionsPerPage = 5;
+    const [activeDeviceId, setActiveDeviceId] = useState<string | null>(null);
+
+    const yTotalPages = Math.max(1, Math.ceil(filteredDevices.length / devicesPerPage));
+    const paginatedDevices = filteredDevices.slice((yPage - 1) * devicesPerPage, yPage * devicesPerPage);
+
+    const activeDevice = filteredDevices.find(d => d.deviceId === activeDeviceId) || paginatedDevices[0] || null;
+
+    const activeDeviceSessions = useMemo(() => {
+        if (!activeDevice) return [];
+        return filteredSessions
+            .filter(s => s.device_id === activeDevice.deviceId)
+            .sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime());
+    }, [filteredSessions, activeDevice]);
+
+    const zTotalPages = Math.max(1, Math.ceil(activeDeviceSessions.length / sessionsPerPage));
+    const paginatedSessions = activeDeviceSessions.slice((zPage - 1) * sessionsPerPage, zPage * sessionsPerPage);
+
+    return (
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+            {/* Y BOX: Sidebar List */}
+            <div className="w-full md:w-[340px] shrink-0 flex flex-col gap-4">
+                <div className="bg-gradient-to-br from-neutral-900/90 to-neutral-800/80 backdrop-blur-2xl border border-white/[0.05] rounded-2xl p-4 flex flex-col gap-2 min-h-[500px]">
+                    <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2 px-2">Visitor Devices</h3>
+                    {paginatedDevices.map(device => {
+                        const isMob = device.deviceType?.toLowerCase().includes("iphone") || device.deviceType?.toLowerCase().includes("android") || device.deviceType?.toLowerCase().includes("mobile");
+                        const isActive = activeDevice?.deviceId === device.deviceId;
+                        return (
+                            <button
+                                key={device.deviceId}
+                                onClick={() => { setActiveDeviceId(device.deviceId); setZPage(1); }}
+                                className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-all ${
+                                    isActive 
+                                        ? "bg-emerald-500/10 border-emerald-500/40 shadow-[inset_0_0_20px_rgba(16,185,129,0.05)] ring-1 ring-emerald-500/20" 
+                                        : "bg-white/[0.02] border-white/[0.05] hover:bg-white/[0.06] hover:border-white/[0.1]"
+                                }`}
+                            >
+                                <div className="mt-1">
+                                    {device.isBot ? (
+                                        <Cpu className={`w-4 h-4 ${isActive ? 'text-emerald-400' : 'text-neutral-400'}`} />
+                                    ) : isMob ? (
+                                        <Smartphone className={`w-4 h-4 ${isActive ? 'text-emerald-400' : 'text-neutral-400'}`} />
+                                    ) : (
+                                        <Laptop className={`w-4 h-4 ${isActive ? 'text-emerald-400' : 'text-neutral-400'}`} />
+                                    )}
+                                </div>
+                                <div className="flex flex-col gap-1 min-w-0 flex-1">
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-bold text-white text-sm truncate">
+                                            {device.os || "Apple"} Profile
+                                        </span>
+                                        {device.isBot && <span className="bg-red-500/20 text-red-400 text-[9px] px-1.5 py-0.5 rounded font-black tracking-wider uppercase">Bot</span>}
+                                        {device.isSuspicious && <span className="bg-orange-500/20 text-orange-400 text-[9px] px-1.5 py-0.5 rounded font-black tracking-wider uppercase">Sus</span>}
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-xs text-neutral-400 truncate">
+                                        <Globe className="w-3 h-3" />
+                                        <span className="truncate">{formatLoc(device.city, device.country)}</span>
+                                    </div>
+                                    <div className="text-[10px] font-mono text-neutral-500 truncate">{device.ip}</div>
+                                </div>
+                            </button>
+                        );
+                    })}
+                    {paginatedDevices.length === 0 && <div className="py-12 text-center text-sm text-neutral-500">No visitors found.</div>}
+                </div>
+                
+                {yTotalPages > 1 && (
+                    <div className="flex items-center justify-between bg-gradient-to-br from-neutral-900/90 to-neutral-800/80 border border-white/[0.05] rounded-xl p-2 px-4">
+                        <button onClick={() => setYPage(p => Math.max(1, p - 1))} disabled={yPage === 1} className="p-1.5 hover:bg-neutral-700 rounded-lg disabled:opacity-30"><ChevronLeft className="w-4 h-4 text-white" /></button>
+                        <span className="text-xs font-bold text-neutral-400 tracking-widest">PAGE {yPage} / {yTotalPages}</span>
+                        <button onClick={() => setYPage(p => Math.min(yTotalPages, p + 1))} disabled={yPage === yTotalPages} className="p-1.5 hover:bg-neutral-700 rounded-lg disabled:opacity-30"><ChevronRight className="w-4 h-4 text-white" /></button>
+                    </div>
+                )}
+            </div>
+
+            {/* Z BOX: Main Detail View */}
+            <div className="flex-1 flex flex-col gap-4 min-w-0">
+                {activeDevice ? (
+                    <>
+                        {/* Summary Header */}
+                        <div className="bg-gradient-to-br from-neutral-900/90 to-neutral-800/80 backdrop-blur-2xl border border-white/[0.05] rounded-2xl p-6 shadow-xl flex flex-col gap-6">
+                            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-white/[0.05] pb-5">
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex items-center gap-3">
+                                        <h3 className="text-2xl font-black text-white tracking-wide">{activeDevice.os || "Apple"} Profile</h3>
+                                        {activeDevice.isBot && <span className="bg-red-500/20 text-red-400 text-xs px-2 py-0.5 rounded font-black tracking-wider uppercase">Bot</span>}
+                                        {activeDevice.isSuspicious && <span className="bg-orange-500/20 text-orange-400 text-xs px-2 py-0.5 rounded font-black tracking-wider uppercase flex items-center gap-1"><ShieldAlert className="w-3 h-3"/> Suspicious</span>}
+                                    </div>
+                                    <div className="flex items-center gap-3 text-sm text-neutral-400">
+                                        <span>{activeDevice.browser}</span><span className="w-1 h-1 rounded-full bg-neutral-600" />
+                                        <span>{activeDevice.deviceType || "Desktop"}</span><span className="w-1 h-1 rounded-full bg-neutral-600" />
+                                        <span className="font-mono">{activeDevice.deviceId}</span>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col items-start md:items-end gap-2">
+                                    <button onClick={() => handleWipeSpecificIp(activeDevice.ip || '')} className="flex items-center gap-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors"><Trash2 className="w-3.5 h-3.5" />Delete IP</button>
+                                    <div className="text-xs text-neutral-500">Last seen {new Date(activeDevice.lastSeenAt).toLocaleString()}</div>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3 text-xs text-neutral-400 bg-white/[0.02] border border-white/[0.05] px-4 py-3 rounded-xl">
+                                <Cpu className="w-4 h-4 text-emerald-400" />
+                                <span className="font-medium text-neutral-300">System Hardware:</span>
+                                <span>{formatHardware(activeDevice.hardware)}</span>
+                            </div>
+                        </div>
+
+                        {/* Session History */}
+                        <div className="bg-gradient-to-br from-neutral-900/90 to-neutral-800/80 backdrop-blur-2xl border border-white/[0.05] rounded-2xl p-6 shadow-xl flex flex-col gap-6">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-lg font-bold text-white tracking-wide">Page History</h3>
+                                <div className="bg-white/[0.02] border border-white/[0.05] px-3 py-1 rounded-lg text-xs text-neutral-300 font-medium">{activeDeviceSessions.length} total sessions</div>
+                            </div>
+                            
+                            <div className="flex flex-col gap-4">
+                                {paginatedSessions.map((session, sidx) => (
+                                    <div key={session.session_id} className="flex gap-4 group">
+                                        <div className="flex flex-col items-center">
+                                            <div className="w-3 h-3 rounded-full bg-emerald-500/50 border-2 border-emerald-500 mt-2 shrink-0 group-hover:bg-emerald-400 transition-colors" />
+                                            {sidx < paginatedSessions.length - 1 && <div className="w-px h-full bg-white/[0.05] my-2 group-hover:bg-white/[0.1] transition-colors" />}
+                                        </div>
+                                        <div className="flex-1 bg-white/[0.02] border border-white/[0.05] rounded-xl p-5 mb-2 flex flex-col gap-3 hover:bg-white/[0.04] hover:border-white/[0.1] transition-all shadow-sm">
+                                            <div className="flex flex-wrap justify-between items-start gap-2 border-b border-white/[0.05] pb-3">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-sm font-black text-white uppercase tracking-wider">{humanizeRoute(session.route)}</span>
+                                                    <span className="text-xs text-neutral-400 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" />{new Date(session.started_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                                                </div>
+                                                <span className="bg-white/[0.05] border border-white/[0.05] text-neutral-300 text-[10px] font-bold uppercase px-2 py-1 rounded-md">{normalizeReferrer(session.source || '')}</span>
+                                            </div>
+                                            <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm">
+                                                <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-500 font-bold uppercase">Views</span><span className="text-neutral-200 font-medium">{session.view_count}</span></div>
+                                                {(session.sessionDuration || 0) > 0 && <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-500 font-bold uppercase">Time</span><span className="text-neutral-200 font-medium">{Math.round(session.sessionDuration! / 1000)}s</span></div>}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {zTotalPages > 1 && (
+                                <div className="flex items-center justify-between border-t border-white/[0.05] pt-4 mt-2">
+                                    <button onClick={() => setZPage(p => Math.max(1, p - 1))} disabled={zPage === 1} className="px-4 py-2 bg-white/[0.02] border border-white/[0.05] shadow-sm text-sm font-bold text-white rounded-lg disabled:opacity-30 hover:bg-white/[0.04]">Prev</button>
+                                    <span className="text-xs font-bold text-neutral-400 tracking-widest">PAGE {zPage} / {zTotalPages}</span>
+                                    <button onClick={() => setZPage(p => Math.min(zTotalPages, p + 1))} disabled={zPage === zTotalPages} className="px-4 py-2 bg-white/[0.02] border border-white/[0.05] shadow-sm text-sm font-bold text-white rounded-lg disabled:opacity-30 hover:bg-white/[0.04]">Next</button>
+                                </div>
+                            )}
+                        </div>
+                    </>
+                ) : (
+                    <div className="bg-gradient-to-br from-neutral-900/90 to-neutral-800/80 backdrop-blur-2xl border border-white/[0.05] rounded-2xl p-12 shadow-xl flex flex-col items-center justify-center text-center h-full min-h-[400px]">
+                        <Filter className="w-12 h-12 text-neutral-600 mb-4" />
+                        <h3 className="text-xl font-bold text-neutral-300">No Device Selected</h3>
+                        <p className="text-neutral-500 mt-2 max-w-sm">Select a visitor from the sidebar to view their full device storyline, metrics, and session history.</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+// -----------------------------------------------------------------------------
+// MODULE C: RECENT ACTIVITY VIEW
+// -----------------------------------------------------------------------------
+function RecentActivityView({ filteredDevices, filteredSessions, handleWipeSpecificIp }: { filteredDevices: DeviceSummary[], filteredSessions: VisitorSession[], handleWipeSpecificIp: (ip: string) => void }) {
+    const [page, setPage] = useState(1);
+    const itemsPerPage = 15;
+    const [expandedRow, setExpandedRow] = useState<string | null>(null);
+
+    const sortedSessions = useMemo(() => {
+        return [...filteredSessions].sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime());
+    }, [filteredSessions]);
+
+    const totalPages = Math.max(1, Math.ceil(sortedSessions.length / itemsPerPage));
+    const paginatedSessions = sortedSessions.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+    return (
+        <div className="bg-gradient-to-br from-neutral-900/90 to-neutral-800/80 backdrop-blur-2xl border border-white/[0.05] rounded-2xl p-6 shadow-xl flex flex-col gap-4 min-h-[600px]">
+            <div className="flex items-center justify-between border-b border-white/[0.05] pb-4">
+                <h3 className="text-lg font-bold text-white tracking-wide flex items-center gap-2">
+                    <History className="w-5 h-5 text-amber-400" />
+                    Live Activity Feed
+                </h3>
+                <span className="bg-white/[0.02] border border-white/[0.05] px-3 py-1 rounded-lg text-xs text-neutral-300 font-medium">
+                    Showing latest {sortedSessions.length} sessions
+                </span>
+            </div>
+
+            <div className="flex flex-col gap-2">
+                <div className="grid grid-cols-[1fr_2fr_1.5fr_1fr] gap-4 px-4 py-2 text-xs font-bold text-neutral-500 uppercase tracking-widest border-b border-white/[0.05]">
+                    <div>Time</div>
+                    <div>Page & Ref</div>
+                    <div>Device</div>
+                    <div className="text-right">Action</div>
+                </div>
+
+                {paginatedSessions.map((sesh) => {
+                    const device = filteredDevices.find(d => d.deviceId === sesh.device_id);
+                    const isExp = expandedRow === sesh.session_id;
+
+                    return (
+                        <div key={sesh.session_id} className="flex flex-col bg-white/[0.01] hover:bg-white/[0.03] border border-white/[0.02] hover:border-white/[0.08] rounded-xl overflow-hidden transition-all">
+                            <div 
+                                onClick={() => setExpandedRow(isExp ? null : sesh.session_id)}
+                                className="grid grid-cols-[1fr_2fr_1.5fr_1fr] gap-4 p-4 items-center cursor-pointer"
+                            >
+                                <div className="flex flex-col gap-0.5 min-w-0">
+                                    <span className="text-sm font-bold text-white">{new Date(sesh.started_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                    <span className="text-[10px] text-neutral-500">{new Date(sesh.started_at).toLocaleDateString()}</span>
+                                </div>
+                                <div className="flex flex-col gap-1 min-w-0">
+                                    <span className="text-sm font-black text-amber-400 uppercase tracking-wider truncate">{humanizeRoute(sesh.route)}</span>
+                                    <span className="text-[10px] text-neutral-400 truncate">Ref: {normalizeReferrer(sesh.source || '')}</span>
+                                </div>
+                                <div className="flex flex-col gap-1 min-w-0">
+                                    <div className="flex items-center gap-1.5 truncate">
+                                        <span className="text-sm font-bold text-neutral-200 truncate">{sesh.os || 'Apple'}</span>
+                                        {sesh.isBot && <span className="bg-red-500/20 text-red-400 text-[9px] px-1 py-0.5 rounded font-black tracking-wider uppercase shrink-0">Bot</span>}
+                                    </div>
+                                    <span className="text-[10px] font-mono text-neutral-500 truncate">{device?.ip || 'Unknown IP'}</span>
+                                </div>
+                                <div className="flex justify-end items-center">
+                                    {isExp ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
+                                </div>
+                            </div>
+
+                            {isExp && (
+                                <div className="p-4 bg-black/20 border-t border-white/[0.05] grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="flex flex-col gap-3">
+                                        <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Session Details</h4>
+                                        <div className="flex flex-wrap gap-4">
+                                            <div className="flex flex-col bg-white/[0.02] border border-white/[0.05] p-2 px-3 rounded-lg"><span className="text-[10px] text-neutral-500 uppercase">Views</span><span className="text-sm text-white font-bold">{sesh.view_count}</span></div>
+                                            <div className="flex flex-col bg-white/[0.02] border border-white/[0.05] p-2 px-3 rounded-lg"><span className="text-[10px] text-neutral-500 uppercase">Duration</span><span className="text-sm text-white font-bold">{Math.round((sesh.sessionDuration||0)/1000)}s</span></div>
+                                            <div className="flex flex-col bg-white/[0.02] border border-white/[0.05] p-2 px-3 rounded-lg"><span className="text-[10px] text-neutral-500 uppercase">Games</span><span className="text-sm text-white font-bold">{sesh.completed_runs}</span></div>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col gap-3 items-start md:items-end">
+                                        <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Administrative Actions</h4>
+                                        <button onClick={(e) => { e.stopPropagation(); handleWipeSpecificIp(device?.ip || ''); }} className="flex items-center gap-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors shadow-sm">
+                                            <Trash2 className="w-4 h-4" /> Wipe All IP Data
+                                        </button>
+                                        <span className="text-[10px] text-neutral-500 text-right max-w-xs">Warning: This instantly deletes all sessions and devices associated with IP <span className="font-mono text-neutral-400">{device?.ip}</span>.</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+                {paginatedSessions.length === 0 && <div className="text-center py-10 text-neutral-500 text-sm">No recent activity.</div>}
+            </div>
+
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between border-t border-white/[0.05] pt-4 mt-auto">
+                    <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-4 py-2 bg-white/[0.02] border border-white/[0.05] shadow-sm text-sm font-bold text-white rounded-lg disabled:opacity-30 hover:bg-white/[0.04]">Prev</button>
+                    <span className="text-xs font-bold text-neutral-400 tracking-widest">PAGE {page} / {totalPages}</span>
+                    <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-4 py-2 bg-white/[0.02] border border-white/[0.05] shadow-sm text-sm font-bold text-white rounded-lg disabled:opacity-30 hover:bg-white/[0.04]">Next</button>
+                </div>
+            )}
         </div>
     );
 }
