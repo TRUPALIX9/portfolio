@@ -502,14 +502,7 @@ function RouteCentricView({ routeStory, filteredDevices, filteredSessions }: { r
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div className="flex flex-wrap gap-4">
-                                                        <div className="flex flex-col"><span className="text-[10px] text-neutral-500 uppercase font-bold">Views</span><span className="text-xs text-emerald-400 font-medium">{sesh.view_count}</span></div>
-                                                        {sesh.link_clicks > 0 && <div className="flex flex-col"><span className="text-[10px] text-neutral-500 uppercase font-bold">Link Clicks</span><span className="text-xs text-white font-medium">{sesh.link_clicks}</span></div>}
-                                                        {sesh.game_opens > 0 && <div className="flex flex-col"><span className="text-[10px] text-neutral-500 uppercase font-bold">Game Opens</span><span className="text-xs text-white font-medium">{sesh.game_opens}</span></div>}
-                                                        {sesh.completed_runs > 0 && <div className="flex flex-col"><span className="text-[10px] text-neutral-500 uppercase font-bold">Runs</span><span className="text-xs text-white font-medium">{sesh.completed_runs}</span></div>}
-                                                        {sesh.contact_submissions > 0 && <div className="flex flex-col"><span className="text-[10px] text-neutral-500 uppercase font-bold">Contacts</span><span className="text-xs text-white font-medium">{sesh.contact_submissions}</span></div>}
-                                                        {sesh.resume_downloads > 0 && <div className="flex flex-col"><span className="text-[10px] text-neutral-500 uppercase font-bold">Resumes</span><span className="text-xs text-white font-medium">{sesh.resume_downloads}</span></div>}
-                                                    </div>
+                                                    <SessionMetricsBlock sesh={sesh} />
                                                 </div>
                                             ))}
                                         </div>
@@ -639,10 +632,19 @@ function DeviceCentricView({ filteredDevices, filteredSessions, handleWipeSpecif
                                     <div className="text-xs text-neutral-400">Last seen {new Date(activeDevice.lastSeenAt).toLocaleString()}</div>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3 text-xs text-neutral-400 bg-white/[0.04] border border-white/[0.08] px-4 py-3 rounded-xl">
-                                <Cpu className="w-4 h-4 text-emerald-400" />
-                                <span className="font-medium text-neutral-300">System Hardware:</span>
-                                <span>{formatHardware(activeDevice.hardware)}</span>
+                            <div className="flex flex-col gap-3 text-xs bg-white/[0.04] border border-white/[0.08] px-4 py-3 rounded-xl">
+                                <div className="flex items-center gap-3 text-neutral-400">
+                                    <Cpu className="w-4 h-4 text-emerald-400" />
+                                    <span className="font-medium text-neutral-300">System Hardware:</span>
+                                    <span>{formatHardware(activeDevice.hardware)}</span>
+                                </div>
+                                <div className="border-t border-white/[0.05] pt-3 flex flex-wrap gap-x-6 gap-y-3">
+                                    <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-500 uppercase font-bold">Total Views</span><span className="text-sm text-white font-medium">{activeDevice.totalViews || 0}</span></div>
+                                    <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-500 uppercase font-bold">Link Clicks</span><span className="text-sm text-white font-medium">{activeDevice.totalLinkClicks || 0}</span></div>
+                                    <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-500 uppercase font-bold">Arcade Runs</span><span className="text-sm text-white font-medium">{activeDevice.totalRuns || 0}</span></div>
+                                    <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-500 uppercase font-bold">Resumes DL</span><span className="text-sm text-white font-medium">{activeDevice.totalResumeDownloads || 0}</span></div>
+                                    <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-500 uppercase font-bold">Contacts</span><span className="text-sm text-white font-medium">{activeDevice.totalContacts || 0}</span></div>
+                                </div>
                             </div>
                         </div>
 
@@ -668,15 +670,7 @@ function DeviceCentricView({ filteredDevices, filteredSessions, handleWipeSpecif
                                                 </div>
                                                 <span className="bg-white/[0.05] border border-white/[0.08] text-neutral-300 text-[10px] font-bold uppercase px-2 py-1 rounded-md">{normalizeReferrer(session.source || '')}</span>
                                             </div>
-                                            <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm">
-                                                <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-400 font-bold uppercase">Views</span><span className="text-neutral-200 font-medium">{session.view_count}</span></div>
-                                                <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-400 font-bold uppercase">Time</span><span className="text-neutral-200 font-medium">{formatDuration(session.sessionDuration)}</span></div>
-                                                {session.link_clicks > 0 && <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-400 font-bold uppercase">Link Clicks</span><span className="text-neutral-200 font-medium">{session.link_clicks}</span></div>}
-                                                {session.game_opens > 0 && <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-400 font-bold uppercase">Game Opens</span><span className="text-neutral-200 font-medium">{session.game_opens}</span></div>}
-                                                {session.completed_runs > 0 && <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-400 font-bold uppercase">Runs</span><span className="text-neutral-200 font-medium">{session.completed_runs}</span></div>}
-                                                {session.contact_submissions > 0 && <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-400 font-bold uppercase">Contacts</span><span className="text-neutral-200 font-medium">{session.contact_submissions}</span></div>}
-                                                {session.resume_downloads > 0 && <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-400 font-bold uppercase">Resumes</span><span className="text-neutral-200 font-medium">{session.resume_downloads}</span></div>}
-                                            </div>
+                                            <SessionMetricsBlock sesh={session} />
                                         </div>
                                     </div>
                                 ))}
@@ -772,11 +766,7 @@ function RecentActivityView({ filteredDevices, filteredSessions, handleWipeSpeci
                                 <div className="p-4 bg-black/40 border-t border-white/[0.08] grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="flex flex-col gap-3">
                                         <h4 className="text-xs font-bold text-neutral-300 uppercase tracking-widest">Session Details</h4>
-                                        <div className="flex flex-wrap gap-4">
-                                            <div className="flex flex-col bg-white/[0.04] border border-white/[0.08] p-2 px-3 rounded-lg"><span className="text-[10px] text-neutral-400 uppercase">Views</span><span className="text-sm text-white font-bold">{sesh.view_count}</span></div>
-                                            <div className="flex flex-col bg-white/[0.04] border border-white/[0.08] p-2 px-3 rounded-lg"><span className="text-[10px] text-neutral-400 uppercase">Duration</span><span className="text-sm text-white font-bold">{formatDuration(sesh.sessionDuration)}</span></div>
-                                            <div className="flex flex-col bg-white/[0.04] border border-white/[0.08] p-2 px-3 rounded-lg"><span className="text-[10px] text-neutral-400 uppercase">Games</span><span className="text-sm text-white font-bold">{sesh.completed_runs}</span></div>
-                                        </div>
+                                        <SessionMetricsBlock sesh={sesh} />
                                     </div>
                                     <div className="flex flex-col gap-3 items-start md:items-end">
                                         <h4 className="text-xs font-bold text-neutral-300 uppercase tracking-widest">Administrative Actions</h4>
@@ -800,6 +790,24 @@ function RecentActivityView({ filteredDevices, filteredSessions, handleWipeSpeci
                     <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-4 py-2 bg-white/[0.04] border border-white/[0.08] shadow-sm text-sm font-bold text-white rounded-lg disabled:opacity-30 hover:bg-white/[0.08]">Next</button>
                 </div>
             )}
+        </div>
+    );
+}
+
+
+function SessionMetricsBlock({ sesh }: { sesh: VisitorSession }) {
+    return (
+        <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm mt-1">
+            <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-400 font-bold uppercase">Views</span><span className="text-neutral-200 font-medium">{sesh.view_count}</span></div>
+            {(sesh.sessionDuration || 0) > 0 && <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-400 font-bold uppercase">Time</span><span className="text-neutral-200 font-medium">{formatDuration(sesh.sessionDuration)}</span></div>}
+            {(sesh.maxScrollDepth || 0) > 0 && <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-400 font-bold uppercase">Scroll</span><span className="text-neutral-200 font-medium">{Math.round(sesh.maxScrollDepth! * 100)}%</span></div>}
+            {sesh.link_clicks > 0 && <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-400 font-bold uppercase">Link Clicks</span><span className="text-neutral-200 font-medium">{sesh.link_clicks}</span></div>}
+            {sesh.game_opens > 0 && <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-400 font-bold uppercase">Game Opens</span><span className="text-neutral-200 font-medium">{sesh.game_opens}</span></div>}
+            {sesh.completed_runs > 0 && <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-400 font-bold uppercase">Runs</span><span className="text-neutral-200 font-medium">{sesh.completed_runs}</span></div>}
+            {sesh.resume_downloads > 0 && <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-400 font-bold uppercase">Resumes</span><span className="text-neutral-200 font-medium">{sesh.resume_downloads}</span></div>}
+            {sesh.contact_submissions > 0 && <div className="flex flex-col gap-0.5"><span className="text-[10px] text-neutral-400 font-bold uppercase">Contacts</span><span className="text-neutral-200 font-medium">{sesh.contact_submissions}</span></div>}
+            {(sesh.rageClicks || 0) > 0 && <div className="flex flex-col gap-0.5"><span className="text-[10px] text-red-400 font-bold uppercase">Rage Clicks</span><span className="text-red-400 font-medium">{sesh.rageClicks}</span></div>}
+            {sesh.utm_campaign && <div className="flex flex-col gap-0.5"><span className="text-[10px] text-indigo-400 font-bold uppercase">Campaign</span><span className="text-indigo-300 font-medium">{sesh.utm_campaign}</span></div>}
         </div>
     );
 }
