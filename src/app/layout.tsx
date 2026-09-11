@@ -1,10 +1,9 @@
 import './globals.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import BehavioralTracker from '../components/BehavioralTracker';
+import SiteAnalytics from '../components/SiteAnalytics';
 import MotionProvider from '../components/motion/MotionProvider';
 import SpotlightTracker from '../components/motion/SpotlightTracker';
-import { GoogleAnalytics } from '@next/third-parties/google';
 import type { Metadata } from 'next';
 import { Outfit } from 'next/font/google';
 
@@ -72,10 +71,9 @@ export default function RootLayout({
                     </div>
                     <Footer />
                 </MotionProvider>
-                <BehavioralTracker />
+                {/* Visitor tracking + GA, skipped on analytics-free routes like /logicsprint */}
+                <SiteAnalytics gaId={gaId} />
                 <SpotlightTracker />
-                {/* Was hard-coded to the "G-XXXXXXXXXX" placeholder, which sent hits nowhere. */}
-                {gaId && <GoogleAnalytics gaId={gaId} />}
             </body>
         </html>
     );

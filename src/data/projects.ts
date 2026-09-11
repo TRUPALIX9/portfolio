@@ -51,6 +51,8 @@ export type Project = {
     architectureImage?: string;
     mermaidChart?: string;
     logoIcon?: string;
+    /** Dedicated product page; cards link here instead of /projects/[slug]. */
+    productUrl?: string;
 };
 
 export const projects: Project[] = [
@@ -248,6 +250,45 @@ flowchart TD
     API <--> DB
     API -- Position Updates --> Pallets
         `
+    },
+    {
+        // Has its own product section at /logicsprint (/projects/logic-sprint redirects there).
+        slug: "logic-sprint",
+        productUrl: "/logicsprint",
+        title: "LogicSprint: Brain Games",
+        tagline: "Endless brain games for reflexes, memory, math and focus.",
+        description: "An Android app with four endless brain games (Rocket Launch, Memory Lane, Quick Math and Guess Color) where your first mistake ends the run. Global Top 10 per game, one display name, no login.",
+        scenario: "Players wanted quick, replayable brain games they could start in seconds, with a real global leaderboard but no account to create.",
+        problemSolved: "Four endless games share one run model: difficulty ramps inside each run and the first mistake ends it. An anonymous Supabase account per device powers a global Top 10 per game, and an optional ad grants one extra life per run.",
+        howToUse: [
+            "Install the Android test build (RC 1). No login required.",
+            "Pick a game and a difficulty, then play until your first mistake.",
+            "Watch an optional ad once per run for an extra life.",
+            "Pick a display name once to appear on each game's global Top 10.",
+        ],
+        outcomes: [
+            "Four games: Rocket Launch (reflex), Memory Lane (memory), Quick Math (arithmetic) and Guess Color (focus).",
+            "Global Top 10 per game and difficulty on Supabase, with anonymous per-device accounts.",
+            "Read-only public game stats shown live on the product page.",
+        ],
+        progress: [
+            { title: "Four games", detail: "Rocket Launch, Memory Lane, Quick Math and Guess Color.", state: "done" },
+            { title: "Global leaderboard", detail: "Supabase-backed Top 10 per game.", state: "done" },
+            { title: "Android release candidate", detail: "RC 1 APK published on GitHub Releases.", state: "done" },
+            { title: "Google Play", detail: "Store release coming soon.", state: "in-progress" },
+        ],
+        futureGoals: [
+            "Launch on Google Play.",
+        ],
+        tech: [
+            { name: "Flutter", icon: "devicon-flutter-plain colored" },
+            { name: "Dart", icon: "devicon-dart-plain colored" },
+            { name: "Supabase", icon: "devicon-supabase-plain colored" }
+        ],
+        links: { live: "#", github: "https://github.com/TRUPALIX9/logic-sprint" },
+        image: "/logicsprint/feature-graphic.png",
+        mediaDisplay: "spotlight",
+        media: []
     },
     {
         slug: "card-snap",
@@ -597,46 +638,6 @@ flowchart TD
         ],
         links: { live: "#", github: "https://github.com/TRUPALIX9/file-system-engine" },
         image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
-        mediaDisplay: "spotlight",
-        media: []
-    },
-    {
-        slug: "logic-sprint",
-        title: "Logic Sprint",
-        tagline: "Flutter brain-training app with two mini-games, local high scores, and an optional Firestore global leaderboard.",
-        description: "LogicSprint is a free Flutter (3.x) + Dart (3.12+) brain-training app for Android and iOS. Features two timed mini-games: Rocket Launch (dodge asteroids for 30 seconds) and Memory Lane (repeat flashing block sequences on 3×3 to 5×5 grids). Scores save locally via shared_preferences, with optional Firestore-backed Global Top 100 leaderboard — no login or ads required.",
-        scenario: "Mobile users wanted quick sub-minute mental challenges they could play offline without accounts, with an optional path into competitive global rankings when Firebase is configured.",
-        problemSolved: "Delivers two distinct timed mini-games in a single Flutter app with streak-based bonus scoring (+20 every 5-streak), per-game and per-difficulty local high scores, and a configurable Firestore leaderboard that activates only when Firebase credentials are provided.",
-        howToUse: [
-            "Install on Android or iOS. No login or account required.",
-            "Play Rocket Launch: drag or use 3D direction buttons to dodge asteroids for 30 seconds.",
-            "Play Memory Lane: watch a flashing block sequence and repeat the exact order on 3×3, 4×4, or 5×5 grids.",
-            "High scores save locally per game and difficulty. Submit a run to the Global Top 100 from the Result screen when Firebase is configured.",
-        ],
-        outcomes: [
-            "Two shipped mini-games: Rocket Launch (dodge/survival) and Memory Lane (sequence memory).",
-            "Streak bonus scoring: +10 per correct action, +20 bonus every 5-streak of flawless performance.",
-            "Local high scores via shared_preferences; optional Firestore Global Top 100 leaderboard.",
-            "Brand asset system under assets/brand/ with brand tokens, per-game tiles, and Play Store graphics.",
-        ],
-        progress: [
-            { title: "Rocket Launch mini-game", detail: "30-second asteroid dodge game with drag and 3D direction button controls.", state: "done" },
-            { title: "Memory Lane mini-game", detail: "Sequence memory game on 3×3 to 5×5 grids with Easy/Medium/Hard difficulty.", state: "done" },
-            { title: "Firestore global leaderboard", detail: "Optional Global Top 100 leaderboard — activates when Firebase config is provided.", state: "done" },
-            { title: "Additional mini-games", detail: "v1 ships two games; further game types are planned for future releases.", state: "planned" },
-        ],
-        futureGoals: [
-            "Add more mini-game types beyond v1's two.",
-            "Publish to Google Play Store and Apple App Store.",
-            "Add in-app ads simulation mode toggle for monetization testing.",
-        ],
-        tech: [
-            { name: "Flutter", icon: "devicon-flutter-plain colored" },
-            { name: "Dart", icon: "devicon-dart-plain colored" },
-            { name: "Firebase", icon: "devicon-firebase-plain colored" }
-        ],
-        links: { live: "#", github: "https://github.com/TRUPALIX9/logic-sprint" },
-        image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80",
         mediaDisplay: "spotlight",
         media: []
     }

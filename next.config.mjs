@@ -10,6 +10,12 @@ const nextConfig = {
     turbopack: {
         root: __dirname,
     },
+    async redirects() {
+        return [
+            // LogicSprint has a dedicated product section.
+            { source: '/projects/logic-sprint', destination: '/logicsprint', permanent: true },
+        ];
+    },
     async headers() {
         return [
             {

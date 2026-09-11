@@ -1,0 +1,379 @@
+/* ── LogicSprint product pages ────────────────────────────────────────────────
+   The app's own look, scoped under .ls-root so none of it leaks into the portfolio.
+   AMOLED black, chamfered (cut) top-left/bottom-right corners, no rounded corners.
+   Contrast on #000: text #EAF2F7 ≈ 18:1, muted #8C9DAD ≈ 7.5:1, blue #3B7BF0 ≈ 5.3:1;
+   accents used as text only sit on #000 or #0A1016 (blue on #0A1016 ≈ 4.8:1). */
+
+.ls-root {
+  --ls-bg: #000000;
+  --ls-surface: #0A1016;
+  --ls-surface-2: #111A23;
+  --ls-line: #1E2A36;
+  --ls-text: #EAF2F7;
+  --ls-muted: #8C9DAD;
+  --ls-blue: #3B7BF0;
+  --ls-aqua: #2BB3D6;
+  --ls-teal: #34C29A;
+  --ls-violet: #8C8CFF;
+  --ls-gradient: linear-gradient(90deg, var(--ls-blue), var(--ls-teal));
+  --ls-cut: 12px;
+  --ls-chamfer: polygon(var(--ls-cut) 0, 100% 0, 100% calc(100% - var(--ls-cut)), calc(100% - var(--ls-cut)) 100%, 0 100%, 0 var(--ls-cut));
+
+  --ls-font-heading: var(--font-rajdhani), 'Rajdhani', system-ui, sans-serif;
+  --ls-font-body: var(--font-plex), 'IBM Plex Sans', system-ui, sans-serif;
+  --ls-font-mono: var(--font-jetbrains), 'JetBrains Mono', ui-monospace, monospace;
+
+  background: var(--ls-bg);
+  color: var(--ls-text);
+  font-family: var(--ls-font-body);
+  line-height: 1.6;
+  padding-top: var(--nav-height);
+}
+
+.ls-root :focus-visible {
+  outline: 2px solid var(--ls-teal);
+  outline-offset: 3px;
+  border-radius: 0;
+}
+
+.ls-container {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-inline: clamp(1.25rem, 5vw, 3rem);
+}
+
+.ls-section {
+  padding-block: clamp(3rem, 8vw, 5.5rem);
+  border-top: 1px solid var(--ls-line);
+}
+
+/* ── Type ── */
+.ls-heading {
+  font-family: var(--ls-font-heading);
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.ls-h1 { font-size: clamp(3rem, 11vw, 5.5rem); }
+.ls-h2 { font-size: clamp(2rem, 6vw, 3rem); margin-bottom: 2rem; }
+.ls-h3 { font-size: 1.75rem; }
+
+.ls-label {
+  font-family: var(--ls-font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--ls-muted);
+}
+
+.ls-num {
+  font-family: var(--ls-font-mono);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.ls-muted { color: var(--ls-muted); }
+
+.ls-gradient-text {
+  background: var(--ls-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ls-link {
+  color: var(--ls-text);
+  text-decoration: underline;
+  text-decoration-color: var(--ls-teal);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.ls-link:hover { text-decoration-thickness: 2px; }
+
+/* ── Chamfered shapes ──
+   Cards: the element is the 1px border (line color) and ::before is the inset surface,
+   both clipped, so the border follows the cut corners. */
+.ls-card {
+  position: relative;
+  isolation: isolate;
+  background: var(--ls-line);
+  clip-path: var(--ls-chamfer);
+}
+
+.ls-card::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: var(--ls-surface);
+  clip-path: var(--ls-chamfer);
+}
+
+.ls-chamfer { clip-path: var(--ls-chamfer); }
+
+/* Buttons draw their shape on ::before and stay unclipped themselves, so the
+   focus outline isn't cut off by clip-path. */
+.ls-btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 48px;
+  padding: 0.8rem 1.6rem;
+  font-family: var(--ls-font-heading);
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ls-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  clip-path: var(--ls-chamfer);
+  transition: filter 150ms ease, transform 150ms ease;
+}
+
+.ls-btn-primary { color: #000; }
+.ls-btn-primary::before { background: var(--ls-gradient); }
+.ls-btn-primary:hover::before { filter: brightness(1.12); }
+
+/* Ghost: ::before is the 1px line, ::after the inset surface (same trick as .ls-card). */
+.ls-btn-ghost { color: var(--ls-text); }
+.ls-btn-ghost::before { background: var(--ls-line); }
+.ls-btn-ghost::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: var(--ls-surface);
+  clip-path: var(--ls-chamfer);
+}
+.ls-btn-ghost:hover:not(:disabled)::after { background: var(--ls-surface-2); }
+.ls-btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.ls-icon-btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0;
+}
+
+/* ── Hero ── */
+.ls-hero {
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+  padding-block: clamp(2.5rem, 7vw, 5rem);
+}
+
+@media (min-width: 960px) {
+  .ls-hero { grid-template-columns: 1fr 1.1fr; gap: 3.5rem; }
+}
+
+.ls-app-icon {
+  width: 88px;
+  height: 88px;
+  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+}
+
+/* ── Stats strip ── */
+.ls-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 1px;
+  background: var(--ls-line);
+  border: 1px solid var(--ls-line);
+}
+
+.ls-stat {
+  background: var(--ls-bg);
+  padding: 1.25rem 1.5rem;
+}
+
+.ls-stat-value {
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  line-height: 1.1;
+  margin-top: 0.35rem;
+}
+
+/* ── Games ── */
+.ls-games {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .ls-games { grid-template-columns: repeat(2, 1fr); }
+}
+
+.ls-game {
+  display: flex;
+  flex-direction: column;
+  padding: 1.75rem 1.5rem 1.5rem;
+}
+
+.ls-game-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.ls-modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin-top: 1.25rem;
+  background: var(--ls-line);
+  border: 1px solid var(--ls-line);
+}
+
+.ls-mode {
+  background: var(--ls-surface-2);
+  padding: 0.6rem 0.75rem;
+}
+
+.ls-game-footer {
+  margin-top: auto;
+  padding-top: 1.25rem;
+}
+
+.ls-game-footer-inner {
+  border-top: 1px solid var(--ls-line);
+  padding-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+}
+
+.ls-top3 li {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  font-size: 0.9375rem;
+}
+
+/* ── How it works ── */
+/* Five steps: one row on desktop, pairs on tablet, a single column on phones (never 4 + 1). */
+.ls-steps {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 480px) {
+  .ls-steps { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 760px) {
+  .ls-steps { grid-template-columns: repeat(5, 1fr); }
+}
+
+.ls-step {
+  padding: 1.25rem;
+  min-height: 7.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ── Screenshot carousel ── */
+.ls-carousel-track {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  padding: 0.5rem 0.25rem 1.25rem;
+  scrollbar-width: none;
+}
+
+.ls-carousel-track > li {
+  flex: 0 0 auto;
+  width: min(62vw, 240px);
+  scroll-snap-align: start;
+}
+
+.ls-phone {
+  padding: 8px;
+  background: var(--ls-line);
+  clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+}
+
+.ls-phone img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1080 / 2400;
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  background: var(--ls-bg);
+}
+
+/* ── Product footer ── */
+.ls-footer {
+  border-top: 1px solid var(--ls-line);
+  padding-block: 2rem 3rem;
+}
+
+.ls-footer ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 0;
+  align-items: center;
+  color: var(--ls-muted);
+}
+
+.ls-footer li + li::before {
+  content: '·';
+  margin-inline: 0.9rem;
+  color: var(--ls-muted);
+}
+
+/* ── Privacy policy ── */
+.ls-prose {
+  max-width: 68ch;
+}
+
+.ls-prose h2 {
+  font-family: var(--ls-font-heading);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 1.6rem;
+  line-height: 1.1;
+  margin: 2.5rem 0 0.75rem;
+}
+
+.ls-prose h3 {
+  font-family: var(--ls-font-heading);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 1.25rem;
+  margin: 1.75rem 0 0.5rem;
+}
+
+.ls-prose p,
+.ls-prose ul { margin-bottom: 1rem; }
+
+.ls-prose ul li {
+  list-style: square;
+  margin-left: 1.25rem;
+}
+
+.ls-prose strong { color: var(--ls-text); font-weight: 600; }
+.ls-prose a { overflow-wrap: anywhere; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-btn::before { transition: none; }
+}

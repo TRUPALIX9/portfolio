@@ -37,7 +37,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     })),
-    ...projects.map((project) => ({
+    {
+      url: `${baseUrl}/logicsprint`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/logicsprint/privacy`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    ...projects.filter((project) => !project.productUrl).map((project) => ({
       url: `${baseUrl}/projects/${project.slug}`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
