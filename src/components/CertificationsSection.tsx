@@ -3,9 +3,8 @@
 import Link from 'next/link';
 import { ArrowRight, Award, BadgeCheck, ExternalLink } from 'lucide-react';
 import { certifications, type Certification } from '@/data/certifications';
+import Carousel from './Carousel';
 import CourseCarousel from './CourseCarousel';
-
-const PREVIEW_COUNT = 4;
 
 function VerifyLink({ cert, compact = false }: { cert: Certification; compact?: boolean }) {
     if (!cert.credentialUrl) return null;
@@ -67,59 +66,96 @@ function FeaturedCard({ cert }: { cert: Certification }) {
     );
 }
 
+const SLIDE_SKILLS = 3;
+
+/** Compact, equal-height card for the home-page certifications carousel. */
+function CertSlide({ cert }: { cert: Certification }) {
+    const extraSkills = cert.skills.length - SLIDE_SKILLS;
+    return (
+        <article
+            className={`card card-interactive spotlight flex w-full flex-col gap-4 rounded-2xl p-5 ${cert.featured ? 'border-accent/25 bg-gradient-to-br from-accent/[0.07] to-transparent' : ''}`}
+        >
+            <div className="flex items-center justify-between gap-3">
+                {cert.featured ? (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.16em] text-accent">
+                        <BadgeCheck size={14} aria-hidden="true" /> Featured
+                    </span>
+                ) : (
+                    <Award size={18} className="text-ink-3" aria-hidden="true" />
+                )}
+                {cert.issued && <span className="font-mono text-xs text-ink-3">{cert.issued}</span>}
+            </div>
+
+            <div className="min-w-0">
+                <h4 className="line-clamp-2 text-base font-bold leading-snug text-ink-1 m-0">{cert.title}</h4>
+                <p className="text-[0.85rem] text-ink-2 m-0 mt-1 truncate">
+                    {cert.issuer}
+                    {cert.platform && <span className="text-ink-3"> · {cert.platform}</span>}
+                </p>
+            </div>
+
+            {cert.skills.length > 0 && (
+                <ul className="flex flex-wrap gap-1.5" aria-label="Skills">
+                    {cert.skills.slice(0, SLIDE_SKILLS).map((skill) => (
+                        <li key={skill} className="rounded-full border border-line-1 bg-surface-3 px-2.5 py-1 text-xs font-medium text-ink-2">
+                            {skill}
+                        </li>
+                    ))}
+                    {extraSkills > 0 && (
+                        <li className="rounded-full px-1.5 py-1 text-xs font-medium text-ink-3" aria-label={`and ${extraSkills} more`}>
+                            +{extraSkills}
+                        </li>
+                    )}
+                </ul>
+            )}
+
+            {/* mt-auto pins the actions to the bottom so every slide lines up */}
+            <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-1">
+                {cert.courses && cert.courses.length > 0 ? (
+                    <Link
+                        href="/certifications"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-ink-2 transition-colors duration-150 hover:text-ink-1"
+                    >
+                        {cert.courses.length} course certificates <ArrowRight size={12} aria-hidden="true" />
+                    </Link>
+                ) : (
+                    <span />
+                )}
+                <VerifyLink cert={cert} compact />
+            </div>
+        </article>
+    );
+}
+
 /**
- * `preview` (home page): featured credentials plus a few others and a link to the full page.
- * `full` (/certifications): every credential.
+ * `preview` (home page): every credential in a swipeable carousel, featured first,
+ * plus a link to the full page.
+ * `full` (/certifications): featured cards (with the course carousel) and the full list.
  */
 export default function CertificationsSection({ variant = 'preview' }: { variant?: 'preview' | 'full' }) {
     const featured = certifications.filter((c) => c.featured);
     const others = certifications.filter((c) => !c.featured);
-    const listed = variant === 'full' ? others : others.slice(0, PREVIEW_COUNT);
     const isPreview = variant === 'preview';
 
-    return (
-        <div id={isPreview ? 'certifications' : undefined} className="rounded-3xl border border-line-1 bg-surface-1 p-6 sm:p-8 lg:p-10 shadow-[var(--shadow-card)]">
-            {isPreview && (
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
-                    <div className="flex items-center gap-3">
-                        <Award className="text-accent" size={28} aria-hidden="true" />
-                        <h3 className="text-2xl font-bold text-ink-1 uppercase tracking-wider m-0">Certifications</h3>
-                    </div>
-                    <span className="text-xs font-semibold text-ink-3 uppercase tracking-widest">
-                        {certifications.length} credentials
-                    </span>
+    if (isPreview) {
+        const ordered = [...featured, ...others];
+        return (
+            <div id="certifications" className="rounded-3xl border border-line-1 bg-surface-1 p-6 sm:p-8 lg:p-10 shadow-[var(--shadow-card)]">
+                <div className="flex items-center gap-3 mb-6">
+                    <Award className="text-accent" size={28} aria-hidden="true" />
+                    <h3 className="text-2xl font-bold text-ink-1 uppercase tracking-wider m-0">Certifications</h3>
                 </div>
-            )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-5 mb-6">
-                {featured.map((cert) => <FeaturedCard key={cert.title} cert={cert} />)}
-            </div>
+                <Carousel
+                    label="Certifications"
+                    itemName="certification"
+                    title={<span className="text-xs font-semibold uppercase tracking-widest text-ink-3">{certifications.length} credentials</span>}
+                    slideClassName="w-[85%] sm:w-[300px]"
+                    slideLabels={ordered.map((c) => c.title)}
+                >
+                    {ordered.map((cert) => <CertSlide key={cert.title} cert={cert} />)}
+                </Carousel>
 
-            {!isPreview && (
-                <h3 className="text-xs font-bold uppercase tracking-[0.14em] text-ink-2 mb-4 mt-10">
-                    All credentials
-                </h3>
-            )}
-
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {listed.map((cert) => (
-                    <li
-                        key={cert.title}
-                        className="card card-interactive spotlight flex items-center justify-between gap-4 px-5 py-4 rounded-xl"
-                    >
-                        <div className="min-w-0">
-                            <h4 className="text-[0.95rem] font-semibold text-ink-1 m-0 leading-snug">{cert.title}</h4>
-                            <Meta cert={cert} />
-                            {!isPreview && cert.skills.length > 0 && (
-                                <p className="text-xs text-ink-3 m-0 mt-1.5">{cert.skills.join(' · ')}</p>
-                            )}
-                        </div>
-                        <VerifyLink cert={cert} compact />
-                    </li>
-                ))}
-            </ul>
-
-            {isPreview && others.length > PREVIEW_COUNT && (
                 <div className="flex justify-center mt-7">
                     <Link
                         href="/certifications"
@@ -130,7 +166,37 @@ export default function CertificationsSection({ variant = 'preview' }: { variant
                         <ArrowRight size={15} aria-hidden="true" />
                     </Link>
                 </div>
-            )}
+            </div>
+        );
+    }
+
+    return (
+        <div className="rounded-3xl border border-line-1 bg-surface-1 p-6 sm:p-8 lg:p-10 shadow-[var(--shadow-card)]">
+            <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-5 mb-6">
+                {featured.map((cert) => <FeaturedCard key={cert.title} cert={cert} />)}
+            </div>
+
+            <h3 className="text-xs font-bold uppercase tracking-[0.14em] text-ink-2 mb-4 mt-10">
+                All credentials
+            </h3>
+
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {others.map((cert) => (
+                    <li
+                        key={cert.title}
+                        className="card card-interactive spotlight flex items-center justify-between gap-4 px-5 py-4 rounded-xl"
+                    >
+                        <div className="min-w-0">
+                            <h4 className="text-[0.95rem] font-semibold text-ink-1 m-0 leading-snug">{cert.title}</h4>
+                            <Meta cert={cert} />
+                            {cert.skills.length > 0 && (
+                                <p className="text-xs text-ink-3 m-0 mt-1.5">{cert.skills.join(' · ')}</p>
+                            )}
+                        </div>
+                        <VerifyLink cert={cert} compact />
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }

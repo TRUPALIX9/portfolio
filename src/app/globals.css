@@ -69,7 +69,10 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  overflow-x: hidden;
+  /* clip, not hidden: `overflow-x: hidden` silently turns <body> into a scroll container,
+     which makes every `animation-timeline: view()` attach to a box that never scrolls
+     (so the wireframe scroll animation never ran). clip hides overflow without that. */
+  overflow-x: clip;
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -302,15 +305,121 @@ button {
   border-radius: 6px;
 }
 
+/* ── Wireframe → built scroll motion ─────────────────────────────────────────
+   Cards start as a hairline wireframe, an accent line traces their border, then the
+   surface fills in — all scrubbed by scroll position.
+
+   Why it can't disrupt scrolling:
+   • Native CSS scroll-driven animations (animation-timeline: view()) — no JS scroll
+     listeners, no scroll-jacking; the hero's JS choreography is untouched.
+   • Only registered custom properties animate; the card reads them for its fill and ring.
+     Hover styles (transform/border/shadow) are never overridden by the animation.
+   • The @property initial values ARE the finished state, so anything that doesn't run the
+     animation — unsupported browsers, reduced motion, cards inside other scrollers (their
+     view timeline is inactive), `.no-wire` — simply renders the completed card. */
+@property --wire-draw {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 360deg;
+}
+
+@property --wire-fill {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
+@property --wire-line {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+@keyframes wire-build {
+  0%   { --wire-draw: 0deg;   --wire-fill: 0; --wire-line: 1; }
+  55%  { --wire-draw: 360deg; --wire-fill: 0; --wire-line: 1; }
+  100% { --wire-draw: 360deg; --wire-fill: 1; --wire-line: 0; }
+}
+
+@keyframes grid-drift {
+  to { background-position: 0 -160px, -160px 0; }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* The admin dashboard (.playground-admin) opts out — a working tool shouldn't redraw on scroll. */
+    .card:not(.no-wire, .no-wire *, .playground-admin *) {
+      animation: wire-build linear both;
+      animation-timeline: view();
+      /* from the moment the card's top edge enters, until it's ~35% into view */
+      animation-range: entry 0% cover 35%;
+    }
+
+    /* Drafting grid drifts at a slower rate than the content (subtle parallax). */
+    #main-content::before {
+      animation: grid-drift linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+}
+
+/* Faint blueprint grid behind all page content. Sits under everything (z-index -1 inside
+   #main-content's own stacking context); the fixed hero panel covers it while in the hero.
+   Lines are ~3.5% white — far too faint to affect text contrast. */
+#main-content {
+  position: relative;
+  isolation: isolate;
+}
+
+#main-content::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 85%);
+  mask-size: 100% 100vh;
+  mask-repeat: repeat-y;
+}
+
 /* ── Surface & motion components ─────────────────────────────────────────────
    In @layer components so any Tailwind utility on the same element still wins. */
 @layer components {
   /* Elevation level 2: separates from the page via a lighter surface, a hairline border,
      a faint top highlight and a soft drop shadow. */
   .card {
-    background-color: var(--surface-2);
+    position: relative;
+    /* --wire-fill is 1 (solid) unless the wireframe scroll animation is running. */
+    background-color: color-mix(in srgb, var(--surface-2) calc(var(--wire-fill) * 100%), transparent);
     border: 1px solid var(--line-1);
     box-shadow: var(--shadow-card);
+  }
+
+  /* The traced wireframe line: a conic sweep masked down to a 1px ring that follows the
+     card's rounded corners. Invisible (alpha 0) whenever --wire-line is 0.
+     inset: 0 (not -1px over the border) so cards with overflow: hidden, like the project
+     cards, don't clip the ring away. */
+  .card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    background: conic-gradient(
+      from 225deg,
+      rgb(74 222 128 / calc(var(--wire-line) * 0.85)) var(--wire-draw),
+      transparent 0
+    );
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
   }
 
   .card-interactive {

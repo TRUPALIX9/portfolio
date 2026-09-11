@@ -29,7 +29,8 @@ export default function CertificationsPage() {
                             Certifications<span className="gradient-text">.</span>
                         </h1>
                         <p className="measure mt-4 text-lg leading-[1.7] text-ink-2">
-                            {certifications.length} credentials from {issuers} issuers. Every one with a Verify link opens the issuer&apos;s own record.
+                            {/* explicit {' '}: the compiler was dropping this space ("7issuers") */}
+                            {certifications.length} credentials from {issuers}{' '}issuers. Every one with a Verify link opens the issuer&apos;s own record.
                         </p>
                     </header>
                 </Reveal>
