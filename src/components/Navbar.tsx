@@ -3,8 +3,9 @@ import { useState, Suspense, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { LinkedinIcon, navLinks } from '@/data/site-config';
+import { useSitePathname } from '@/hooks/useSitePathname';
 
 const GithubIcon = ({ size = 20 }: { size?: number }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -15,6 +16,7 @@ const GithubIcon = ({ size = 20 }: { size?: number }) => (
 // Map of nav link labels to section IDs for single-page scroll anchors
 const SECTION_ANCHORS: Record<string, string> = {
   'About':      'about',
+  'Products':   'products',
   'Work':       'projects',
   'Experience': 'experience',
   'Contact':    'contact',
@@ -24,7 +26,7 @@ const SECTION_ANCHORS: Record<string, string> = {
 const ROUTE_ONLY = new Set(['/social', '/game']);
 
 function NavbarContent() {
-  const pathname     = usePathname();
+  const pathname     = useSitePathname();
   const searchParams = useSearchParams();
   const isStrict            = searchParams.get('strict') === 'true';
   const isArcadeOnly        = pathname.startsWith('/arcade/');
@@ -150,6 +152,7 @@ function NavbarContent() {
     <>
       <motion.nav
         aria-label="Primary"
+        data-site-chrome
         onFocus={() => setHasFocusWithin(true)}
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHasFocusWithin(false);

@@ -75,6 +75,7 @@ const SnapchatIcon = ({ size = 24 }: { size?: number }) => (
 
 export const navLinks: NavLink[] = [
     { href: "/#about", label: "About" },
+    { href: "/#products", label: "Products" },
     { href: "/#projects", label: "Work" },
     { href: "/#experience", label: "Experience" },
     { href: "/game", label: "Are You Smart?" },

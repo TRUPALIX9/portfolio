@@ -26,7 +26,7 @@ export default function ProjectShowcase() {
                             {/* Card classes sit inside the StaggerItem so its inline transform can't cancel the hover lift. */}
                             <article className="card card-interactive spotlight group flex h-full flex-col overflow-hidden rounded-2xl">
                                 {/* Image */}
-                                <Link href={project.productUrl ?? `/projects/${project.slug}`} tabIndex={-1} aria-hidden="true" className="relative flex h-[220px] w-full items-center justify-center overflow-hidden border-b border-line-1 bg-surface-1 p-6">
+                                <Link href={`/projects/${project.slug}`} tabIndex={-1} aria-hidden="true" className="relative flex h-[220px] w-full items-center justify-center overflow-hidden border-b border-line-1 bg-surface-1 p-6">
                                     <motion.img
                                         src={project.image}
                                         alt={project.title}
@@ -63,7 +63,7 @@ export default function ProjectShowcase() {
                                 </div>
 
                                 {/* Entire card link overlay */}
-                                <Link href={project.productUrl ?? `/projects/${project.slug}`} className="absolute inset-0 z-10 rounded-2xl">
+                                <Link href={`/projects/${project.slug}`} className="absolute inset-0 z-10 rounded-2xl">
                                     <span className="sr-only">View {project.title} details</span>
                                 </Link>
                             </article>

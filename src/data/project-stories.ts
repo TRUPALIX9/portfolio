@@ -15,32 +15,6 @@ export type ProjectStory = {
 };
 
 export const projectStories: Record<string, ProjectStory> = {
-    storedesk: {
-        integration:
-            'StoreDesk is five Git submodules that meet on two paths. Inside the store, StoreDesk Worker pulls the PLU catalog from the Verifone Commander over NAXML into a local MongoDB, and the Electron Desktop UI reads from it directly. Outside the store, the Cloud Hub on Google Cloud relays WebSocket traffic, so the Flutter scanner and the Next.js dashboard can reach the Worker without the store network accepting inbound connections. Devices are paired with Setup Keys issued from StoreDesk Web.',
-        challenges: [
-            {
-                title: 'The internet could not be a dependency',
-                problem: 'A cloud-first design would stop a store the moment its ISP dropped, which is exactly when a register still has to ring up sales.',
-                resolution: 'Made the Worker local-first on the store edge network, with MongoDB persisted to disk. The cloud only adds reach, it never gates the store floor.',
-            },
-            {
-                title: '15 MB XML dumps on every sync',
-                problem: 'Full NAXML catalog exports were far too heavy to push to the cloud repeatedly over store connections.',
-                resolution: 'Replaced full uploads with MD5 delta-hash synchronization, so only records that actually changed leave the store.',
-            },
-            {
-                title: 'Price checks had to feel instant',
-                problem: 'Staff scanning a shelf will not wait on a slow round trip for cost and margin.',
-                resolution: 'Routed scanner lookups over a persistent WebSocket relay to the Worker, bringing lookups under 100 ms.',
-            },
-        ],
-        learnings: [
-            'Designing for the failure mode first (going offline) shaped every other architectural decision.',
-            'Integrating with point-of-sale hardware means reading vendor protocol specs closely and writing defensive parsers for real-world data.',
-            'Shipping desktop, mobile, and web alone only works with strict module boundaries and repeatable release builds (.exe and .apk).',
-        ],
-    },
     retailsync: {
         integration:
             'RetailSync is a TypeScript monorepo: a React + Redux Toolkit client and an Express API share one schema package, so a domain type is defined exactly once. Interactive requests stay fast because heavy work, such as PDF rendering, OCR, and artifact generation, runs as background jobs that write results to cloud storage. Google Sheets and QuickBooks sit behind their own service layers so each integration can fail on its own.',
@@ -224,26 +198,6 @@ export const projectStories: Record<string, ProjectStory> = {
         learnings: [
             'Electron security is mostly about what the renderer is not allowed to do.',
             'An audit log (SQLite) is cheap to add early and invaluable for debugging and automation later.',
-        ],
-    },
-    'logic-sprint': {
-        integration:
-            'A single Flutter (Dart) app contains two mini-games. Scores are saved locally per game and difficulty with shared_preferences, and the Firestore Global Top 100 leaderboard only activates when Firebase configuration is present.',
-        challenges: [
-            {
-                title: 'No accounts, still competitive',
-                problem: 'Players wanted quick offline sessions without sign-up, but also a global ranking.',
-                resolution: 'Made local high scores the default and gated the Firestore leaderboard behind optional config.',
-            },
-            {
-                title: 'Rewarding consistency',
-                problem: 'Flat points did not reward flawless runs.',
-                resolution: 'Added streak scoring: +10 per correct action and a +20 bonus every 5-streak.',
-            },
-        ],
-        learnings: [
-            'Optional cloud features keep an app useful offline and simple to self-host.',
-            'Small scoring rules change how a game feels more than new content does.',
         ],
     },
 };

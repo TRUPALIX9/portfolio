@@ -33,11 +33,16 @@ AIVID.AI provides enterprise-scale edge computer vision and analytics across 200
   - Developed scalable, highly responsive user interfaces and robust state management utilizing Redux.
   - Collaborated across teams to seamlessly integrate RESTful APIs and eliminate UI defects.
 
-## Independent Projects
+## Products
 
 ### StoreDesk
 A production-grade, 5-module retail command center and Point-of-Sale (POS) ecosystem built from scratch.
 - **Focus**: Eliminating downtime risks for convenience stores with offline-first edge capabilities and ultra-fast transaction processing.
+- **Links**: https://storedesk.net · https://trupalpatel.com/products/storedesk
+
+### LogicSprint: Brain Games
+An Android app with four endless brain games for reflexes, memory, math and focus, with a global Top 10 per game and no login.
+- **Links**: https://logicsprint.trupalpatel.com
 
 ## Professional Philosophy
 "For me, it is all about deeply understanding a problem, designing a scalable architecture, and writing clean code that makes a real impact. I would love to bring this exact same drive and architectural vision to your team."
@@ -47,4 +52,4 @@ A production-grade, 5-module retail command center and Point-of-Sale (POS) ecosy
 - **Email**: trupal.work@gmail.com
 - **LinkedIn**: linkedin.com/in/trupalix
 - **GitHub**: github.com/TRUPALIX9
-- **Portfolio**: https://true-pal.vercel.app
+- **Portfolio**: https://trupalpatel.com

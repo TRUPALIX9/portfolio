@@ -1,8 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { Download } from 'lucide-react';
+import { ArrowUpRight, Download } from 'lucide-react';
 import { APP, GAMES, HOW_IT_WORKS, SCREENSHOTS } from '@/data/logicsprint';
+import { LOGICSPRINT_URL, SITE_URL } from '@/data/site';
 import { getLogicSprintStats, getTopThreeByGame } from '@/utils/logicsprint-stats';
 import ScreenshotCarousel from '@/components/logicsprint/ScreenshotCarousel';
 
@@ -12,11 +13,12 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
     title: APP.title,
     description: APP.tagline,
-    alternates: { canonical: '/logicsprint' },
+    // The subdomain is LogicSprint's primary home; /logicsprint inside the portfolio is a mirror.
+    alternates: { canonical: LOGICSPRINT_URL },
     openGraph: {
         title: APP.title,
         description: APP.tagline,
-        url: '/logicsprint',
+        url: LOGICSPRINT_URL,
         siteName: 'Trupal Patel Portfolio',
         type: 'website',
         images: [{ url: APP.featureGraphic, width: 1024, height: 500, alt: 'LogicSprint: Reflex, Memory, Math, Focus' }],
@@ -39,7 +41,7 @@ const jsonLd = {
     description: APP.tagline,
     applicationCategory: 'GameApplication',
     operatingSystem: 'Android',
-    image: `https://true-pal.vercel.app${APP.icon}`,
+    image: `${SITE_URL}${APP.icon}`,
     downloadUrl: APP.apkUrl,
     author: { '@type': 'Person', name: 'Trupal Patel' },
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
@@ -65,10 +67,17 @@ export default async function LogicSprintPage() {
                         <p style={{ fontSize: 'clamp(1.125rem, 2.5vw, 1.375rem)', lineHeight: 1.5, margin: '1.25rem 0 2rem', maxWidth: '32ch' }}>
                             {APP.tagline}
                         </p>
-                        <a href={APP.apkUrl} className="ls-btn ls-btn-primary">
-                            <Download size={20} aria-hidden="true" />
-                            {APP.apkLabel}
-                        </a>
+                        <div className="ls-hero-actions">
+                            <a href={APP.apkUrl} className="ls-btn ls-btn-primary">
+                                <Download size={20} aria-hidden="true" />
+                                {APP.apkLabel}
+                            </a>
+                            {/* Portfolio only: the product's own site opens in a new tab. */}
+                            <a href={LOGICSPRINT_URL} target="_blank" rel="noopener" className="ls-btn ls-btn-ghost ls-on-portfolio">
+                                Open product site
+                                <ArrowUpRight size={20} aria-hidden="true" />
+                            </a>
+                        </div>
                         <p className="ls-label" style={{ marginTop: '1rem' }}>{APP.buildNote}</p>
                     </div>
 
@@ -202,6 +211,9 @@ export default async function LogicSprintPage() {
                         <li><Link href="/logicsprint/privacy" className="ls-link">Privacy policy</Link></li>
                         <li>
                             Support: <a href={`mailto:${APP.supportEmail}`} className="ls-link">{APP.supportEmail}</a>
+                        </li>
+                        <li className="ls-on-subdomain">
+                            Built by <a href={SITE_URL} target="_blank" rel="noopener" className="ls-link">Trupal Patel</a>
                         </li>
                     </ul>
                 </div>

@@ -51,74 +51,9 @@ export type Project = {
     architectureImage?: string;
     mermaidChart?: string;
     logoIcon?: string;
-    /** Dedicated product page; cards link here instead of /projects/[slug]. */
-    productUrl?: string;
 };
 
 export const projects: Project[] = [
-    {
-        slug: "storedesk",
-        title: "StoreDesk",
-        tagline: "Production-grade, 5-module local-first retail command center & POS sync ecosystem for convenience stores.",
-        description: "A 5-module local-first POS ecosystem for convenience stores. Connects directly to live Verifone Commander registers via NAXML for PLU seeding, vendor cost analysis, and automated reporting without ISP dependencies.",
-        scenario: "Convenience store and gas station operators require real-time POS visibility, catalog management, vendor cost analysis, and automated sales reporting on the store floor without risking store shutdown during internet outages.",
-        problemSolved: "StoreDesk guarantees continuous store operations through 5 specialized modules: 1) StoreDesk Worker (Local Edge Node communicating with Verifone Commander via NAXML), 2) StoreDesk Desktop UI (Electron back-office command center), 3) StoreDesk Cloud Hub (GCP WebSocket Relay & Setup Key Server), 4) StoreDesk Web (Next.js 15 multi-store cloud dashboard), and 5) StoreDesk Mobile (Android Flutter barcode scanner with sub-100ms WebSocket lookups).",
-        howToUse: [
-            "Launch StoreDesk Desktop UI (Electron) on the back-office PC and activate using a secure Setup Key generated from StoreDesk Web.",
-            "StoreDesk Worker automatically seeds 10,000+ PLUs via direct NAXML HTTP requests from the Verifone Commander register into local MongoDB.",
-            "Use StoreDesk Mobile (Android Flutter app) to scan floor barcodes, instantly fetching live cost, margin, and retail prices over WebSocket relays.",
-            "Review profit margins, vendor costs, and automated Google Sheets sales reporting from StoreDesk Web.",
-        ],
-        outcomes: [
-            "Architected across 5 Git submodules: StoreDesk Worker, StoreDesk Desktop UI, StoreDesk Cloud Hub, StoreDesk Web, and StoreDesk Mobile.",
-            "Eliminates downtime risk by running StoreDesk Worker local-first on the store edge network with Verifone Commander.",
-            "Reduces cloud data transfer payloads from ~15MB XML dumps to lightweight MD5 delta-hash synchronization.",
-            "Delivers compiled Windows .exe installers for StoreDesk Desktop UI and Android .apk binaries for StoreDesk Mobile alongside StoreDesk Web.",
-        ],
-        progress: [
-            { title: "StoreDesk Worker (NAXML Integration)", detail: "Bulk XML PLU auto-seeding (pageSize=9999) with local MongoDB disk resilience.", state: "done" },
-            { title: "StoreDesk Cloud Hub (WSS Relay)", detail: "Sub-100ms WebSocket lookup relay connecting StoreDesk Mobile with StoreDesk Worker.", state: "done" },
-            { title: "StoreDesk Desktop UI & Web Admin", detail: "Back-office Electron control room and Next.js 15 multi-store dashboard.", state: "done" },
-            { title: "Production Multi-Platform Releases (v0.0.4)", detail: "Windows Desktop .exe installer and Android .apk binaries published on GitHub Releases.", state: "done" },
-        ],
-        futureGoals: [
-            "Expand StoreDesk Worker POS connectors to Gilbarco Passport and Wayne Nucleus registers.",
-            "Integrate AI-driven vendor invoice OCR parsing in StoreDesk Web.",
-            "Deploy multi-store inventory transfers in StoreDesk Web.",
-        ],
-        tech: [
-            { name: "Electron", icon: "devicon-electron-original colored" },
-            { name: "React", icon: "devicon-react-original colored" },
-            { name: "TypeScript", icon: "devicon-typescript-plain colored" },
-            { name: "Node.js", icon: "devicon-nodejs-plain colored" },
-            { name: "Flutter", icon: "devicon-flutter-plain colored" },
-            { name: "MongoDB", icon: "devicon-mongodb-plain colored" },
-            { name: "Next.js", icon: "devicon-nextjs-plain" },
-            { name: "Google Cloud", icon: "devicon-googlecloud-plain colored" }
-        ],
-        links: {
-            live: "https://store-desk-prod.vercel.app/",
-            github: "https://github.com/TRUPALIX9/StoreDesk"
-        },
-        image: "/storedesk_logo.svg",
-        mediaDisplay: "spotlight",
-        media: [
-            {
-                type: "image",
-                src: "/storedesk_logo.svg",
-                title: "StoreDesk Desktop UI Command Center",
-                caption: "Electron Desktop UI featuring Price Book, Cost Analysis, POS Sales, and Vendor Review.",
-            },
-            {
-                type: "image",
-                src: "https://images.unsplash.com/photo-1556742393-d75f468bfcb0?auto=format&fit=crop&w=1200&q=80",
-                title: "StoreDesk Mobile Companion Scanner",
-                caption: "Flutter Android app executing sub-100ms barcode price & margin lookups over WebSockets.",
-            },
-        ],
-        architectureImage: "/projects/storedesk_architecture.svg",
-        logoIcon: "/storedesk_icon.svg"
-    },
     {
         slug: "retailsync",
         title: "RetailSync SaaS",
@@ -250,45 +185,6 @@ flowchart TD
     API <--> DB
     API -- Position Updates --> Pallets
         `
-    },
-    {
-        // Has its own product section at /logicsprint (/projects/logic-sprint redirects there).
-        slug: "logic-sprint",
-        productUrl: "/logicsprint",
-        title: "LogicSprint: Brain Games",
-        tagline: "Endless brain games for reflexes, memory, math and focus.",
-        description: "An Android app with four endless brain games (Rocket Launch, Memory Lane, Quick Math and Guess Color) where your first mistake ends the run. Global Top 10 per game, one display name, no login.",
-        scenario: "Players wanted quick, replayable brain games they could start in seconds, with a real global leaderboard but no account to create.",
-        problemSolved: "Four endless games share one run model: difficulty ramps inside each run and the first mistake ends it. An anonymous Supabase account per device powers a global Top 10 per game, and an optional ad grants one extra life per run.",
-        howToUse: [
-            "Install the Android test build (RC 1). No login required.",
-            "Pick a game and a difficulty, then play until your first mistake.",
-            "Watch an optional ad once per run for an extra life.",
-            "Pick a display name once to appear on each game's global Top 10.",
-        ],
-        outcomes: [
-            "Four games: Rocket Launch (reflex), Memory Lane (memory), Quick Math (arithmetic) and Guess Color (focus).",
-            "Global Top 10 per game and difficulty on Supabase, with anonymous per-device accounts.",
-            "Read-only public game stats shown live on the product page.",
-        ],
-        progress: [
-            { title: "Four games", detail: "Rocket Launch, Memory Lane, Quick Math and Guess Color.", state: "done" },
-            { title: "Global leaderboard", detail: "Supabase-backed Top 10 per game.", state: "done" },
-            { title: "Android release candidate", detail: "RC 1 APK published on GitHub Releases.", state: "done" },
-            { title: "Google Play", detail: "Store release coming soon.", state: "in-progress" },
-        ],
-        futureGoals: [
-            "Launch on Google Play.",
-        ],
-        tech: [
-            { name: "Flutter", icon: "devicon-flutter-plain colored" },
-            { name: "Dart", icon: "devicon-dart-plain colored" },
-            { name: "Supabase", icon: "devicon-supabase-plain colored" }
-        ],
-        links: { live: "#", github: "https://github.com/TRUPALIX9/logic-sprint" },
-        image: "/logicsprint/feature-graphic.png",
-        mediaDisplay: "spotlight",
-        media: []
     },
     {
         slug: "card-snap",

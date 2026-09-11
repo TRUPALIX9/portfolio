@@ -1,9 +1,10 @@
 import { MetadataRoute } from 'next';
 import { projects } from '@/data/projects';
 import master from '@/data/master.json';
+import { LOGICSPRINT_URL, SITE_URL } from '@/data/site';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://true-pal.vercel.app';
+  const baseUrl = SITE_URL;
 
   return [
     {
@@ -38,18 +39,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     })),
     {
-      url: `${baseUrl}/logicsprint`,
+      // LogicSprint's canonical home is its subdomain (see src/proxy.ts).
+      url: LOGICSPRINT_URL,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/logicsprint/privacy`,
+      url: `${LOGICSPRINT_URL}/privacy`,
       lastModified: new Date(),
       changeFrequency: 'yearly',
       priority: 0.3,
     },
-    ...projects.filter((project) => !project.productUrl).map((project) => ({
+    {
+      url: `${baseUrl}/products`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/products/storedesk`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    ...projects.map((project) => ({
       url: `${baseUrl}/projects/${project.slug}`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,

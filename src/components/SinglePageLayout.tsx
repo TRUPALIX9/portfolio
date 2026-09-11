@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import VerticalNav       from './VerticalNav';
 import HeroSection       from './HeroSection';
 import AboutSection      from './AboutSection';
+import ProductShowcase   from './ProductShowcase';
 import ProjectShowcase   from './ProjectShowcase';
 import Reveal            from '@/components/motion/Reveal';
 
@@ -27,6 +28,10 @@ export default function SinglePageLayout() {
 
                 <section id="about" className="w-full relative">
                     <AboutSection />
+                </section>
+
+                <section id="products" className="w-full relative">
+                    <ProductShowcase />
                 </section>
 
                 <section id="projects" className="w-full relative">

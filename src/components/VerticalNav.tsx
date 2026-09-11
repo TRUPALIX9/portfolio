@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, User, Award, Layers, History, Mail, Cpu } from 'lucide-react';
+import { Sparkles, User, Award, Layers, History, Mail, Cpu, Package } from 'lucide-react';
 import { EASE_OUT } from '@/components/motion/Reveal';
 
 const navItems = [
@@ -11,6 +11,7 @@ const navItems = [
     { id: 'certifications', label: 'Certifications', icon: Award },
     { id: 'experience', label: 'Experience', icon: History },
     { id: 'tech-stack', label: 'Tech Stack', icon: Cpu },
+    { id: 'products', label: 'Products', icon: Package },
     { id: 'projects', label: 'Projects', icon: Layers },
     { id: 'contact', label: 'Contact', icon: Mail },
 ];

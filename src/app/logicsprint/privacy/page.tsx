@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft } from 'lucide-react';
 import { APP } from '@/data/logicsprint';
+import { LOGICSPRINT_URL } from '@/data/site';
 import PolicyMarkdown from '@/components/logicsprint/PolicyMarkdown';
 
 // Google Play links here: keep this URL stable. Rendered once at build time from a
@@ -13,7 +14,14 @@ export const dynamic = 'force-static';
 export const metadata: Metadata = {
     title: `Privacy Policy · ${APP.title}`,
     description: `How ${APP.title} handles information.`,
-    alternates: { canonical: '/logicsprint/privacy' },
+    alternates: { canonical: `${LOGICSPRINT_URL}/privacy` },
+    openGraph: {
+        title: `Privacy Policy · ${APP.title}`,
+        description: `How ${APP.title} handles information.`,
+        url: `${LOGICSPRINT_URL}/privacy`,
+        siteName: APP.title,
+        type: 'website',
+    },
 };
 
 export default function LogicSprintPrivacyPage() {

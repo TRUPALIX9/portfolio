@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useSitePathname } from '@/hooks/useSitePathname';
 import { useState, useRef } from 'react';
 import { Mail, ArrowUp } from 'lucide-react';
 
@@ -21,7 +22,7 @@ const LinkedinIcon = ({ size = 18 }: { size?: number }) => (
 );
 
 export default function Footer() {
-    const pathname = usePathname();
+    const pathname = useSitePathname();
     const router = useRouter();
 
     const [clickCount, setClickCount] = useState(0);
@@ -81,7 +82,7 @@ export default function Footer() {
     };
 
     return (
-        <footer style={{ backdropFilter: 'blur(16px)', marginBottom: '3rem' }} className="py-12 border-t border-line-1 bg-surface-1/80">
+        <footer data-site-chrome style={{ backdropFilter: 'blur(16px)', marginBottom: '3rem' }} className="py-12 border-t border-line-1 bg-surface-1/80">
             <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
                 {/* Top row: name/tagline + social icons */}
@@ -147,6 +148,7 @@ export default function Footer() {
                     <p className="text-ink-3">© {new Date().getFullYear()} Trupal Patel. All rights reserved.</p>
                     <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
                         <Link href="/#about" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">About</Link>
+                        <Link href="/products" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Products</Link>
                         <Link href="/certifications" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Certifications</Link>
                         <Link href="/#projects" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Work</Link>
                         <Link href="/#experience" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Experience</Link>

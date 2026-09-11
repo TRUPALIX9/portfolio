@@ -34,8 +34,7 @@ const stateStyle: Record<string, { icon: ReactNode; badge: string; color: string
 };
 
 export function generateStaticParams() {
-    // Projects with their own product page are redirected in next.config.mjs.
-    return projects.filter((project) => !project.productUrl).map((project) => ({ slug: project.slug }));
+    return projects.map((project) => ({ slug: project.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

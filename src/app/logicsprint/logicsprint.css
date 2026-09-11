@@ -4,6 +4,17 @@
    Contrast on #000: text #EAF2F7 ≈ 18:1, muted #8C9DAD ≈ 7.5:1, blue #3B7BF0 ≈ 5.3:1;
    accents used as text only sit on #000 or #0A1016 (blue on #0A1016 ≈ 4.8:1). */
 
+/* logicsprint.* subdomain: a standalone site, so no portfolio navbar/footer (flag set in the root layout). */
+html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
+
+/* Host-specific pieces: .ls-on-subdomain shows only on logicsprint.*, .ls-on-portfolio only
+   inside the portfolio. Pure CSS off the same flag, so there's no flash and no hydration mismatch. */
+html:not([data-site='logicsprint']) .ls-on-subdomain,
+html[data-site='logicsprint'] .ls-on-portfolio { display: none !important; }
+
+/* The product top bar replaces the portfolio navbar on the subdomain. */
+html[data-site='logicsprint'] .ls-root { padding-top: 0; }
+
 .ls-root {
   --ls-bg: #000000;
   --ls-surface: #0A1016;
@@ -167,6 +178,58 @@
   min-height: 44px;
   min-width: 44px;
   padding: 0;
+}
+
+/* ── Product top bar (subdomain only) ── */
+.ls-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgb(0 0 0 / 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--ls-line);
+}
+
+.ls-topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 64px;
+}
+
+.ls-topbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 1.5rem;
+  min-height: 44px;
+}
+
+.ls-topbar-brand img {
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+.ls-topbar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  color: var(--ls-text);
+  white-space: nowrap;
+}
+
+.ls-topbar-link:hover { color: var(--ls-teal); }
+
+/* Phones: "Portfolio" alone, so the link stays on one line next to the brand. */
+@media (max-width: 420px) {
+  .ls-topbar-long { display: none; }
+}
+
+.ls-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 /* ── Hero ── */

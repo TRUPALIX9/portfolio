@@ -12,8 +12,11 @@ const nextConfig = {
     },
     async redirects() {
         return [
-            // LogicSprint has a dedicated product section.
+            // StoreDesk and LogicSprint moved from Projects to Products. LogicSprint keeps
+            // /logicsprint because its privacy policy URL is registered with Google Play.
             { source: '/projects/logic-sprint', destination: '/logicsprint', permanent: true },
+            { source: '/projects/storedesk', destination: '/products/storedesk', permanent: true },
+            { source: '/products/logicsprint', destination: '/logicsprint', permanent: true },
         ];
     },
     async headers() {

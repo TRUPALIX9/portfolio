@@ -11,7 +11,7 @@ const GithubIcon = ({ size = 20 }: { size?: number }) => (
 );
 
 /** Card images that are logos/wordmarks: shown whole (contain + padding) instead of cropped. */
-const LOGO_IMAGES = new Set(['/storedesk_logo.svg', '/retailsync_logo.png', '/web_warehouse_card.png', '/logicsprint/feature-graphic.png']);
+const LOGO_IMAGES = new Set(['/retailsync_logo.png', '/web_warehouse_card.png']);
 
 const iconLinkClass =
     'inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-3 transition-colors duration-200 hover:bg-surface-3 hover:text-ink-1';
@@ -73,7 +73,7 @@ export default function ProjectsGallery() {
 
                                     <div className="mt-auto flex items-center gap-2 border-t border-line-1 pt-5">
                                         <Link
-                                            href={project.productUrl ?? `/projects/${project.slug}`}
+                                            href={`/projects/${project.slug}`}
                                             className="btn-outline"
                                             aria-label={`Read more about ${project.title}`}
                                             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.45rem 1.1rem', fontSize: '0.875rem' }}

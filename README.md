@@ -24,13 +24,14 @@ It contains:
 ## Live Links & Repositories
 
 ### Portfolio & Credentials
-- **Personal Portfolio**: [https://true-pal.vercel.app/](https://true-pal.vercel.app/)
+- **Personal Portfolio**: [https://trupalpatel.com/](https://trupalpatel.com/)
 - **GitHub Profile**: [https://github.com/TRUPALIX9](https://github.com/TRUPALIX9)
 - **Meta Front-End Developer Badge (Credly)**: [View Credential](https://www.credly.com/badges/8acca941-de83-466e-b754-0518b0f25e25)
 - **All certifications**: `/certifications` on the site (data in [src/data/certifications.ts](src/data/certifications.ts))
 
 ### Projects & Repositories
-- **StoreDesk Ecosystem**: [GitHub](https://github.com/TRUPALIX9/StoreDesk) | [Live Production](https://store-desk-prod.vercel.app/)
+- **StoreDesk Ecosystem**: [GitHub](https://github.com/TRUPALIX9/StoreDesk) | [storedesk.net](https://storedesk.net) | [Product page](https://trupalpatel.com/products/storedesk)
+- **LogicSprint: Brain Games**: [logicsprint.trupalpatel.com](https://logicsprint.trupalpatel.com)
 - **RetailSync SaaS Monorepo**: [GitHub](https://github.com/comp596-spring-2026/RetailSync)
 - **AWS Bedrock Shipping & Logistics Agent**: [GitHub](https://github.com/TRUPALIX9/Shipping-Agent-AWS)
 - **Card Vault Mobile OCR Scanner (React Native Expo)**: [GitHub](https://github.com/TRUPALIX9/card-snap-frontend)
