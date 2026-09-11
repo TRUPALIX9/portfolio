@@ -12,11 +12,10 @@ const nextConfig = {
     },
     async redirects() {
         return [
-            // StoreDesk and LogicSprint moved from Projects to Products. LogicSprint keeps
-            // /logicsprint because its privacy policy URL is registered with Google Play.
-            { source: '/projects/logic-sprint', destination: '/logicsprint', permanent: true },
+            // StoreDesk and LogicSprint moved from Projects to Products. (/logicsprint itself is
+            // sent to the LogicSprint subdomain by src/proxy.ts.)
+            { source: '/projects/logic-sprint', destination: '/products/logicsprint', permanent: true },
             { source: '/projects/storedesk', destination: '/products/storedesk', permanent: true },
-            { source: '/products/logicsprint', destination: '/logicsprint', permanent: true },
         ];
     },
     async headers() {

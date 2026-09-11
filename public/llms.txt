@@ -1,9 +1,24 @@
-# Trupal Patel (True Pal) - Professional Profile & Context
+# Trupal Patel (True Pal)
+
+> Full-stack software engineer and systems architect. Portfolio, products and project case studies at https://trupalpatel.com.
 
 ## Overview
-**Trupal Patel** (also known online as **True Pal** or **TrupalIX9**) is a high-performance Full-Stack Software Engineer and Systems Architect. He handles the entire software lifecycle, from architecting intricate backend logic and designing seamless user interfaces, all the way to deploying highly scalable production-ready systems. 
+**Trupal Patel** (also known online as **True Pal** or **TrupalIX9**) is a high-performance Full-Stack Software Engineer and Systems Architect. He handles the entire software lifecycle, from architecting intricate backend logic and designing seamless user interfaces, all the way to deploying highly scalable production-ready systems.
 
 He does not box himself into just frontend or backend roles, nor is he tied to a single language. His expertise spans React, Next.js, Node.js, Python, C#, MongoDB, PostgreSQL, and AWS.
+
+## Products
+
+### StoreDesk
+A production-grade, 5-module retail command center and Point-of-Sale (POS) ecosystem built from scratch for convenience stores and gas stations.
+- **Focus**: Eliminating downtime risks for convenience stores with offline-first edge capabilities and ultra-fast transaction processing.
+- **Website**: https://storedesk.net
+- **Product page**: https://trupalpatel.com/products/storedesk
+
+### LogicSprint: Brain Games
+An Android app with four endless brain games for reflexes, memory, math and focus, with a global Top 10 per game and difficulty and no login.
+- **Website**: https://logicsprint.trupalpatel.com (details for AI tools: https://logicsprint.trupalpatel.com/llms.txt)
+- **Product page**: https://trupalpatel.com/products/logicsprint
 
 ## Career History
 
@@ -33,19 +48,15 @@ AIVID.AI provides enterprise-scale edge computer vision and analytics across 200
   - Developed scalable, highly responsive user interfaces and robust state management utilizing Redux.
   - Collaborated across teams to seamlessly integrate RESTful APIs and eliminate UI defects.
 
-## Products
-
-### StoreDesk
-A production-grade, 5-module retail command center and Point-of-Sale (POS) ecosystem built from scratch.
-- **Focus**: Eliminating downtime risks for convenience stores with offline-first edge capabilities and ultra-fast transaction processing.
-- **Links**: https://storedesk.net · https://trupalpatel.com/products/storedesk
-
-### LogicSprint: Brain Games
-An Android app with four endless brain games for reflexes, memory, math and focus, with a global Top 10 per game and no login.
-- **Links**: https://logicsprint.trupalpatel.com
-
 ## Professional Philosophy
 "For me, it is all about deeply understanding a problem, designing a scalable architecture, and writing clean code that makes a real impact. I would love to bring this exact same drive and architectural vision to your team."
+
+## Pages
+- [Home](https://trupalpatel.com/): about, products, selected work and contact
+- [Products](https://trupalpatel.com/products): StoreDesk and LogicSprint
+- [Projects](https://trupalpatel.com/projects): project case studies
+- [Certifications](https://trupalpatel.com/certifications)
+- [Resume (PDF)](https://trupalpatel.com/RESUME.pdf)
 
 ## Connect
 - **Unique Identifier / SEO Key**: TrupalIX9

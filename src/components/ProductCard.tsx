@@ -48,7 +48,7 @@ export default function ProductCard({ product, headingLevel = 'h3' }: { product:
                 </div>
             </div>
 
-            <Link href={product.href} className="absolute inset-0 z-10 rounded-2xl">
+            <Link href={`/products/${product.slug}`} className="absolute inset-0 z-10 rounded-2xl">
                 <span className="sr-only">View {product.name}</span>
             </Link>
         </article>

@@ -1,4 +1,4 @@
-/** Content for the LogicSprint: Brain Games product pages (/logicsprint). */
+/** Content for the LogicSprint: Brain Games product site (logicsprint.trupalpatel.com). */
 
 export type GameType = 'rocketLaunch' | 'memoryLane' | 'quickMath' | 'guessColor';
 
@@ -16,6 +16,7 @@ export const APP = {
     name: 'LogicSprint',
     title: 'LogicSprint: Brain Games',
     tagline: 'Endless brain games for reflexes, memory, math and focus.',
+    pitch: 'Four quick games, each training one skill. Every run is endless and ends on your first mistake, so you can play for a minute or keep chasing your best, and your top scores go up against everyone on a global Top 10. No sign-up, no login.',
     apkUrl: 'https://github.com/TRUPALIX9/logic-sprint/releases/download/v1.0.0-rc.1/LogicSprint-1.0.0-rc.1.apk',
     apkLabel: 'Download APK (RC 1)',
     buildNote: 'Android · test build · Google Play coming soon',
@@ -23,6 +24,9 @@ export const APP = {
     icon: '/logicsprint/icon.png',
     featureGraphic: '/logicsprint/feature-graphic.png',
 } as const;
+
+/** Hero chips. */
+export const FACTS = ['4 games', 'Easy · Medium · Hard', 'Global Top 10', 'No login'];
 
 export const GAMES: LogicSprintGame[] = [
     {
@@ -66,12 +70,76 @@ export const GAMES: LogicSprintGame[] = [
     },
 ];
 
-export const HOW_IT_WORKS = [
-    'Endless runs that end on your first mistake.',
-    'One extra life per run from an optional ad.',
-    'Global Top 10 per game.',
-    'Pick a display name once.',
-    'No login.',
+export type Point = { title: string; detail: string };
+
+/** "How a run works", in order. */
+export const RUN_STEPS: Point[] = [
+    { title: 'Pick a game', detail: 'Choose one of four games and a difficulty: Easy, Medium or Hard.' },
+    { title: 'Play until you slip', detail: 'Runs are endless and ramp up as you go. Your first mistake ends the run.' },
+    { title: 'Take one more shot', detail: 'Watch an optional ad for one extra life, once per run.' },
+    { title: 'Climb the board', detail: 'Your best score for each game and difficulty goes up against everyone on the global Top 10.' },
+];
+
+export const FEATURES: Point[] = [
+    {
+        title: 'No login, ever',
+        detail: 'No email, password or sign-up. The app creates an anonymous profile for your device the first time it talks to the leaderboard.',
+    },
+    {
+        title: 'Global Top 10',
+        detail: 'Every game and difficulty has its own worldwide Top 10. Pick a display name once and it appears next to your best scores.',
+    },
+    {
+        title: 'Three real difficulties',
+        detail: 'Easy, Medium and Hard change the game itself: bigger Memory Lane grids, more operators in Quick Math.',
+    },
+    {
+        title: 'Your stats',
+        detail: 'Your profile tracks your best score and play count for every game and difficulty. Run history stays on your phone.',
+    },
+    {
+        title: 'An extra life, if you want it',
+        detail: 'One optional video ad per run brings you back after a mistake. Skip it and the run simply ends.',
+    },
+    {
+        title: 'Sound and vibration',
+        detail: 'Switch sound and vibration on or off in Settings, and reset your high scores any time.',
+    },
+];
+
+/** Plain-language summary of src/content/logicsprint/privacy_policy.md; keep the two in sync. */
+export const PRIVACY_POINTS: Point[] = [
+    { title: 'No account needed', detail: 'No email, phone number or password. Your device gets an anonymous player profile.' },
+    { title: 'Kept on your phone', detail: 'High scores, run history, settings and your display name live on your device. Run history never leaves it.' },
+    { title: 'Ads by Google AdMob', detail: 'In the EEA, UK and Switzerland the app asks before showing personalized ads.' },
+    { title: 'Never collected', detail: 'Contacts, photos, camera, microphone or precise location. No analytics SDKs.' },
+];
+
+export const FAQ: { question: string; answer: string }[] = [
+    {
+        question: 'Is LogicSprint free?',
+        answer: 'Yes. It’s free to play and shows ads through Google AdMob, including an optional video ad for an extra life.',
+    },
+    {
+        question: 'Do I need an account?',
+        answer: 'No. There’s no email, password or login. The app creates an anonymous profile for your device automatically.',
+    },
+    {
+        question: 'Is it on Google Play?',
+        answer: 'Not yet. The Google Play release is coming soon. Until then you can install the Android test build (RC 1) directly.',
+    },
+    {
+        question: 'How do I install the APK?',
+        answer: 'Download the APK on your Android phone and open it. If Android asks, allow your browser to install apps, then tap Install.',
+    },
+    {
+        question: 'How does the leaderboard work?',
+        answer: 'Each game and difficulty has a global Top 10 ranked by best score. Choose a display name to appear on it, and don’t use your real name.',
+    },
+    {
+        question: 'Can I reset or delete my data?',
+        answer: 'Reset your high scores in Settings → Reset High Scores. Uninstalling deletes everything on your device. To remove your profile and scores from the leaderboard, email support with your display name.',
+    },
 ];
 
 /** Store screenshots (1080×2400), in store order. */

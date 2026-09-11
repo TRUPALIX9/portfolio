@@ -21,6 +21,7 @@ export const metadata: Metadata = {
         url: `${LOGICSPRINT_URL}/privacy`,
         siteName: APP.title,
         type: 'website',
+        images: [{ url: APP.featureGraphic, width: 1024, height: 500, alt: 'LogicSprint: Reflex, Memory, Math, Focus' }],
     },
 };
 
@@ -29,7 +30,7 @@ export default function LogicSprintPrivacyPage() {
 
     return (
         <main className="ls-container" style={{ paddingBlock: 'clamp(2.5rem, 7vw, 4.5rem) 5rem' }}>
-            <Link href="/logicsprint" className="ls-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem', minHeight: 44 }}>
+            <Link href="/" className="ls-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem', minHeight: 44 }}>
                 <ArrowLeft size={16} aria-hidden="true" />
                 {APP.name}
             </Link>
