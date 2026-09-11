@@ -1,4 +1,3 @@
-"use client";
 import TrackedGameHub from '../../components/TrackedGameHub';
 
 export default function GameOnlyPage() {

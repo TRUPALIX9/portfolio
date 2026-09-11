@@ -31,9 +31,18 @@ function sign(value: string) {
     return crypto.createHmac('sha256', getAdminSecret()).update(value).digest('base64url');
 }
 
+// Constant-time string comparison. timingSafeEqual throws on length mismatch,
+// so compare lengths first to turn malformed input into a clean `false`.
+export function safeEqual(a: string, b: string) {
+    const bufA = Buffer.from(a);
+    const bufB = Buffer.from(b);
+    return bufA.length === bufB.length && crypto.timingSafeEqual(bufA, bufB);
+}
+
 export function isAuthorized(request: Request, body?: { key?: string }) {
     const key = getAdminKey(request, body);
-    return Boolean(process.env.KEY) && key === process.env.KEY;
+    const expected = process.env.KEY;
+    return Boolean(expected) && typeof key === 'string' && safeEqual(key, expected as string);
 }
 
 export function createAdminSessionToken(ttlMs = ADMIN_SESSION_TTL_MS) {
@@ -59,9 +68,7 @@ export function verifyAdminSessionToken(token: string) {
     const [encodedPayload, signature] = token.split('.');
     if (!encodedPayload || !signature) return false;
 
-    const expectedSignature = sign(encodedPayload);
-    const signatureMatches = crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
-    if (!signatureMatches) return false;
+    if (!safeEqual(signature, sign(encodedPayload))) return false;
 
     try {
         const payload = JSON.parse(fromBase64Url(encodedPayload)) as AdminSessionPayload;

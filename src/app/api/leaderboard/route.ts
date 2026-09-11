@@ -13,6 +13,20 @@ type LeaderboardEntry = {
 };
 
 const DEFAULT_GAME = 'unknown';
+const MAX_NAME_LENGTH = 24;
+const MAX_SCORE = 100000;
+
+// Public endpoint: coerce everything to bounded primitives so crafted payloads
+// can't store huge strings, NaN/Infinity scores, or Mongo operator objects.
+function sanitizeSubmission(body: any) {
+    const name = typeof body?.name === 'string' ? body.name.trim().slice(0, MAX_NAME_LENGTH) : '';
+    const game = typeof body?.game === 'string' && /^[\w-]{1,32}$/.test(body.game) ? body.game : DEFAULT_GAME;
+    const rawScore = Number(body?.score);
+    const score = Number.isFinite(rawScore) ? Math.min(MAX_SCORE, Math.max(0, Math.round(rawScore))) : 0;
+    const deviceId = typeof body?.deviceId === 'string' ? body.deviceId.slice(0, 100) : null;
+    const sessionId = typeof body?.sessionId === 'string' ? body.sessionId.slice(0, 100) : null;
+    return { name: name || 'Anonymous', game, score, deviceId, sessionId };
+}
 
 function createInsights(entries: LeaderboardEntry[]) {
     const gameStats = new Map<string, { submissions: number; highestScore: number; totalScore: number }>();
@@ -50,6 +64,11 @@ export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const adminMode = searchParams.get('admin') === '1';
+
+        if (adminMode && !(await isAuthorizedRequest(request))) {
+            return NextResponse.json({ error: 'Unauthorized key' }, { status: 401 });
+        }
+
         const db = await getDb();
 
         const docs = await db.collection('leaderboard')
@@ -70,10 +89,6 @@ export async function GET(request: Request) {
 
         if (!adminMode) {
             return NextResponse.json(leaderboard);
-        }
-
-        if (!(await isAuthorizedRequest(request))) {
-            return NextResponse.json({ error: 'Unauthorized key' }, { status: 401 });
         }
 
         return NextResponse.json({
@@ -125,12 +140,15 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+    // Parse once up front: the body stream can only be read a single time, and the
+    // file-backup path below needs the same submission if MongoDB is unavailable.
+    const submission = sanitizeSubmission(await request.json().catch(() => ({})));
+
     try {
-        const body = await request.json();
         const db = await getDb();
 
-        const game = body.game || DEFAULT_GAME;
-        const incomingScore = Number(body.score) || 0;
+        const game = submission.game;
+        const incomingScore = submission.score;
 
         const topScores = await db.collection('leaderboard')
             .find({ game: game })
@@ -148,12 +166,12 @@ export async function POST(request: Request) {
 
         const entry = {
             id: Date.now() + Math.floor(Math.random() * 1000),
-            name: body.name || 'Anonymous',
+            name: submission.name,
             score: incomingScore,
             game: game,
             date: new Date().toISOString(),
-            deviceId: body.deviceId || null,
-            sessionId: body.sessionId || null,
+            deviceId: submission.deviceId,
+            sessionId: submission.sessionId,
         };
 
         if (shouldInsert) {
@@ -179,7 +197,7 @@ export async function POST(request: Request) {
     } catch (error) {
         console.error('Leaderboard POST MongoDB Error, saving to local file backup:', error);
         try {
-            const body = await request.json().catch(() => ({}));
+            const body = submission;
             const fs = await import('fs/promises');
             const path = await import('path');
             const backupDir = path.join(process.cwd(), 'backups');
@@ -200,12 +218,12 @@ export async function POST(request: Request) {
 
             const entry = {
                 id: Date.now() + Math.floor(Math.random() * 1000),
-                name: body.name || 'Anonymous',
-                score: Number(body.score) || 0,
-                game: body.game || DEFAULT_GAME,
+                name: body.name,
+                score: body.score,
+                game: body.game,
                 date: new Date().toISOString(),
-                deviceId: body.deviceId || null,
-                sessionId: body.sessionId || null,
+                deviceId: body.deviceId,
+                sessionId: body.sessionId,
             };
 
             leaderboard.push(entry);

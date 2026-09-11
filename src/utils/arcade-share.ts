@@ -48,9 +48,11 @@ export function verifyArcadeShareToken(token: string) {
     const [encodedPayload, signature] = token.split('.');
     if (!encodedPayload || !signature) return false;
 
-    const expectedSignature = sign(encodedPayload);
-    const signatureMatches = crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
-    if (!signatureMatches) return false;
+    const expectedSignature = Buffer.from(sign(encodedPayload));
+    const providedSignature = Buffer.from(signature);
+    // timingSafeEqual throws on length mismatch; a tampered token must 404, not 500.
+    if (providedSignature.length !== expectedSignature.length) return false;
+    if (!crypto.timingSafeEqual(providedSignature, expectedSignature)) return false;
 
     try {
         const payload = JSON.parse(fromBase64Url(encodedPayload)) as ArcadeSharePayload;

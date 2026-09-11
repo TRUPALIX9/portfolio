@@ -38,6 +38,7 @@ function NavbarContent() {
   const [isHoveringTop, setIsHoveringTop] = useState(false);
   const [isAtTop, setIsAtTop] = useState(true);
   const [isMobileView, setIsMobileView] = useState(false);
+  const [hasFocusWithin, setHasFocusWithin] = useState(false);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
@@ -77,10 +78,8 @@ function NavbarContent() {
     };
   }, []);
 
-  if (isStrict || isArcadeOnly || isDedicatedSharePage || isPlayground) return null;
-
-  const handleToggle = () => setIsOpen(!isOpen);
-
+  // Must stay above the early return below: hooks called conditionally crash React
+  // ("Rendered fewer hooks than expected") when navigating to/from /playground etc.
   const scrollToSection = useCallback((sectionId: string) => {
     const el = document.getElementById(sectionId);
     if (el) {
@@ -88,6 +87,10 @@ function NavbarContent() {
       setIsOpen(false);
     }
   }, []);
+
+  if (isStrict || isArcadeOnly || isDedicatedSharePage || isPlayground) return null;
+
+  const handleToggle = () => setIsOpen(!isOpen);
 
   // Determine if a link is "active" — on home, we always consider it active for section links
   const isLinkActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
@@ -103,16 +106,15 @@ function NavbarContent() {
           key={link.href}
           type="button"
           onClick={() => { scrollToSection(sectionId); onClick?.(); }}
+          className="text-ink-2 transition-colors duration-150 hover:text-ink-1"
           style={{
             background: 'none',
             border: 'none',
             padding: 0,
-            color: 'var(--text-secondary)',
             fontWeight: 500,
             fontSize: 'inherit',
             fontFamily: 'inherit',
             cursor: 'pointer',
-            transition: 'all 0.2s',
           }}
         >
           {link.label}
@@ -126,11 +128,11 @@ function NavbarContent() {
         key={link.href}
         href={link.href}
         onClick={onClick}
+        aria-current={isActive ? 'page' : undefined}
+        className={`transition-colors duration-150 ${isActive ? 'text-accent' : 'text-ink-2 hover:text-ink-1'}`}
         style={{
-          color: isActive ? 'var(--accent-primary)' : 'var(--text-secondary)',
           fontWeight: isActive ? 600 : 500,
           textShadow: isActive ? '0 0 12px rgba(74, 222, 128, 0.4)' : 'none',
-          transition: 'all 0.2s',
           textDecoration: 'none',
         }}
       >
@@ -141,11 +143,17 @@ function NavbarContent() {
 
   // Desktop: Only show on hover or if menu is open
   // Mobile/Tablet: Also show when at the top or scrolling up (since there's no hover)
-  const showNav = isHoveringTop || isOpen || (isMobileView && (isAtTop || isScrollingUp));
+  // Keyboard users can't "hover", so also reveal the bar while focus is inside it.
+  const showNav = isHoveringTop || isOpen || hasFocusWithin || (isMobileView && (isAtTop || isScrollingUp));
 
   return (
     <>
       <motion.nav
+        aria-label="Primary"
+        onFocus={() => setHasFocusWithin(true)}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHasFocusWithin(false);
+        }}
         initial={{ y: -100 }}
         animate={{ y: showNav ? 0 : -100 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -166,14 +174,14 @@ function NavbarContent() {
               onClick={() => scrollToSection('hero')}
               style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', fontFamily: 'inherit' }}
             >
-              <Image src="/favicon.svg" alt="Logo" width={28} height={28} priority style={{ objectFit: 'contain' }} />
+              <Image src="/favicon.svg" alt="" width={28} height={28} priority style={{ objectFit: 'contain' }} />
               <span>TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span></span>
             </button>
           ) : (
-            <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: 'inherit' }}>
-              <Image src="/favicon.svg" alt="Logo" width={28} height={28} priority style={{ objectFit: 'contain' }} />
+            <Link href="/" aria-label="Trupal Patel — home" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: 'inherit' }}>
+              <Image src="/favicon.svg" alt="" width={28} height={28} priority style={{ objectFit: 'contain' }} />
               <span>TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span></span>
-            </a>
+            </Link>
           )}
 
           <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
@@ -185,19 +193,19 @@ function NavbarContent() {
                   &larr; Go to Projects
                 </Link>
               ) : (
-                <a href="/" className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem' }}>
+                <Link href="/" className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem' }}>
                   &larr; Back to Home
-                </a>
+                </Link>
               )}
             </div>
 
-            <button className="hamburger-btn" onClick={handleToggle} aria-label="Toggle Menu">
+            <button className="hamburger-btn" onClick={handleToggle} aria-label={isOpen ? 'Close menu' : 'Open menu'} aria-expanded={isOpen}>
               <span style={{ transform: isOpen ? 'rotate(45deg) translate(0, 8px)' : 'none' }}></span>
               <span style={{ opacity: isOpen ? 0 : 1 }}></span>
               <span style={{ transform: isOpen ? 'rotate(-45deg) translate(0, -8px)' : 'none' }}></span>
             </button>
 
-            <div style={{ display: 'flex', gap: '1.25rem', borderLeft: '1px solid var(--border-color)', paddingLeft: '2rem', alignItems: 'center' }} className="nav-auth">
+            <div style={{ display: 'flex', gap: '1.25rem', borderLeft: '1px solid var(--line-2)', paddingLeft: '2rem', alignItems: 'center' }} className="nav-auth">
               <a 
                 href="/RESUME.pdf" 
                 download="Trupal_Patel_Resume.pdf"
@@ -215,10 +223,10 @@ function NavbarContent() {
                 <span>Resume</span>
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
               </a>
-              <a href="https://github.com/TRUPALIX9" target="_blank" rel="noreferrer" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }}>
+              <a href="https://github.com/TRUPALIX9" target="_blank" rel="noreferrer" aria-label="GitHub profile" className="flex items-center text-ink-2 transition-colors duration-150 hover:text-ink-1">
                 <GithubIcon size={20} />
               </a>
-              <a href="https://www.linkedin.com/in/trupalix" target="_blank" rel="noreferrer" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }}>
+              <a href="https://www.linkedin.com/in/trupalix" target="_blank" rel="noreferrer" aria-label="LinkedIn profile" className="flex items-center text-ink-2 transition-colors duration-150 hover:text-ink-1">
                 <LinkedinIcon size={20} />
               </a>
             </div>

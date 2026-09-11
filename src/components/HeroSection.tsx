@@ -14,6 +14,8 @@ function lerp(a: number, b: number, t: number) {
     return a + (b - a) * Math.max(0, Math.min(1, t));
 }
 function remap(v: number, inMin: number, inMax: number) {
+    // Non-finite input (NaN from a 0-height viewport) would otherwise flow through Math.min/max.
+    if (!Number.isFinite(v)) return 0;
     return Math.max(0, Math.min(1, (v - inMin) / (inMax - inMin)));
 }
 
@@ -22,9 +24,10 @@ const CHARS = "!<>-_\\/[]{}—=+*^?#_";
 function ScrambleChar({ fromChar, toChar, progress }: {
     fromChar: string; toChar: string; progress: number;
 }) {
-    if (progress <= 0) return <span>{fromChar}</span>;
+    if (!Number.isFinite(progress) || progress <= 0) return <span>{fromChar}</span>;
     if (progress >= 1) return <span>{toChar}</span>;
     const scrambled = CHARS[Math.floor((Date.now() / 60 + progress * 100) % CHARS.length)];
+    if (scrambled === undefined) return <span>{toChar}</span>;
     return <span style={{ color: '#4ADE80', filter: 'drop-shadow(0 0 8px rgba(74,222,128,0.8))' }}>{scrambled}</span>;
 }
 
@@ -55,7 +58,8 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
             if (!sectionRef.current) return;
             const rect       = sectionRef.current.getBoundingClientRect();
             const scrollable = sectionRef.current.offsetHeight - window.innerHeight;
-            const progress   = Math.max(0, Math.min(1, -rect.top / scrollable));
+            // A 0px viewport (hidden tab, some embedded webviews) makes this 0/0 → NaN.
+            const progress   = scrollable > 0 ? Math.max(0, Math.min(1, -rect.top / scrollable)) : 0;
             setP(progress);
             setShow(rect.bottom > -80);
         };
@@ -226,8 +230,8 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
                         transform: `translateY(${questionPushUp}px)`,
                         pointerEvents: questionBlockOpacity < 0.1 ? 'none' : 'auto',
                     }}>
-                        {/* NAME */}
-                        <motion.h2
+                        {/* NAME — the page's only h1 (was an h2, leaving the home page with no h1) */}
+                        <motion.h1
                             initial={{ opacity: 0, y: 14 }}
                             animate={entered ? { opacity: 1, y: 0 } : {}}
                             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -243,7 +247,8 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
                             }}
                         >
                             TRUPAL PATEL
-                        </motion.h2>
+                            <span className="sr-only"> — Software Engineer</span>
+                        </motion.h1>
 
                         {/* QUESTION TEXT */}
                         <div ref={textLayerRef} style={{ position: 'relative', willChange: 'transform' }}>
@@ -342,6 +347,38 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
                             Not just a developer. An engineer.
                         </p>
                     </div>
+
+                    {/* ── SCROLL CUE ─────────────────────────────────────────────
+                        Decorative hint on the first screen only; fades out as soon as scrolling
+                        starts. The travelling dot is a transform, so MotionConfig's
+                        reducedMotion="user" holds it still for reduced-motion users. */}
+                    <motion.div
+                        aria-hidden="true"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: p > 0.02 ? 0 : 1 }}
+                        transition={{ duration: 0.5, delay: p > 0.02 ? 0 : 1.1 }}
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            bottom: 'max(2rem, env(safe-area-inset-bottom))',
+                            zIndex: 12,
+                            pointerEvents: 'none',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '0.75rem',
+                        }}
+                    >
+                        <span className="text-xs font-semibold uppercase tracking-[0.3em] text-ink-2">Scroll</span>
+                        <span className="relative block h-10 w-px overflow-hidden bg-white/15">
+                            <motion.span
+                                className="absolute left-0 top-0 block h-3 w-px bg-accent"
+                                animate={{ y: [-12, 40] }}
+                                transition={{ duration: 1.8, ease: 'easeInOut', repeat: Infinity, repeatDelay: 0.3 }}
+                            />
+                        </span>
+                    </motion.div>
                 </div>
             )}
         </>

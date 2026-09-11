@@ -1,5 +1,5 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Suspense, useRef, useEffect, RefObject } from 'react';
+import { Suspense, useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import StarField     from './StarField';
 

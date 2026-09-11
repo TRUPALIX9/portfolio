@@ -2,10 +2,24 @@ import './globals.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BehavioralTracker from '../components/BehavioralTracker';
+import MotionProvider from '../components/motion/MotionProvider';
+import SpotlightTracker from '../components/motion/SpotlightTracker';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import type { Metadata } from 'next';
+import { Outfit } from 'next/font/google';
+
+// Self-hosted via next/font: replaces a render-blocking @import from fonts.googleapis.com.
+const outfit = Outfit({
+    subsets: ['latin'],
+    weight: ['300', '400', '500', '600', '700', '800'],
+    display: 'swap',
+    variable: '--font-outfit',
+});
+
+const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
 export const metadata: Metadata = {
+    metadataBase: new URL('https://true-pal.vercel.app'),
     title: 'Trupal Patel (True Pal) | Software Engineer',
     description: 'Portfolio of Trupal Patel (True Pal) — High-performance web applications, edge POS systems, and AI data pipelines.',
     keywords: 'Trupal Patel, True Pal, TruePal, TrupalIX9, Trupal Patel Portfolio, Frontend Architect, Software Engineer, React, Next.js, AI, Edge POS, Web Development',
@@ -45,16 +59,23 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en">
+        <html lang="en" className={outfit.variable}>
             <head>
                 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
             </head>
             <body>
-                <Navbar />
-                {children}
-                <Footer />
+                <a href="#main-content" className="skip-link">Skip to content</a>
+                <MotionProvider>
+                    <Navbar />
+                    <div id="main-content" tabIndex={-1} style={{ outline: 'none' }}>
+                        {children}
+                    </div>
+                    <Footer />
+                </MotionProvider>
                 <BehavioralTracker />
-                <GoogleAnalytics gaId="G-XXXXXXXXXX" />
+                <SpotlightTracker />
+                {/* Was hard-coded to the "G-XXXXXXXXXX" placeholder, which sent hits nowhere. */}
+                {gaId && <GoogleAnalytics gaId={gaId} />}
             </body>
         </html>
     );

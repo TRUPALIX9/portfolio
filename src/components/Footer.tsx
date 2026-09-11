@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Mail, ArrowUp } from 'lucide-react';
 
 const GithubIcon = ({ size = 18 }: { size?: number }) => (
@@ -81,7 +81,7 @@ export default function Footer() {
     };
 
     return (
-        <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(5, 5, 5, 0.8)', backdropFilter: 'blur(16px)', marginBottom: '3rem' }} className="py-12">
+        <footer style={{ backdropFilter: 'blur(16px)', marginBottom: '3rem' }} className="py-12 border-t border-line-1 bg-surface-1/80">
             <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
                 {/* Top row: name/tagline + social icons */}
@@ -94,26 +94,27 @@ export default function Footer() {
                             onPointerUp={handlePointerUpOrLeave}
                             onPointerLeave={handlePointerUpOrLeave}
                             onContextMenu={(e) => { e.preventDefault(); }}
-                            style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: '#fff' }}
+                            style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: 'var(--ink-1)' }}
                         >
                             <span>TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span></span>
                         </Link>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
+                        <p className="text-ink-2" style={{ fontSize: '0.9rem', marginTop: '0.35rem' }}>
                             Full-Stack Systems Engineer &amp; Creative Technologist.
                         </p>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                        <a href="https://github.com/TRUPALIX9" target="_blank" rel="noreferrer" className="btn-outline" style={{ padding: '0.6rem 0.85rem', borderRadius: '50%' }} aria-label="GitHub">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <a href="https://github.com/TRUPALIX9" target="_blank" rel="noreferrer" className="btn-outline" style={{ padding: 0, width: 44, height: 44, borderRadius: '50%' }} aria-label="GitHub">
                             <GithubIcon size={18} />
                         </a>
-                        <a href="https://www.linkedin.com/in/trupalix" target="_blank" rel="noreferrer" className="btn-outline" style={{ padding: '0.6rem 0.85rem', borderRadius: '50%' }} aria-label="LinkedIn">
+                        <a href="https://www.linkedin.com/in/trupalix" target="_blank" rel="noreferrer" className="btn-outline" style={{ padding: 0, width: 44, height: 44, borderRadius: '50%' }} aria-label="LinkedIn">
                             <LinkedinIcon size={18} />
                         </a>
-                        <a href="mailto:trupal.work@gmail.com" className="btn-outline" style={{ padding: '0.6rem 0.85rem', borderRadius: '50%' }} aria-label="Email">
+                        <a href="mailto:trupal.work@gmail.com" className="btn-outline" style={{ padding: 0, width: 44, height: 44, borderRadius: '50%' }} aria-label="Email">
                             <Mail size={18} />
                         </a>
-                        <button onClick={scrollToTop} className="btn-primary" style={{ padding: '0.6rem 0.85rem', borderRadius: '50%' }} aria-label="Scroll to top">
+                        {/* Utilities instead of .btn-primary, whose hover scales to 1.05 */}
+                        <button onClick={scrollToTop} className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-ink-1 text-surface-0 transition-[transform,background-color] duration-200 ease-out-expo hover:-translate-y-0.5 hover:bg-white" aria-label="Scroll to top">
                             <ArrowUp size={18} />
                         </button>
                     </div>
@@ -127,13 +128,13 @@ export default function Footer() {
                             to   { transform: rotate(360deg); }
                         }
                         .favicon-spin2d {
-                            animation: spin2d 8s linear infinite;
+                            animation: spin2d 24s linear infinite;
                             display: block;
                         }
                     `}</style>
                     <Image
                         src="/favicon.svg"
-                        alt="Logo"
+                        alt=""
                         width={80}
                         height={80}
                         className="favicon-spin2d"
@@ -142,14 +143,15 @@ export default function Footer() {
                 </div>
 
                 {/* Bottom row: copyright + nav links */}
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    <p>© {new Date().getFullYear()} Trupal Patel. All rights reserved.</p>
-                    <div style={{ display: 'flex', gap: '1.5rem' }}>
-                        <Link href="/#about" style={{ color: 'inherit' }}>About</Link>
-                        <Link href="/#projects" style={{ color: 'inherit' }}>Work</Link>
-                        <Link href="/#experience" style={{ color: 'inherit' }}>Experience</Link>
-                        <Link href="/game" style={{ color: 'inherit' }}>Arcade</Link>
-                        <Link href="/#contact" style={{ color: 'inherit' }}>Contact</Link>
+                <div className="border-t border-line-1" style={{ paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', fontSize: '0.85rem' }}>
+                    <p className="text-ink-3">© {new Date().getFullYear()} Trupal Patel. All rights reserved.</p>
+                    <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                        <Link href="/#about" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">About</Link>
+                        <Link href="/certifications" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Certifications</Link>
+                        <Link href="/#projects" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Work</Link>
+                        <Link href="/#experience" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Experience</Link>
+                        <Link href="/game" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Arcade</Link>
+                        <Link href="/#contact" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Contact</Link>
                     </div>
                 </div>
             </div>

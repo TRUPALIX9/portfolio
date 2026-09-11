@@ -14,24 +14,8 @@ type LeaderboardEntry = {
     deviceId?: string;
 };
 
-type Insights = {
-    totalScores: number;
-    gamesTracked: number;
-    topGames: Array<{
-        game: string;
-        submissions: number;
-        highestScore: number;
-        totalScore: number;
-    }>;
-    topDates: Array<{
-        date: string;
-        totalScore: number;
-    }>;
-};
-
 type AdminResponse = {
     scores: LeaderboardEntry[];
-    insights: Insights;
 };
 
 type ContactSubmission = {
@@ -95,14 +79,14 @@ type AnalyticsResponse = {
 
 type DeviceSummary = {
     deviceId: string;
-    sessions: number;
+    /** Every session for this device, embedded by the analytics API ($lookup). */
+    sessions?: VisitorSession[];
     totalViews: number;
     totalLinkClicks: number;
     totalRuns: number;
     totalResumeDownloads: number;
     totalContacts: number;
     lastSeenAt: string;
-    topRoutes: string[];
     browser?: string;
     os?: string;
     deviceType?: string;
@@ -110,6 +94,8 @@ type DeviceSummary = {
     city?: string;
     country?: string;
     isBot?: boolean;
+    isSuspicious?: boolean;
+    customName?: string;
     hardware?: {
         connection: string;
         memory: string | number;
@@ -119,6 +105,8 @@ type DeviceSummary = {
 
 type PlayerGroup = {
     name: string;
+    /** Distinct raw names (case/whitespace variants) grouped under `name`. */
+    aliases: string[];
     submissions: number;
     totalScore: number;
     bestScore: number;
@@ -127,14 +115,20 @@ type PlayerGroup = {
     lastPlayed: string;
 };
 
-const emptyInsights: Insights = {
-    totalScores: 0,
-    gamesTracked: 0,
-    topGames: [],
-    topDates: [],
+type AdminSnapshot = {
+    leaderboardData: AdminResponse;
+    contactsData: ContactSubmission[];
+    analyticsData: AnalyticsResponse;
 };
 
+class AdminRequestError extends Error {
+    constructor(message: string, readonly unauthorized: boolean) {
+        super(message);
+    }
+}
+
 const pageSize = 12;
+const playerGroupsPageSize = 8;
 
 export default function Playground() {
     const deleteAllPhrase = "DELETE ALL DB";
@@ -142,13 +136,13 @@ export default function Playground() {
     const [authenticated, setAuthenticated] = useState(false);
     const [sessionChecked, setSessionChecked] = useState(false);
     const [scores, setScores] = useState<LeaderboardEntry[]>([]);
-    const [insights, setInsights] = useState<Insights>(emptyInsights);
     const [contactSubmissions, setContactSubmissions] = useState<ContactSubmission[]>([]);
     const [sessions, setSessions] = useState<VisitorSession[]>([]);
     const [devices, setDevices] = useState<DeviceSummary[]>([]);
     const [authError, setAuthError] = useState("");
+    const [dataError, setDataError] = useState("");
     const [loading, setLoading] = useState(false);
-    const [busyAction, setBusyAction] = useState<"delete" | "wipe" | "rename" | "share" | null>(null);
+    const [busyAction, setBusyAction] = useState<"delete" | "wipe" | "rename" | null>(null);
     const [busyTarget, setBusyTarget] = useState<string>("");
     const [shareStatus, setShareStatus] = useState("");
     const [wipeConfirmation, setWipeConfirmation] = useState("");
@@ -161,8 +155,6 @@ export default function Playground() {
     const [editingName, setEditingName] = useState("");
     const [editingPlayerName, setEditingPlayerName] = useState<string | null>(null);
     const [bulkRenameValue, setBulkRenameValue] = useState("");
-    const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
-    const [editingSessionLabel, setEditingSessionLabel] = useState("");
 
     const getAdminHeaders = (includeContentType = false) => {
         const headers: Record<string, string> = {};
@@ -175,7 +167,7 @@ export default function Playground() {
         return headers;
     };
 
-    const fetchAdminSnapshot = async (candidateKey: string) => {
+    const fetchAdminSnapshot = async (candidateKey: string): Promise<AdminSnapshot> => {
         const headers = candidateKey.trim() ? { "x-admin-key": candidateKey.trim() } : undefined;
 
         const [leaderboardResponse, contactsResponse, analyticsResponse] = await Promise.all([
@@ -186,7 +178,7 @@ export default function Playground() {
 
         if (!leaderboardResponse.ok || !contactsResponse.ok || !analyticsResponse.ok) {
             const unauthorized = [leaderboardResponse, contactsResponse, analyticsResponse].some((response) => response.status === 401);
-            throw new Error(unauthorized ? "Invalid KEY. Access denied." : "Unable to load admin data.");
+            throw new AdminRequestError(unauthorized ? "Invalid KEY. Access denied." : "Unable to load admin data.", unauthorized);
         }
 
         const [leaderboardData, contactsData, analyticsData] = await Promise.all([
@@ -202,19 +194,23 @@ export default function Playground() {
         };
     };
 
-    const applySnapshot = (snapshot: {
-        leaderboardData: AdminResponse;
-        contactsData: ContactSubmission[];
-        analyticsData: AnalyticsResponse;
-    }) => {
-        setScores(snapshot.leaderboardData.scores ?? []);
-        setInsights(snapshot.leaderboardData.insights ?? emptyInsights);
-        setContactSubmissions(snapshot.contactsData ?? []);
-        setSessions(snapshot.analyticsData.sessions ?? []);
-        setDevices(snapshot.analyticsData.devices ?? []);
+    const applySnapshot = (snapshot: AdminSnapshot) => {
+        setScores(Array.isArray(snapshot.leaderboardData?.scores) ? snapshot.leaderboardData.scores : []);
+        setContactSubmissions(Array.isArray(snapshot.contactsData) ? snapshot.contactsData : []);
+        setSessions(Array.isArray(snapshot.analyticsData?.sessions) ? snapshot.analyticsData.sessions : []);
+        setDevices(Array.isArray(snapshot.analyticsData?.devices) ? snapshot.analyticsData.devices : []);
+    };
+
+    const clearAdminData = () => {
+        setScores([]);
+        setContactSubmissions([]);
+        setSessions([]);
+        setDevices([]);
     };
 
     useEffect(() => {
+        let cancelled = false;
+
         const restoreSession = async () => {
             try {
                 const sessionResponse = await fetch("/api/playground/session", {
@@ -223,21 +219,28 @@ export default function Playground() {
                 const sessionData = await sessionResponse.json();
 
                 if (!sessionResponse.ok || !sessionData.authenticated) {
-                    setSessionChecked(true);
                     return;
                 }
 
                 const data = await fetchAdminSnapshot("");
+                if (cancelled) return;
                 applySnapshot(data);
                 setAuthenticated(true);
-            } catch {
+            } catch (error) {
+                if (cancelled) return;
                 setAuthenticated(false);
+                setAuthError(error instanceof Error ? error.message : "Unable to restore admin session.");
             } finally {
-                setSessionChecked(true);
+                if (!cancelled) setSessionChecked(true);
             }
         };
 
         void restoreSession();
+        return () => {
+            cancelled = true;
+        };
+        // Runs once on mount; fetchAdminSnapshot/applySnapshot only touch stable state setters.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const attemptLogin = async (event: FormEvent<HTMLFormElement>) => {
@@ -260,14 +263,11 @@ export default function Playground() {
 
             const data = await fetchAdminSnapshot("");
             applySnapshot(data);
+            setDataError("");
             setAuthenticated(true);
         } catch (error) {
             setAuthenticated(false);
-            setScores([]);
-            setInsights(emptyInsights);
-            setContactSubmissions([]);
-            setSessions([]);
-            setDevices([]);
+            clearAdminData();
             setAuthError(error instanceof Error ? error.message : "Unable to authenticate.");
         } finally {
             setLoading(false);
@@ -279,8 +279,16 @@ export default function Playground() {
         try {
             const data = await fetchAdminSnapshot(key.trim());
             applySnapshot(data);
+            setDataError("");
         } catch (error) {
-            setAuthError(error instanceof Error ? error.message : "Refresh failed.");
+            if (error instanceof AdminRequestError && error.unauthorized) {
+                // Cookie expired or was revoked: drop back to the login form instead of showing stale data.
+                setAuthenticated(false);
+                clearAdminData();
+                setAuthError("Admin session expired. Enter your KEY again.");
+                return;
+            }
+            setDataError(error instanceof Error ? error.message : "Refresh failed.");
         } finally {
             setLoading(false);
         }
@@ -319,6 +327,9 @@ export default function Playground() {
             alert(`Type "${deleteAllPhrase}" to enable a full reset.`);
             return;
         }
+        if (!window.confirm(`Permanently delete all ${scores.length} leaderboard entries? This cannot be undone.`)) {
+            return;
+        }
 
         setBusyAction("wipe");
         setBusyTarget("wipe");
@@ -350,7 +361,7 @@ export default function Playground() {
 
     const saveRowRename = async () => {
         const nextName = editingName.trim();
-        if (!editingId || !nextName) return;
+        if (editingId === null || !nextName) return;
 
         setBusyAction("rename");
         setBusyTarget(`row-${editingId}`);
@@ -381,17 +392,23 @@ export default function Playground() {
         const currentName = editingPlayerName?.trim();
         if (!nextName || !currentName) return;
 
+        // Groups are keyed by the upper-cased name, but the API matches `playerName` exactly,
+        // so rename every raw spelling that was folded into this group.
+        const aliases = playerGroups.find((group) => group.name === currentName)?.aliases ?? [currentName];
+
         setBusyAction("rename");
         setBusyTarget(`group-${currentName}`);
         try {
-            const response = await fetch("/api/leaderboard", {
-                method: "PATCH",
-                headers: getAdminHeaders(true),
-                body: JSON.stringify({ playerName: currentName, name: nextName }),
-            });
+            for (const alias of aliases) {
+                const response = await fetch("/api/leaderboard", {
+                    method: "PATCH",
+                    headers: getAdminHeaders(true),
+                    body: JSON.stringify({ playerName: alias, name: nextName }),
+                });
 
-            if (!response.ok) {
-                throw new Error(response.status === 401 ? "Invalid KEY. Access denied." : "Player rename failed.");
+                if (!response.ok) {
+                    throw new Error(response.status === 401 ? "Invalid KEY. Access denied." : "Player rename failed.");
+                }
             }
 
             setEditingPlayerName(null);
@@ -399,35 +416,6 @@ export default function Playground() {
             await refreshSnapshot();
         } catch (error) {
             alert(error instanceof Error ? error.message : "Player rename failed.");
-        } finally {
-            setBusyAction(null);
-            setBusyTarget("");
-        }
-    };
-
-    const saveSessionLabel = async () => {
-        const nextLabel = editingSessionLabel.trim();
-        const sessionId = editingSessionId?.trim();
-        if (!sessionId) return;
-
-        setBusyAction("rename");
-        setBusyTarget(`session-${sessionId}`);
-        try {
-            const response = await fetch("/api/visitor-analytics", {
-                method: "PATCH",
-                headers: getAdminHeaders(true),
-                body: JSON.stringify({ sessionId, sessionLabel: nextLabel }),
-            });
-
-            if (!response.ok) {
-                throw new Error(response.status === 401 ? "Invalid KEY. Access denied." : "Session label update failed.");
-            }
-
-            setEditingSessionId(null);
-            setEditingSessionLabel("");
-            await refreshSnapshot();
-        } catch (error) {
-            alert(error instanceof Error ? error.message : "Session label update failed.");
         } finally {
             setBusyAction(null);
             setBusyTarget("");
@@ -477,15 +465,20 @@ export default function Playground() {
         }
 
         setAuthenticated(false);
-        setScores([]);
-        setInsights(emptyInsights);
-        setContactSubmissions([]);
-        setSessions([]);
-        setDevices([]);
+        clearAdminData();
         setAuthError("");
+        setDataError("");
+        setShareStatus("");
+        setWipeConfirmation("");
         setSearchTerm("");
         setGameFilter("all");
+        setSortMode("newest");
         setCurrentPage(1);
+        setPlayerGroupsPage(1);
+        setEditingId(null);
+        setEditingName("");
+        setEditingPlayerName(null);
+        setBulkRenameValue("");
         setKey("");
     };
 
@@ -493,111 +486,7 @@ export default function Playground() {
         return Array.from(new Set(scores.map((entry) => entry.game))).sort();
     }, [scores]);
 
-    const totalScore = useMemo(() => scores.reduce((sum, entry) => sum + entry.score, 0), [scores]);
     const uniquePlayers = useMemo(() => new Set(scores.map((entry) => entry.name.trim().toUpperCase())).size, [scores]);
-    const averageScore = useMemo(() => (scores.length ? Math.round(totalScore / scores.length) : 0), [scores, totalScore]);
-
-    const gameBreakdown = useMemo(() => {
-        return gameOptions.map((game) => {
-            const entries = scores.filter((entry) => entry.game === game);
-            const total = entries.reduce((sum, entry) => sum + entry.score, 0);
-            const average = entries.length ? Math.round(total / entries.length) : 0;
-            const best = entries.reduce((max, entry) => Math.max(max, entry.score), 0);
-            return {
-                game,
-                plays: entries.length,
-                total,
-                average,
-                best,
-            };
-        }).sort((a, b) => b.total - a.total);
-    }, [gameOptions, scores]);
-
-    const routeStory = useMemo(() => {
-        const buckets = new Map<string, {
-            route: string;
-            sessions: number;
-            views: number;
-            links: number;
-            runs: number;
-            resumeDownloads: number;
-            contacts: number;
-            topSources: string[];
-        }>();
-
-        for (const session of sessions) {
-            const keyRoute = session.route || "/";
-            const current = buckets.get(keyRoute) ?? {
-                route: keyRoute,
-                sessions: 0,
-                views: 0,
-                links: 0,
-                runs: 0,
-                resumeDownloads: 0,
-                contacts: 0,
-                topSources: [],
-            };
-
-            current.sessions += 1;
-            current.views += session.view_count;
-            current.links += session.link_clicks;
-            current.runs += session.completed_runs;
-            current.resumeDownloads += session.resume_downloads;
-            current.contacts += session.contact_submissions;
-            if (session.source && !current.topSources.includes(session.source)) {
-                current.topSources = [...current.topSources, session.source].slice(0, 3);
-            }
-            buckets.set(keyRoute, current);
-        }
-
-        return [...buckets.values()].sort((a, b) => b.views - a.views || b.sessions - a.sessions);
-    }, [sessions]);
-
-    const topNarratives = useMemo(() => {
-        const priority = ["/social-only", "/game-only", "/resume", "/contact", "/social", "/game", "/arcade-only"];
-        const found = priority
-            .map((route) => routeStory.find((entry) => entry.route === route))
-            .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
-
-        const extras = routeStory.filter((entry) => !priority.includes(entry.route)).slice(0, Math.max(0, 6 - found.length));
-        return [...found, ...extras].slice(0, 6);
-    }, [routeStory]);
-
-    const commandMoments = useMemo(() => {
-        const totals = {
-            linkOpens: sessions.reduce((sum, session) => sum + session.link_clicks, 0),
-            gameRuns: sessions.reduce((sum, session) => sum + session.completed_runs, 0),
-            resumeDownloads: sessions.reduce((sum, session) => sum + session.resume_downloads, 0),
-            contactSubmits: sessions.reduce((sum, session) => sum + session.contact_submissions, 0),
-        };
-
-        return [
-            {
-                label: "Social pulls",
-                value: numberFormat(routeStory.find((entry) => entry.route === "/social-only")?.links ?? routeStory.find((entry) => entry.route === "/social")?.links ?? 0),
-                detail: "Link taps from the social hub scene.",
-                accent: "#38bdf8",
-            },
-            {
-                label: "Arcade momentum",
-                value: numberFormat(totals.gameRuns),
-                detail: "Runs completed across the standalone game page and shared game sessions.",
-                accent: "#f97316",
-            },
-            {
-                label: "Resume intent",
-                value: numberFormat(totals.resumeDownloads),
-                detail: "Downloads that signal stronger portfolio interest.",
-                accent: "#22c55e",
-            },
-            {
-                label: "Outreach signals",
-                value: numberFormat(totals.contactSubmits),
-                detail: "Visitors who moved from browsing into direct contact.",
-                accent: "#ec4899",
-            },
-        ];
-    }, [routeStory, sessions]);
 
     const playerGroups = useMemo<PlayerGroup[]>(() => {
         const buckets = new Map<string, LeaderboardEntry[]>();
@@ -613,6 +502,7 @@ export default function Playground() {
             const gamesPlayed = new Set(entries.map((entry) => entry.game)).size;
             return {
                 name,
+                aliases: [...new Set(entries.map((entry) => entry.name.trim()))],
                 submissions: entries.length,
                 totalScore,
                 bestScore: Math.max(...entries.map((entry) => entry.score)),
@@ -620,26 +510,13 @@ export default function Playground() {
                 gamesPlayed,
                 lastPlayed: entries
                     .map((entry) => entry.date)
-                    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0],
+                    .sort((a, b) => toTime(b) - toTime(a))[0],
             };
         }).sort((a, b) => b.totalScore - a.totalScore || b.bestScore - a.bestScore);
     }, [scores]);
 
-    const activityTrend = useMemo(() => {
-        const byDay = new Map<string, { plays: number; score: number }>();
-        for (const score of scores) {
-            const day = new Date(score.date).toISOString().slice(0, 10);
-            const current = byDay.get(day) ?? { plays: 0, score: 0 };
-            current.plays += 1;
-            current.score += score.score;
-            byDay.set(day, current);
-        }
-
-        return [...byDay.entries()]
-            .map(([date, stats]) => ({ date, ...stats }))
-            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-            .slice(-7);
-    }, [scores]);
+    const playerGroupsTotalPages = Math.max(1, Math.ceil(playerGroups.length / playerGroupsPageSize));
+    const safePlayerGroupsPage = Math.min(playerGroupsPage, playerGroupsTotalPages);
 
     const deviceStats = useMemo(() => {
         let mobile = 0;
@@ -690,10 +567,10 @@ export default function Playground() {
                 );
             })
             .sort((a, b) => {
-                if (sortMode === "score_high") return b.score - a.score || new Date(b.date).getTime() - new Date(a.date).getTime();
-                if (sortMode === "score_low") return a.score - b.score || new Date(b.date).getTime() - new Date(a.date).getTime();
-                if (sortMode === "oldest") return new Date(a.date).getTime() - new Date(b.date).getTime();
-                return new Date(b.date).getTime() - new Date(a.date).getTime();
+                if (sortMode === "score_high") return b.score - a.score || toTime(b.date) - toTime(a.date);
+                if (sortMode === "score_low") return a.score - b.score || toTime(b.date) - toTime(a.date);
+                if (sortMode === "oldest") return toTime(a.date) - toTime(b.date);
+                return toTime(b.date) - toTime(a.date);
             });
     }, [scores, gameFilter, searchTerm, sortMode]);
 
@@ -710,14 +587,14 @@ export default function Playground() {
         }
     }, [currentPage, totalPages]);
 
-    const topGame = gameBreakdown[0];
-    const bestDay = insights.topDates[0];
-    const newestContact = contactSubmissions[0];
-    const newContacts = contactSubmissions.filter((submission) => (submission.status ?? "new") === "new").length;
-    const totalTrackedSessions = sessions.length;
-    const namedSessions = sessions.filter((session) => session.session_label?.trim()).length;
-    const totalSessionViews = sessions.reduce((sum, session) => sum + session.view_count, 0);
+    useEffect(() => {
+        if (playerGroupsPage > playerGroupsTotalPages) {
+            setPlayerGroupsPage(playerGroupsTotalPages);
+        }
+    }, [playerGroupsPage, playerGroupsTotalPages]);
 
+    const newContacts = contactSubmissions.filter((submission) => (submission.status ?? "new") === "new").length;
+    const totalSessionViews = sessions.reduce((sum, session) => sum + (session.view_count || 0), 0);
 
     if (!sessionChecked) {
         return (
@@ -733,7 +610,8 @@ export default function Playground() {
 
     if (!authenticated) {
         return (
-            <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "6.5rem 2rem 2rem", background: "radial-gradient(circle at top, #1f2937 0%, #020617 45%, #000 100%)" }}>
+            <div className="playground-admin" style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "6.5rem 1rem 2rem", background: "radial-gradient(circle at top, #1f2937 0%, #020617 45%, #000 100%)" }}>
+                <style>{focusVisibleCss}</style>
                 <PlaygroundTopBar authenticated={false} onToggleLock={() => undefined} />
                 <form
                     onSubmit={attemptLogin}
@@ -753,6 +631,8 @@ export default function Playground() {
                         KEY
                         <input
                             type="password"
+                            autoComplete="current-password"
+                            autoFocus
                             value={key}
                             onChange={(event) => setKey(event.target.value)}
                             placeholder="Enter admin key"
@@ -762,7 +642,7 @@ export default function Playground() {
                     </label>
 
                     {authError && (
-                        <p data-testid="playground-auth-error" style={{ margin: 0, color: "#fca5a5", fontSize: "0.9rem" }}>
+                        <p data-testid="playground-auth-error" role="alert" style={{ margin: 0, color: "#fca5a5", fontSize: "0.9rem" }}>
                             {authError}
                         </p>
                     )}
@@ -770,7 +650,7 @@ export default function Playground() {
                     <button
                         type="submit"
                         disabled={loading || !key.trim()}
-                        style={{ padding: "1rem", borderRadius: "14px", border: "none", background: loading ? "#475569" : "#ef4444", color: "#fff", fontWeight: 900, cursor: loading ? "wait" : "pointer" }}
+                        style={{ padding: "1rem", borderRadius: "14px", border: "none", background: loading ? "#475569" : "#b91c1c", color: "#fff", fontWeight: 900, cursor: loading ? "wait" : "pointer" }}
                     >
                         {loading ? "VALIDATING..." : "ACCESS PLAYGROUND"}
                     </button>
@@ -781,30 +661,32 @@ export default function Playground() {
 
     return (
         <div
+            className="playground-admin"
             style={{
                 minHeight: "100vh",
                 background: "radial-gradient(circle at top, rgba(14,165,233,0.18) 0%, rgba(2,6,23,0.96) 24%, #020617 56%, #000 100%)",
                 padding: "6.5rem 1rem 4rem",
             }}
         >
+            <style>{focusVisibleCss}</style>
             <PlaygroundTopBar authenticated={authenticated} onToggleLock={() => void lockTerminal()} />
-            <div style={{ maxWidth: "1340px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            <div style={{ maxWidth: "1340px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "1.25rem", minWidth: 0 }}>
                 <section style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
-                    <div style={{ padding: "1.5rem", borderRadius: "32px", border: "1px solid rgba(56,189,248,0.18)", background: "linear-gradient(135deg, rgba(2,6,23,0.92), rgba(15,23,42,0.84), rgba(8,47,73,0.72))", boxShadow: "0 28px 80px rgba(0,0,0,0.34)", position: "relative", overflow: "hidden" }}>
+                    <div style={{ padding: "1.5rem", borderRadius: "24px", border: "1px solid rgba(56,189,248,0.18)", background: "linear-gradient(135deg, rgba(2,6,23,0.92), rgba(15,23,42,0.84), rgba(8,47,73,0.72))", boxShadow: "0 28px 80px rgba(0,0,0,0.34)", position: "relative", overflow: "hidden" }}>
                         <div style={{ position: "absolute", inset: "-10% auto auto -4%", width: "280px", height: "280px", borderRadius: "999px", background: "radial-gradient(circle, rgba(56,189,248,0.18), transparent 70%)", pointerEvents: "none" }} />
                         <div style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1.5rem", flexWrap: "wrap" }}>
                             <div>
                                 <p style={{ margin: 0, fontSize: "0.75rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#38bdf8", fontWeight: 800 }}>Admin Dashboard</p>
-                                <h1 style={{ margin: "0.4rem 0 0", fontSize: "2.5rem", fontWeight: 900, color: "#f8fafc" }}>Arcade Playground Intelligence</h1>
+                                <h1 style={{ margin: "0.4rem 0 0", fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 900, color: "#f8fafc", overflowWrap: "anywhere" }}>Arcade Playground Intelligence</h1>
                                 <p style={{ margin: "0.7rem 0 0", color: "#cbd5e1", maxWidth: "860px", lineHeight: 1.7 }}>
                                     A black-room control surface for following how people move through your share pages, where they click, when they play, and when browsing turns into resume interest or direct outreach.
                                 </p>
                             </div>
                             <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", zIndex: 10 }}>
-                                <button onClick={refreshSnapshot} disabled={loading} style={primaryButtonStyle}>
+                                <button type="button" onClick={() => void refreshSnapshot()} disabled={loading} aria-busy={loading} style={{ ...primaryButtonStyle, opacity: loading ? 0.7 : 1, cursor: loading ? "wait" : "pointer" }}>
                                     {loading ? "Refreshing..." : "Refresh Data"}
                                 </button>
-                                <button onClick={() => void lockTerminal()} style={secondaryButtonStyle}>
+                                <button type="button" onClick={() => void lockTerminal()} style={secondaryButtonStyle}>
                                     Lock Terminal
                                 </button>
                             </div>
@@ -812,36 +694,48 @@ export default function Playground() {
                     </div>
                 </section>
 
-                <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
+                {dataError && (
+                    <div
+                        role="alert"
+                        style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", padding: "0.9rem 1.1rem", borderRadius: "16px", border: "1px solid rgba(248,113,113,0.4)", background: "rgba(127,29,29,0.35)", color: "#fecaca", fontWeight: 700 }}
+                    >
+                        <span>{dataError} Showing the last loaded data.</span>
+                        <button type="button" onClick={() => void refreshSnapshot()} disabled={loading} style={compactSecondaryButton}>
+                            {loading ? "Retrying..." : "Retry"}
+                        </button>
+                    </div>
+                )}
+
+                <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))", gap: "1rem" }}>
                     <StatCard 
                         title="Total Sessions" 
                         value={String(sessions.length)} 
                         subtitle={`${totalSessionViews} page views across all visitors`} 
-                        accent="#6366f1" 
+                        accent="#818cf8"
                     />
                     <StatCard 
                         title="Arcade Momentum" 
                         value={`${scores.length} runs`} 
                         subtitle={`${uniquePlayers} players submitted scores`} 
-                        accent="#ef4444" 
+                        accent="#f87171"
                     />
                     <StatCard 
                         title="Resume Intent" 
                         value={`${resumeStats.downloads} DLs`} 
                         subtitle={`${resumeStats.opens} views on PDF resume`} 
-                        accent="#22c55e" 
+                        accent="#4ade80"
                     />
                     <StatCard 
                         title="Outreach Signals" 
                         value={`${outreachStats.messages} messages`} 
                         subtitle={`${outreachStats.attempts} contact submit attempts`} 
-                        accent="#ec4899" 
+                        accent="#f472b6"
                     />
                     <StatCard 
                         title="Bot Traffic %" 
                         value={`${botStats.botPercentage}%`} 
                         subtitle={`${botStats.botsCount} bot sessions identified`} 
-                        accent="#a855f7" 
+                        accent="#c084fc"
                     />
                     <StatCard 
                         title="Mobile vs PC" 
@@ -855,14 +749,12 @@ export default function Playground() {
                     <MasterVisitorExplorer
                         devices={devices}
                         sessions={sessions}
-                        scores={scores}
-                        routeStory={routeStory}
                         getAdminHeaders={getAdminHeaders}
                         onRefresh={refreshSnapshot}
                     />
                 </section>
 
-                <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 420px), 1fr))", gap: "1rem", alignItems: "start" }}>
                     <Panel
                         title="Player Groups"
                         description="Grouped by player name so you can spot heavy users, rename clusters, or suspicious repeat entries."
@@ -870,40 +762,49 @@ export default function Playground() {
 
                         <div style={{ display: "grid", gap: "0.8rem" }}>
                             {playerGroups.length === 0 && <EmptyState label="No player groups yet." />}
-                            {playerGroups.slice((playerGroupsPage - 1) * 8, playerGroupsPage * 8).map((player) => {
-
+                            {playerGroups.slice((safePlayerGroupsPage - 1) * playerGroupsPageSize, safePlayerGroupsPage * playerGroupsPageSize).map((player) => {
                                 const isEditing = editingPlayerName === player.name;
+                                const isBusyGroup = busyAction === "rename" && busyTarget === `group-${player.name}`;
                                 return (
                                     <div key={player.name} style={{ padding: "1rem", borderRadius: "18px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(148,163,184,0.14)", display: "grid", gap: "0.8rem" }}>
                                         <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap", alignItems: "baseline" }}>
-                                            <div>
-                                                <strong style={{ fontSize: "0.95rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>{player.name}</strong>
-                                                <div style={{ marginTop: "0.25rem", color: "#64748b", fontSize: "0.85rem" }}>
-                                                    {player.submissions} submissions · {player.gamesPlayed} games · last seen {new Date(player.lastPlayed).toLocaleDateString()}
+                                            <div style={{ minWidth: 0 }}>
+                                                <strong style={{ fontSize: "0.95rem", textTransform: "uppercase", letterSpacing: "0.08em", overflowWrap: "anywhere" }}>{player.name}</strong>
+                                                <div style={{ marginTop: "0.25rem", color: "#94a3b8", fontSize: "0.85rem" }}>
+                                                    {player.submissions} submissions · {player.gamesPlayed} games · last seen {formatDate(player.lastPlayed)}
                                                 </div>
                                             </div>
                                             <div style={{ textAlign: "right" }}>
-                                                <div style={{ color: "#fff", fontWeight: 900 }}>{numberFormat(player.totalScore)} pts</div>
-                                                <div style={{ color: "#64748b", fontSize: "0.8rem" }}>avg {player.averageScore} · best {player.bestScore}</div>
+                                                <div style={{ color: "#fff", fontWeight: 900, fontVariantNumeric: "tabular-nums" }}>{numberFormat(player.totalScore)} pts</div>
+                                                <div style={{ color: "#94a3b8", fontSize: "0.8rem", fontVariantNumeric: "tabular-nums" }}>avg {player.averageScore} · best {player.bestScore}</div>
                                             </div>
                                         </div>
 
                                         {isEditing ? (
-                                            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto auto", gap: "0.65rem", alignItems: "stretch" }}>
+                                            <form
+                                                onSubmit={(event) => {
+                                                    event.preventDefault();
+                                                    void saveBulkRename();
+                                                }}
+                                                style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto auto", gap: "0.65rem", alignItems: "stretch" }}
+                                            >
                                                 <input
                                                     value={bulkRenameValue}
                                                     onChange={(event) => setBulkRenameValue(event.target.value.toUpperCase())}
                                                     placeholder="NEW PLAYER NAME"
+                                                    aria-label={`New name for player group ${player.name}`}
+                                                    autoFocus
                                                     style={inputStyle}
                                                 />
                                                 <button
-                                                    onClick={saveBulkRename}
-                                                    disabled={!bulkRenameValue.trim() || (busyAction === "rename" && busyTarget === `group-${player.name}`)}
+                                                    type="submit"
+                                                    disabled={!bulkRenameValue.trim() || isBusyGroup}
                                                     style={primaryButtonStyle}
                                                 >
-                                                    SAVE
+                                                    {isBusyGroup ? "SAVING..." : "SAVE"}
                                                 </button>
                                                 <button
+                                                    type="button"
                                                     onClick={() => {
                                                         setEditingPlayerName(null);
                                                         setBulkRenameValue("");
@@ -912,9 +813,10 @@ export default function Playground() {
                                                 >
                                                     Cancel
                                                 </button>
-                                            </div>
+                                            </form>
                                         ) : (
                                             <button
+                                                type="button"
                                                 onClick={() => {
                                                     setEditingPlayerName(player.name);
                                                     setBulkRenameValue(player.name);
@@ -929,23 +831,25 @@ export default function Playground() {
                                 );
                             })}
                             
-                            {playerGroups.length > 8 && (
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem" }}>
-                                    <span style={{ fontSize: "0.85rem", color: "#64748b" }}>
-                                        Showing {Math.min(playerGroups.length, (playerGroupsPage - 1) * 8 + 1)} - {Math.min(playerGroups.length, playerGroupsPage * 8)} of {playerGroups.length}
+                            {playerGroups.length > playerGroupsPageSize && (
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
+                                    <span style={{ fontSize: "0.85rem", color: "#94a3b8" }}>
+                                        Showing {(safePlayerGroupsPage - 1) * playerGroupsPageSize + 1} - {Math.min(playerGroups.length, safePlayerGroupsPage * playerGroupsPageSize)} of {playerGroups.length}
                                     </span>
                                     <div style={{ display: "flex", gap: "0.5rem" }}>
-                                        <button 
-                                            onClick={() => setPlayerGroupsPage(p => Math.max(1, p - 1))}
-                                            disabled={playerGroupsPage === 1}
-                                            style={{ ...secondaryButtonStyle, opacity: playerGroupsPage === 1 ? 0.5 : 1, padding: "0.4rem 0.8rem", fontSize: "0.8rem" }}
+                                        <button
+                                            type="button"
+                                            onClick={() => setPlayerGroupsPage(p => Math.max(1, Math.min(p, playerGroupsTotalPages) - 1))}
+                                            disabled={safePlayerGroupsPage <= 1}
+                                            style={{ ...secondaryButtonStyle, opacity: safePlayerGroupsPage <= 1 ? 0.5 : 1, padding: "0.4rem 0.8rem", fontSize: "0.8rem" }}
                                         >
                                             Prev
                                         </button>
-                                        <button 
-                                            onClick={() => setPlayerGroupsPage(p => Math.min(Math.ceil(playerGroups.length / 8), p + 1))}
-                                            disabled={playerGroupsPage >= Math.ceil(playerGroups.length / 8)}
-                                            style={{ ...secondaryButtonStyle, opacity: playerGroupsPage >= Math.ceil(playerGroups.length / 8) ? 0.5 : 1, padding: "0.4rem 0.8rem", fontSize: "0.8rem" }}
+                                        <button
+                                            type="button"
+                                            onClick={() => setPlayerGroupsPage(p => Math.min(playerGroupsTotalPages, p + 1))}
+                                            disabled={safePlayerGroupsPage >= playerGroupsTotalPages}
+                                            style={{ ...secondaryButtonStyle, opacity: safePlayerGroupsPage >= playerGroupsTotalPages ? 0.5 : 1, padding: "0.4rem 0.8rem", fontSize: "0.8rem" }}
                                         >
                                             Next
                                         </button>
@@ -988,32 +892,36 @@ export default function Playground() {
                                                 <div style={{ color: "#fff", fontWeight: 800 }}>{entry.label}</div>
                                                 <div style={{ color: "#94a3b8", fontSize: "0.84rem", wordBreak: "break-all" }}>{entry.path}</div>
                                             </div>
-                                            <button onClick={() => void copyDirectLink(entry.path, entry.label)} style={secondaryButtonStyle}>
+                                            <button type="button" onClick={() => void copyDirectLink(entry.path, entry.label)} aria-label={`Copy ${entry.label} link`} style={secondaryButtonStyle}>
                                                 Copy
                                             </button>
                                         </div>
                                     ))}
                                 </div>
-                                {shareStatus && <p style={{ margin: 0, color: "#94a3b8" }}>{shareStatus}</p>}
+                                <p aria-live="polite" style={{ margin: 0, color: "#94a3b8", minHeight: shareStatus ? undefined : 0 }}>{shareStatus}</p>
                             </div>
 
                             <div style={{ padding: "1rem", borderRadius: "18px", background: "linear-gradient(180deg, rgba(67,20,7,0.58), rgba(35,12,5,0.7))", border: "1px solid rgba(251,146,60,0.34)", display: "grid", gap: "0.8rem" }}>
                                 <div>
-                                    <p style={{ margin: 0, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "#c2410c", fontWeight: 800 }}>Danger Zone</p>
-                                    <p style={{ margin: "0.4rem 0 0", color: "#7c2d12", lineHeight: 1.6 }}>
+                                    <p style={{ margin: 0, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "#fb923c", fontWeight: 800 }}>Danger Zone</p>
+                                    <p style={{ margin: "0.4rem 0 0", color: "#fed7aa", lineHeight: 1.6 }}>
                                         Resetting clears the entire leaderboard database view for all games. Type <strong>{deleteAllPhrase}</strong> exactly to enable it.
                                     </p>
                                 </div>
 
-                                <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", gap: "0.75rem", alignItems: "stretch" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))", gap: "0.75rem", alignItems: "stretch" }}>
                                     <input
                                         type="text"
                                         value={wipeConfirmation}
                                         onChange={(event) => setWipeConfirmation(event.target.value)}
                                         placeholder={deleteAllPhrase}
-                                        style={{ ...inputStyle, border: "1px solid #fdba74", color: "#7c2d12" }}
+                                        aria-label={`Type ${deleteAllPhrase} to confirm resetting all scores`}
+                                        autoComplete="off"
+                                        spellCheck={false}
+                                        style={{ ...inputStyle, border: "1px solid #fdba74", color: "#fed7aa" }}
                                     />
                                     <button
+                                        type="button"
                                         onClick={handleWipe}
                                         disabled={busyAction === "wipe" || scores.length === 0 || wipeConfirmation.trim() !== deleteAllPhrase}
                                         style={{
@@ -1032,7 +940,7 @@ export default function Playground() {
                 <section style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
                     <Panel
                         title="Contact Inbox"
-                        description="Messages from the contact page land here so you can review them later from the same admin surface."
+                        description={`Messages from the contact page land here so you can review them later from the same admin surface.${contactSubmissions.length ? ` ${newContacts} new · showing ${Math.min(8, contactSubmissions.length)} of ${contactSubmissions.length}.` : ""}`}
                     >
                         <div style={{ display: "grid", gap: "0.85rem" }}>
                             {contactSubmissions.length === 0 && <EmptyState label="No contact messages yet." />}
@@ -1043,26 +951,27 @@ export default function Playground() {
                                 return (
                                     <div key={submission.id} style={{ padding: "1rem", borderRadius: "18px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(148,163,184,0.14)", display: "grid", gap: "0.75rem" }}>
                                         <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "start", flexWrap: "wrap" }}>
-                                            <div style={{ display: "grid", gap: "0.25rem" }}>
-                                                <strong style={{ fontSize: "0.95rem", color: "#fff" }}>{submission.name}</strong>
-                                                <span style={{ color: "#94a3b8", fontSize: "0.85rem" }}>{submission.email}</span>
+                                            <div style={{ display: "grid", gap: "0.25rem", minWidth: 0 }}>
+                                                <strong style={{ fontSize: "0.95rem", color: "#fff", overflowWrap: "anywhere" }}>{submission.name}</strong>
+                                                <span style={{ color: "#94a3b8", fontSize: "0.85rem", overflowWrap: "anywhere" }}>{submission.email}</span>
                                             </div>
                                             <Pill label={status} />
                                         </div>
 
-                                        <p style={{ margin: 0, color: "#334155", lineHeight: 1.7 }}>
+                                        <p style={{ margin: 0, color: "#cbd5e1", lineHeight: 1.7, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
                                             {submission.message}
                                         </p>
 
                                         <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
-                                            <span style={{ color: "#64748b", fontSize: "0.8rem" }}>
-                                                {new Date(submission.created_at).toLocaleString()} · {submission.source || "/contact"}
+                                            <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>
+                                                {formatDateTime(submission.created_at)} · {submission.source || "/contact"}
                                             </span>
                                             <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
-                                                <a href={`mailto:${submission.email}`} style={compactSecondaryButton as CSSProperties}>
+                                                <a href={`mailto:${submission.email}`} aria-label={`Reply to ${submission.name || submission.email} by email`} style={{ ...compactSecondaryButton, textDecoration: "none" }}>
                                                     Reply
                                                 </a>
                                                 <button
+                                                    type="button"
                                                     onClick={() => updateContactStatus(submission.id, submission.status === "reviewed" ? "new" : "reviewed")}
                                                     disabled={isBusy}
                                                     style={compactPrimaryButton}
@@ -1085,14 +994,16 @@ export default function Playground() {
                     title="Score Curatorship"
                     description="Filter, sort, rename, and moderate the live leaderboard with paginated table controls."
                 >
-                    <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.7fr 0.7fr auto", gap: "0.75rem", marginBottom: "1rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: "0.75rem", marginBottom: "1rem" }}>
                         <input
+                            type="search"
                             value={searchTerm}
                             onChange={(event) => {
                                 setSearchTerm(event.target.value);
                                 setCurrentPage(1);
                             }}
                             placeholder="Search player, game, or ID"
+                            aria-label="Search scores by player, game, or ID"
                             style={inputStyle}
                         />
                         <select
@@ -1101,6 +1012,7 @@ export default function Playground() {
                                 setGameFilter(event.target.value);
                                 setCurrentPage(1);
                             }}
+                            aria-label="Filter by game"
                             style={inputStyle}
                         >
                             <option value="all">All games</option>
@@ -1112,7 +1024,11 @@ export default function Playground() {
                         </select>
                         <select
                             value={sortMode}
-                            onChange={(event) => setSortMode(event.target.value as typeof sortMode)}
+                            onChange={(event) => {
+                                setSortMode(event.target.value as typeof sortMode);
+                                setCurrentPage(1);
+                            }}
+                            aria-label="Sort scores"
                             style={inputStyle}
                         >
                             <option value="newest">Newest first</option>
@@ -1120,28 +1036,28 @@ export default function Playground() {
                             <option value="score_high">Highest score</option>
                             <option value="score_low">Lowest score</option>
                         </select>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0.9rem 1rem", borderRadius: "14px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(148,163,184,0.14)", color: "#cbd5e1", fontWeight: 800 }}>
+                        <div aria-live="polite" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0.9rem 1rem", borderRadius: "14px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(148,163,184,0.14)", color: "#cbd5e1", fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>
                             {filteredScores.length} rows
                         </div>
                     </div>
 
                     <div style={{ overflowX: "auto", border: "1px solid rgba(148,163,184,0.14)", borderRadius: "18px" }}>
-                        <table data-testid="playground-score-table" style={{ width: "100%", borderCollapse: "collapse", background: "rgba(2,6,23,0.72)" }}>
+                        <table data-testid="playground-score-table" style={{ width: "100%", minWidth: "760px", borderCollapse: "collapse", background: "rgba(2,6,23,0.72)" }}>
                             <thead>
-                                <tr style={{ background: "rgba(255,255,255,0.04)", textAlign: "left" }}>
-                                    <th style={tableHeadCell}>ID</th>
-                                    <th style={tableHeadCell}>Player</th>
-                                    <th style={tableHeadCell}>Game</th>
-                                    <th style={tableHeadCell}>Score</th>
-                                    <th style={tableHeadCell}>Timestamp</th>
-                                    <th style={tableHeadCell}>Actions</th>
+                                <tr style={{ background: "rgba(255,255,255,0.06)", textAlign: "left" }}>
+                                    <th scope="col" style={tableHeadCell}>ID</th>
+                                    <th scope="col" style={tableHeadCell}>Player</th>
+                                    <th scope="col" style={tableHeadCell}>Game</th>
+                                    <th scope="col" style={tableHeadCell}>Score</th>
+                                    <th scope="col" style={tableHeadCell}>Timestamp</th>
+                                    <th scope="col" style={tableHeadCell}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {paginatedScores.length === 0 && (
                                     <tr>
-                                        <td colSpan={6} style={{ padding: "1.5rem", textAlign: "center", color: "#64748b" }}>
-                                            No leaderboard entries match the current filters.
+                                        <td colSpan={6} style={{ padding: "1.5rem", textAlign: "center", color: "#94a3b8" }}>
+                                            {scores.length === 0 ? "No leaderboard entries yet." : "No leaderboard entries match the current filters."}
                                         </td>
                                     </tr>
                                 )}
@@ -1155,36 +1071,53 @@ export default function Playground() {
                                             <td style={tableBodyCell}>{score.id}</td>
                                             <td style={tableBodyCell}>
                                                 {isEditing ? (
-                                                    <div style={{ display: "grid", gap: "0.5rem" }}>
+                                                    <form
+                                                        onSubmit={(event) => {
+                                                            event.preventDefault();
+                                                            void saveRowRename();
+                                                        }}
+                                                        style={{ display: "grid", gap: "0.5rem" }}
+                                                    >
                                                         <input
                                                             value={editingName}
                                                             onChange={(event) => setEditingName(event.target.value.toUpperCase())}
+                                                            aria-label={`New player name for entry ${score.id}`}
+                                                            autoFocus
                                                             style={{ ...inputStyle, padding: "0.7rem 0.85rem" }}
                                                         />
                                                         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                                                            <button onClick={saveRowRename} disabled={!editingName.trim() || isBusyRename} style={compactPrimaryButton}>
+                                                            <button type="submit" disabled={!editingName.trim() || isBusyRename} style={compactPrimaryButton}>
                                                                 {isBusyRename ? "Saving..." : "Save"}
                                                             </button>
-                                                            <button onClick={() => setEditingId(null)} style={compactSecondaryButton}>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setEditingId(null);
+                                                                    setEditingName("");
+                                                                }}
+                                                                style={compactSecondaryButton}
+                                                            >
                                                                 Cancel
                                                             </button>
                                                         </div>
-                                                    </div>
+                                                    </form>
                                                 ) : (
                                                     <strong style={{ textTransform: "uppercase", letterSpacing: "0.06em" }}>{score.name}</strong>
                                                 )}
                                             </td>
                                             <td style={tableBodyCell}><Pill label={score.game.toUpperCase()} /></td>
                                             <td style={tableBodyCell}><strong>{score.score}</strong></td>
-                                            <td style={tableBodyCell}>{new Date(score.date).toLocaleString()}</td>
+                                            <td style={tableBodyCell}>{formatDateTime(score.date)}</td>
                                             <td style={tableBodyCell}>
                                                 <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
                                                     {!isEditing && (
-                                                        <button onClick={() => startRowEdit(score)} style={compactSecondaryButton}>
+                                                        <button type="button" onClick={() => startRowEdit(score)} aria-label={`Edit name for entry ${score.id} (${score.name})`} style={compactSecondaryButton}>
                                                             Edit Name
                                                         </button>
                                                     )}
                                                     <button
+                                                        type="button"
+                                                        aria-label={`Delete entry ${score.id} (${score.name})`}
                                                         onClick={() => handleDelete(score.id)}
                                                         disabled={busyAction === "delete"}
                                                         style={{ ...compactDangerButton, opacity: busyAction === "delete" && !isBusyDelete ? 0.65 : 1 }}
@@ -1201,14 +1134,14 @@ export default function Playground() {
                     </div>
 
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", marginTop: "1rem", flexWrap: "wrap" }}>
-                        <p style={{ margin: 0, color: "#64748b" }}>
+                        <p style={{ margin: 0, color: "#94a3b8" }}>
                             Page {Math.min(currentPage, totalPages)} of {totalPages}
                         </p>
                         <div style={{ display: "flex", gap: "0.75rem" }}>
-                            <button onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={currentPage <= 1} style={secondaryButtonStyle}>
+                            <button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={currentPage <= 1} style={{ ...secondaryButtonStyle, opacity: currentPage <= 1 ? 0.5 : 1, cursor: currentPage <= 1 ? "not-allowed" : "pointer" }}>
                                 Previous
                             </button>
-                            <button onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage >= totalPages} style={secondaryButtonStyle}>
+                            <button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage >= totalPages} style={{ ...secondaryButtonStyle, opacity: currentPage >= totalPages ? 0.5 : 1, cursor: currentPage >= totalPages ? "not-allowed" : "pointer" }}>
                                 Next
                             </button>
                         </div>
@@ -1237,7 +1170,7 @@ function Panel({
         <section
             style={{
                 padding: spotlight ? "1.7rem" : "1.5rem",
-                borderRadius: "28px",
+                borderRadius: "24px",
                 background: dark
                     ? "linear-gradient(180deg, rgba(15,23,42,0.96), rgba(2,6,23,0.98))"
                     : spotlight
@@ -1268,7 +1201,7 @@ function Panel({
                 />
             )}
             <div style={{ marginBottom: "1rem" }}>
-                <h2 style={{ margin: 0, fontSize: spotlight ? "1.18rem" : "1.08rem", fontWeight: 900, letterSpacing: spotlight ? "-0.02em" : undefined }}>{title}</h2>
+                <h2 style={{ margin: 0, fontSize: spotlight ? "1.18rem" : "1.08rem", fontWeight: 900, color: "#f8fafc", letterSpacing: spotlight ? "-0.02em" : undefined }}>{title}</h2>
                 <p style={{ margin: "0.4rem 0 0", color: dark ? "#cbd5e1" : "#94a3b8", lineHeight: 1.6 }}>{description}</p>
             </div>
             {children}
@@ -1300,7 +1233,7 @@ function PlaygroundTopBar({
         >
             <div style={{ maxWidth: "1340px", margin: "0 auto", padding: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
                 <div style={{ display: "grid", gap: "0.2rem" }}>
-                    <p style={{ margin: 0, fontSize: "0.74rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#94a3b8", fontWeight: 800 }}>
+                    <p style={{ margin: 0, fontSize: "0.75rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#94a3b8", fontWeight: 800 }}>
                         Admin Surface
                     </p>
                     <strong style={{ color: "#fff", fontSize: "1.15rem", fontWeight: 900 }}>
@@ -1309,7 +1242,7 @@ function PlaygroundTopBar({
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
-                    <a
+                    <Link
                         href="/"
                         style={{
                             padding: "0.8rem 1rem",
@@ -1322,15 +1255,18 @@ function PlaygroundTopBar({
                         }}
                     >
                         Back to Website
-                    </a>
+                    </Link>
 
                     <button
+                        type="button"
                         onClick={onToggleLock}
+                        disabled={!authenticated}
+                        aria-label={authenticated ? "Lock admin session" : "Admin session locked"}
                         style={{
                             padding: "0.8rem 1rem",
                             borderRadius: "12px",
                             border: "1px solid rgba(255,255,255,0.14)",
-                            background: authenticated ? "#ef4444" : "rgba(255,255,255,0.04)",
+                            background: authenticated ? "#b91c1c" : "rgba(255,255,255,0.04)",
                             color: "#fff",
                             fontWeight: 900,
                             cursor: authenticated ? "pointer" : "default",
@@ -1347,39 +1283,21 @@ function PlaygroundTopBar({
 
 function StatCard({ title, value, subtitle, accent }: { title: string; value: string; subtitle: string; accent: string }) {
     return (
-        <div style={{ padding: "1.35rem", borderRadius: "26px", background: "linear-gradient(180deg, rgba(15,23,42,0.92), rgba(2,6,23,0.94))", border: "1px solid rgba(148,163,184,0.14)", boxShadow: `0 22px 50px rgba(0, 0, 0, 0.28), inset 0 0 0 1px ${accent}14`, position: "relative", overflow: "hidden" }}>
+        <div style={{ padding: "1.35rem", borderRadius: "20px", background: "linear-gradient(180deg, rgba(15,23,42,0.92), rgba(2,6,23,0.94))", border: "1px solid rgba(148,163,184,0.14)", boxShadow: `inset 0 1px 0 rgba(255,255,255,0.05), 0 22px 50px rgba(0, 0, 0, 0.28), inset 0 0 0 1px ${accent}14`, position: "relative", overflow: "hidden" }}>
             <div style={{ position: "absolute", inset: "-18% -8% auto auto", width: "120px", height: "120px", borderRadius: "999px", background: `radial-gradient(circle, ${accent}18, transparent 70%)`, pointerEvents: "none" }} />
-            <p style={{ margin: 0, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.12em", fontSize: "0.72rem", fontWeight: 800 }}>{title}</p>
-            <p style={{ margin: "0.6rem 0 0", fontSize: "2rem", fontWeight: 900, color: accent }}>{value}</p>
-            <p style={{ margin: "0.4rem 0 0", color: "#cbd5e1", lineHeight: 1.5 }}>{subtitle}</p>
-        </div>
-    );
-}
-
-function MetricChip({ label, value, dark = false }: { label: string; value: string; dark?: boolean }) {
-    return (
-        <div style={{ padding: "0.7rem 0.8rem", borderRadius: "16px", background: dark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.03)", border: "1px solid rgba(148,163,184,0.16)", boxShadow: "none" }}>
-            <div style={{ color: dark ? "#94a3b8" : "#94a3b8", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 800 }}>{label}</div>
-            <div style={{ color: "#fff", fontSize: "1rem", fontWeight: 900, marginTop: "0.2rem" }}>{value}</div>
-        </div>
-    );
-}
-
-function BarMeter({ value, max, color, label, dark = false }: { value: number; max: number; color: string; label: string; dark?: boolean }) {
-    const width = Math.max(6, Math.round((value / Math.max(max, 1)) * 100));
-    return (
-        <div style={{ display: "grid", gap: "0.45rem" }}>
-            <div style={{ width: "100%", height: "12px", borderRadius: "999px", background: dark ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.08)", overflow: "hidden" }}>
-                <div style={{ width: `${width}%`, height: "100%", borderRadius: "999px", background: `linear-gradient(90deg, ${color}, ${color}cc)` }} />
-            </div>
-            <span style={{ fontSize: "0.78rem", color: dark ? "#cbd5e1" : "#94a3b8", fontWeight: 700 }}>{label}</span>
+            <p style={{ margin: 0, display: "flex", alignItems: "center", gap: "0.5rem", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.12em", fontSize: "0.75rem", fontWeight: 800 }}>
+                <span aria-hidden="true" style={{ width: "6px", height: "6px", borderRadius: "999px", background: accent, flexShrink: 0 }} />
+                {title}
+            </p>
+            <p style={{ margin: "0.6rem 0 0", fontSize: "2rem", fontWeight: 900, color: accent, lineHeight: 1.1, fontVariantNumeric: "tabular-nums" }}>{value}</p>
+            <p style={{ margin: "0.5rem 0 0", color: "#cbd5e1", lineHeight: 1.5, fontVariantNumeric: "tabular-nums" }}>{subtitle}</p>
         </div>
     );
 }
 
 function EmptyState({ label, dark = false }: { label: string; dark?: boolean }) {
     return (
-        <div style={{ padding: "1rem", borderRadius: "16px", border: dark ? "1px dashed rgba(255,255,255,0.16)" : "1px dashed #cbd5e1", color: dark ? "#94a3b8" : "#64748b", textAlign: "center" }}>
+        <div style={{ padding: "1rem", borderRadius: "16px", border: dark ? "1px dashed rgba(255,255,255,0.16)" : "1px dashed rgba(148,163,184,0.3)", color: "#94a3b8", textAlign: "center" }}>
             {label}
         </div>
     );
@@ -1387,7 +1305,7 @@ function EmptyState({ label, dark = false }: { label: string; dark?: boolean }) 
 
 function Pill({ label }: { label: string }) {
     return (
-        <span style={{ display: "inline-flex", alignItems: "center", padding: "0.4rem 0.65rem", borderRadius: "999px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(148,163,184,0.16)", color: "#f8fafc", fontSize: "0.74rem", fontWeight: 800, letterSpacing: "0.06em" }}>
+        <span style={{ display: "inline-flex", alignItems: "center", padding: "0.4rem 0.65rem", borderRadius: "999px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(148,163,184,0.16)", color: "#f8fafc", fontSize: "0.75rem", fontWeight: 800, letterSpacing: "0.06em", whiteSpace: "nowrap" }}>
             {label}
         </span>
     );
@@ -1396,8 +1314,56 @@ function Pill({ label }: { label: string }) {
 
 
 function numberFormat(value: number) {
-    return new Intl.NumberFormat("en-US").format(value);
+    return new Intl.NumberFormat("en-US").format(Number.isFinite(value) ? value : 0);
 }
+
+/** Epoch ms for sorting; invalid/missing dates sort as oldest instead of producing NaN comparisons. */
+function toTime(value?: string | null) {
+    const time = value ? new Date(value).getTime() : NaN;
+    return Number.isNaN(time) ? 0 : time;
+}
+
+function formatDate(value?: string | null) {
+    const time = toTime(value);
+    return time ? new Date(time).toLocaleDateString() : "unknown date";
+}
+
+function formatDateTime(value?: string | null) {
+    const time = toTime(value);
+    return time ? new Date(time).toLocaleString() : "Unknown time";
+}
+
+// Inline styles can't express :focus-visible, so scope a small rule to the dashboard root.
+const focusVisibleCss = `
+.playground-admin :is(button, a, input, select, textarea, summary):focus-visible {
+    outline: 2px solid #38bdf8;
+    outline-offset: 2px;
+}
+.playground-admin button:disabled {
+    cursor: not-allowed;
+}
+.playground-admin :is(button, a) {
+    transition: filter 150ms cubic-bezier(0.16, 1, 0.3, 1), transform 150ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.playground-admin :is(button:not(:disabled), a):hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+}
+.playground-admin tbody tr {
+    transition: background-color 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.playground-admin tbody tr:nth-child(even) {
+    background: rgba(255,255,255,0.015);
+}
+.playground-admin tbody tr:hover {
+    background: rgba(56,189,248,0.05);
+}
+@media (prefers-reduced-motion: reduce) {
+    .playground-admin :is(button:not(:disabled), a):hover {
+        transform: none;
+    }
+}
+`;
 
 const inputStyle: CSSProperties = {
     padding: "0.9rem 1rem",
@@ -1410,17 +1376,22 @@ const inputStyle: CSSProperties = {
 };
 
 const tableHeadCell: CSSProperties = {
-    padding: "0.9rem 1rem",
+    padding: "0.85rem 1rem",
     fontSize: "0.75rem",
+    fontWeight: 800,
     textTransform: "uppercase",
     letterSpacing: "0.1em",
-    color: "#94a3b8",
+    color: "#cbd5e1",
+    whiteSpace: "nowrap",
+    borderBottom: "1px solid rgba(148,163,184,0.24)",
 };
 
 const tableBodyCell: CSSProperties = {
-    padding: "0.95rem 1rem",
+    padding: "1rem",
     color: "#e2e8f0",
     verticalAlign: "top",
+    lineHeight: 1.5,
+    fontVariantNumeric: "tabular-nums",
 };
 
 const secondaryButtonStyle: CSSProperties = {
@@ -1443,21 +1414,11 @@ const primaryButtonStyle: CSSProperties = {
     cursor: "pointer",
 };
 
-const darkButtonStyle: CSSProperties = {
-    padding: "0.85rem 1rem",
-    borderRadius: "12px",
-    border: "1px solid rgba(148,163,184,0.16)",
-    background: "linear-gradient(135deg, rgba(15,23,42,0.92), rgba(30,41,59,0.94))",
-    color: "#fff",
-    fontWeight: 800,
-    cursor: "pointer",
-};
-
 const dangerButtonStyle: CSSProperties = {
     padding: "0.9rem 1rem",
     borderRadius: "12px",
     border: "none",
-    background: "#dc2626",
+    background: "#b91c1c",
     color: "#fff",
     fontWeight: 800,
     cursor: "pointer",
@@ -1487,20 +1448,8 @@ const compactDangerButton: CSSProperties = {
     padding: "0.55rem 0.8rem",
     borderRadius: "10px",
     border: "none",
-    background: "#ef4444",
+    background: "#b91c1c",
     color: "#fff",
     fontWeight: 800,
     cursor: "pointer",
 };
-
-function humanizeRoute(route: string) {
-    if (route === "/social-only") return "Social Only";
-    if (route === "/game-only") return "Game Only";
-    if (route === "/arcade-only") return "Arcade Only";
-    if (route === "/social") return "Social";
-    if (route === "/game") return "Game";
-    if (route === "/resume") return "Resume";
-    if (route === "/contact") return "Contact";
-    if (route === "/") return "Home";
-    return route.replace(/^\//, "").replace(/-/g, " ") || "Unknown";
-}

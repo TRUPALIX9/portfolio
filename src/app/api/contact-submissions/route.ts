@@ -13,8 +13,11 @@ type ContactSubmission = {
     user_agent?: string | null;
 };
 
-function normalizeString(value: unknown) {
-    return typeof value === 'string' ? value.trim() : '';
+const LIMITS = { name: 100, email: 200, message: 5000, source: 100 };
+const ALLOWED_STATUSES = new Set(['new', 'reviewed']);
+
+function normalizeString(value: unknown, maxLength = 1000) {
+    return typeof value === 'string' ? value.trim().slice(0, maxLength) : '';
 }
 
 export async function GET(request: Request) {
@@ -72,11 +75,11 @@ export async function POST(request: Request) {
 
     try {
         const body = await request.json();
-        name = normalizeString(body.name);
-        email = normalizeString(body.contact || body.email);
-        message = normalizeString(body.message);
-        source = normalizeString(body.source) || '/contact';
-        userAgent = request.headers.get('user-agent') || '';
+        name = normalizeString(body.name, LIMITS.name);
+        email = normalizeString(body.contact || body.email, LIMITS.email);
+        message = normalizeString(body.message, LIMITS.message);
+        source = normalizeString(body.source, LIMITS.source) || '/contact';
+        userAgent = (request.headers.get('user-agent') || '').slice(0, 500);
 
         if (!name || !email || !message) {
             return NextResponse.json({ error: 'Name, email, and message are required.' }, { status: 400 });
@@ -148,8 +151,16 @@ export async function PATCH(request: Request) {
             return NextResponse.json({ error: 'Missing contact submission target or status' }, { status: 400 });
         }
 
-        const db = await getDb();
+        if (!ALLOWED_STATUSES.has(status)) {
+            return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+        }
+
         const { ObjectId } = await import('mongodb');
+        if (!ObjectId.isValid(id)) {
+            return NextResponse.json({ error: 'Invalid contact submission id' }, { status: 400 });
+        }
+
+        const db = await getDb();
         await db.collection('contact_submissions').updateOne(
             { _id: new ObjectId(id) },
             { $set: { status } }

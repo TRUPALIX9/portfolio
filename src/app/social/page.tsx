@@ -2,8 +2,9 @@
 
 import type { CSSProperties } from 'react';
 import { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { BriefcaseBusiness, Sparkles } from 'lucide-react';
+import { EASE_OUT } from '@/components/motion/Reveal';
 import { socialLinks } from '@/data/site-config';
 import { trackVisitorEvent } from '@/utils/visitor-analytics';
 
@@ -52,9 +53,12 @@ export default function SocialPage({
 
     const [activeIndex, setActiveIndex] = useState(0);
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+    const prefersReducedMotion = useReducedMotion();
 
     useEffect(() => {
-        if (hoveredIndex !== null) {
+        // Don't auto-rotate while the user is engaging with a scene, or at all for
+        // reduced-motion users (they switch scenes with the tabs/dots instead).
+        if (hoveredIndex !== null || prefersReducedMotion) {
             return;
         }
 
@@ -63,7 +67,7 @@ export default function SocialPage({
         }, 4200);
 
         return () => window.clearInterval(interval);
-    }, [hoveredIndex, scenes.length]);
+    }, [hoveredIndex, prefersReducedMotion, scenes.length]);
 
     useEffect(() => {
         void trackVisitorEvent({
@@ -98,9 +102,9 @@ export default function SocialPage({
                     height: standalone ? 'calc(100dvh - 2.75rem)' : undefined,
                 }}
             >
-                <div className="social-hero-glow social-hero-glow--cyan" />
-                <div className="social-hero-glow social-hero-glow--green" />
-                <div className="social-grid-backdrop" />
+                <div aria-hidden="true" className="social-hero-glow social-hero-glow--cyan" />
+                <div aria-hidden="true" className="social-hero-glow social-hero-glow--green" />
+                <div aria-hidden="true" className="social-grid-backdrop" />
 
                 <div className="social-single-stage">
                     {showTitle && (
@@ -122,6 +126,7 @@ export default function SocialPage({
                                     onFocus={() => setHoveredIndex(index)}
                                     onBlur={() => setHoveredIndex(null)}
                                     onClick={() => setActiveIndex(index)}
+                                    aria-pressed={isActive}
                                     className={`social-switchboard__tab ${isActive ? 'is-active' : ''}`}
                                 >
                                     <span className="social-switchboard__tab-label">{scene.label}</span>
@@ -134,7 +139,7 @@ export default function SocialPage({
                         <div className="social-single-stage__scene-inner">
                             <div className={`social-stage social-stage--single social-stage--${activeScene.key}`}>
                                 <div className={`social-stage__label social-stage__label--${activeScene.key}`}>
-                                    {activeScene.key === 'professional' ? <BriefcaseBusiness size={15} /> : <Sparkles size={15} />}
+                                    {activeScene.key === 'professional' ? <BriefcaseBusiness size={15} aria-hidden="true" /> : <Sparkles size={15} aria-hidden="true" />}
                                     <span>{activeScene.label}</span>
                                 </div>
 
@@ -145,20 +150,22 @@ export default function SocialPage({
                                             src={activeScene.image}
                                             alt={activeScene.imageAlt}
                                             className="social-stage__photo"
+                                            // A gentle card turn: small angle + short travel reads as a
+                                            // flip without the swing of a full carousel.
                                             initial={{
                                                 opacity: 0,
-                                                rotateY: activeScene.key === 'professional' ? -18 : 18,
-                                                scale: 1.015,
-                                                x: activeScene.key === 'professional' ? 26 : -26,
+                                                rotateY: activeScene.key === 'professional' ? -10 : 10,
+                                                scale: 1.01,
+                                                x: activeScene.key === 'professional' ? 14 : -14,
                                             }}
                                             animate={{ opacity: 1, rotateY: 0, scale: 1, x: 0 }}
                                             exit={{
                                                 opacity: 0,
-                                                rotateY: activeScene.key === 'professional' ? 18 : -18,
-                                                scale: 0.99,
-                                                x: activeScene.key === 'professional' ? -18 : 18,
+                                                rotateY: activeScene.key === 'professional' ? 10 : -10,
+                                                scale: 0.995,
+                                                x: activeScene.key === 'professional' ? -10 : 10,
                                             }}
-                                            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                                            transition={{ duration: 0.45, ease: EASE_OUT }}
                                             style={{
                                                 backfaceVisibility: 'hidden',
                                                 transformStyle: 'preserve-3d',
@@ -167,7 +174,7 @@ export default function SocialPage({
                                             }}
                                         />
                                     </AnimatePresence>
-                                    <div className="social-stage__shine" />
+                                    <div aria-hidden="true" className="social-stage__shine" />
                                 </div>
 
                                 <div className={`social-stage__cluster social-stage__cluster--${activeScene.key}`}>
@@ -187,12 +194,12 @@ export default function SocialPage({
                                                     linkUrl: social.url,
                                                 });
                                             }}
-                                            initial={{ opacity: 0, y: 14 }}
+                                            initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.1 + index * 0.06, duration: 0.35 }}
+                                            transition={{ delay: 0.12 + index * 0.05, duration: 0.45, ease: EASE_OUT }}
                                             style={{ '--social-color': social.color } as CSSProperties}
                                         >
-                                            <span className="social-mini-card__icon" style={{ color: social.color }}>
+                                            <span aria-hidden="true" className="social-mini-card__icon" style={{ color: social.color }}>
                                                 {social.icon}
                                             </span>
                                             <span>
@@ -206,7 +213,7 @@ export default function SocialPage({
                         </div>
                     </div>
 
-                    <div className="social-single-stage__switches" aria-label="social image switcher">
+                    <div className="social-single-stage__switches" role="group" aria-label="Social image switcher">
                         {scenes.map((scene, index) => (
                             <button
                                 key={scene.key}

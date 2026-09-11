@@ -1,5 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
+
+/* ── Design tokens exposed as Tailwind utilities (text-ink-2, bg-surface-2, border-line-1 …) ──
+   Contrast (WCAG) measured against surface-2 #111113:
+     ink-1 #F5F5F5 ≈ 17.9:1   ink-2 #B4B4B4 ≈ 9.6:1   ink-3 #8C8C8C ≈ 5.7:1  (all ≥ AA 4.5:1) */
+@theme {
+  --color-ink-1: #F5F5F5;
+  --color-ink-2: #B4B4B4;
+  --color-ink-3: #8C8C8C;
+  --color-surface-0: #000000;
+  --color-surface-1: #0A0A0B;
+  --color-surface-2: #111113;
+  --color-surface-3: #18181B;
+  --color-line-1: rgba(255, 255, 255, 0.07);
+  --color-line-2: rgba(255, 255, 255, 0.14);
+  --color-accent: #4ADE80;
+  /* neutral-500 (#737373) measured 4.2–4.4:1 on the site's dark cards — below AA for the
+     small meta text it's used for. Brightened once here instead of patching 20+ call sites. */
+  --color-neutral-500: #8C8C8C;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
 
 :root {
   /* Premium Black/White/Green Palette */
@@ -7,15 +26,38 @@
   --bg-secondary: #0A0A0A;
   --bg-tertiary: #121212;
   --text-primary: #FFFFFF;
-  --text-secondary: #A3A3A3;
+  --text-secondary: #B4B4B4; /* = ink-2, so legacy inline styles inherit the new tier */
   --accent-primary: #4ADE80; /* Vibrant Green Accent */
-  --accent-secondary: #166534; /* Deep Green Accent */
+  --accent-secondary: #166534; /* Deep Green Accent — decorative only, too dark for text */
   --border-color: rgba(255, 255, 255, 0.08);
 
-  --font-sans: 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  /* Plain-CSS aliases of the @theme tokens, for inline styles */
+  --ink-1: #F5F5F5;
+  --ink-2: #B4B4B4;
+  --ink-3: #8C8C8C;
+  --surface-1: #0A0A0B;
+  --surface-2: #111113;
+  --surface-3: #18181B;
+  --line-1: rgba(255, 255, 255, 0.07);
+  --line-2: rgba(255, 255, 255, 0.14);
+
+  /* Depth: a faint top highlight (light from above) + a soft, low shadow */
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 12px 32px -16px rgba(0, 0, 0, 0.9);
+  --shadow-raised: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 24px 48px -20px rgba(0, 0, 0, 0.95);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 150ms;
+  --dur-base: 250ms;
+
+  --font-sans: var(--font-outfit), 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --nav-height: 80px;
 }
 
+/* Element resets live in the base layer. Unlayered rules always beat Tailwind v4's
+   @layer utilities, so the universal padding/margin reset here used to silently cancel
+   every Tailwind spacing class (and the button reset every border/bg utility on buttons). */
+@layer base {
 * {
   box-sizing: border-box;
   margin: 0;
@@ -44,6 +86,16 @@ body {
 
 body {
   min-height: 100dvh;
+  line-height: 1.6;
+}
+
+/* Avoid single-word last lines in paragraphs and ragged multi-line headings. */
+p {
+  text-wrap: pretty;
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
 }
 
 a {
@@ -61,6 +113,7 @@ button {
   background: none;
   cursor: pointer;
 }
+}
 
 /* --- Glassmorphism Utils --- */
 .glass {
@@ -68,26 +121,21 @@ button {
 }
 
 .glass-card {
-  @apply bg-neutral-900/60 backdrop-blur-xl border border-neutral-800/80 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] rounded-2xl transition-all duration-300;
+  background-color: color-mix(in srgb, var(--surface-2) 88%, transparent);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--line-1);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-card);
+  transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
 }
 
 .glass-card:hover {
-  @apply bg-neutral-800/60 -translate-y-1 shadow-[0_16px_40px_0_rgba(0,0,0,0.5)];
-}
-
-.social-card:hover {
-  border-color: var(--social-color) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px color-mix(in srgb, var(--social-color) 20%, transparent);
+  border-color: var(--line-2);
+  box-shadow: var(--shadow-raised);
 }
 
 /* Typography Utilities */
-.heading-xl {
-  font-size: clamp(3rem, 8vw, 6rem);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
-}
 
 .heading-lg {
   font-size: clamp(2rem, 5vw, 4rem);
@@ -108,8 +156,10 @@ button {
   color: var(--text-secondary);
 }
 
+/* Used to fade into --accent-secondary (#166534), which is ~2:1 on black, so the tail of
+   every gradient heading ("exceptional.", "build.") was barely readable. All stops ≥ 9:1. */
 .gradient-text {
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  background: linear-gradient(135deg, #86EFAC, var(--accent-primary) 45%, #22C55E);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -140,12 +190,17 @@ button {
   color: var(--bg-primary);
   font-weight: 600;
   border-radius: 9999px;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
 }
 
+/* A 1px lift + soft glow reads as "pressable" without the jump of the old scale(1.05). */
 .btn-primary:hover {
-  transform: scale(1.05);
-  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px -10px rgba(255, 255, 255, 0.35);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
 }
 
 .btn-outline {
@@ -162,7 +217,7 @@ button {
 
 .btn-outline:hover {
   background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--line-2);
 }
 
 /* Mobile Responsiveness */
@@ -184,14 +239,6 @@ button {
   flex-direction: column;
   padding: 8rem 2rem;
   gap: 2.5rem;
-}
-
-.mobile-menu-link {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  text-decoration: none;
-  letter-spacing: -0.02em;
 }
 
 .hamburger-btn {
@@ -221,14 +268,122 @@ button {
   .container {
     padding: 0 1.5rem;
   }
+
+  /* Elements with both classes previously lost their top padding here because
+     .container's shorthand (declared later) reset it to 0, tucking content under the nav. */
+  .section.container {
+    padding: 6rem 1.5rem;
+  }
 }
 
-.hover-scale {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* --- Accessibility --- */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1000;
+  padding: 0.6rem 1.1rem;
+  border-radius: 9999px;
+  background: var(--accent-primary);
+  color: #000;
+  font-weight: 700;
+  transform: translateY(-200%);
+  transition: transform 0.2s ease;
 }
 
-.hover-scale:hover {
-  transform: translateY(-1px) scale(1.01);
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* Visible keyboard focus everywhere (mouse clicks don't trigger :focus-visible). */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ── Surface & motion components ─────────────────────────────────────────────
+   In @layer components so any Tailwind utility on the same element still wins. */
+@layer components {
+  /* Elevation level 2: separates from the page via a lighter surface, a hairline border,
+     a faint top highlight and a soft drop shadow. */
+  .card {
+    background-color: var(--surface-2);
+    border: 1px solid var(--line-1);
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-interactive {
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out),
+      background-color var(--dur-base) var(--ease-out);
+  }
+
+  .card-interactive:hover {
+    transform: translateY(-2px);
+    border-color: var(--line-2);
+    box-shadow: var(--shadow-raised);
+  }
+
+  /* Cursor-following glow. SpotlightTracker writes --mx/--my; the glow sits behind the
+     card's content (z-index -1 inside the isolated stacking context). */
+  .spotlight {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .spotlight::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(74, 222, 128, 0.09), transparent 45%);
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-out);
+  }
+
+  .spotlight:hover::before {
+    opacity: 1;
+  }
+
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent-primary);
+  }
+
+  /* Comfortable reading line length */
+  .measure {
+    max-width: 68ch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-interactive:hover,
+  .glass-card:hover,
+  .btn-primary:hover {
+    transform: none;
+  }
+
+  html,
+  body {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .social-hero-shell {
@@ -302,20 +457,19 @@ button {
   transform: translateY(-2px);
 }
 
-.social-switchboard__tab-label,
-.social-switchboard__tab-subtitle {
+.social-switchboard__tab-label {
   position: relative;
   z-index: 1;
   display: block;
 }
 
 .social-switchboard__tab-label {
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--ink-2);
   font-size: 1.05rem;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  transition: transform 0.24s ease, color 0.24s ease, text-shadow 0.24s ease, opacity 0.24s ease;
+  transition: transform var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
 }
 
 .social-switchboard__tab-label::after {
@@ -326,16 +480,15 @@ button {
   width: 0;
   height: 2px;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+  background: var(--accent-primary);
   transform: translateX(-50%);
-  transition: width 0.24s ease;
+  transition: width var(--dur-base) var(--ease-out);
 }
 
 .social-switchboard__tab:hover .social-switchboard__tab-label,
 .social-switchboard__tab.is-active .social-switchboard__tab-label {
-  color: #fff;
-  transform: translateY(-2px) scale(1.04);
-  text-shadow: 0 0 18px rgba(14, 165, 233, 0.28);
+  color: var(--ink-1);
+  transform: translateY(-1px);
 }
 
 .social-switchboard__tab:hover .social-switchboard__tab-label::after,
@@ -370,31 +523,36 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* The button is a 24px tap target (WCAG 2.5.8); the visible dot is drawn inside it. */
 .social-single-stage__dot {
-  width: 0.7rem;
-  height: 0.7rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.22);
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.social-single-stage__dot.is-active {
-  transform: scale(1.2);
-  background: var(--accent-secondary);
-}
-
-.social-hero-layout {
   position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
-  gap: 2rem;
-  align-items: center;
-  margin-bottom: 2rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: transparent;
 }
 
-.social-hero-layout--split {
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+.social-single-stage__dot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.3);
+  transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
+}
+
+.social-single-stage__dot:hover::before {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+/* Active dot used the dark #166534 — darker than the inactive white dots, so the
+   "current" state was the least visible one. */
+.social-single-stage__dot.is-active::before {
+  transform: scale(1.25);
+  background: var(--accent-primary);
 }
 
 .social-hero-glow {
@@ -409,7 +567,8 @@ button {
   height: 340px;
   top: -10%;
   right: -6%;
-  background: radial-gradient(circle, rgba(14, 165, 233, 0.22), rgba(14, 165, 233, 0));
+  /* Was sky-blue (off-brand); a neutral bloom keeps the depth without a second hue. */
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0));
 }
 
 .social-hero-glow--green {
@@ -431,55 +590,11 @@ button {
   pointer-events: none;
 }
 
-.social-link-ribbon {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
 .social-copy-panels {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.9rem;
   max-width: 620px;
-}
-
-.social-copy-panel {
-  padding: 1rem 1.05rem;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 14px 28px rgba(2, 6, 23, 0.18);
-}
-
-.social-copy-panel__eyebrow {
-  color: #fff;
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-weight: 800;
-  margin-bottom: 0.5rem;
-}
-
-.social-copy-panel__text {
-  color: var(--text-secondary);
-  line-height: 1.7;
-}
-
-.social-ribbon-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.72rem 0.95rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid color-mix(in srgb, var(--social-color) 25%, rgba(255, 255, 255, 0.06));
-  box-shadow: 0 12px 30px rgba(2, 6, 23, 0.2);
-}
-
-.social-ribbon-chip__icon {
-  display: grid;
-  place-items: center;
 }
 
 .social-stage {
@@ -503,13 +618,6 @@ button {
   min-height: 560px;
 }
 
-.social-dual-stage {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.4rem;
-  align-items: start;
-}
-
 .social-stage--professional,
 .social-stage--social {
   min-height: auto;
@@ -525,18 +633,18 @@ button {
   gap: 0.45rem;
   padding: 0.5rem 0.82rem;
   border-radius: 999px;
-  background: rgba(8, 11, 18, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #dbeafe;
+  background: color-mix(in srgb, var(--surface-2) 90%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--line-2);
+  color: var(--ink-1);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  box-shadow: 0 14px 24px rgba(2, 6, 23, 0.32);
+  box-shadow: var(--shadow-card);
 }
 
 .social-stage__label--social {
-  color: #fce7f3;
   left: auto;
   right: 6%;
 }
@@ -549,29 +657,25 @@ button {
   overflow: hidden;
   transform: rotateY(-10deg) rotateX(8deg);
   transform-style: preserve-3d;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--line-2);
   box-shadow:
-    0 34px 80px rgba(2, 6, 23, 0.55),
-    20px 18px 45px rgba(14, 165, 233, 0.12),
-    -18px -12px 40px rgba(34, 197, 94, 0.08);
+    0 34px 80px rgba(0, 0, 0, 0.6),
+    20px 18px 45px rgba(74, 222, 128, 0.08),
+    -18px -12px 40px rgba(255, 255, 255, 0.04);
 }
 
 [data-social-standalone="true"] .social-stage__frame {
   width: min(100%, 340px);
 }
 
+/* The static tilt gives the depth; the old endless float/opacity loops (6.8s, running
+   on top of the scene flip) were removed as distracting and battery-costly. */
 .social-stage__frame--professional {
   transform: rotateY(-10deg) rotateX(8deg);
-  animation: social-frame-professional 6.8s ease-in-out infinite;
 }
 
 .social-stage__frame--social {
   transform: rotateY(10deg) rotateX(8deg);
-  box-shadow:
-    0 34px 80px rgba(2, 6, 23, 0.55),
-    20px 18px 45px rgba(236, 72, 153, 0.12),
-    -18px -12px 40px rgba(168, 85, 247, 0.08);
-  animation: social-frame-social 6.8s ease-in-out infinite;
 }
 
 .social-stage__frame::after {
@@ -597,65 +701,8 @@ button {
   inset: 0;
   background:
     linear-gradient(120deg, rgba(255, 255, 255, 0.16), transparent 28%),
-    linear-gradient(180deg, transparent 62%, rgba(2, 6, 23, 0.32));
+    linear-gradient(180deg, transparent 62%, rgba(0, 0, 0, 0.32));
   pointer-events: none;
-  animation: social-shine 5.8s ease-in-out infinite;
-}
-
-.social-stage__caption {
-  position: relative;
-  z-index: 2;
-  width: min(100%, 360px);
-  margin-top: 1rem;
-  padding: 0.95rem 1rem;
-  border-radius: 18px;
-  background: rgba(8, 11, 18, 0.68);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 18px 35px rgba(2, 6, 23, 0.26);
-}
-
-.social-stage__caption-title {
-  color: #fff;
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  margin-bottom: 0.45rem;
-}
-
-.social-stage__caption-text {
-  color: var(--text-secondary);
-  line-height: 1.65;
-}
-
-.social-float {
-  position: absolute;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.8rem 1rem;
-  border-radius: 18px;
-  background: rgba(8, 11, 18, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20px 45px rgba(2, 6, 23, 0.42);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  z-index: 2;
-}
-
-.social-float--github {
-  top: 8%;
-  left: 2%;
-}
-
-.social-float--whatsapp {
-  right: 1%;
-  top: 24%;
-}
-
-.social-float--discord {
-  left: 8%;
-  bottom: 12%;
 }
 
 .social-stage__cluster {
@@ -696,9 +743,9 @@ button {
   gap: 0.6rem;
   padding: 0.78rem 0.95rem;
   border-radius: 18px;
-  background: rgba(8, 11, 18, 0.74);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 14px 24px rgba(2, 6, 23, 0.28);
+  background: color-mix(in srgb, var(--surface-2) 85%, transparent);
+  border: 1px solid var(--line-1);
+  box-shadow: var(--shadow-card);
   min-width: 150px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -728,85 +775,6 @@ button {
   font-weight: 600;
 }
 
-.social-hero-grid {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-}
-
-.social-hero-card {
-  position: relative;
-  overflow: hidden;
-  padding: 1rem 1.05rem;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 16px 30px rgba(2, 6, 23, 0.26);
-  transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
-}
-
-.social-hero-card:hover {
-  transform: translateY(-6px) rotateX(4deg) rotateY(-4deg);
-  border-color: color-mix(in srgb, var(--social-color) 30%, rgba(255, 255, 255, 0.12));
-  box-shadow:
-    0 22px 38px rgba(2, 6, 23, 0.34),
-    0 0 0 1px color-mix(in srgb, var(--social-color) 18%, transparent) inset;
-}
-
-.social-hero-card__bg {
-  position: absolute;
-  inset: auto -12% -38% auto;
-  width: 140px;
-  height: 140px;
-  border-radius: 999px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--social-color) 25%, transparent), transparent 70%);
-  pointer-events: none;
-}
-
-.social-hero-card__row {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 0.85rem;
-  align-items: center;
-}
-
-.social-hero-card__icon {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 18px;
-  display: grid;
-  place-items: center;
-  background: color-mix(in srgb, var(--social-color) 14%, rgba(255, 255, 255, 0.04));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--social-color) 22%, transparent) inset;
-}
-
-.social-hero-card__name {
-  color: #fff;
-  font-size: 1.02rem;
-  margin-bottom: 0.15rem;
-}
-
-.social-hero-card__handle {
-  color: color-mix(in srgb, var(--social-color) 88%, #ffffff);
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-
-.social-hero-card__arrow {
-  width: 2.1rem;
-  height: 2.1rem;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  color: var(--social-color);
-  background: color-mix(in srgb, var(--social-color) 14%, rgba(255, 255, 255, 0.03));
-}
-
 [data-project-storyboard-card="true"] {
   grid-template-columns: minmax(0, 1.35fr) minmax(240px, 0.85fr);
 }
@@ -817,12 +785,7 @@ button {
     grid-template-columns: 1fr !important;
   }
 
-  .social-hero-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .social-copy-panels,
-  .social-dual-stage {
+  .social-copy-panels {
     grid-template-columns: 1fr;
   }
 
@@ -847,7 +810,6 @@ button {
     transform: none;
   }
 
-  .social-float,
   .social-stage__cluster {
     position: static;
     margin-top: 0.8rem;
@@ -870,215 +832,8 @@ button {
   }
 }
 
-@keyframes social-frame-professional {
-  0%, 100% {
-    transform: rotateY(-10deg) rotateX(8deg) translateY(0) scale(1);
-    opacity: 0.92;
-  }
-  50% {
-    transform: rotateY(-6deg) rotateX(5deg) translateY(-10px) scale(1.015);
-    opacity: 1;
-  }
-}
-
-@keyframes social-frame-social {
-  0%, 100% {
-    transform: rotateY(10deg) rotateX(8deg) translateY(-8px) scale(1.015);
-    opacity: 1;
-  }
-  50% {
-    transform: rotateY(6deg) rotateX(5deg) translateY(2px) scale(0.995);
-    opacity: 0.9;
-  }
-}
-
-@keyframes social-shine {
-  0%, 100% {
-    opacity: 0.7;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.game-console {
-  position: relative;
-  width: min(100%, 100vw - 2rem);
-  display: grid;
-  place-items: center;
-  padding: 0.85rem;
-  background:
-    radial-gradient(circle at top, rgba(34, 197, 94, 0.12), transparent 45%),
-    linear-gradient(180deg, #020617 0%, #0f172a 100%);
-  border: 2px solid rgba(148, 163, 184, 0.35);
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 24px 60px rgba(2, 6, 23, 0.45);
-}
-
-.game-console--square {
-  max-width: 460px;
-  aspect-ratio: 1 / 1;
-}
-
-.game-console--portrait {
-  max-width: 430px;
-  aspect-ratio: 2 / 3;
-}
-
-.game-console--landscape {
-  max-width: 720px;
-  aspect-ratio: 3 / 2;
-}
-
-.game-canvas {
-  width: 100% !important;
-  height: 100% !important;
-  display: block;
-  margin: 0 auto;
-  border-radius: 16px;
-  touch-action: none;
-}
-
-.game-canvas-square {
-  max-width: 400px;
-  aspect-ratio: 1 / 1;
-}
-
-.game-canvas-portrait {
-  max-width: 400px;
-  aspect-ratio: 2 / 3;
-}
-
-.game-canvas-wide {
-  max-width: 640px;
-  aspect-ratio: 3 / 2;
-}
-
-.game-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(2, 6, 23, 0.72), rgba(2, 6, 23, 0.9));
-  backdrop-filter: blur(10px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.25rem;
-  z-index: 10;
-  padding: 1.25rem;
-  text-align: center;
-}
-
-.game-panel {
-  width: 100%;
-  max-width: 340px;
-  padding: 1.25rem;
-  border-radius: 24px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  box-shadow: 0 20px 40px rgba(2, 6, 23, 0.35);
-}
-
-.game-start-button {
-  width: 100%;
-  max-width: 340px;
-  padding: 1rem 1.25rem;
-  border-radius: 16px;
-}
-
-.game-score-badge {
-  background: rgba(15, 23, 42, 0.9);
-  color: #f8fafc;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  border-radius: 8px;
-  font-weight: 800;
-  backdrop-filter: blur(8px);
-}
-
-.game-touch-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 52px);
-  gap: 10px;
-  justify-content: center;
-}
-
-.game-touch-grid .spacer {
-  width: 52px;
-  height: 52px;
-}
-
-.game-touch-button {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  background: rgba(15, 23, 42, 0.95);
-  color: #f8fafc;
-  font-size: 1.25rem;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.game-mobile-controls {
-  width: min(100%, 100vw - 2rem);
-  max-width: 460px;
-  padding: 0.8rem 0.95rem;
-  border-radius: 20px;
-  background: rgba(15, 23, 42, 0.92);
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  box-shadow: 0 16px 32px rgba(2, 6, 23, 0.28);
-  display: flex;
-  justify-content: center;
-}
-
-.game-mobile-button {
-  min-width: 136px;
-  min-height: 56px;
-  border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  background: linear-gradient(180deg, rgba(30, 41, 59, 0.96), rgba(8, 15, 33, 1));
-  color: #f8fafc;
-  font-size: 1rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.game-mobile-button--wide {
-  width: min(100%, 320px);
-}
-
-.game-stage-shell {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.game-stage-container--portrait {
-  grid-template-columns: minmax(0, 440px) 300px !important;
-  justify-content: center;
-}
-
-.game-stage-container--square {
-  grid-template-columns: minmax(0, 480px) 300px !important;
-  justify-content: center;
-}
-
-.game-stage-container--landscape {
-  grid-template-columns: minmax(0, 720px) 300px !important;
-  justify-content: center;
-}
 
 @media (max-width: 900px) {
-  .game-stage-container {
-    grid-template-columns: 1fr !important;
-  }
 
   .hall-of-fame-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -1086,76 +841,9 @@ button {
 }
 
 @media (max-width: 640px) {
-  .game-console {
-    width: min(100%, 100vw - 1rem);
-    padding: 0.65rem;
-    border-radius: 20px;
-  }
-
-  .game-overlay {
-    padding: 1rem;
-    gap: 1rem;
-  }
-
-  .game-panel {
-    max-width: 100%;
-    padding: 0.85rem;
-    border-radius: 18px;
-  }
-
-  .game-start-button {
-    max-width: 100%;
-    font-size: 0.95rem !important;
-    padding: 0.85rem 1rem !important;
-  }
-
-  .game-overlay h2 {
-    font-size: 1.7rem !important;
-  }
-
-  .game-overlay p {
-    line-height: 1.45;
-  }
-
-  .game-overlay input {
-    padding: 0.8rem !important;
-    font-size: 0.88rem !important;
-  }
-
-  .game-overlay button:not(.game-start-button) {
-    font-size: 0.9rem !important;
-  }
-
-  .game-overlay button:not(.game-start-button):has(span) {
-    gap: 0.35rem !important;
-  }
-
-  .game-overlay div[style*="grid-template-columns: minmax(0, 1fr) auto"] {
-    gap: 0.55rem !important;
-  }
-
-  .game-canvas-wide {
-    max-width: 100%;
-    aspect-ratio: 16 / 10;
-  }
-
-  .game-console--landscape {
-    aspect-ratio: 16 / 10;
-  }
 
   .hall-of-fame-grid {
     grid-template-columns: 1fr !important;
-  }
-
-  .game-mobile-controls {
-    width: min(100%, 100vw - 1rem);
-    padding: 0.7rem 0.8rem;
-    border-radius: 18px;
-  }
-
-  .game-mobile-button {
-    min-height: 52px;
-    font-size: 0.92rem;
   }
 }
 
@@ -1164,41 +852,10 @@ button {
    ───────────────────────────────────────────── */
 
 /* Outer scroll container — one long column of sections */
-.scroll-stage {
-  position: relative;
-  overflow-x: hidden;
-}
 
 /* Each section slot: exactly one viewport tall */
-.scroll-section-slot {
-  min-height: 100dvh;
-  height: auto;
-  width: 100%;
-  perspective: 1400px;
-  perspective-origin: center center;
-  overflow: visible;
-  position: relative;
-  padding-right: 152px; /* Prevent overlap with fixed scroll pad */
-}
 
 /* The motion.div inside each slot — receives rotateX / scale / opacity */
-.scroll-section-inner {
-  width: 100%;
-  height: 100%;
-  transform-origin: center center;
-  transform-style: preserve-3d;
-  will-change: transform, opacity;
-  display: flex;
-  flex-direction: column;
-}
-
-.scroll-section-inner * {
-  scrollbar-width: none; /* Firefox */
-}
-
-.scroll-section-inner *::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
-}
 
 /* Gateway tiles (Social / Game CTAs at bottom) */
 .gateway-section {
@@ -1206,15 +863,8 @@ button {
   align-items: center;
   justify-content: center;
   padding: 0 2rem 4rem;
-  padding-right: 152px; /* Adjust for scrollpad */
   gap: 1.5rem;
   flex-wrap: wrap;
-}
-
-@media (max-width: 1024px) {
-  .gateway-section {
-    padding-right: 2rem;
-  }
 }
 
 .gateway-tile {
@@ -1223,21 +873,26 @@ button {
   max-width: 640px;
   padding: 2.5rem 2rem;
   border-radius: 24px;
-  border: 1px solid #ffffff;
-  background: #ffffff;
+  /* Was a solid white slab — the only white block on the site. Now a raised dark card
+     whose green-tinted edge and glow keep it the most prominent CTA on the page. */
+  border: 1px solid rgba(74, 222, 128, 0.22);
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(74, 222, 128, 0.10), transparent 55%),
+    var(--surface-2);
+  box-shadow: var(--shadow-card), 0 0 0 1px rgba(74, 222, 128, 0.04);
   display: flex;
   flex-direction: column;
   gap: 1rem;
   text-decoration: none;
-  color: #0a0a0a;
-  transition: transform 0.25s, background 0.25s, box-shadow 0.25s;
+  color: var(--ink-1);
+  transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
   cursor: pointer;
 }
 
 .gateway-tile:hover {
-  background: #fafafa;
-  box-shadow: 0 10px 40px rgba(255, 255, 255, 0.08);
-  transform: translateY(-4px);
+  border-color: rgba(74, 222, 128, 0.45);
+  box-shadow: var(--shadow-raised), 0 18px 50px -24px rgba(74, 222, 128, 0.35);
+  transform: translateY(-2px);
 }
 
 .gateway-btn {
@@ -1252,48 +907,37 @@ button {
   align-items: center;
   gap: 0.35rem;
   box-shadow: 0 4px 12px rgba(74, 222, 128, 0.2);
-  transition: all 0.2s ease;
+  transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
 }
 
 .gateway-tile:hover .gateway-btn {
-  background: #39c871;
-  box-shadow: 0 4px 20px rgba(74, 222, 128, 0.4);
-  transform: scale(1.02);
-}
-
-.gateway-tile-icon {
-  font-size: 2.4rem;
-  line-height: 1;
+  box-shadow: 0 6px 22px rgba(74, 222, 128, 0.4);
+  transform: translateX(2px);
 }
 
 .gateway-tile-label {
   font-size: 1.4rem;
   font-weight: 700;
-  color: #0a0a0a;
+  color: var(--ink-1);
 }
 
 .gateway-tile-sub {
-  font-size: 0.95rem;
-  color: #444444;
-  line-height: 1.55;
+  font-size: 1rem;
+  color: var(--ink-2);
+  line-height: 1.6;
+  max-width: 60ch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gateway-tile:hover,
+  .gateway-tile:hover .gateway-btn {
+    transform: none;
+  }
 }
 
 /* ─────────────────────────────────────────────
    ZOOM SCROLL PAD (right edge)
    ───────────────────────────────────────────── */
-
-.zoom-scroll-pad {
-  position: fixed;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 200;
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: stretch;
-  gap: 8px;
-  height: min(68vh, 540px);
-}
 
 /* ─────────────────────────────────────────────
    SECTION DOTS RAIL
@@ -1308,34 +952,6 @@ button {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.section-dot-btn {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid transparent;
-  transition: all 0.2s;
-  cursor: pointer;
-  padding: 0;
-}
-
-.section-dot-btn:hover, .section-dot-btn.is-active {
-  background: var(--accent-primary);
-  transform: scale(1.2);
-}
-
-.section-dot-tooltip {
-  position: absolute;
-  right: 24px;
-  white-space: nowrap;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  pointer-events: none;
 }
 
 /* Missing zoom pad CSS */

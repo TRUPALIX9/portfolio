@@ -3,6 +3,49 @@ import { getDb } from '@/utils/mongodb';
 import { isAuthorizedRequest } from '@/utils/admin';
 import { UAParser } from 'ua-parser-js';
 
+const TRACKED_EVENTS = new Set([
+    'page_view', 'link_open', 'resume_open', 'resume_download',
+    'contact_submit', 'game_open', 'run_complete', 'behavior_ping',
+]);
+
+// This endpoint is public, so every value that reaches a Mongo filter or update
+// must be a bounded primitive. Objects like { "$ne": null } would otherwise turn
+// `{ deviceId: body.deviceId }` into an operator query (NoSQL injection).
+function str(value: unknown, max = 200) {
+    return typeof value === 'string' ? value.slice(0, max) : '';
+}
+
+function num(value: unknown, max = Number.MAX_SAFE_INTEGER) {
+    const n = Number(value);
+    return Number.isFinite(n) ? Math.min(max, Math.max(0, n)) : 0;
+}
+
+function sanitizeHardware(hw: any) {
+    if (!hw || typeof hw !== 'object') return null;
+    const field = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : str(v, 60));
+    return {
+        connection: field(hw.connection),
+        memory: field(hw.memory),
+        cores: field(hw.cores),
+        batteryLevel: field(hw.batteryLevel),
+        isCharging: hw.isCharging === true,
+        exactModel: field(hw.exactModel),
+    };
+}
+
+// x-forwarded-for is "client, proxy1, proxy2" — only the first hop is the visitor.
+function getClientIp(request: Request) {
+    const forwarded = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '';
+    return forwarded.split(',')[0].trim();
+}
+
+function isPrivateIp(ip: string) {
+    if (['127.0.0.1', '::1', 'localhost'].includes(ip)) return true;
+    if (ip.startsWith('10.') || ip.startsWith('192.168.')) return true;
+    const match = ip.match(/^172\.(\d+)\./);
+    return Boolean(match && Number(match[1]) >= 16 && Number(match[1]) <= 31);
+}
+
 export async function GET(request: Request) {
     if (!(await isAuthorizedRequest(request))) {
         return NextResponse.json({ error: 'Unauthorized key' }, { status: 401 });
@@ -51,17 +94,49 @@ export async function GET(request: Request) {
         });
     } catch (error) {
         console.error('Visitor Analytics GET Error:', error);
-        return NextResponse.json({ sessions: [], devices: [] });
+        // A 200 with empty lists made "database down" indistinguishable from "no visitors".
+        return NextResponse.json({ error: 'Failed to load analytics', sessions: [], devices: [] }, { status: 500 });
     }
 }
 
 export async function POST(request: Request) {
     try {
-        const body = await request.json();
+        const raw = await request.json();
+        if (!raw || typeof raw !== 'object' || !TRACKED_EVENTS.has(raw.event)) {
+            return NextResponse.json({ success: false, error: 'Invalid event' }, { status: 400 });
+        }
+
+        const body = {
+            event: raw.event as string,
+            deviceId: str(raw.deviceId, 100),
+            sessionId: str(raw.sessionId, 100),
+            route: str(raw.route, 300) || '/',
+            source: str(raw.source, 100),
+            shareToken: str(raw.shareToken, 300),
+            referrer: str(raw.referrer, 500),
+            linkName: str(raw.linkName, 200),
+            linkUrl: str(raw.linkUrl, 500),
+            game: str(raw.game, 50),
+            score: num(raw.score, 100000),
+            hardware: sanitizeHardware(raw.hardware),
+            utm: raw.utm && typeof raw.utm === 'object'
+                ? { source: str(raw.utm.source, 100), medium: str(raw.utm.medium, 100), campaign: str(raw.utm.campaign, 100) }
+                : null,
+            behavior: raw.behavior && typeof raw.behavior === 'object'
+                ? {
+                    maxScrollDepth: num(raw.behavior.maxScrollDepth, 100),
+                    sessionDuration: num(raw.behavior.sessionDuration, 60 * 60 * 24),
+                    rageClicks: num(raw.behavior.rageClicks, 1000),
+                    activeTimePerRoute: raw.behavior.activeTimePerRoute && typeof raw.behavior.activeTimePerRoute === 'object'
+                        ? raw.behavior.activeTimePerRoute as Record<string, unknown>
+                        : null,
+                }
+                : null,
+        };
         const db = await getDb();
-        
-        const userAgent = request.headers.get('user-agent') || '';
-        const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '';
+
+        const userAgent = (request.headers.get('user-agent') || '').slice(0, 500);
+        const ip = getClientIp(request);
         const vercelCity = request.headers.get('x-vercel-ip-city') || '';
         const vercelCountry = request.headers.get('x-vercel-ip-country') || '';
         let actualCity = '';
@@ -93,15 +168,18 @@ export async function POST(request: Request) {
         }
 
         // Also ignore synthetic vercel tests / bots with server hardware (e.g. >= 32 cores)
-        if (body.hardware && body.hardware.hardwareConcurrency >= 32) {
+        // (the client sends core count as `cores`; `hardwareConcurrency` was never populated)
+        if (body.hardware && Number(body.hardware.cores) >= 32) {
             return NextResponse.json({ success: true, ignored: true });
         }
 
         if (ip) {
-            const isLocal = ['127.0.0.1', '::1', 'localhost'].includes(ip) || ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.');
-            if (!isLocal) {
+            if (!isPrivateIp(ip)) {
                 try {
-                    const ipRes = await fetch(`http://ip-api.com/json/${ip}?fields=city,country`, { cache: 'force-cache' });
+                    const ipRes = await fetch(`http://ip-api.com/json/${encodeURIComponent(ip)}?fields=city,country`, {
+                        cache: 'force-cache',
+                        signal: AbortSignal.timeout(1500),
+                    });
                     if (ipRes.ok) {
                         const ipData = await ipRes.json();
                         if (ipData.city) actualCity = ipData.city;
@@ -245,16 +323,20 @@ export async function POST(request: Request) {
             }
 
             if (body.behavior) {
-                // If maxScrollDepth is provided, only set it if it's greater than current (using $max, but we can just use $set for now since we send the cumulative max)
-                sessionUpdate.$set.maxScrollDepth = body.behavior.maxScrollDepth;
-                sessionUpdate.$set.sessionDuration = body.behavior.sessionDuration;
-                sessionUpdate.$inc.rageClicks = body.behavior.rageClicks;
-                
+                // The client sends cumulative values, so $max keeps them monotonic even
+                // when pings arrive out of order (e.g. keepalive requests on unload).
+                sessionUpdate.$max = {
+                    maxScrollDepth: body.behavior.maxScrollDepth,
+                    sessionDuration: body.behavior.sessionDuration,
+                };
+                // rageClicks is also cumulative per page load; $inc double-counted it on every ping.
+                sessionUpdate.$max.rageClicks = body.behavior.rageClicks;
+
                 if (body.behavior.activeTimePerRoute) {
-                    sessionUpdate.$max = sessionUpdate.$max || {};
-                    for (const [r, time] of Object.entries(body.behavior.activeTimePerRoute)) {
-                        const cleanRoute = r.replace(/\./g, '_'); // MongoDB keys can't contain .
-                        sessionUpdate.$max[`route_times.${cleanRoute}`] = time;
+                    for (const [r, time] of Object.entries(body.behavior.activeTimePerRoute).slice(0, 50)) {
+                        // MongoDB field names can't contain "." or start with "$"
+                        const cleanRoute = r.slice(0, 200).replace(/\./g, '_').replace(/^\$/, '_');
+                        sessionUpdate.$max[`route_times.${cleanRoute}`] = num(time, 60 * 60 * 24);
                     }
                 }
             }

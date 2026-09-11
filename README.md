@@ -1,31 +1,33 @@
 # Trupal Patel Portfolio
 
-A personal portfolio built with Next.js 16, React 19, TypeScript, Framer Motion, and MongoDB-backed arcade leaderboards.
+A personal portfolio built with Next.js 16, React 19, TypeScript, Tailwind CSS v4, Framer Motion, and MongoDB.
 
-This repo is not a starter anymore. It contains:
+It contains:
 
-- a multi-page portfolio site
-- a playable arcade with multiple mini-games
-- a protected admin playground for leaderboard moderation
-- signed arcade-only share links
-- Playwright end-to-end coverage for the game flow
+- a single-page home (hero, about, education, certifications, experience timeline, tech stack, work, contact)
+- story-style project case studies (problem → solution → integration → challenges → learnings → status)
+- a certifications page with verified credential links
+- a memory game with a global leaderboard, plus signed arcade-only share links
+- a protected admin playground (leaderboard moderation, contact inbox, visitor analytics)
+- Playwright end-to-end smoke tests
 
 ## Stack
 
-- Next.js 16
-- React 19
-- TypeScript
+- Next.js 16 (App Router, Turbopack)
+- React 19 + TypeScript
+- Tailwind CSS v4 + a small token-based design system (`src/app/globals.css`)
 - Framer Motion
 - MongoDB
+- Three.js / React Three Fiber (hero starfield)
 - Playwright
-- Three.js / React Three Fiber
 
 ## Live Links & Repositories
 
 ### Portfolio & Credentials
 - **Personal Portfolio**: [https://true-pal.vercel.app/](https://true-pal.vercel.app/)
 - **GitHub Profile**: [https://github.com/TRUPALIX9](https://github.com/TRUPALIX9)
-- **Credly AI Mastery Badge**: [View Credential](https://www.credly.com/badges/8acca941-de83-466e-b754-0518b0f25e25)
+- **Meta Front-End Developer Badge (Credly)**: [View Credential](https://www.credly.com/badges/8acca941-de83-466e-b754-0518b0f25e25)
+- **All certifications**: `/certifications` on the site (data in [src/data/certifications.ts](src/data/certifications.ts))
 
 ### Projects & Repositories
 - **StoreDesk Ecosystem**: [GitHub](https://github.com/TRUPALIX9/StoreDesk) | [Live Production](https://store-desk-prod.vercel.app/)
@@ -40,139 +42,84 @@ This repo is not a starter anymore. It contains:
 
 ## Routes
 
-Main pages:
+Public pages:
 
-- `/`
-- `/about`
-- `/projects`
-- `/experience`
-- `/experience/[slug]`
-- `/resume`
-- `/contact`
-- `/social`
-- `/game`
+- `/` — home (sections: `#about`, `#certifications`, `#experience`, `#tech-stack`, `#projects`, `#contact`)
+- `/projects` and `/projects/[slug]` — project gallery and case studies
+- `/experience/[slug]` — experience deep dives
+- `/certifications` — all credentials
+- `/social`, `/social-only` — link hub (not indexed)
+- `/game`, `/game-only` — memory game + leaderboard
 
-Arcade/admin routes:
+Arcade / admin:
 
-- `/game` - public arcade hub
-- `/playground` - protected admin dashboard
-- `/arcade/[token]` - signed arcade-only mode
-- `/api/leaderboard` - leaderboard read/write/admin moderation
-- `/api/playground/share-link` - signed share-link generation
+- `/playground` — protected admin dashboard
+- `/arcade/[token]` — signed arcade-only mode
+- `/api/leaderboard` — leaderboard read/write/admin moderation
+- `/api/contact-submissions` — contact form submissions
+- `/api/visitor-analytics` — first-party visitor analytics
+- `/api/playground/session`, `/api/playground/share-link` — admin session and signed share links
 
-## Games
+## Content
 
-The arcade currently includes:
+Most copy lives in data files, not components:
 
-- Rocket
-- Runner
-- Reflex
-- Memory
-- Snake
-- Breakout
-
-The game hub lives in [src/components/GameHub.tsx](/Users/trupal/Projects/portfolio/src/components/GameHub.tsx), and each game is implemented in [src/components/games](/Users/trupal/Projects/portfolio/src/components/games).
+- [src/data/projects.ts](src/data/projects.ts) — project facts, tech, milestones
+- [src/data/project-stories.ts](src/data/project-stories.ts) — case-study narrative (integration, challenges, learnings)
+- [src/data/master.json](src/data/master.json) — bio and experience
+- [src/data/certifications.ts](src/data/certifications.ts) — credentials, including the Meta course-certificate carousel
+- [src/data/site-config.tsx](src/data/site-config.tsx) — nav and social links
 
 ## Environment Variables
 
-Create `.env.local` with the values you need:
+Create `.env.local`:
 
 ```env
+MONGODB_URI=...
 KEY=...
 SHARE_LINK_SECRET=...
-MONGODB_URI=...
+NEXT_PUBLIC_GA_ID=...
 ```
 
-Notes:
-
-- `KEY` protects the admin playground and admin API actions.
-- `SHARE_LINK_SECRET` signs arcade-only URLs. If omitted, the app falls back to `KEY`.
-- `MONGODB_URI` connects to your MongoDB database for leaderboard tracking.
+- `MONGODB_URI` — MongoDB connection (leaderboard, contact submissions, analytics).
+- `KEY` — protects the admin playground and admin API actions.
+- `SHARE_LINK_SECRET` — signs arcade-only URLs; falls back to `KEY` if omitted.
+- `NEXT_PUBLIC_GA_ID` — optional Google Analytics ID; GA only loads when it's set.
 
 ## Local Development
 
-Install dependencies:
-
 ```bash
 npm install
+npm run dev        # dev server on http://localhost:3000
+npm run build      # production build
+npm run start      # serve the production build
+npm run typecheck  # tsc --noEmit
+npm run lint       # ESLint 9 (flat config)
+npm run test:e2e   # Playwright smoke tests — see TESTING.md
 ```
 
-Start the dev server:
+## Design System
 
-```bash
-npm run dev
-```
+`src/app/globals.css` defines the tokens every component uses:
 
-Build the app:
-
-```bash
-npm run build
-```
-
-Start production mode locally:
-
-```bash
-npm run start
-```
-
-
-
-## Testing
-
-Build verification:
-
-```bash
-npm run build
-```
-
-End-to-end tests:
-
-```bash
-npm run test:e2e
-```
-
-Headed Playwright run:
-
-```bash
-npm run test:e2e:headed
-```
-
-The Playwright suite is defined in [playwright.config.ts](/Users/trupal/Projects/portfolio/playwright.config.ts) and [e2e/games.spec.ts](/Users/trupal/Projects/portfolio/e2e/games.spec.ts). It runs desktop and mobile browser profiles against the arcade flow.
+- Text tiers: `text-ink-1` (headings), `text-ink-2` (body), `text-ink-3` (meta) — all ≥ 4.5:1 on the dark surfaces
+- Elevation: `bg-surface-0/1/2/3` with `border-line-1/2` and `--shadow-card` / `--shadow-raised`
+- Components: `.card`, `.card-interactive`, `.spotlight` (cursor-following glow), `.eyebrow`, `.measure`
+- Motion: `Reveal`, `Stagger`, `StaggerItem` in `src/components/motion/`; `MotionConfig` respects the OS reduced-motion setting
 
 ## Admin Playground
 
-The admin dashboard lives at `/playground` and currently supports:
+The dashboard at `/playground` supports key-based access (httpOnly session cookie), leaderboard insights and moderation,
+player renaming, a contact inbox, a visitor analytics explorer, and signed arcade-only share links. Key files:
 
-- key-based access
-- leaderboard insights
-- per-score deletion
-- full leaderboard wipe
-- signed arcade-only share-link generation
-
-The signed link flow is implemented through:
-
-- [src/app/playground/page.tsx](/Users/trupal/Projects/portfolio/src/app/playground/page.tsx)
-- [src/app/api/playground/share-link/route.ts](/Users/trupal/Projects/portfolio/src/app/api/playground/share-link/route.ts)
-- [src/app/arcade/[token]/page.tsx](/Users/trupal/Projects/portfolio/src/app/arcade/[token]/page.tsx)
-- [src/utils/arcade-share.ts](/Users/trupal/Projects/portfolio/src/utils/arcade-share.ts)
-
-## Project Notes
-
-- The navbar is hidden automatically on signed arcade-only routes.
-- The arcade uses portrait, square, and landscape viewports depending on the game.
-- Player name persistence and score submission are centralized in [src/utils/arcade-player.ts](/Users/trupal/Projects/portfolio/src/utils/arcade-player.ts).
-- Compatibility wrapper files exist in `src/components/games` for older import names.
+- [src/app/playground/page.tsx](src/app/playground/page.tsx)
+- [src/components/admin/MasterVisitorExplorer.tsx](src/components/admin/MasterVisitorExplorer.tsx)
+- [src/utils/admin.ts](src/utils/admin.ts) and [src/utils/arcade-share.ts](src/utils/arcade-share.ts)
 
 ## Maintainer Docs
 
-Internal maintenance notes live in:
-
-- [.agents/workflows/portfolio-site-maintenance.md](/Users/trupal/Projects/portfolio/.agents/workflows/portfolio-site-maintenance.md)
-- [.agents/workflows/arcade-maintenance.md](/Users/trupal/Projects/portfolio/.agents/workflows/arcade-maintenance.md)
-- [.agents/workflows/game-development.md](/Users/trupal/Projects/portfolio/.agents/workflows/game-development.md)
-
-- `npm run build` passes successfully locally
-- `npm run test:e2e` passes
-- All favicon assets have been moved to the public root and configured via the Next.js `metadata.icons` API
-- The site title is configured as "True Pal" across all browser tabs, OpenGraph, and Twitter tags
-
+- [TESTING.md](TESTING.md)
+- [.agents/docs/arcade-system.md](.agents/docs/arcade-system.md)
+- [.agents/workflows/portfolio-site-maintenance.md](.agents/workflows/portfolio-site-maintenance.md)
+- [.agents/workflows/arcade-maintenance.md](.agents/workflows/arcade-maintenance.md)
+- [.agents/workflows/game-development.md](.agents/workflows/game-development.md)

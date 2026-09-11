@@ -1,19 +1,25 @@
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
-import Link from 'next/link';
+import { useInView } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import confetti from 'canvas-confetti';
-import { Mail, Phone, Share2, Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Mail, Phone, Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import { trackVisitorEvent } from '@/utils/visitor-analytics';
+import Reveal from '@/components/motion/Reveal';
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_RE = /^\+?[\d\s().-]{7,20}$/;
+
+// Limits mirror the API route so users see the error inline instead of a silent truncation.
 const contactSchema = z.object({
-    name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-    contact: z.string().min(3, { message: 'Please provide a valid email or phone number.' }),
-    message: z.string().min(10, { message: 'Message must be at least 10 characters long.' }),
+    name: z.string().trim().min(2, { message: 'Name must be at least 2 characters.' }).max(100, { message: 'Name is too long.' }),
+    contact: z.string().trim().max(200).refine((v) => EMAIL_RE.test(v) || PHONE_RE.test(v), {
+        message: 'Please provide a valid email or phone number.',
+    }),
+    message: z.string().trim().min(10, { message: 'Message must be at least 10 characters long.' }).max(5000, { message: 'Message must be under 5000 characters.' }),
 });
 
 type ContactFormData = z.infer<typeof contactSchema>;
@@ -74,12 +80,11 @@ export default function ContactSection() {
                 throw new Error(payload?.error ?? 'Unable to send your message right now.');
             }
 
+            // Don't copy the visitor's name/email into analytics — it's already in contact_submissions.
             void trackVisitorEvent({
                 event: 'contact_submit',
                 route: '/contact',
                 source: 'contact-form',
-                linkName: data.name,
-                linkUrl: data.contact,
             });
 
             setIsSuccess(true);
@@ -98,27 +103,21 @@ export default function ContactSection() {
     };
 
     return (
-        <section id="contact" ref={sectionRef} className="section container pt-24 md:pt-32 pb-6 md:pb-8" style={{ minHeight: 'auto' }}>
-            <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-80px' }}
-                transition={{ duration: 0.8 }}
-                className="w-full"
-            >
+        <section ref={sectionRef} aria-labelledby="contact-heading" className="section container pt-24 md:pt-32 pb-6 md:pb-8" style={{ minHeight: 'auto' }}>
+            <Reveal className="w-full">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
                     {/* Left Column: Direct pathways */}
                     <div className="flex flex-col gap-8">
                         <div>
-                            <p className="text-[#4ADE80] font-bold text-xs uppercase tracking-[0.2em] mb-3">
+                            <p className="eyebrow mb-3">
                                 Get In Touch
                             </p>
-                            <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
-                                Let&apos;s build something <span className="gradient-text">exceptional.</span>
+                            <h2 id="contact-heading" className="text-4xl md:text-5xl font-extrabold text-ink-1 tracking-tight leading-tight">
+                                Let&apos;s build something <span className="text-accent">exceptional.</span>
                             </h2>
                         </div>
 
-                        <p className="text-neutral-400 text-base md:text-lg leading-relaxed font-light">
+                        <p className="measure text-ink-2 text-base md:text-[1.0625rem] leading-[1.7]">
                             Whether you have an upcoming project, hiring opportunity, system architecture question, or just want to connect — feel free to send a message.
                         </p>
 
@@ -130,18 +129,18 @@ export default function ContactSection() {
 
                     {/* Right Column: Sleek message dispatch form */}
                     <form
+                        noValidate
+                        aria-label="Send a message"
                         onSubmit={handleSubmit(onSubmit)}
-                        className="w-full bg-neutral-900/[0.25] backdrop-blur-xl border border-white/[0.06] rounded-2xl shadow-2xl relative overflow-hidden flex flex-col"
+                        className="card w-full rounded-2xl relative overflow-hidden flex flex-col"
                     >
-                        {/* Decorative background glow */}
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] rounded-full blur-3xl pointer-events-none" />
 
                         {/* Header */}
-                        <div className="px-6 md:px-10 pt-8 md:pt-10 pb-6 border-b border-white/[0.06] text-center relative z-10">
-                            <h3 className="text-xl md:text-2xl font-black text-white tracking-wide">
+                        <div className="px-6 md:px-10 pt-8 md:pt-10 pb-6 border-b border-line-1 text-center relative z-10">
+                            <h3 className="text-xl md:text-2xl font-bold text-ink-1 tracking-tight">
                                 Send a Message
                             </h3>
-                            <p className="text-neutral-500 text-sm mt-1.5 font-light">
+                            <p className="text-ink-3 text-sm mt-1.5">
                                 Fill out the form below for instant dispatch.
                             </p>
                         </div>
@@ -150,72 +149,87 @@ export default function ContactSection() {
                         <div className="px-6 md:px-10 py-7 flex flex-col gap-5 relative z-10">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-white text-xs font-semibold uppercase tracking-wider">Name</label>
+                                    <label htmlFor="contact-name" className="text-ink-2 text-xs font-semibold uppercase tracking-wider">Name</label>
                                     <input
+                                        id="contact-name"
                                         {...register('name')}
+                                        autoComplete="name"
+                                        aria-invalid={Boolean(errors.name)}
+                                        aria-describedby={errors.name ? 'contact-name-error' : undefined}
                                         placeholder="Your name"
-                                        className={`w-full h-12 rounded-xl border bg-black/40 text-white px-4 text-sm outline-none transition-all duration-300 ${
+                                        className={`w-full h-12 rounded-xl border bg-surface-1 text-ink-1 placeholder:text-ink-3 px-4 text-[0.9375rem] outline-none transition-colors duration-150 ${
                                             errors.name
                                             ? 'border-red-500/50 focus:border-red-500'
                                             : touchedFields.name
                                                 ? 'border-emerald-500/30 focus:border-emerald-500'
-                                                : 'border-white/10 focus:border-white focus:bg-black/60'
+                                                : 'border-line-2 hover:border-white/25 focus:border-accent/70 focus:bg-surface-0'
                                         }`}
                                     />
                                     {errors.name && (
-                                        <span className="text-red-400 text-xs flex items-center gap-1.5 font-medium">
-                                            <AlertCircle size={12} /> {errors.name.message}
+                                        <span id="contact-name-error" className="text-red-400 text-xs flex items-center gap-1.5 font-medium">
+                                            <AlertCircle size={12} aria-hidden="true" /> {errors.name.message}
                                         </span>
                                     )}
                                 </div>
 
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-white text-xs font-semibold uppercase tracking-wider">Contact Info</label>
+                                    <label htmlFor="contact-info" className="text-ink-2 text-xs font-semibold uppercase tracking-wider">Contact Info</label>
                                     <input
+                                        id="contact-info"
                                         {...register('contact')}
+                                        autoComplete="email"
+                                        aria-invalid={Boolean(errors.contact)}
+                                        aria-describedby={errors.contact ? 'contact-info-error' : undefined}
                                         placeholder="Email or phone number"
-                                        className={`w-full h-12 rounded-xl border bg-black/40 text-white px-4 text-sm outline-none transition-all duration-300 ${
+                                        className={`w-full h-12 rounded-xl border bg-surface-1 text-ink-1 placeholder:text-ink-3 px-4 text-[0.9375rem] outline-none transition-colors duration-150 ${
                                             errors.contact
                                             ? 'border-red-500/50 focus:border-red-500'
                                             : touchedFields.contact
                                                 ? 'border-emerald-500/30 focus:border-emerald-500'
-                                                : 'border-white/10 focus:border-white focus:bg-black/60'
+                                                : 'border-line-2 hover:border-white/25 focus:border-accent/70 focus:bg-surface-0'
                                         }`}
                                     />
                                     {errors.contact && (
-                                        <span className="text-red-400 text-xs flex items-center gap-1.5 font-medium">
-                                            <AlertCircle size={12} /> {errors.contact.message}
+                                        <span id="contact-info-error" className="text-red-400 text-xs flex items-center gap-1.5 font-medium">
+                                            <AlertCircle size={12} aria-hidden="true" /> {errors.contact.message}
                                         </span>
                                     )}
                                 </div>
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <label className="text-white text-xs font-semibold uppercase tracking-wider">Message</label>
+                                <label htmlFor="contact-message" className="text-ink-2 text-xs font-semibold uppercase tracking-wider">Message</label>
                                 <textarea
+                                    id="contact-message"
                                     {...register('message')}
+                                    maxLength={5000}
+                                    aria-invalid={Boolean(errors.message)}
+                                    aria-describedby={errors.message ? 'contact-message-error' : undefined}
                                     placeholder="Tell me about what you're building or how I can help..."
-                                    className={`w-full h-36 md:h-44 rounded-xl border bg-black/40 text-white p-4 text-sm outline-none resize-none transition-all duration-300 ${
+                                    className={`w-full h-36 md:h-44 rounded-xl border bg-surface-1 text-ink-1 placeholder:text-ink-3 p-4 text-[0.9375rem] leading-[1.6] outline-none resize-none transition-colors duration-150 ${
                                         errors.message
                                         ? 'border-red-500/50 focus:border-red-500'
                                         : touchedFields.message
                                             ? 'border-emerald-500/30 focus:border-emerald-500'
-                                            : 'border-white/10 focus:border-white focus:bg-black/60'
+                                            : 'border-line-2 hover:border-white/25 focus:border-accent/70 focus:bg-surface-0'
                                     }`}
                                 />
                                 {errors.message && (
-                                    <span className="text-red-400 text-xs flex items-center gap-1.5 font-medium">
-                                        <AlertCircle size={12} /> {errors.message.message}
+                                    <span id="contact-message-error" className="text-red-400 text-xs flex items-center gap-1.5 font-medium">
+                                        <AlertCircle size={12} aria-hidden="true" /> {errors.message.message}
                                     </span>
                                 )}
                             </div>
 
-                            {status && (
-                                <div className={`p-4 rounded-xl border flex items-center gap-2.5 text-sm transition-all duration-300 ${isSuccess ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-red-500/10 border-red-500/25 text-red-400'}`}>
-                                    {isSuccess ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-                                    <span>{status}</span>
-                                </div>
-                            )}
+                            {/* Always-mounted live region so screen readers announce the result */}
+                            <div role="status" aria-live="polite">
+                                {status && (
+                                    <div className={`p-4 rounded-xl border flex items-center gap-2.5 text-sm transition-all duration-300 ${isSuccess ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-red-500/10 border-red-500/25 text-red-400'}`}>
+                                        {isSuccess ? <CheckCircle2 size={16} aria-hidden="true" /> : <AlertCircle size={16} aria-hidden="true" />}
+                                        <span>{status}</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* Footer / Submit */}
@@ -223,18 +237,15 @@ export default function ContactSection() {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                style={{ backgroundColor: '#EAEAEA', color: '#111111' }}
-                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF'; }}
-                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#EAEAEA'; }}
-                                className="group w-full h-13 flex items-center justify-center text-[15px] gap-2 font-bold rounded-xl transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50"
+                                className="group w-full h-13 flex items-center justify-center text-[15px] gap-2 font-bold rounded-xl bg-ink-1 text-surface-2 shadow-[var(--shadow-card)] transition-[transform,background-color,box-shadow] duration-200 ease-out-expo hover:-translate-y-0.5 hover:bg-white hover:shadow-[var(--shadow-raised)] active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-white/50"
                             >
-                                <Send size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+                                <Send size={16} aria-hidden="true" className="transition-transform duration-200 ease-out-expo group-hover:translate-x-0.5" />
                                 {isSubmitting ? 'Sending Message...' : 'Send Message'}
                             </button>
                         </div>
                     </form>
                 </div>
-            </motion.div>
+            </Reveal>
         </section>
     );
 }
@@ -253,14 +264,14 @@ function ContactInfoRow({
     return (
         <a 
             href={href}
-            className="group flex items-center gap-4 bg-white/[0.02] border border-white/[0.05] hover:border-white/10 hover:bg-white/[0.04] p-4 rounded-2xl transition-all duration-300"
+            className="card card-interactive spotlight group flex items-center gap-4 p-4 rounded-2xl"
         >
-            <div className="text-[#4ADE80] group-hover:scale-105 transition-transform duration-300 bg-[#4ADE80]/5 p-3 rounded-xl">
+            <div aria-hidden="true" className="text-accent bg-accent/10 border border-accent/15 p-3 rounded-xl transition-colors duration-200 group-hover:bg-accent/15">
                 {icon}
             </div>
             <div className="flex flex-col gap-0.5">
-                <span className="text-neutral-500 text-[0.7rem] font-bold uppercase tracking-widest">{label}</span>
-                <span className="text-white font-medium text-[0.95rem] tracking-wide">{value}</span>
+                <span className="text-ink-3 text-xs font-bold uppercase tracking-widest">{label}</span>
+                <span className="text-ink-1 font-medium text-[0.95rem] tracking-wide">{value}</span>
             </div>
         </a>
     );

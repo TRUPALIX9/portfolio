@@ -83,8 +83,7 @@ export default function BehavioralTracker() {
     useEffect(() => {
         // We accumulate active time per route
         const currentRoute = pathname || '/';
-        const routeStartTime = Date.now();
-        
+
         const updateActiveTime = () => {
             if (document.visibilityState === 'visible') {
                 const now = Date.now();
@@ -129,7 +128,7 @@ export default function BehavioralTracker() {
             const log = clickLogRef.current;
             
             // Log element clicked for dead clicks / interaction tracking
-            let target = e.target as HTMLElement;
+            const target = e.target as HTMLElement;
             let targetLabel = target.tagName;
             if (target.id) targetLabel += `#${target.id}`;
             else if (target.className && typeof target.className === 'string') targetLabel += `.${target.className.split(' ')[0]}`;
