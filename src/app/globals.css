@@ -341,8 +341,9 @@ button {
   100% { --wire-draw: 360deg; --wire-fill: 1; --wire-line: 0; }
 }
 
+/* A transform, not background-position: the compositor runs it without repainting anything. */
 @keyframes grid-drift {
-  to { background-position: 0 -160px, -160px 0; }
+  to { transform: translate3d(-160px, -160px, 0); }
 }
 
 @supports (animation-timeline: view()) {
@@ -365,7 +366,10 @@ button {
 
 /* Faint blueprint grid behind all page content. Sits under everything (z-index -1 inside
    #main-content's own stacking context); the fixed hero panel covers it while in the hero.
-   Lines are ~3.5% white — far too faint to affect text contrast. */
+   Lines are ~3.5% white — far too faint to affect text contrast.
+   One fixed, viewport-sized layer that content scrolls over. It used to be absolute and as tall
+   as the page (~15,000px) with background-position scrubbed by scroll, which repainted the whole
+   masked layer on every scroll frame and halved the frame rate site-wide. */
 #main-content {
   position: relative;
   isolation: isolate;
@@ -373,8 +377,9 @@ button {
 
 #main-content::before {
   content: '';
-  position: absolute;
-  inset: 0;
+  position: fixed;
+  /* Oversized by the drift distance so the translate never exposes an edge. */
+  inset: 0 -160px -160px 0;
   z-index: -1;
   pointer-events: none;
   background-image:
@@ -382,8 +387,7 @@ button {
     linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
   background-size: 80px 80px;
   mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 85%);
-  mask-size: 100% 100vh;
-  mask-repeat: repeat-y;
+  will-change: transform;
 }
 
 /* ── Surface & motion components ─────────────────────────────────────────────

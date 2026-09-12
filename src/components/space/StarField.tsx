@@ -27,8 +27,9 @@ export default function StarField({ count = 6000 }) {
     const vertexShader = `
         void main() {
             vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-            // Even smaller stars
-            gl_PointSize = (9.0 * (300.0 / -mvPosition.z));
+            // Size by distance, capped: stars the camera flies through would otherwise grow to
+            // thousands of pixels and flood the GPU with additive overdraw.
+            gl_PointSize = min(9.0 * (300.0 / -mvPosition.z), 48.0);
             gl_Position = projectionMatrix * mvPosition;
         }
     `;
