@@ -26,12 +26,12 @@ export default function ProjectShowcase() {
                             {/* Card classes sit inside the StaggerItem so its inline transform can't cancel the hover lift. */}
                             <article className="card card-interactive spotlight group flex h-full flex-col overflow-hidden rounded-2xl">
                                 {/* Image */}
-                                <Link href={`/projects/${project.slug}`} tabIndex={-1} aria-hidden="true" className="relative flex h-[220px] w-full items-center justify-center overflow-hidden border-b border-line-1 bg-surface-1 p-6">
+                                <Link href={`/projects/${project.slug}`} tabIndex={-1} aria-hidden="true" className="relative block aspect-[2/1] w-full overflow-hidden border-b border-line-1 bg-surface-1">
+                                    {/* Project banners are 1280×640, so a 2:1 frame shows them whole. */}
                                     <motion.img
                                         src={project.image}
                                         alt={project.title}
-                                        className="max-w-full max-h-full object-contain transition-transform duration-500 ease-out-expo group-hover:scale-[1.03]"
-                                        style={{ width: 'auto', height: 'auto' }}
+                                        className="h-full w-full object-cover transition-transform duration-500 ease-out-expo group-hover:scale-[1.03]"
                                     />
                                 </Link>
 

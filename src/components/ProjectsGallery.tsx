@@ -10,9 +10,6 @@ const GithubIcon = ({ size = 20 }: { size?: number }) => (
     </svg>
 );
 
-/** Card images that are logos/wordmarks: shown whole (contain + padding) instead of cropped. */
-const LOGO_IMAGES = new Set(['/retailsync_logo.png', '/web_warehouse_card.png']);
-
 const iconLinkClass =
     'inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-3 transition-colors duration-200 hover:bg-surface-3 hover:text-ink-1';
 
@@ -41,20 +38,20 @@ export default function ProjectsGallery() {
                 style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))' }}
             >
                 {projects.map((project) => {
-                    const isLogo = LOGO_IMAGES.has(project.image);
                     return (
                         // Motion wrapper stays outside the card: framer's inline transform would
                         // otherwise cancel .card-interactive's hover lift.
                         <StaggerItem key={project.slug} role="listitem" className="h-full">
                             <article className="card card-interactive spotlight group flex h-full flex-col overflow-hidden rounded-2xl">
-                                <div className={`relative aspect-[16/10] overflow-hidden border-b border-line-1 ${isLogo ? 'bg-surface-1' : 'bg-surface-3'}`}>
+                                {/* Project banners are 1280×640, so a 2:1 frame shows them whole. */}
+                                <div className="relative aspect-[2/1] overflow-hidden border-b border-line-1 bg-surface-1">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src={project.image}
                                         alt={project.title}
                                         loading="lazy"
                                         decoding="async"
-                                        className={`h-full w-full transition-transform duration-500 ease-out-expo group-hover:scale-[1.03] ${isLogo ? 'object-contain p-10 sm:p-12' : 'object-cover'}`}
+                                        className="h-full w-full object-cover transition-transform duration-500 ease-out-expo group-hover:scale-[1.03]"
                                     />
                                 </div>
 

@@ -53,15 +53,15 @@ Each project has a story-style case study (problem → solution → integration 
 
 | Project | About | Case study | Source |
 |---|---|:-:|:-:|
-| **RetailSync SaaS** | Multi-tenant SaaS monorepo | [Read](https://trupalpatel.com/projects/retailsync) | [GitHub](https://github.com/comp596-spring-2026/RetailSync) |
-| **Web-Warehouse 3D** | Next.js + Three.js warehouse visualizer | [Read](https://trupalpatel.com/projects/web-warehouse) | [GitHub](https://github.com/TRUPALIX9/web-warehouse) |
-| **Card Vault** | React Native (Expo) business-card OCR scanner | [Read](https://trupalpatel.com/projects/card-snap) | [GitHub](https://github.com/TRUPALIX9/card-snap-frontend) |
-| **AWS Bedrock Shipping Agent** | Conversational shipping and logistics agent | [Read](https://trupalpatel.com/projects/shipping-agent-aws) | [GitHub](https://github.com/TRUPALIX9/Shipping-Agent-AWS) |
-| **Fire Forecasting System** | ML pipeline and API for fire forecasting | [Read](https://trupalpatel.com/projects/fire-forecasting) | [GitHub](https://github.com/TRUPALIX9/fire-forecasting) |
-| **Motion Detection VMS** | C# WinForms video management with ONVIF | [Read](https://trupalpatel.com/projects/motion-detection) | [GitHub](https://github.com/TRUPALIX9/Motion-Detection-Windows-App) |
-| **Vehicle Log System** | C# desktop app and Windows service | [Read](https://trupalpatel.com/projects/vehicle-log) | [GitHub](https://github.com/TRUPALIX9/Vehicle-Log-Managment-System) |
-| **COMP-599 WebGL Seminar** | WebGL graphics seminar project | [Read](https://trupalpatel.com/projects/comp-599-webgl) | [GitHub](https://github.com/TRUPALIX9/comp-599-webgl) |
-| **File System Engine** | File system implementation | [Read](https://trupalpatel.com/projects/file-system-engine) | [GitHub](https://github.com/TRUPALIX9/file-system-engine) |
+| **RetailSync** | Multi-tenant SaaS monorepo | [Read](https://trupalpatel.com/projects/retailsync) | [GitHub](https://github.com/comp596-spring-2026/RetailSync) |
+| **Web Warehouse** | Next.js inventory, purchase orders and warehouse slots with a 3D item preview | [Read](https://trupalpatel.com/projects/web-warehouse) | [GitHub](https://github.com/TRUPALIX9/web-warehouse) |
+| **Card Snap** | Business-card scanner: React Native (Expo) app + Node.js OCR API | [Read](https://trupalpatel.com/projects/card-snap) | [GitHub](https://github.com/TRUPALIX9/card-snap) |
+| **Shipping Agent Assistant** | Streamlit chat front end for an AWS Bedrock shipping agent (team project) | [Read](https://trupalpatel.com/projects/shipping-agent-aws) | [GitHub](https://github.com/TRUPALIX9/Shipping-Agent-AWS) |
+| **Fire Forecasting** | Wildfire risk dashboard prototype on sample forecasts | [Read](https://trupalpatel.com/projects/fire-forecasting) | [GitHub](https://github.com/TRUPALIX9/fire-forecasting) |
+| **ZoneWatch** | Zone-based motion detection for ONVIF IP cameras (C# WinForms) | [Read](https://trupalpatel.com/projects/motion-detection) | [GitHub](https://github.com/TRUPALIX9/Motion-Detection-Windows-App) |
+| **Gatelog** | Proof-of-concept Windows installer and updater for a vehicle-log server stack | [Read](https://trupalpatel.com/projects/vehicle-log) | [GitHub](https://github.com/TRUPALIX9/Vehicle-Log-Managment-System) |
+| **WebGL Academic Presentation** | Seminar slide deck where every slide runs a live Three.js scene | [Read](https://trupalpatel.com/projects/comp-599-webgl) | [GitHub](https://github.com/TRUPALIX9/comp-599-webgl) |
+| **File System Engine** | Electron file manager with a treemap disk analyzer | [Read](https://trupalpatel.com/projects/file-system-engine) | [GitHub](https://github.com/TRUPALIX9/file-system-engine) |
 
 ## 🏅 Certifications
 

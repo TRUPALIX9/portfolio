@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" role="img" aria-labelledby="glu-t glu-d">
+  <title id="glu-t">Gatelog Server Setup - update step</title>
+  <desc id="glu-d">The Gatelog update step in a Windows 11 window, shown when all four services are installed. Release 1.2.0 is selected; the component list shows nextjs_anpr going from 1.0.0 to 1.2.0 and gatelogBot from 1.0.0 to 1.1.3. The progress bar is at 62 percent while gatelogBot is extracted, the log shows each service being stopped and its zip downloaded from releases/1.2.0, the Update button is disabled during the update and the Firebrick Uninstall button sits below.</desc>
+  <defs>
+    <linearGradient id="glu-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#262F38"/><stop offset="1" stop-color="#171C21"/></linearGradient><radialGradient id="glu-glow" cx="50%" cy="46%" r="52%"><stop offset="0" stop-color="#F2C200" stop-opacity="0.16"/><stop offset="1" stop-color="#F2C200" stop-opacity="0"/></radialGradient><clipPath id="glu-win"><rect x="40" y="40" width="1200" height="720" rx="8"/></clipPath>
+    <filter id="glu-shadow" x="-10%" y="-10%" width="120%" height="125%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#2A2410" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+  <rect width="1280" height="800" fill="#F3F1EA"/>
+  <rect x="40" y="40" width="1200" height="720" rx="8" fill="#FFFFFF" filter="url(#glu-shadow)"/>
+  <g clip-path="url(#glu-win)">
+      <rect x="40" y="40" width="1200" height="720" fill="#FFFFFF"/>
+
+      <!-- Form1 title bar (custom, rebranded) -->
+      <rect x="40" y="40" width="1200" height="32" fill="#171C21"/>
+      <g transform="translate(52 45) scale(0.04297)"><rect width="512" height="512" rx="112" fill="url(#glu-bg)"/><circle cx="256" cy="250" r="230" fill="url(#glu-glow)"/><g transform="translate(88 88) scale(14)"><rect x="11.2" y="12.6" width="9.6" height="1.9" rx="0.95" fill="#F2C200"/><rect x="11.2" y="16.1" width="7.2" height="1.9" rx="0.95" fill="#E9EDF0" fill-opacity="0.85"/><rect x="11.2" y="19.6" width="9.6" height="1.9" rx="0.95" fill="#E9EDF0" fill-opacity="0.85"/><g transform="translate(6 10.2) rotate(-29)"><rect x="-1.2" y="-1.55" width="15.6" height="3.1" rx="1.55" fill="#F2C200"/><rect x="4.2" y="-1.55" width="2.3" height="3.1" fill="#171C21"/><rect x="9.1" y="-1.55" width="2.3" height="3.1" fill="#171C21"/></g><rect x="4.4" y="10.2" width="3.2" height="10.6" rx="1" fill="#E9EDF0"/><rect x="3" y="19.6" width="6" height="1.9" rx="0.95" fill="#E9EDF0"/><circle cx="6" cy="10.2" r="2.35" fill="#E9EDF0"/><circle cx="6" cy="10.2" r="0.95" fill="#171C21"/></g></g>
+      <text x="84" y="62.5" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="700" fill="#F0FFF0">Gatelog Server Setup</text>
+      <g stroke="#F0FFF0" stroke-width="1.1" fill="none">
+        <path d="M1120 56.5h10"/>
+        <rect x="1166.5" y="51.5" width="9" height="9" rx="1.5" stroke-opacity="0.35"/>
+      </g>
+      <path d="M1212 51l10 10M1222 51l-10 10" stroke="#F0FFF0" stroke-width="1.1" fill="none"/>
+
+      <!-- MainPanel (FixedSingle) hosting UpdateControl -->
+      <rect x="40.5" y="72.5" width="1199" height="653" fill="#FFFFFF" stroke="#A0A0A0"/>
+
+      <!-- lbl_processTitle: GetNonMatchingKeys() output for the selected release (Segoe UI 9pt) -->
+      <g font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="16" fill="#000000">
+        <text x="136" y="124">nextjs_anpr:</text>
+        <text x="150" y="144">Current Version: 1.0.0</text>
+        <text x="150" y="164">Available Version: 1.2.0</text>
+        <text x="136" y="204">gatelogBot:</text>
+        <text x="150" y="224">Current Version: 1.0.0</text>
+        <text x="150" y="244">Available Version: 1.1.3</text>
+      </g>
+
+      <!-- comboBox1: release folders newer than config.json mainVersion, newest first -->
+      <rect x="349.5" y="140.5" width="238" height="30" rx="3" fill="#FFFFFF" stroke="#7A7A7A"/>
+      <text x="357" y="161" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="16" fill="#000000">1.2.0</text>
+      <path d="M565 152l5 5 5-5" stroke="#404040" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- progressBar: WinForms ProgressBar (visual styles) -->
+      <rect x="349.5" y="179.5" width="674" height="30" fill="#E6E6E6" stroke="#BCBCBC"/>
+      <rect x="350.5" y="180.5" width="418" height="28" fill="#06B025"/>
+
+      <!-- btn_Update: KryptonButton, disabled while an update runs -->
+      <rect x="1024.5" y="108.5" width="119" height="34" rx="4" fill="#D3D3D3" stroke="#404040"/>
+      <text x="1084" y="133" text-anchor="middle" font-family="Arial,'Helvetica Neue',sans-serif" font-size="21" font-weight="700" fill="#696969">Update</text>
+
+      <!-- kryptonRichTextBox1: update log (LogME, dd-MM-yyyy HH:mm:ss : message) -->
+      <rect x="136.5" y="353.5" width="855" height="324" rx="1" fill="#FFFFFF" stroke="#B7BEC7"/>
+      <g font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="16" fill="#1E1E1E">
+        <text x="145" y="381">24-06-2026 16:02:11 : Stopping gatelogPortal and downloading nextjs_anpr from release 1.2.0 ...</text>
+        <text x="145" y="402">24-06-2026 16:02:14 : Downloading releases/1.2.0/nextjs_anpr.zip to</text>
+        <text x="145" y="423">C:\Users\gatelog-admin\AppData\Local\Temp\tmp4C2E.tmp</text>
+        <text x="145" y="444">24-06-2026 16:02:52 : nextjs_anpr updated to 1.2.0</text>
+        <text x="145" y="465">24-06-2026 16:02:58 : Stopping gatelogBot and downloading gatelogBot from release 1.2.0 ...</text>
+        <text x="145" y="486">24-06-2026 16:03:01 : Downloading releases/1.2.0/gatelogBot.zip to</text>
+        <text x="145" y="507">C:\Users\gatelog-admin\AppData\Local\Temp\tmp7A91.tmp</text>
+      </g>
+
+      <!-- btn_uninstall: KryptonButton, Firebrick -->
+      <rect x="1024.5" y="602.5" width="119" height="34" rx="4" fill="#B22222" stroke="#8E1B1B"/>
+      <text x="1084" y="627" text-anchor="middle" font-family="Arial,'Helvetica Neue',sans-serif" font-size="21" font-weight="700" fill="#FFFFFF">Uninstall</text>
+
+      <!-- bottomPanel (FixedSingle) -->
+      <rect x="40.5" y="726.5" width="1199" height="33" fill="#FFFFFF" stroke="#A0A0A0"/>
+      <text x="48" y="750.5" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="21" fill="#000000">&#169; 2024 Gatelog - Proof of concept</text>
+      <text x="1230" y="750.5" text-anchor="end" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="21" fill="#000000">Version : V1R1 (1.0.18)</text>
+    </g>
+    <rect x="40.5" y="40.5" width="1199" height="719" rx="7.5" fill="none" stroke="#000000" stroke-opacity="0.22"/>
+</svg>

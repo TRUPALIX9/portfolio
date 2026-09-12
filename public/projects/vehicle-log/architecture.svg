@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="gla-t gla-d">
+  <title id="gla-t">Gatelog architecture</title>
+  <desc id="gla-d">How Gatelog Server Setup works on a Windows server. The .NET 6 WinForms app reads the bundled Setups payloads, extracts them into C:\Program Files\Gatelog and registers four Windows services: MongoDB (mongod with auth on 127.0.0.1:27017), the Mosquitto MQTT broker, the gatelogPortal web portal and the gatelogBot detection bot, the last two through NSSM. The optional update channel is an S3 bucket read over HTTPS. Finish opens https://localhost in the browser.</desc>
+  <defs>
+    <linearGradient id="gla-ground" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1280" y2="720"><stop offset="0" stop-color="#1D242B"/><stop offset="1" stop-color="#11151A"/></linearGradient>
+    <marker id="gla-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#F2C200"/></marker>
+    <marker id="gla-arrow-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#9AA4AE"/></marker>
+  </defs>
+  <rect width="1280" height="720" fill="url(#gla-ground)"/>
+
+  <g font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif">
+    <!-- Header -->
+    <text x="48" y="54" font-family="'Cascadia Mono',Consolas,ui-monospace,Menlo,'Liberation Mono',monospace" font-size="14" letter-spacing="3" fill="#9AA4AE">ARCHITECTURE <tspan fill="#F2C200">/</tspan> PROOF OF CONCEPT</text>
+    <text x="48" y="88" font-size="26" font-weight="700" fill="#E9EDF0">Gatelog Server Setup</text>
+
+    <!-- Cloud group: optional update channel -->
+    <rect x="380.5" y="112.5" width="520" height="112" rx="14" fill="none" stroke="#36414C" stroke-dasharray="6 5"/>
+    <text x="396" y="134" font-family="'Cascadia Mono',Consolas,ui-monospace,Menlo,'Liberation Mono',monospace" font-size="12" letter-spacing="2" fill="#9AA4AE">CLOUD (OPTIONAL)</text>
+    <rect x="400.5" y="144.5" width="480" height="66" rx="10" fill="#232B33" stroke="#36414C"/>
+    <text x="418" y="171" font-size="17" font-weight="700" fill="#E9EDF0">Amazon S3 release bucket</text>
+    <text x="418" y="195" font-family="'Cascadia Mono',Consolas,ui-monospace,Menlo,'Liberation Mono',monospace" font-size="12.5" fill="#9AA4AE">GATELOG_UPDATE_BUCKET · releases/&lt;version&gt;/&lt;component&gt;.zip</text>
+
+    <!-- Server group -->
+    <rect x="32.5" y="252.5" width="1215" height="440" rx="16" fill="#FFFFFF" fill-opacity="0.015" stroke="#36414C"/>
+    <text x="52" y="278" font-family="'Cascadia Mono',Consolas,ui-monospace,Menlo,'Liberation Mono',monospace" font-size="12" letter-spacing="2" fill="#9AA4AE">WINDOWS SERVER (RUN AS ADMINISTRATOR)</text>
+
+    <!-- Payloads -->
+    <rect x="56.5" y="300.5" width="300" height="214" rx="10" fill="#232B33" stroke="#36414C"/>
+    <text x="74" y="328" font-size="17" font-weight="700" fill="#E9EDF0">Setups/ payloads</text>
+    <text x="74" y="349" font-size="13" fill="#9AA4AE">bundled next to the app, not in the repo</text>
+    <g font-family="'Cascadia Mono',Consolas,ui-monospace,Menlo,'Liberation Mono',monospace" font-size="13" fill="#C3CAD1">
+      <text x="74" y="380">MongoDB-7.0.1.zip</text>
+      <text x="74" y="402">mongosh-2.1.1.zip</text>
+      <text x="74" y="424">mosquitto-2.0.18.exe</text>
+      <text x="74" y="446">nextjs_anpr.zip</text>
+      <text x="74" y="468">gatelogBot.zip</text>
+      <text x="74" y="490" fill="#9AA4AE">+ nssm.exe, EULA.docx</text>
+    </g>
+
+    <!-- Browser -->
+    <rect x="56.5" y="550.5" width="300" height="104" rx="10" fill="#232B33" stroke="#36414C"/>
+    <text x="74" y="580" font-size="17" font-weight="700" fill="#E9EDF0">Browser</text>
+    <text x="74" y="604" font-size="13.5" fill="#9AA4AE">Finish opens the portal at</text>
+    <text x="74" y="628" font-family="'Cascadia Mono',Consolas,ui-monospace,Menlo,'Liberation Mono',monospace" font-size="13.5" fill="#C3CAD1">https://localhost</text>
+
+    <!-- The app -->
+    <rect x="470.5" y="300.5" width="340" height="132" rx="12" fill="#232B33" stroke="#F2C200" stroke-width="1.5"/>
+    <g transform="translate(490 318) scale(0.0703)"><rect width="512" height="512" rx="112" fill="#171C21"/><g transform="translate(88 88) scale(14)"><rect x="11.2" y="12.6" width="9.6" height="1.9" rx="0.95" fill="#F2C200"/><rect x="11.2" y="16.1" width="7.2" height="1.9" rx="0.95" fill="#E9EDF0" fill-opacity="0.85"/><rect x="11.2" y="19.6" width="9.6" height="1.9" rx="0.95" fill="#E9EDF0" fill-opacity="0.85"/><g transform="translate(6 10.2) rotate(-29)"><rect x="-1.2" y="-1.55" width="15.6" height="3.1" rx="1.55" fill="#F2C200"/><rect x="4.2" y="-1.55" width="2.3" height="3.1" fill="#171C21"/><rect x="9.1" y="-1.55" width="2.3" height="3.1" fill="#171C21"/></g><rect x="4.4" y="10.2" width="3.2" height="10.6" rx="1" fill="#E9EDF0"/><rect x="3" y="19.6" width="6" height="1.9" rx="0.95" fill="#E9EDF0"/><circle cx="6" cy="10.2" r="2.35" fill="#E9EDF0"/><circle cx="6" cy="10.2" r="0.95" fill="#171C21"/></g></g>
+    <text x="538" y="336" font-size="18" font-weight="700" fill="#E9EDF0">Gatelog Server Setup</text>
+    <text x="538" y="358" font-size="13.5" fill="#9AA4AE">.NET 6 WinForms · Krypton Toolkit</text>
+    <text x="490" y="392" font-size="14" fill="#C3CAD1">Notice → Install location → 8 install steps</text>
+    <text x="490" y="414" font-size="14" fill="#C3CAD1">Update step when all four services exist</text>
+
+    <!-- Install folder -->
+    <rect x="470.5" y="510.5" width="340" height="144" rx="10" fill="#232B33" stroke="#36414C"/>
+    <text x="488" y="538" font-family="'Cascadia Mono',Consolas,ui-monospace,Menlo,'Liberation Mono',monospace" font-size="14" font-weight="700" fill="#E9EDF0">C:\Program Files\Gatelog</text>
+    <text x="488" y="562" font-size="13.5" fill="#9AA4AE">install folder (location is chosen by the user)</text>
+    <g font-family="'Cascadia Mono',Consolas,ui-monospace,Menlo,'Liberation Mono',monospace" font-size="12.5" fill="#C3CAD1">
+      <text x="488" y="590">MongoDB-7.0.1  mongosh-2.1.1  MQTT</text>
+      <text x="488" y="612">nextjs_anpr  gatelogBot</text>
+      <text x="488" y="634">config.json (release versions)</text>
+    </g>
+
+    <!-- Services group -->
+    <rect x="900.5" y="290.5" width="324" height="380" rx="12" fill="none" stroke="#36414C" stroke-dasharray="6 5"/>
+    <text x="916" y="312" font-family="'Cascadia Mono',Consolas,ui-monospace,Menlo,'Liberation Mono',monospace" font-size="12" letter-spacing="2" fill="#9AA4AE">WINDOWS SERVICES</text>
+    <g>
+      <rect x="916.5" y="324.5" width="292" height="72" rx="10" fill="#232B33" stroke="#36414C"/>
+      <rect x="916" y="336" width="4" height="48" rx="2" fill="#F2C200"/>
+      <text x="934" y="352" font-size="16" font-weight="700" fill="#E9EDF0">MongoDB</text>
+      <text x="934" y="376" font-size="13" fill="#9AA4AE">mongod --auth · 127.0.0.1:27017</text>
+
+      <rect x="916.5" y="410.5" width="292" height="72" rx="10" fill="#232B33" stroke="#36414C"/>
+      <rect x="916" y="422" width="4" height="48" rx="2" fill="#F2C200"/>
+      <text x="934" y="438" font-size="16" font-weight="700" fill="#E9EDF0">mosquitto</text>
+      <text x="934" y="462" font-size="13" fill="#9AA4AE">Eclipse Mosquitto 2.0.18 MQTT broker</text>
+
+      <rect x="916.5" y="496.5" width="292" height="72" rx="10" fill="#232B33" stroke="#36414C"/>
+      <rect x="916" y="508" width="4" height="48" rx="2" fill="#F2C200"/>
+      <text x="934" y="524" font-size="16" font-weight="700" fill="#E9EDF0">gatelogPortal</text>
+      <text x="934" y="548" font-size="13" fill="#9AA4AE">nextjs_anpr web portal · via NSSM</text>
+
+      <rect x="916.5" y="582.5" width="292" height="72" rx="10" fill="#232B33" stroke="#36414C"/>
+      <rect x="916" y="594" width="4" height="48" rx="2" fill="#F2C200"/>
+      <text x="934" y="610" font-size="16" font-weight="700" fill="#E9EDF0">gatelogBot</text>
+      <text x="934" y="634" font-size="13" fill="#9AA4AE">detection bot · via NSSM</text>
+    </g>
+
+    <!-- Arrows -->
+    <g fill="none" stroke-width="1.6">
+      <path d="M640 212V298" stroke="#F2C200" marker-end="url(#gla-arrow)"/>
+      <path d="M358 366H468" stroke="#F2C200" marker-end="url(#gla-arrow)"/>
+      <path d="M640 434V508" stroke="#F2C200" marker-end="url(#gla-arrow)"/>
+      <path d="M812 366H898" stroke="#F2C200" marker-end="url(#gla-arrow)"/>
+      <path d="M812 600H898" stroke="#9AA4AE" stroke-dasharray="5 4" marker-end="url(#gla-arrow-muted)"/>
+      <path d="M470 420C420 420 410 600 358 600" stroke="#9AA4AE" stroke-dasharray="5 4" marker-end="url(#gla-arrow-muted)"/>
+    </g>
+    <g font-family="'Cascadia Mono',Consolas,ui-monospace,Menlo,'Liberation Mono',monospace" font-size="12" fill="#C3CAD1">
+      <rect x="652" y="236" width="200" height="40" rx="6" fill="#171C21"/>
+      <text x="662" y="252">HTTPS · ListObjectsV2</text>
+      <text x="662" y="268">GetObjectTagging · GetObject</text>
+      <text x="366" y="356">extract · run</text>
+      <text x="652" y="476">ZipFile extract</text>
+      <text x="822" y="344">register</text>
+      <text x="822" y="360">+ start</text>
+      <text x="822" y="590">runs from</text>
+      <text x="424" y="524">Finish</text>
+    </g>
+  </g>
+</svg>

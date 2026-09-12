@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" role="img" aria-labelledby="hr-t hr-d">
+<title id="hr-t">WebGL Academic Presentation: 3D Mathematical Graphing slide</title>
+<desc id="hr-d">Product shot of slide 2 of 6 in a dark browser window: the 400px sidebar with the 02. Mathematical Precision kicker, the 3D Mathematical Graphing title, description, Select Equation dropdown set to 3D Spiral (Helix), arrow bullets and Back / 2 / 6 / Next, beside the white Three.js stage with its grid helper, red, green and blue axes with X, Y and Z labels, the gold helix x = cos(2t), y = t, z = sin(2t) and the Equation legend.</desc>
+<defs>
+<style>.s{font-family:'Avenir Next',Inter,'Segoe UI','Helvetica Neue',Arial,sans-serif}.m{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace}.g{font-family:Georgia,'Times New Roman',serif}.u{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}</style>
+<radialGradient id="hr-bg" cx="640" cy="420" r="760" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#0B1817"/><stop offset="1" stop-color="#040909"/></radialGradient>
+<filter id="hr-sh" x="-10%" y="-10%" width="120%" height="125%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="18"/></filter>
+</defs>
+<rect width="1280" height="800" fill="url(#hr-bg)"/>
+<rect x="64" y="72" width="1152" height="700" rx="16" fill="#000000" fill-opacity="0.55" filter="url(#hr-sh)"/>
+<clipPath id="hr-win"><rect x="40" y="40" width="1200" height="720" rx="12"/></clipPath>
+<clipPath id="hr-stage"><rect x="440" y="84" width="800" height="676"/></clipPath>
+<filter id="hr-lgs" x="-30%" y="-60%" width="160%" height="260%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="14"/></filter>
+<g clip-path="url(#hr-win)">
+<rect x="40" y="40" width="1200" height="720" fill="#030607"/>
+<rect x="40" y="40" width="1200" height="44" fill="#14181A"/>
+<path d="M40 83.5H1240" stroke="#262C2F"/>
+<circle cx="64" cy="62" r="6" fill="#3A4144"/>
+<circle cx="84" cy="62" r="6" fill="#3A4144"/>
+<circle cx="104" cy="62" r="6" fill="#3A4144"/>
+<g fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M142 62h-12M135 56.5l-5.5 5.5 5.5 5.5" stroke="#8A9396"/><path d="M160 62h12M167 56.5l5.5 5.5-5.5 5.5" stroke="#4A5255"/><path d="M205.2 58.3a6.5 6.5 0 1 0 1.3 5.2" stroke="#8A9396"/><path d="M206.4 53.6v5h-5" stroke="#8A9396"/></g>
+<rect x="232" y="50" width="816" height="24" rx="12" fill="#0B0E10" stroke="#272D30"/>
+<circle cx="250" cy="62" r="5.5" fill="none" stroke="#7C8588" stroke-width="1.2"/><path d="M250 60.6v4.2" stroke="#7C8588" stroke-width="1.3" stroke-linecap="round"/><circle cx="250" cy="58.7" r="0.8" fill="#7C8588"/>
+<text x="266" y="66.5" class="s" font-size="13" fill="#C9D0D2">127.0.0.1<tspan fill="#7C8588">:3000</tspan></text>
+<rect x="40" y="84" width="400" height="676" fill="#0A0C0E"/>
+<path d="M439.5 84V760" stroke="#FFFFFF" stroke-opacity="0.1"/>
+<text x="70" y="137" class="s" font-size="13" font-weight="800" letter-spacing="2" fill="#00FFCC">02. MATHEMATICAL PRECISION</text>
+<text x="70" y="182.5" class="g" font-size="32" font-weight="700" fill="#FFFFFF">3D</text>
+<text x="70" y="217.7" class="g" font-size="32" font-weight="700" fill="#FFFFFF">MATHEMATICAL</text>
+<text x="70" y="252.9" class="g" font-size="32" font-weight="700" fill="#FFFFFF">GRAPHING</text>
+<g class="s" font-size="15" fill="#FFFFFF" fill-opacity="0.75">
+<text x="70" y="296.1">Visualize complex equations in a 3D coordinate</text>
+<text x="70" y="320.1">system. WebGL transforms abstract formulas into</text>
+<text x="70" y="344.1">precise geometric paths.</text>
+</g>
+<text x="70" y="392.4" class="s" font-size="11" font-weight="800" letter-spacing="1" fill="#00FFCC">SELECT EQUATION:</text>
+<rect x="70.5" y="404.9" width="339" height="43" rx="5.5" fill="#FFFFFF" fill-opacity="0.05" stroke="#FFFFFF" stroke-opacity="0.15"/>
+<text x="83" y="431.4" class="u" font-size="14" font-weight="700" fill="#FFFFFF">3D Spiral (Helix)</text>
+<path d="M386 423.9l4.5 4.5 4.5-4.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.85" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="70" y="486.6" class="s" font-size="14" font-weight="900" fill="#00FFCC">→</text>
+<text x="94" y="486.6" class="s" font-size="14" font-weight="600" fill="#FFFFFF">Manual 360° Free-Hand rotation</text>
+<text x="70" y="522.2" class="s" font-size="14" font-weight="900" fill="#00FFCC">→</text>
+<text x="94" y="522.2" class="s" font-size="14" font-weight="600" fill="#FFFFFF">Distinct X, Y, Z Axis markers</text>
+<text x="70" y="557.8" class="s" font-size="14" font-weight="900" fill="#00FFCC">→</text>
+<text x="94" y="557.8" class="s" font-size="14" font-weight="600" fill="#FFFFFF">Interactive equation selection</text>
+<text x="70" y="593.4" class="s" font-size="14" font-weight="900" fill="#00FFCC">→</text>
+<text x="94" y="593.4" class="s" font-size="14" font-weight="600" fill="#FFFFFF">Precision vertex mapping</text>
+<path d="M70 641.5H410" stroke="#FFFFFF" stroke-opacity="0.1"/>
+<rect x="70.5" y="672.5" width="78.8" height="47" rx="5.5" fill="#FFFFFF" fill-opacity="0.1" stroke="#FFFFFF" stroke-opacity="0.2"/>
+<text x="109.9" y="700.6" class="s" font-size="13" font-weight="800" text-anchor="middle" fill="#FFFFFF">BACK</text>
+<rect x="332.2" y="672.5" width="77.3" height="47" rx="5.5" fill="#FFFFFF" fill-opacity="0.1" stroke="#FFFFFF" stroke-opacity="0.2"/>
+<text x="370.8" y="700.6" class="s" font-size="13" font-weight="800" text-anchor="middle" fill="#FFFFFF">NEXT</text>
+<text x="240.8" y="701" class="m" font-size="14" font-weight="800" text-anchor="middle" fill="#FFFFFF" fill-opacity="0.5">2 / 6</text>
+<g clip-path="url(#hr-stage)">
+<rect x="440" y="84" width="800" height="676" fill="#FFFFFF"/>
+<path d="M804.9 202.8L456.8 458M804.9 202.8L1196.7 388.4M812.8 206.5L465.1 464.8M798.3 207.6L1191.7 395.9M820.7 210.3L473.5 471.6M791.7 212.4L1186.6 403.5M828.8 214.1L482 478.5M785 217.3L1181.3 411.2M836.9 218L490.6 485.5M778.2 222.3L1176 419M845.2 221.9L499.3 492.6M771.3 227.4L1170.7 427M853.5 225.8L508.2 499.8M764.3 232.5L1165.2 435.1M861.8 229.8L517.2 507M757.3 237.7L1159.6 443.3M870.3 233.8L526.3 514.4M750.1 242.9L1154 451.7M878.9 237.8L535.5 521.9M742.8 248.3L1148.2 460.2M887.5 241.9L544.8 529.5M735.5 253.7L1142.4 468.8M896.3 246.1L554.3 537.2M728 259.1L1136.4 477.7M905.1 250.3L564 545.1M720.5 264.7L1130.3 486.6M914.1 254.5L573.7 553M712.8 270.3L1124.2 495.7M923.1 258.8L583.6 561M705 276L1117.9 505M932.2 263.1L593.7 569.2M697.2 281.8L1111.5 514.4M941.4 267.5L603.9 577.5M689.2 287.6L1105 524.1M950.7 271.9L614.3 585.9M681.1 293.6L1098.4 533.8M960.2 276.3L624.8 594.5M672.8 299.6L1091.6 543.8M969.7 280.9L635.5 603.1M664.5 305.7L1084.8 554M989 290L657.3 620.9M647.5 318.2L1070.7 574.9M998.9 294.7L668.5 629.9M638.8 324.6L1063.4 585.6M1008.8 299.4L679.8 639.2M629.9 331.1L1056 596.5M1018.9 304.2L691.3 648.5M621 337.6L1048.4 607.7M1029.1 309L703.1 658M611.9 344.3L1040.7 619.1M1039.3 313.9L714.9 667.7M602.6 351.1L1032.9 630.7M1049.8 318.8L727 677.5M593.2 358L1024.9 642.5M1060.3 323.8L739.3 687.5M583.7 365L1016.7 654.6M1070.9 328.8L751.8 697.6M574 372.1L1008.4 666.9M1081.7 333.9L764.5 707.9M564.2 379.3L999.9 679.5M1092.6 339.1L777.4 718.4M554.2 386.6L991.2 692.3M1103.6 344.3L790.5 729.1M544.1 394L982.3 705.5M1114.8 349.6L803.9 739.9M533.8 401.6L973.3 718.9M1126.1 355L817.4 750.9M523.3 409.3L964 732.5M1137.5 360.4L831.2 762.2M512.7 417.1L954.5 746.5M1149.1 365.9L845.3 773.6M501.9 425L944.9 760.8M1160.8 371.4L859.6 785.2M490.9 433L935 775.4M1172.6 377L874.1 797M479.7 441.2L924.9 790.3M1184.6 382.7L888.9 809M468.4 449.6L914.6 805.6M1196.7 388.4L904 821.2M456.8 458L904 821.2" stroke="#EEEEEE" stroke-width="1" fill="none"/>
+<path d="M979.3 285.4L646.3 611.9M656.1 311.9L1077.8 564.3" stroke="#DDDDDD" stroke-width="1" fill="none"/>
+<path d="M890.7 475.1L895.5 483.1L898.2 491.8M780.2 486.4L781.5 476.1L785.1 466.2L790.8 457.2L798.3 449.2L807.4 442.7L817.6 437.6L828.6 434.3L840 432.7L851.5 432.8L862.6 434.7L872.9 438.3L882.1 443.5L889.8 450L895.6 457.6L899.4 466.1L900.9 475.1M778.5 457.5L781.3 447.2L786.4 437.7L793.4 429.1L802.2 421.8L812.3 416L823.4 411.9L835.1 409.5L847 408.8L858.7 410L869.7 412.9L879.8 417.4L888.4 423.4L895.4 430.6L900.2 438.8L902.8 447.7M775.7 437.5L777.6 426.8L781.9 416.7L788.4 407.6L796.8 399.6L806.7 393.1L817.9 388.1L829.8 384.9L842.1 383.4L854.4 383.8L866.2 386L877.1 389.8L886.7 395.2L894.7 402L900.7 409.9L904.4 418.6L905.6 427.7M773.1 415.7L774 404.7L777.5 394.2L783.4 384.5L791.3 375.8L801 368.5L812.1 362.8L824.2 358.8L836.9 356.5L849.6 356.1L862.1 357.4L873.9 360.6L884.5 365.3L893.6 371.5L900.8 379L905.7 387.4L908.1 396.4M770.6 380.7L773.2 369.8L778.3 359.5L785.7 350.2L795.1 342.3L806.1 335.7L818.3 330.9L831.2 327.8L844.5 326.5L857.7 327.1L870.3 329.4L881.9 333.5L892.1 339.1L900.4 346L906.5 354.1L910.2 362.9L911.1 372.2M767.4 354.4L768.9 343.1L773.1 332.4L779.9 322.6L788.9 313.9L799.7 306.6L812 301L825.2 297.1L838.9 294.9L852.7 294.7L866.2 296.2L878.8 299.5L890 304.4L899.6 310.8L907 318.3L912 326.9L914.2 336" fill="none" stroke="#886600" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M639.9 302.3L1105.4 580.9" stroke="#CC0000" stroke-width="1.25"/>
+<path d="M991.1 273.8L622.7 635.1" stroke="#0000CC" stroke-width="1.25"/>
+<path d="M840 568.3L840 166.4" stroke="#008800" stroke-width="1.25"/>
+<path d="M898.2 491.8L898.7 500.8L896.8 509.7L892.5 518.3L886 525.9L877.5 532.4L867.3 537.3L855.8 540.4L843.6 541.4L831.2 540.3L819.2 537L808.1 531.9L798.4 524.9L790.5 516.5L784.7 507L781.2 496.9L780.2 486.4M900.9 475.1L900 484.2L896.6 493.1L890.8 501.2L882.8 508.3L872.9 514L861.5 517.8L849.1 519.7L836.2 519.5L823.5 517L811.5 512.5L800.8 506.1L791.8 498.1L784.8 488.9L780.3 478.7L778.1 468.1L778.5 457.5M902.8 447.7L902.9 456.9L900.5 466L895.5 474.6L888.2 482.3L878.7 488.6L867.4 493.3L854.9 496L841.6 496.6L828.3 495L815.4 491.2L803.7 485.5L793.5 477.9L785.4 469L779.6 459L776.4 448.3L775.7 437.5M905.6 427.7L904.2 437L900.2 445.9L893.6 454.1L884.6 461L873.6 466.5L861 470.1L847.5 471.5L833.6 470.8L819.9 467.8L807.1 462.7L795.8 455.7L786.4 447.1L779.4 437.3L774.9 426.7L773.1 415.7M908.1 396.4L907.8 405.8L904.8 414.9L899 423.5L890.6 431.1L880 437.2L867.5 441.6L853.8 444L839.3 444.1L824.9 441.9L811.1 437.6L798.6 431.2L787.9 423L779.6 413.5L773.8 403L770.8 391.9L770.6 380.7M911.1 372.2L909.2 381.5L904.4 390.4L896.8 398.4L886.6 405.2L874.4 410.4L860.5 413.6L845.6 414.6L830.4 413.3L815.6 409.7L802 404L790 396.4L780.2 387.2L773.1 376.9L768.7 365.8L767.4 354.4M914.2 336L913.5 345.3L909.7 354.4L903 362.9L893.5 370.2L881.6 376.1L867.7 380.1L852.4 382L836.6 381.6L820.8 378.8" fill="none" stroke="#886600" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="1105.9" y="581.4" width="28.2" height="24.1" rx="3.5" fill="#FFFFFF" fill-opacity="0.9" stroke="#000000" stroke-opacity="0.1"/>
+<text x="1120" y="597.9" class="s" font-size="14" font-weight="900" text-anchor="middle" fill="#CC0000">X</text>
+<rect x="840.5" y="166.9" width="27.3" height="24.1" rx="3.5" fill="#FFFFFF" fill-opacity="0.9" stroke="#000000" stroke-opacity="0.1"/>
+<text x="854.2" y="183.4" class="s" font-size="14" font-weight="900" text-anchor="middle" fill="#008800">Y</text>
+<rect x="623.2" y="635.6" width="26.4" height="24.1" rx="3.5" fill="#FFFFFF" fill-opacity="0.9" stroke="#000000" stroke-opacity="0.1"/>
+<text x="636.4" y="652.1" class="s" font-size="14" font-weight="900" text-anchor="middle" fill="#0000CC">Z</text>
+<rect x="630.4" y="132" width="419.2" height="44.7" rx="8" fill="#000000" fill-opacity="0.28" filter="url(#hr-lgs)"/>
+<rect x="622.9" y="114.5" width="434.2" height="43.7" rx="7.5" fill="#030607" fill-opacity="0.9" stroke="#00FFCC" stroke-opacity="0.3"/>
+<text x="647.4" y="140.4" class="s" font-size="11" font-weight="800" letter-spacing="1" fill="#FFFFFF" fill-opacity="0.5">EQUATION:</text>
+<text x="733.7" y="142" class="m" font-size="16" font-weight="900" fill="#00FFCC">x = cos(2t), y = t, z = sin(2t)</text>
+</g>
+</g>
+<rect x="40.5" y="40.5" width="1199" height="719" rx="11.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.09"/>
+</svg>

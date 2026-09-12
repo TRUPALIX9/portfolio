@@ -5,6 +5,8 @@ export type ProjectMediaItem = {
     title: string;
     caption: string;
     poster?: string;
+    /** Device frame the screen is drawn in; the case-study gallery lays shots out by it. */
+    frame?: "browser" | "phone" | "windows" | "terminal";
 };
 
 export type ProjectMediaDisplay = "spotlight" | "grid" | "storyboard";
@@ -56,7 +58,7 @@ export type Project = {
 export const projects: Project[] = [
     {
         slug: "retailsync",
-        title: "RetailSync SaaS",
+        title: "RetailSync",
         tagline: "Full-stack multi-tenant SaaS: POS ingestion, bank statement OCR, and QuickBooks sync in one platform.",
         description: "A TypeScript monorepo SaaS for retail operations. Handles email/Google OAuth, company-scoped RBAC, POS CSV imports with Georgia sales-tax review, async bank statement PDF extraction via background jobs, and a standalone QuickBooks workspace for contacts, invoices, and reconciliation.",
         scenario: "Multi-location retail operators needed a single system to isolate tenant data, ingest POS exports, process statement PDFs without manual data entry, and hand off finalized records directly into QuickBooks — without bouncing between spreadsheets and carrier portals.",
@@ -95,22 +97,44 @@ export const projects: Project[] = [
             { name: "Google Cloud", icon: "devicon-googlecloud-plain colored" }
         ],
         links: { live: "#", github: "https://github.com/comp596-spring-2026/RetailSync" },
-        image: "/retailsync_logo.png",
-        mediaDisplay: "spotlight",
+        image: "/projects/retailsync/banner.svg",
+        mediaDisplay: "storyboard",
         media: [
             {
                 type: "image",
-                src: "/retailsync_logo.png",
-                title: "RetailSync Platform",
-                caption: "Multi-tenant workspace shell with RBAC-aware navigation across POS, Accounting, and QuickBooks.",
+                src: "/projects/retailsync/screen-dashboard.svg",
+                title: "Dashboard",
+                caption: "POS KPIs for the last 30 days, the sales trend and the QuickBooks year-to-date summary.",
+                frame: "browser",
             },
+            {
+                type: "image",
+                src: "/projects/retailsync/screen-pos-analytics.svg",
+                title: "POS analytics",
+                caption: "KPI overview, revenue distribution and the daily trend for imported POS data.",
+                frame: "browser",
+            },
+            {
+                type: "image",
+                src: "/projects/retailsync/screen-statement-review.svg",
+                title: "Statement review",
+                caption: "A processed bank statement on the Review Transactions tab, with parsed deposits ready for approval.",
+                frame: "browser",
+            },
+            {
+                type: "image",
+                src: "/projects/retailsync/screen-roles.svg",
+                title: "Roles and permissions",
+                caption: "The Access workspace capability editor for a custom Store Manager role.",
+                frame: "browser",
+            }
         ],
-        architectureImage: "/projects/retailsync_architecture.svg",
-        logoIcon: "/retailsync_logo.png"
+        architectureImage: "/projects/retailsync/architecture.svg",
+        logoIcon: "/projects/retailsync/icon.svg"
     },
     {
         slug: "web-warehouse",
-        title: "Web-Warehouse 3D",
+        title: "Web Warehouse",
         tagline: "Full-stack inventory and PO management with a 3D warehouse model rendered in Three.js.",
         description: "Next.js 15 App Router warehouse system backed by MongoDB Atlas. Manages items, vendors, suppliers, purchase orders with embedded pallets, and renders the structured warehouse layout (unit → row → column) as an interactive 3D preview using Three.js. Dashboard analytics powered by ApexCharts.",
         scenario: "Warehouse operators needed more than a flat table to understand where inventory lived, how pallets moved, and whether storage slots were efficiently utilized — especially when seeding or reviewing large purchase orders.",
@@ -145,28 +169,39 @@ export const projects: Project[] = [
             { name: "Tailwind CSS", icon: "devicon-tailwindcss-original colored" }
         ],
         links: { live: "#", github: "https://github.com/TRUPALIX9/web-warehouse" },
-        image: "/web_warehouse_card.png",
+        image: "/projects/web-warehouse/banner.svg",
+        architectureImage: "/projects/web-warehouse/architecture.svg",
+        logoIcon: "/projects/web-warehouse/icon.svg",
         mediaDisplay: "storyboard",
         media: [
             {
                 type: "image",
-                src: "/web_warehouse_card.png",
-                title: "3D warehouse concept",
-                caption: "Swap this with a screen capture of the warehouse map or pallet flow.",
+                src: "/projects/web-warehouse/screen-inventory.svg",
+                title: "Inventory",
+                caption: "Searchable inventory table filtered by the fragile tag, with SKU links, dimensions, weights, storage locations and tag chips.",
+                frame: "browser",
             },
             {
                 type: "image",
-                src: "https://images.unsplash.com/photo-1587293852726-70cdb56c2866?auto=format&fit=crop&w=1200&q=80",
-                title: "Zone inspection view",
-                caption: "Use another image to show how users inspect aisles, bins, or pallet locations.",
+                src: "/projects/web-warehouse/screen-dashboard.svg",
+                title: "Dashboard",
+                caption: "Stock and purchase-order stat cards with ApexCharts for item categories, PO item coverage, vendor vs supplier POs and item counts per PO.",
+                frame: "browser",
             },
             {
-                type: "video",
-                src: "/project-media/web-warehouse/tour.mp4",
-                poster: "https://images.unsplash.com/photo-1587293852726-70cdb56c2866?auto=format&fit=crop&w=1200&q=80",
-                title: "3D interaction demo",
-                caption: "A short clip can show camera movement, selection, and item drill-down.",
+                type: "image",
+                src: "/projects/web-warehouse/screen-item-3d.svg",
+                title: "Item detail with 3D preview",
+                caption: "A React Three Fiber box scaled to the item's length, width and height on a grid, next to the item's dimension and information fields.",
+                frame: "browser",
             },
+            {
+                type: "image",
+                src: "/projects/web-warehouse/screen-purchase-order.svg",
+                title: "Purchase order",
+                caption: "A supplier purchase order with its volume, weight and cost summary, ordered items and the Pallet 1 standard 48x40x60 in breakdown.",
+                frame: "browser",
+            }
         ],
         mermaidChart: `
 flowchart TD
@@ -188,7 +223,7 @@ flowchart TD
     },
     {
         slug: "card-snap",
-        title: "Card Vault (Card-Snap OCR)",
+        title: "Card Snap",
         tagline: "Cross-platform mobile app that scans business cards, extracts contacts via OCR, and syncs them to a backend.",
         description: "React Native (Expo) mobile client for business-card scanning built with TypeScript and file-based routing via Expo Router. Captures card images with expo-camera, sends base64 data to a Node.js backend that runs OCR + regex NLP parsing, and returns structured contact fields. Supports manual entry, light/dark mode, and local/backend sync.",
         scenario: "Networking events leave people with stacks of business cards and no fast path into organized contacts. Manual data entry is error-prone and time-consuming, especially after conferences or client meetings.",
@@ -222,29 +257,40 @@ flowchart TD
             { name: "Node.js", icon: "devicon-nodejs-plain colored" },
             { name: "Tesseract.js", icon: "devicon-javascript-plain colored" }
         ],
-        links: { live: "#", github: "https://github.com/TRUPALIX9/card-snap-frontend" },
-        image: "https://images.unsplash.com/photo-1544716278-e513176f20b5?auto=format&fit=crop&w=1200&q=80",
+        links: { live: "#", github: "https://github.com/TRUPALIX9/card-snap" },
+        image: "/projects/card-snap/banner.svg",
+        architectureImage: "/projects/card-snap/architecture.svg",
+        logoIcon: "/projects/card-snap/icon.svg",
         mediaDisplay: "grid",
         media: [
             {
                 type: "image",
-                src: "https://images.unsplash.com/photo-1544716278-e513176f20b5?auto=format&fit=crop&w=1200&q=80",
-                title: "Capture and extract flow",
-                caption: "Replace this with your mobile screenshot sequence or short demo recording.",
+                src: "/projects/card-snap/screen-contacts.svg",
+                title: "Contacts",
+                caption: "The Contacts tab: search by name, email or company, with each contact's job title, company, phone and email.",
+                frame: "phone",
             },
             {
                 type: "image",
-                src: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
-                title: "Field review screen",
-                caption: "A second mobile screen can show extracted fields and confidence checks.",
+                src: "/projects/card-snap/screen-scan.svg",
+                title: "Scan Business Card",
+                caption: "Point the camera at a card; the backend reads it with Tesseract OCR and opens the add form prefilled for review.",
+                frame: "phone",
             },
             {
-                type: "video",
-                src: "/project-media/card-snap/mobile-demo.mp4",
-                poster: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
-                title: "Scan to contact demo",
-                caption: "Use a short phone recording to show capture, OCR, and correction.",
+                type: "image",
+                src: "/projects/card-snap/screen-contact.svg",
+                title: "Contact Info",
+                caption: "A saved contact: tap the phone number to call or the email address to write.",
+                frame: "phone",
             },
+            {
+                type: "image",
+                src: "/projects/card-snap/screen-home-dark.svg",
+                title: "Home, dark theme",
+                caption: "The Home tab in the dark MD3 theme, which is saved on the device.",
+                frame: "phone",
+            }
         ],
         mermaidChart: `
 flowchart TD
@@ -266,7 +312,7 @@ flowchart TD
     },
     {
         slug: "shipping-agent-aws",
-        title: "AWS Bedrock Shipping Agent",
+        title: "Shipping Agent Assistant",
         tagline: "Streamlit frontend wired to an AWS Bedrock Agent for conversational shipping and logistics assistance.",
         description: "A Python + Streamlit web app that connects directly to a deployed AWS Bedrock Agent. Users describe shipping needs in natural language and the agent responds with rate guidance, tracking context, or operational recommendations. Pre-built quick-action buttons handle common shipping queries without typing.",
         scenario: "Logistics teams jump between carrier websites, spreadsheets, and email threads to compare rates and check tracking status. There was no unified conversational entry point that could surface relevant data on demand.",
@@ -300,81 +346,107 @@ flowchart TD
             { name: "Streamlit", icon: "devicon-streamlit-plain colored" }
         ],
         links: { live: "#", github: "https://github.com/TRUPALIX9/Shipping-Agent-AWS" },
-        image: "https://images.unsplash.com/photo-1580674285054-bed31e145f59?auto=format&fit=crop&w=1200&q=80",
-        mediaDisplay: "spotlight",
-        media: [
-            {
-                type: "image",
-                src: "https://images.unsplash.com/photo-1580674285054-bed31e145f59?auto=format&fit=crop&w=1200&q=80",
-                title: "Shipping conversation flow",
-                caption: "Replace this with a conversation screenshot or walkthrough video poster.",
-            },
-            {
-                type: "image",
-                src: "https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=1200&q=80",
-                title: "Rate comparison output",
-                caption: "Use another asset for side-by-side shipping options or tracking states.",
-            },
-        ]
-    },
-    {
-        slug: "fire-forecasting",
-        title: "Fire Forecasting System",
-        tagline: "End-to-end ML pipeline predicting wildfire risk across Southern California WUI sites using NASA FIRMS data.",
-        description: "A complete Python machine-learning system that predicts next-day fire occurrence for 20+ Wildland-Urban Interface sites in Ventura, Santa Barbara, and LA counties. Ingests real NASA FIRMS VIIRS satellite data (75K+ records), RAWS daily weather features, and CAL FIRE FRAP historical perimeters. Trains ANN/LSTM models and surfaces predictions through a Next.js + FastAPI dashboard with interactive Leaflet maps and ApexCharts.",
-        scenario: "Emergency planning teams and fire risk analysts needed a data-driven, reproducible system that combines satellite fire detection, historical weather patterns, and geographic perimeter data to forecast where fire risk would escalate — without relying on manual signal interpretation.",
-        problemSolved: "The pipeline automates data ingestion, feature engineering (7-day lags, rolling stats, seasonality, neighbor features), chronological train/val/test splitting, class-imbalance weighting, and ANN/LSTM training — then serves predictions and PR/ROC curves through a full-stack dashboard operators can query interactively.",
-        howToUse: [
-            "Download FIRMS VIIRS satellite data and FRAP perimeter files from Google Drive, then run 'make fetch-firms' and 'make fetch-frap' to generate processed CSVs.",
-            "Run the FastAPI backend to train the ANN model (~1-2 min on CPU) or LSTM (~5-8 min). The 9 REST endpoints expose metrics, model artifacts, and geospatial data.",
-            "Open the Next.js dashboard to inspect KPI cards, PR/ROC curves, confusion matrix, and threshold tuning controls.",
-            "Switch to the Leaflet map view to review per-site predictions, FRAP historical overlays, and WUI boundary markers.",
-        ],
-        outcomes: [
-            "75K+ NASA FIRMS VIIRS records across 2019–2024 processed into a chronological ML dataset.",
-            "ANN (256→128→ 64→1 with Dropout) and LSTM (14-day lookback) trained with automatic class-weight computation for imbalanced fire labels.",
-            "Interactive Leaflet map with 20+ WUI site markers, FRAP perimeter overlays, and per-site performance breakdowns.",
-            "Strict data pipeline hygiene: target is t+1, scaler fit on train only, no data leakage across 70/15/15 chronological split.",
-        ],
-        progress: [
-            { title: "Data pipeline (FIRMS + RAWS + FRAP)", detail: "NASA VIIRS ingestion, RAWS weather features, and FRAP perimeter joins are automated via Makefile.", state: "done" },
-            { title: "ANN & baseline models", detail: "Logistic Regression, Random Forest, and ANN all trained and evaluated with PR-AUC as the primary metric.", state: "done" },
-            { title: "LSTM with 14-day lookback", detail: "LSTM model implemented as an optional extension to the ANN baseline.", state: "done" },
-            { title: "Real-time weather feed integration", detail: "Live RAWS or NWS data ingestion for continuous daily inference not yet implemented.", state: "planned" },
-        ],
-        futureGoals: [
-            "Add real-time RAWS weather feed ingestion for daily automated inference.",
-            "Introduce evacuation-route map overlays for emergency planning teams.",
-            "Expand WUI site coverage beyond the tri-county region.",
-        ],
-        tech: [
-            { name: "Python", icon: "devicon-python-plain colored" },
-            { name: "TensorFlow", icon: "devicon-tensorflow-original colored" },
-            { name: "FastAPI", icon: "devicon-fastapi-plain colored" },
-            { name: "Next.js", icon: "devicon-nextjs-plain" },
-            { name: "Pandas", icon: "devicon-pandas-original colored" }
-        ],
-        links: { live: "#", github: "https://github.com/TRUPALIX9/fire-forecasting" },
-        image: "https://images.unsplash.com/photo-1510253457173-7724a73747eb?auto=format&fit=crop&w=1200&q=80",
+        image: "/projects/shipping-agent-aws/banner.svg",
+        architectureImage: "/projects/shipping-agent-aws/architecture.svg",
+        logoIcon: "/projects/shipping-agent-aws/icon.svg",
         mediaDisplay: "storyboard",
         media: [
             {
                 type: "image",
-                src: "https://images.unsplash.com/photo-1510253457173-7724a73747eb?auto=format&fit=crop&w=1200&q=80",
-                title: "Forecast visualization preview",
-                caption: "Use this area for a chart screenshot, simulation view, or briefing visual.",
+                src: "/projects/shipping-agent-aws/screen-chat.svg",
+                title: "Chat with your agent",
+                caption: "Connected chat: the agent quotes three shipping rates with delivery dates and tracks a package, with the AWS Agent Configuration form in the sidebar.",
+                frame: "browser",
             },
             {
                 type: "image",
-                src: "https://images.unsplash.com/photo-1473773508845-188df298d2d1?auto=format&fit=crop&w=1200&q=80",
-                title: "Scenario comparison",
-                caption: "A second image can compare multiple conditions or forecast outputs.",
+                src: "/projects/shipping-agent-aws/screen-connect.svg",
+                title: "Connecting to the agent",
+                caption: "First visit: the sidebar form is filled in and shows the Connecting to AWS Bedrock Agent spinner while the main area still reads Not Connected.",
+                frame: "browser",
             },
+            {
+                type: "image",
+                src: "/projects/shipping-agent-aws/screen-quick-actions.svg",
+                title: "Quick actions",
+                caption: "Get Shipping Rates, Track Package and Clear Chat, with the Getting shipping rates spinner and the session ID footer.",
+                frame: "browser",
+            }
+        ]
+    },
+    {
+        slug: "fire-forecasting",
+        title: "Fire Forecasting",
+        tagline: "Wildfire risk dashboard prototype for the Tri-County area, built on bundled sample forecasts.",
+        description: "A Next.js dashboard prototype showing wildfire risk for Santa Barbara, Ventura and Los Angeles counties: KPI cards, a Leaflet forecast map, an ApexCharts risk chart and a site table, all driven by a small sample dataset built from a committed trihourly weather CSV. The monitoring sites and risk probabilities are fictional sample data, and the UI labels them that way. An earlier version included a Python ML pipeline (FIRMS, RAWS and FRAP data with ANN/LSTM models) and a FastAPI backend; that code now lives only in the git history while the project restarts from the front end.",
+        scenario: "Fire-risk planning starts with a clear picture of which sites are trending toward danger over the next few days. This project works out what that operator view should look like before a live model sits behind it.",
+        problemSolved: "A forecast window (start date plus a 24, 48 or 72-hour horizon) drives four KPI cards, a map of sites coloured by risk level, a per-site risk chart with threshold and peak markers, and a site table, all recomputed from the bundled sample.",
+        howToUse: [
+            "Install dependencies and start the Next.js dev server.",
+            "Pick a forecast start date and a 24h, 48h or 72h horizon over the 15-17 Aug 2023 sample.",
+            "Click a map marker or a table row to switch the risk chart to that site.",
+            "Open /map for the full-width map with layer toggles and the risk legend.",
+        ],
+        outcomes: [
+            "Forecast dashboard with KPI cards for peak risk, sites above the 0.50 threshold, max temperature and min humidity.",
+            "Leaflet map with the Tri-County bounding box, risk-coloured site markers, popups, a legend and a scale bar.",
+            "ApexCharts risk chart with threshold and peak annotations, linked to the map and the table.",
+            "Reproducible sample data: a script rebuilds the bundled JSON from the weather CSV.",
+        ],
+        progress: [
+            { title: "Dashboard prototype", detail: "KPI cards, forecast map, risk chart and site table on bundled sample data.", state: "done" },
+            { title: "Build and theming", detail: "Production build fixed, MUI theme and Inter typography applied.", state: "done" },
+            { title: "Saved settings", detail: "Settings are stored in the browser but not yet applied to the dashboard.", state: "planned" },
+            { title: "Model-backed forecasts", detail: "Serve real forecasts from a trained model; the original pipeline lives in git history.", state: "planned" },
+        ],
+        futureGoals: [
+            "Apply the saved Settings (units, theme) to the dashboard.",
+            "Serve real forecasts from a trained model instead of sample data.",
+        ],
+        tech: [
+            { name: "Next.js", icon: "devicon-nextjs-plain" },
+            { name: "React", icon: "devicon-react-original colored" },
+            { name: "TypeScript", icon: "devicon-typescript-plain colored" },
+            { name: "Material UI", icon: "devicon-materialui-plain colored" }
+        ],
+        links: { live: "#", github: "https://github.com/TRUPALIX9/fire-forecasting" },
+        image: "/projects/fire-forecasting/banner.svg",
+        logoIcon: "/projects/fire-forecasting/icon.svg",
+        mediaDisplay: "storyboard",
+        media: [
+            {
+                type: "image",
+                src: "/projects/fire-forecasting/screen-dashboard.svg",
+                title: "Dashboard",
+                caption: "KPI cards, a Leaflet forecast map, a 72-hour ApexCharts risk chart and the site forecast table, all on bundled sample data.",
+                frame: "browser",
+            },
+            {
+                type: "image",
+                src: "/projects/fire-forecasting/screen-map.svg",
+                title: "Forecast Map",
+                caption: "Full-width Leaflet map with layer toggles, the Tri-County bounding box, a risk legend and a site popup.",
+                frame: "browser",
+            },
+            {
+                type: "image",
+                src: "/projects/fire-forecasting/screen-ml-history.svg",
+                title: "ML History",
+                caption: "Model training runs and KPI cards, clearly labelled as example data.",
+                frame: "browser",
+            },
+            {
+                type: "image",
+                src: "/projects/fire-forecasting/screen-settings.svg",
+                title: "Settings",
+                caption: "General and display preferences, saved in the browser.",
+                frame: "browser",
+            }
         ]
     },
     {
         slug: "motion-detection",
-        title: "Motion Detection VMS",
+        title: "ZoneWatch",
         tagline: "C# Windows app integrating ONVIF IP cameras with EmguCV motion detection and PTZ control.",
         description: "A C# WinForms desktop application that connects to ONVIF-compliant IP cameras via their device and media service endpoints. Uses EmguCV (OpenCV wrapper) for real-time motion detection, and implements continuous, absolute, and relative PTZ (pan-tilt-zoom) camera control over ONVIF + RTSP streams.",
         scenario: "Security operators needed a single Windows desktop tool to manage ONVIF IP cameras — connecting via RTSP, controlling PTZ movement, and detecting motion — without relying on vendor-specific software.",
@@ -408,99 +480,182 @@ flowchart TD
             { name: "OpenCV", icon: "devicon-opencv-plain colored" }
         ],
         links: { live: "#", github: "https://github.com/TRUPALIX9/Motion-Detection-Windows-App" },
-        image: "https://images.unsplash.com/photo-1557597774-9d273e3f60bc?auto=format&fit=crop&w=1200&q=80",
-        mediaDisplay: "spotlight",
+        image: "/projects/motion-detection/banner.svg",
+        architectureImage: "/projects/motion-detection/architecture.svg",
+        logoIcon: "/projects/motion-detection/icon.svg",
+        mediaDisplay: "storyboard",
         media: [
             {
                 type: "image",
-                src: "https://images.unsplash.com/photo-1557597774-9d273e3f60bc?auto=format&fit=crop&w=1200&q=80",
-                title: "ONVIF camera control and motion detection",
-                caption: "Windows desktop app connecting to ONVIF IP cameras with PTZ control and EmguCV motion detection.",
+                src: "/projects/motion-detection/screen-motion-detection.svg",
+                title: "Motion detection",
+                caption: "The Output Frame tab: a worker inside the blue zone is boxed in red and turns the indicator green, while the car outside the zone is boxed but ignored.",
+                frame: "windows",
             },
+            {
+                type: "image",
+                src: "/projects/motion-detection/screen-zone-drawing.svg",
+                title: "Drawing a zone",
+                caption: "On the Original Frame tab, click points across the drive aisle to outline the zone (yellow while open), then double-click to close it.",
+                frame: "windows",
+            },
+            {
+                type: "image",
+                src: "/projects/motion-detection/screen-ptz-controls.svg",
+                title: "PTZ Controls",
+                caption: "The ONVIF window opened from the main window: camera login, zoom-only continuous, absolute and relative moves, and a quick motion test feed.",
+                frame: "windows",
+            },
+            {
+                type: "image",
+                src: "/projects/motion-detection/screen-stream-forwarding.svg",
+                title: "Stream Forwarding",
+                caption: "The companion tool relays one RTSP stream to another with ffmpeg -c copy and logs the FFmpeg command it built.",
+                frame: "windows",
+            }
         ]
     },
     {
         slug: "vehicle-log",
-        title: "Vehicle Log System",
-        tagline: "Windows desktop application for vehicle service tracking and maintenance scheduling.",
-        description: "A C# WinForms desktop application for vehicle log management. Includes a Windows service component (via NSSM), service lifecycle management, and update management classes. Built with two primary form views for data entry and record management.",
-        scenario: "Operations teams needed a structured desktop tool to log vehicle records, track service history, and manage maintenance schedules on Windows without relying on web-based tools.",
-        problemSolved: "Provides a Windows-native WinForms interface backed by a Windows service for background operations, centralizing vehicle logs, service records, and scheduling into one local application.",
+        title: "Gatelog",
+        tagline: "Proof-of-concept Windows installer and updater for a vehicle-log server stack.",
+        description: "A C# WinForms (.NET 6) setup wizard that installs the server side of a number-plate-recognition vehicle-log system on Windows: MongoDB and mongosh, an Eclipse Mosquitto MQTT broker, a web portal and a detection bot, each registered as an auto-start Windows service with NSSM. When the services already exist it switches to an update screen that pulls newer component releases from an S3 bucket. It is a proof of concept: the installer payloads are not part of the repository.",
+        scenario: "Setting up a vehicle-log server on a Windows machine meant installing a database, a broker, a portal and a bot by hand, then keeping each one running and up to date.",
+        problemSolved: "One wizard relaunches itself as administrator, shows a notice, asks for an install location, then runs an eight-step install with a live log that stops at the first failed step. Existing installs go straight to an S3-backed update screen that stops, replaces and restarts each service.",
         howToUse: [
-            "Launch the application on Windows and register vehicle records via Form1.",
-            "Log service events and track maintenance history through the management views.",
-            "The background Windows service (managed via NSSM) handles scheduled operations.",
+            "Run the app on Windows; it relaunches itself with administrator rights.",
+            "Accept the notice and choose an install location (a Gatelog folder under C:\\Program Files by default).",
+            "Follow the eight-step install and its timestamped log as each component is extracted and registered as a service.",
+            "On a machine where all four services exist, pick a newer release to update each component from S3.",
         ],
         outcomes: [
-            "WinForms desktop application with two primary form views for vehicle data management.",
-            "Windows service integration via NSSM for background service lifecycle control.",
-            "ServiceManager and UpdateManager classes for structured service and update handling.",
+            "Eight-step install: MongoDB 7.0.1, mongosh 2.1.1, Mosquitto 2.0.18, an auth-enabled mongod service, and the portal and bot registered with NSSM.",
+            "Install-or-update detection based on the four installed Windows services.",
+            "S3 update channel comparing installed and available component versions.",
+            "Uninstall script that removes the services and the install folder.",
         ],
         progress: [
-            { title: "Vehicle log UI", detail: "WinForms interface with Form1 and Form2 for record entry and management.", state: "done" },
-            { title: "Windows service layer", detail: "Background service via NSSM with ServiceManager for lifecycle control.", state: "done" },
-            { title: "Reporting and analytics", detail: "Dashboard-level reporting not yet implemented.", state: "planned" },
+            { title: "Install wizard", detail: "Elevated relaunch, notice, install location and the eight-step install with a live log.", state: "done" },
+            { title: "S3 update channel", detail: "Lists newer releases and updates each service in place.", state: "done" },
+            { title: "Rebrand and startup fix", detail: "Rebranded to Gatelog and fixed the startup crash.", state: "done" },
+            { title: "End-to-end test", detail: "A full install with real payload archives has not been run since the refresh.", state: "planned" },
         ],
         futureGoals: [
-            "Add reporting views for service cost and maintenance history.",
-            "Introduce scheduled maintenance alerts.",
-            "Migrate to a database-backed persistence layer.",
+            "Run an end-to-end install with real payload archives.",
+            "Check nssm, mongod and sc exit codes so a failed service is reported.",
         ],
         tech: [
             { name: "C#", icon: "devicon-csharp-plain colored" },
-            { name: ".NET", icon: "devicon-dotnetcore-plain colored" }
+            { name: ".NET", icon: "devicon-dotnetcore-plain colored" },
+            { name: "MongoDB", icon: "devicon-mongodb-plain colored" },
+            { name: "AWS S3", icon: "devicon-amazonwebservices-plain-wordmark colored" }
         ],
         links: { live: "#", github: "https://github.com/TRUPALIX9/Vehicle-Log-Managment-System" },
-        image: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80",
-        mediaDisplay: "grid",
+        image: "/projects/vehicle-log/banner.svg",
+        architectureImage: "/projects/vehicle-log/architecture.svg",
+        logoIcon: "/projects/vehicle-log/icon.svg",
+        mediaDisplay: "storyboard",
         media: [
             {
                 type: "image",
-                src: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80",
-                title: "Vehicle log desktop UI",
-                caption: "WinForms application for vehicle record entry and service tracking.",
+                src: "/projects/vehicle-log/screen-installer.svg",
+                title: "Installing",
+                caption: "The eight-step install mid-way: progress at 57% on Creating MongoDBUser, with a timestamped log of MongoDB, mongosh and Mosquitto being set up as services.",
+                frame: "windows",
             },
+            {
+                type: "image",
+                src: "/projects/vehicle-log/screen-license.svg",
+                title: "Notice step",
+                caption: "The proof-of-concept notice loaded from Setups/EULA.docx; Next unlocks once the checkbox is ticked.",
+                frame: "windows",
+            },
+            {
+                type: "image",
+                src: "/projects/vehicle-log/screen-location.svg",
+                title: "Install location",
+                caption: "Choosing where to install; the app creates a Gatelog folder under C:\\Program Files by default.",
+                frame: "windows",
+            },
+            {
+                type: "image",
+                src: "/projects/vehicle-log/screen-update.svg",
+                title: "Update step",
+                caption: "When all four services exist: pick a newer release from the S3 bucket, compare component versions, and update each service in turn.",
+                frame: "windows",
+            }
         ]
     },
     {
         slug: "comp-599-webgl",
-        title: "COMP-599 WebGL Seminar",
-        tagline: "Four interactive 3D browser experiences built for a WebGL seminar: Campus Explorer, Paper Plane Assault, Plane vs AI, and OrbitScope.",
-        description: "A Next.js application hosting four WebGL seminar projects for CSUCI COMP-599. Includes a highway scene, a bunker scene, and multiple interactive 3D experiences — Campus Explorer (3D campus tour), Paper Plane Assault, Plane vs AI, and OrbitScope (satellite tracker) — alongside a seminar paper and capability showcase presentation.",
-        scenario: "A graduate WebGL seminar required building multiple distinct interactive 3D browser experiences demonstrating different rendering techniques, scene management, and user interaction patterns.",
-        problemSolved: "Each project targets a specific WebGL concept: scene graph navigation (Campus Explorer), real-time collision and game logic (Paper Plane Assault / Plane vs AI), and orbital mechanics visualization (OrbitScope) — all delivered as a unified Next.js app.",
+        title: "WebGL Academic Presentation",
+        tagline: "A seminar slide deck where every slide runs its own live Three.js scene.",
+        description: "A Next.js page laid out like a slide deck for a graduate seminar on browser-based 3D visualization. A sidebar carries each slide's points while a full-height canvas runs that slide's Three.js scene: a 30,000-point cloud, a 3D equation plotter, an icosphere point cloud, GLB model loading, a highway driving demo and an FPS target-practice scene. The seminar paper and slides, which review three WebGL research papers, live alongside it.",
+        scenario: "Slides about WebGL are more convincing when the slides themselves are WebGL, so each technique had to be demonstrated live rather than described.",
+        problemSolved: "Six slides each pair notes with a live canvas; every slide change disposes the old renderer and builds the next, and /highway and /bunker open straight on their demos for jumping mid-talk.",
         howToUse: [
-            "Navigate to each project route in the Next.js app (highway, bunker, and the main showcase).",
-            "Interact with 3D scenes using mouse and keyboard controls specific to each experience.",
-            "Review the seminar paper and WebGL capabilities presentation in the docs folder.",
+            "Start the Next.js dev server and open the deck.",
+            "Step through the six slides with Back and Next.",
+            "On slide 2, pick an equation and orbit the plot with the mouse.",
+            "Open /highway to steer with A/D, or /bunker for mouse-look target practice.",
         ],
         outcomes: [
-            "Four distinct WebGL experiences: Campus Explorer, Paper Plane Assault, Plane vs AI, OrbitScope.",
-            "Hosted as a Next.js application with TypeScript and dedicated route-based scene loading.",
-            "Includes seminar paper (DOCX) and WebGL Capabilities Showcase presentation (PPTX).",
+            "GPU point cloud of 30,000 points in a single BufferGeometry.",
+            "3D equation plotter with five equations, projected axis labels and OrbitControls.",
+            "GLB asset loading with GLTFLoader and a highway driving demo with eased steering.",
+            "FPS target practice with raycast hits from the crosshair.",
         ],
         progress: [
-            { title: "Campus Explorer", detail: "Interactive 3D campus tour scene complete.", state: "done" },
-            { title: "Paper Plane Assault & Plane vs AI", detail: "Real-time flight and collision game modes complete.", state: "done" },
-            { title: "OrbitScope", detail: "Satellite orbital tracking visualization complete.", state: "done" },
+            { title: "Six live slides", detail: "Point cloud, equation plotter, icosphere, GLB loading, highway and FPS scenes.", state: "done" },
+            { title: "Build and styling fixes", detail: "Fixed the TypeScript build error and the CSS rule that hid the chart legend.", state: "done" },
         ],
         futureGoals: [],
         tech: [
-            { name: "JavaScript", icon: "devicon-javascript-plain colored" },
             { name: "Next.js", icon: "devicon-nextjs-plain" },
+            { name: "React", icon: "devicon-react-original colored" },
             { name: "TypeScript", icon: "devicon-typescript-plain colored" },
-            { name: "HTML5", icon: "devicon-html5-plain colored" }
+            { name: "Three.js", icon: "devicon-threejs-original" }
         ],
         links: { live: "#", github: "https://github.com/TRUPALIX9/comp-599-webgl" },
-        image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80",
-        mediaDisplay: "spotlight",
-        media: []
+        image: "/projects/comp-599-webgl/banner.svg",
+        logoIcon: "/projects/comp-599-webgl/icon.svg",
+        mediaDisplay: "storyboard",
+        media: [
+            {
+                type: "image",
+                src: "/projects/comp-599-webgl/screen-graphing.svg",
+                title: "3D Mathematical Graphing",
+                caption: "Slide 2: the 3D Spiral (Helix) plotted on axes you can orbit, with X/Y/Z labels and the equation legend.",
+                frame: "browser",
+            },
+            {
+                type: "image",
+                src: "/projects/comp-599-webgl/screen-compute.svg",
+                title: "Super-Compute Visualization",
+                caption: "Slide 1: 30,000 GPU-rendered cyan points in a slowly rotating 40-unit cube.",
+                frame: "browser",
+            },
+            {
+                type: "image",
+                src: "/projects/comp-599-webgl/screen-highway.svg",
+                title: "Highway Driving Simulation",
+                caption: "Slide 5 (/highway): the Dodge Challenger steering with A/D along a looping highway model.",
+                frame: "browser",
+            },
+            {
+                type: "image",
+                src: "/projects/comp-599-webgl/screen-fps.svg",
+                title: "FPS Combat Interaction",
+                caption: "Slide 6 (/bunker): mouse-look, a camera-mounted rifle and raycast hits on green targets.",
+                frame: "browser",
+            }
+        ]
     },
     {
         slug: "file-system-engine",
         title: "File System Engine",
-        tagline: "Electron + React 19 desktop app with dual-pane file browsing, SQLite activity logging, and hardened IPC.",
-        description: "A cross-platform desktop file manager built with Electron, React 19, and Material UI. Features dual-pane file browsing, smart breadcrumb navigation, quick-access sidebar, and a hardened architecture with context-isolated IPC, strict Content Security Policy, and SQLite-backed activity logging. Targets macOS and Windows.",
+        tagline: "Electron desktop file manager with a dual-pane Transfer Hub and a treemap disk analyzer.",
+        description: "An Electron desktop app for macOS and Windows for everyday file housekeeping: a dual-pane Transfer Hub for moving work between folders, external drives and an Android phone over adb, and a Storage Analyzer that scans a folder and draws a treemap of its largest subfolders. Every file, device and database call runs in the main process behind a typed, validated IPC API, with a sandboxed renderer and a local SQLite activity log.",
         scenario: "Standard OS file managers lack the dual-pane workflows, activity audit trails, and secure IPC boundaries required for power users and agentic automation tooling.",
         problemSolved: "File System Engine delivers a dual-pane Electron desktop experience with type-safe IPC between main and renderer processes, SQLite activity records for every file operation, and a strict CSP that allows MUI dynamic styling without external script execution.",
         howToUse: [
@@ -510,20 +665,20 @@ flowchart TD
             "Review the activity log for a persistent record of all file operations performed.",
         ],
         outcomes: [
-            "Dual-pane file browser with smart breadcrumbs and quick-access sidebar — macOS and Windows.",
-            "Type-safe Electron IPC with context isolation: renderer has no direct Node.js access.",
-            "SQLite activity log persisting every file operation for audit and replay.",
-            "Strict Content Security Policy configured to allow MUI dynamic styles while blocking external scripts.",
+            "Dual-pane Transfer Hub: copy or move between panes, with confirmed moves that never overwrite existing items.",
+            "Treemap disk analyzer: total size, file and directory counts, and the largest folders sized by share of the total.",
+            "Drives, folders and Android phones over adb in one sidebar, refreshed every 10 seconds.",
+            "Locked-down Electron shell: context isolation, a sandboxed renderer, Zod-validated IPC and a production CSP.",
         ],
         progress: [
-            { title: "Dual-pane file browser", detail: "Side-by-side browsing, breadcrumb nav, and sidebar implemented.", state: "done" },
-            { title: "Hardened IPC & CSP", detail: "Context-isolated preload API and strict CSP configured.", state: "done" },
-            { title: "SQLite activity logging", detail: "Persistent file operation records via SQLite.", state: "done" },
-            { title: "Agentic Agent Pack", detail: "Integrated agent roles for automated maintenance — Phase 5/6 foundation in place.", state: "in-progress" },
+            { title: "Dual-pane file manager", detail: "Transfer Hub, breadcrumbs, Quick Access and everyday file actions.", state: "done" },
+            { title: "Storage Analyzer", detail: "Folder scan with a treemap of the largest subfolders.", state: "done" },
+            { title: "Hardened IPC and CSP", detail: "Typed preload API, Zod validation and path checks on every request.", state: "done" },
+            { title: "Duplicate detection and AI features", detail: "Planned, not built.", state: "planned" },
         ],
         futureGoals: [
-            "Complete Agent Pack roles for automated file maintenance and organization.",
-            "Add cloud drive mounting (Google Drive, OneDrive).",
+            "Add duplicate detection.",
+            "Build the planned AI-assisted housekeeping features.",
             "Ship signed macOS and Windows installers.",
         ],
         tech: [
@@ -533,8 +688,39 @@ flowchart TD
             { name: "SQLite", icon: "devicon-sqlite-plain colored" }
         ],
         links: { live: "#", github: "https://github.com/TRUPALIX9/file-system-engine" },
-        image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
-        mediaDisplay: "spotlight",
-        media: []
+        image: "/projects/file-system-engine/banner.svg",
+        architectureImage: "/projects/file-system-engine/architecture.svg",
+        logoIcon: "/projects/file-system-engine/icon.svg",
+        mediaDisplay: "storyboard",
+        media: [
+            {
+                type: "image",
+                src: "/projects/file-system-engine/screen-transfer-hub.svg",
+                title: "Transfer Hub",
+                caption: "Two file panes side by side: copy or move the focused pane's selection into the other pane's folder.",
+                frame: "windows",
+            },
+            {
+                type: "image",
+                src: "/projects/file-system-engine/screen-storage-analyzer.svg",
+                title: "Storage Analyzer",
+                caption: "Scan a folder for its total size, file and directory counts, and a treemap of its largest folders.",
+                frame: "windows",
+            },
+            {
+                type: "image",
+                src: "/projects/file-system-engine/screen-explorer.svg",
+                title: "Explorer",
+                caption: "Browse an Android phone over adb alongside local drives, with the Select Drive menu open.",
+                frame: "windows",
+            },
+            {
+                type: "image",
+                src: "/projects/file-system-engine/screen-settings.svg",
+                title: "Settings",
+                caption: "macOS Full Disk Access status and the Light, Dark and System theme toggle, in the light theme.",
+                frame: "windows",
+            }
+        ]
     }
 ];

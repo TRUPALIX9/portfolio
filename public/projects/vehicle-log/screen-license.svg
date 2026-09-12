@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" role="img" aria-labelledby="gll-t gll-d">
+  <title id="gll-t">Gatelog Server Setup - notice step</title>
+  <desc id="gll-d">The first step of the Gatelog installer in a Windows 11 window: the heading Applicable notices and license terms, a read-only text box with the proof-of-concept notice loaded from Setups/EULA.docx, the checkbox I have read this notice ticked, and an enabled blue Next button.</desc>
+  <defs>
+    <linearGradient id="gll-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#262F38"/><stop offset="1" stop-color="#171C21"/></linearGradient><radialGradient id="gll-glow" cx="50%" cy="46%" r="52%"><stop offset="0" stop-color="#F2C200" stop-opacity="0.16"/><stop offset="1" stop-color="#F2C200" stop-opacity="0"/></radialGradient><clipPath id="gll-win"><rect x="40" y="40" width="1200" height="720" rx="8"/></clipPath>
+    <filter id="gll-shadow" x="-10%" y="-10%" width="120%" height="125%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#2A2410" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+  <rect width="1280" height="800" fill="#F3F1EA"/>
+  <rect x="40" y="40" width="1200" height="720" rx="8" fill="#FFFFFF" filter="url(#gll-shadow)"/>
+  <g clip-path="url(#gll-win)">
+      <rect x="40" y="40" width="1200" height="720" fill="#FFFFFF"/>
+
+      <!-- Form1 title bar (custom, rebranded): icon, title, minimize, (maximize disabled), close -->
+      <rect x="40" y="40" width="1200" height="32" fill="#171C21"/>
+      <g transform="translate(52 45) scale(0.04297)"><rect width="512" height="512" rx="112" fill="url(#gll-bg)"/><circle cx="256" cy="250" r="230" fill="url(#gll-glow)"/><g transform="translate(88 88) scale(14)"><rect x="11.2" y="12.6" width="9.6" height="1.9" rx="0.95" fill="#F2C200"/><rect x="11.2" y="16.1" width="7.2" height="1.9" rx="0.95" fill="#E9EDF0" fill-opacity="0.85"/><rect x="11.2" y="19.6" width="9.6" height="1.9" rx="0.95" fill="#E9EDF0" fill-opacity="0.85"/><g transform="translate(6 10.2) rotate(-29)"><rect x="-1.2" y="-1.55" width="15.6" height="3.1" rx="1.55" fill="#F2C200"/><rect x="4.2" y="-1.55" width="2.3" height="3.1" fill="#171C21"/><rect x="9.1" y="-1.55" width="2.3" height="3.1" fill="#171C21"/></g><rect x="4.4" y="10.2" width="3.2" height="10.6" rx="1" fill="#E9EDF0"/><rect x="3" y="19.6" width="6" height="1.9" rx="0.95" fill="#E9EDF0"/><circle cx="6" cy="10.2" r="2.35" fill="#E9EDF0"/><circle cx="6" cy="10.2" r="0.95" fill="#171C21"/></g></g>
+      <text x="84" y="62.5" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="700" fill="#F0FFF0">Gatelog Server Setup</text>
+      <g stroke="#F0FFF0" stroke-width="1.1" fill="none">
+        <path d="M1120 56.5h10"/>
+        <rect x="1166.5" y="51.5" width="9" height="9" rx="1.5" stroke-opacity="0.35"/>
+      </g>
+      <path d="M1212 51l10 10M1222 51l-10 10" stroke="#F0FFF0" stroke-width="1.1" fill="none"/>
+
+      <!-- MainPanel (FixedSingle) hosting EULAControl -->
+      <rect x="40.5" y="72.5" width="1199" height="653" fill="#FFFFFF" stroke="#A0A0A0"/>
+
+      <!-- lblNoticesAndLicensese (Segoe UI 14.25pt) -->
+      <text x="628" y="118" text-anchor="middle" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="25" fill="#000000">Applicable notices and license terms</text>
+
+      <!-- richTextBoxEula: KryptonRichTextBox, read-only, filled from Setups/EULA.docx (upper-case paragraphs bold with "- ") -->
+      <rect x="84.5" y="152.5" width="1109" height="503" rx="1" fill="#FFFFFF" stroke="#B7BEC7"/>
+      <g font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" fill="#1E1E1E">
+        <text x="93" y="181" font-size="18" font-weight="700">- GATELOG SERVER SETUP: PROOF OF CONCEPT NOTICE</text>
+        <g font-size="16">
+          <text x="93" y="228">Gatelog Server Setup is a proof of concept. It installs and updates a vehicle-log server stack (MongoDB, the Eclipse Mosquitto MQTT</text>
+          <text x="93" y="250">broker, a web portal and a detection bot) for demonstration and evaluation.</text>
+          <text x="93" y="294">This document is a notice, not a license agreement. No license terms have been specified for this project yet.</text>
+          <text x="93" y="338">The installer sets up third-party software, including MongoDB, mongosh, Eclipse Mosquitto and NSSM. Each of these is provided by its own</text>
+          <text x="93" y="360">publisher under its own license.</text>
+          <text x="93" y="404">Select the checkbox below to confirm that you have read this notice, then click Next.</text>
+        </g>
+      </g>
+
+      <!-- checkBox1 (Arial 10pt bold), checked -->
+      <rect x="84.5" y="669.5" width="17" height="17" rx="2" fill="#0078D7" stroke="#0067B8"/>
+      <path d="M88.5 678.2l3.4 3.4 6.2-6.8" stroke="#FFFFFF" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="108" y="684.5" font-family="Arial,'Helvetica Neue',sans-serif" font-size="17.5" font-weight="700" fill="#000000">I have read this notice.</text>
+
+      <!-- btn_next: KryptonButton, enabled once the box is ticked (SystemColors.Highlight) -->
+      <rect x="1073.5" y="663.5" width="119" height="34" rx="4" fill="#0078D7" stroke="#0063B1"/>
+      <text x="1133" y="688" text-anchor="middle" font-family="Arial,'Helvetica Neue',sans-serif" font-size="21" font-weight="700" fill="#FFFFFF">Next</text>
+
+      <!-- bottomPanel (FixedSingle): copyright left, version right -->
+      <rect x="40.5" y="726.5" width="1199" height="33" fill="#FFFFFF" stroke="#A0A0A0"/>
+      <text x="48" y="750.5" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="21" fill="#000000">&#169; 2024 Gatelog - Proof of concept</text>
+      <text x="1230" y="750.5" text-anchor="end" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="21" fill="#000000">Version : V1R1 (1.0.18)</text>
+    </g>
+    <rect x="40.5" y="40.5" width="1199" height="719" rx="7.5" fill="none" stroke="#000000" stroke-opacity="0.22"/>
+</svg>

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="1000" viewBox="0 0 520 1000" role="img" aria-labelledby="csk-t csk-d">
+  <title id="csk-t">Card Snap: Home in dark mode</title>
+  <desc id="csk-d">Recreation of the Card Snap Home tab in its dark MD3 theme inside a phone frame: the app icon, Welcome to Card Snap, the tagline, View Contacts, Add Contact and Profile and Settings buttons, the footer, and the icon-only bottom tabs with Home active.</desc>
+  <defs>
+    <linearGradient id="csk-ground" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1824"/>
+      <stop offset="1" stop-color="#050B12"/>
+    </linearGradient>
+    <filter id="csk-drop" x="-20%" y="-10%" width="140%" height="125%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+    <clipPath id="csk-clip"><rect width="390" height="844" rx="48"/></clipPath>
+    <filter id="csk-card" x="-5%" y="-10%" width="110%" height="130%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#004C99" flood-opacity="0.12"/>
+    </filter>
+    <filter id="csk-fab" x="-30%" y="-30%" width="160%" height="170%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.22"/>
+    </filter>
+    <clipPath id="csk-tile"><rect width="1024" height="1024" rx="204.8"/></clipPath>
+    <linearGradient id="csk-grad" gradientUnits="userSpaceOnUse" x1="159" y1="-280" x2="-349" y2="613">
+      <stop offset="0" stop-color="#000000"/>
+      <stop offset="1" stop-color="#008BFF"/>
+    </linearGradient>
+    <mask id="csk-cut" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <rect x="185" y="267" width="653" height="489" rx="52" fill="#FFFFFF"/>
+      <circle cx="403" cy="429.5" r="82" fill="#000000"/>
+      <path d="M239 675V646C239 598 318 564 403 564C488 564 566 598 566 646V675Z" fill="#000000"/>
+      <rect x="567" y="348" width="217" height="163" rx="12" fill="#000000"/>
+      <path d="M594 389L676 441L758 389" fill="none" stroke="#FFFFFF" stroke-width="26" stroke-linejoin="round"/>
+    </mask>
+    <filter id="csk-lift" x="-20%" y="-20%" width="140%" height="150%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000814" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <rect width="520" height="1000" fill="url(#csk-ground)"/>
+  <g transform="translate(55 68)">
+    <g filter="url(#csk-drop)"><rect width="410" height="864" rx="60" fill="#0B0B0C"/></g>
+      <rect x="-3" y="170" width="4" height="34" rx="2" fill="#1E1E20"/>
+      <rect x="-3" y="224" width="4" height="62" rx="2" fill="#1E1E20"/>
+      <rect x="-3" y="300" width="4" height="62" rx="2" fill="#1E1E20"/>
+      <rect x="409" y="250" width="4" height="96" rx="2" fill="#1E1E20"/>
+      <rect width="410" height="864" rx="60" fill="#0B0B0C"/>
+      <rect x="1" y="1" width="408" height="862" rx="59" fill="none" stroke="#3A3A3E" stroke-width="2"/>
+      <g transform="translate(10 10)">
+      <g clip-path="url(#csk-clip)">
+      <rect width="390" height="844" fill="#000000"/>
+      <rect width="390" height="95" fill="#1A1A1A"/><rect y="94" width="390" height="1" fill="#FFFFFF"/><text x="54" y="33" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="600" fill="#FFFFFF">9:41</text><rect x="133" y="11" width="124" height="36" rx="18" fill="#000000"/><g fill="#FFFFFF"><rect x="292" y="26" width="3.2" height="5" rx="1"/><rect x="297" y="23.5" width="3.2" height="7.5" rx="1"/><rect x="302" y="21" width="3.2" height="10" rx="1"/><rect x="307" y="18.5" width="3.2" height="12.5" rx="1"/><path d="M325 31.2l2.6-2.7a3.7 3.7 0 0 0-5.2 0zM319.4 25.5l1.5 1.5a6.4 6.4 0 0 1 8.2 0l1.5-1.5a8.6 8.6 0 0 0-11.2 0zM316.6 22.7l1.5 1.5a10.3 10.3 0 0 1 13.8 0l1.5-1.5a12.5 12.5 0 0 0-16.8 0z"/><rect x="338.5" y="19" width="24" height="12" rx="3.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.4"/><rect x="340.5" y="21" width="20" height="8" rx="2"/><path d="M364 23.2v3.6a1.9 1.9 0 0 0 0-3.6z" fill-opacity="0.45"/></g><text x="195" y="76.5" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#E0E0E0">Card Snap</text>
+      <rect x="20" y="115" width="350" height="436" rx="16" fill="#1A1A1A"/>
+      <g transform="translate(155 139) scale(0.078125)"><g clip-path="url(#csk-tile)"><rect width="1024" height="1024" fill="url(#csk-grad)"/>
+      <g filter="url(#csk-lift)"><rect x="185" y="267" width="653" height="489" fill="#FFFCFC" mask="url(#csk-cut)"/></g></g></g>
+      <text x="195" y="263" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="28" font-weight="400" fill="#008BFF">Welcome to Card Snap</text>
+      <text x="195" y="295" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="14" fill="#E0E0E0">Your all-in-one business card manager. Scan,</text>
+      <text x="195" y="315" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="14" fill="#E0E0E0">store, and manage contacts seamlessly.</text>
+      <rect x="44" y="367" width="302" height="40" rx="20" fill="#008BFF"/><g transform="translate(132.6 378)" fill="none" stroke="#381E72" stroke-width="1.7"><rect x="2" y="2" width="14" height="14" rx="2"/><circle cx="9" cy="7.2" r="2.3" fill="#381E72" stroke="none"/><path d="M4.6 14.2C5.3 12 7 11 9 11S12.7 12 13.4 14.2" stroke-linecap="round"/></g><text x="158.6" y="392" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="500" fill="#381E72" letter-spacing="0.1">View Contacts</text>
+      <rect x="44.5" y="423.5" width="301" height="39" rx="19.5" fill="none" stroke="#008BFF"/><path transform="translate(140.2 434)" d="M9 3.5V14.5M3.5 9H14.5" stroke="#008BFF" stroke-width="1.9" stroke-linecap="round"/><text x="166.2" y="448" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="500" fill="#008BFF" letter-spacing="0.1">Add Contact</text>
+      <g transform="translate(113.6 490)"><rect x="7.9" y="0.6" width="2.2" height="3.4" rx="0.6" fill="#008BFF" transform="rotate(0 9 9)"/><rect x="7.9" y="0.6" width="2.2" height="3.4" rx="0.6" fill="#008BFF" transform="rotate(45 9 9)"/><rect x="7.9" y="0.6" width="2.2" height="3.4" rx="0.6" fill="#008BFF" transform="rotate(90 9 9)"/><rect x="7.9" y="0.6" width="2.2" height="3.4" rx="0.6" fill="#008BFF" transform="rotate(135 9 9)"/><rect x="7.9" y="0.6" width="2.2" height="3.4" rx="0.6" fill="#008BFF" transform="rotate(180 9 9)"/><rect x="7.9" y="0.6" width="2.2" height="3.4" rx="0.6" fill="#008BFF" transform="rotate(225 9 9)"/><rect x="7.9" y="0.6" width="2.2" height="3.4" rx="0.6" fill="#008BFF" transform="rotate(270 9 9)"/><rect x="7.9" y="0.6" width="2.2" height="3.4" rx="0.6" fill="#008BFF" transform="rotate(315 9 9)"/><circle cx="9" cy="9" r="5.6" fill="none" stroke="#008BFF" stroke-width="1.8"/><circle cx="9" cy="9" r="2.1" fill="none" stroke="#008BFF" stroke-width="1.6"/></g><text x="139.6" y="504" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="500" fill="#008BFF" letter-spacing="0.1">Profile &amp; Settings</text>
+      <text x="195" y="583" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="12" fill="#008BFF">© 2025 Card Snap • v1.0</text>
+      <rect y="761" width="390" height="83" fill="#000000"/><rect y="761" width="390" height="0.3" fill="#FFFFFF"/><g transform="translate(54 774)" fill="#008BFF"><path d="M11 3.2L1.6 11 0.3 9.5 11 0.6 17 5.6V2.2H19.6V7.8L21.7 9.5 20.4 11Z"/><path d="M11 5.4L3.4 11.7V20.4A1 1 0 0 0 4.4 21.4H8.9V15.2H13.1V21.4H17.6A1 1 0 0 0 18.6 20.4V11.7Z"/></g><g transform="translate(184 774)"><rect x="2" y="0" width="16.5" height="22" rx="2.2" fill="#E0E0E0"/><g fill="#E0E0E0"><rect x="18.5" y="3" width="3" height="4" rx="1"/><rect x="18.5" y="9" width="3" height="4" rx="1"/><rect x="18.5" y="15" width="3" height="4" rx="1"/></g><circle cx="10.25" cy="8.2" r="3.1" fill="#000000"/><path d="M5.1 17.6C5.1 14.4 7.3 12.6 10.25 12.6S15.4 14.4 15.4 17.6Z" fill="#000000"/></g><g transform="translate(314 774)"><circle cx="11" cy="11" r="11" fill="#E0E0E0"/><circle cx="11" cy="8.6" r="3.9" fill="#000000"/><path d="M4.3 18.1C5.6 15.2 8 13.9 11 13.9S16.4 15.2 17.7 18.1A9.3 9.3 0 0 1 4.3 18.1Z" fill="#000000"/></g>
+      <rect x="128" y="831" width="134" height="5" rx="2.5" fill="#FFFFFF"/>
+      </g>
+      </g>
+  </g>
+</svg>

@@ -120,6 +120,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     const nextProject = projects[(projectIndex + 1) % projects.length];
     const hasLive = Boolean(project.links?.live) && project.links.live !== '#';
     const hasGithub = Boolean(project.links?.github) && project.links.github !== '#';
+    // Product shots: phones sit four across; browser/desktop shots two across, with the first
+    // spanning the row when the count is odd so no shot sits alone.
+    const screens = project.media.filter((m) => m.type === 'image');
+    const phoneShots = screens.length > 0 && screens.every((s) => s.frame === 'phone');
+    const spanFirst = !phoneShots && screens.length % 2 === 1;
 
     const chapters = [
         { id: 'problem', label: 'Problem' },
@@ -182,6 +187,32 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                         )}
                     </header>
                 </Reveal>
+
+                {/* ── PRODUCT SHOTS ───────────────────────────────────── */}
+                {screens.length > 0 && (
+                    <Reveal delay={0.06}>
+                        <section aria-labelledby="screens-title" className="mb-12">
+                            <h2 id="screens-title" className={cardLabel}>In the product</h2>
+                            <div className={`grid gap-5 ${phoneShots ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2'}`}>
+                                {screens.map((shot, i) => (
+                                    <figure key={shot.src} className={`m-0 ${spanFirst && i === 0 ? 'sm:col-span-2' : ''}`}>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={shot.src}
+                                            alt={`${shot.title}: ${shot.caption}`}
+                                            loading={i === 0 ? 'eager' : 'lazy'}
+                                            className="block h-auto w-full rounded-xl border border-line-1 bg-surface-1"
+                                        />
+                                        <figcaption className="mt-2.5 text-[0.8125rem] leading-[1.55] text-ink-3">
+                                            <span className="font-semibold text-ink-2">{shot.title}.</span> {shot.caption}
+                                        </figcaption>
+                                    </figure>
+                                ))}
+                            </div>
+                            <p className="mt-4 text-xs text-ink-3">Screens are recreated from the app&apos;s real UI with fictional demo data.</p>
+                        </section>
+                    </Reveal>
+                )}
 
                 {/* ── CHAPTER INDEX ───────────────────────────────────── */}
                 <Reveal delay={0.08}>

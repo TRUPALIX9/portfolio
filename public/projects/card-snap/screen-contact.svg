@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="1000" viewBox="0 0 520 1000" role="img" aria-labelledby="csd-t csd-d">
+  <title id="csd-t">Card Snap: Contact Info</title>
+  <desc id="csd-d">Recreation of the Card Snap Contact Info screen inside a phone frame for the fictional contact Maya Chen: avatar, name, job title at company, tappable phone and email rows, company and job title.</desc>
+  <defs>
+    <linearGradient id="csd-ground" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F2F8FF"/>
+      <stop offset="1" stop-color="#E3EFFB"/>
+    </linearGradient>
+    <filter id="csd-drop" x="-20%" y="-10%" width="140%" height="125%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#00284D" flood-opacity="0.22"/>
+    </filter>
+    <clipPath id="csd-clip"><rect width="390" height="844" rx="48"/></clipPath>
+    <filter id="csd-card" x="-5%" y="-10%" width="110%" height="130%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#004C99" flood-opacity="0.12"/>
+    </filter>
+    <filter id="csd-fab" x="-30%" y="-30%" width="160%" height="170%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+  <rect width="520" height="1000" fill="url(#csd-ground)"/>
+  <g transform="translate(55 68)">
+    <g filter="url(#csd-drop)"><rect width="410" height="864" rx="60" fill="#0B0B0C"/></g>
+      <rect x="-3" y="170" width="4" height="34" rx="2" fill="#1E1E20"/>
+      <rect x="-3" y="224" width="4" height="62" rx="2" fill="#1E1E20"/>
+      <rect x="-3" y="300" width="4" height="62" rx="2" fill="#1E1E20"/>
+      <rect x="409" y="250" width="4" height="96" rx="2" fill="#1E1E20"/>
+      <rect width="410" height="864" rx="60" fill="#0B0B0C"/>
+      <rect x="1" y="1" width="408" height="862" rx="59" fill="none" stroke="#3A3A3E" stroke-width="2"/>
+      <g transform="translate(10 10)">
+      <g clip-path="url(#csd-clip)">
+      <rect width="390" height="844" fill="#FFFFFF"/>
+      <rect width="390" height="95" fill="#F5F5F5"/><rect y="94" width="390" height="1" fill="#FFFFFF"/><text x="54" y="33" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="600" fill="#000000">9:41</text><rect x="133" y="11" width="124" height="36" rx="18" fill="#000000"/><g fill="#000000"><rect x="292" y="26" width="3.2" height="5" rx="1"/><rect x="297" y="23.5" width="3.2" height="7.5" rx="1"/><rect x="302" y="21" width="3.2" height="10" rx="1"/><rect x="307" y="18.5" width="3.2" height="12.5" rx="1"/><path d="M325 31.2l2.6-2.7a3.7 3.7 0 0 0-5.2 0zM319.4 25.5l1.5 1.5a6.4 6.4 0 0 1 8.2 0l1.5-1.5a8.6 8.6 0 0 0-11.2 0zM316.6 22.7l1.5 1.5a10.3 10.3 0 0 1 13.8 0l1.5-1.5a12.5 12.5 0 0 0-16.8 0z"/><rect x="338.5" y="19" width="24" height="12" rx="3.6" fill="none" stroke="#000000" stroke-opacity="0.4"/><rect x="340.5" y="21" width="20" height="8" rx="2"/><path d="M364 23.2v3.6a1.9 1.9 0 0 0 0-3.6z" fill-opacity="0.45"/></g><path d="M31 61L21.5 70.5L31 80" fill="none" stroke="#1C1C1C" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><text x="195" y="76.5" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#1C1C1C">Contact Info</text>
+      <rect x="16" y="111" width="358" height="396" rx="12" fill="#F5F5F5" filter="url(#csd-card)"/>
+      <circle cx="52" cy="147" r="20" fill="#008BFF"/>
+      <g transform="translate(40 135)" fill="#FFFFFF"><circle cx="12" cy="8" r="4"/><path d="M12 14C16.4 14 20 15.8 20 18V20H4V18C4 15.8 7.6 14 12 14Z"/></g>
+      <text x="88" y="143" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="700" fill="#1C1C1C">Maya Chen</text>
+      <text x="88" y="164" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="14" fill="#004C99">Brand Manager @ Harbor &amp; Pine Supply</text>
+      <text x="32" y="210" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#004C99">Contact Info</text>
+      <text x="32" y="248" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#004C99">Phone</text>
+      <text x="32" y="273" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="16" fill="#008BFF">(415) 555-0142</text>
+      <text x="32" y="325" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#004C99">Email</text>
+      <text x="32" y="350" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="16" fill="#008BFF">maya.chen@example.com</text>
+      <g transform="translate(32 379)"><rect x="1" y="1" width="12" height="13" rx="1" fill="#A7B6C2"/><rect x="5.5" y="10" width="3" height="4" fill="#5B6B78"/><g fill="#5B8DB8"><rect x="3" y="3" width="2.2" height="2"/><rect x="6" y="3" width="2.2" height="2"/><rect x="9" y="3" width="2.2" height="2"/><rect x="3" y="6.5" width="2.2" height="2"/><rect x="6" y="6.5" width="2.2" height="2"/><rect x="9" y="6.5" width="2.2" height="2"/></g></g>
+      <text x="51" y="392" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#004C99">Company</text>
+      <text x="32" y="417" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="16" fill="#1C1C1C">Harbor &amp; Pine Supply</text>
+      <g transform="translate(32 436)"><path d="M1 14.5C1 10.6 3.8 8.8 7 8.8S13 10.6 13 14.5Z" fill="#37474F"/><path d="M5.4 8.9L7 11.6 8.6 8.9Z" fill="#FFFFFF"/><path d="M6.5 10.4H7.5L7.8 13.4 7 14.2 6.2 13.4Z" fill="#1976D2"/><circle cx="7" cy="5" r="3.4" fill="#F2C49B"/><path d="M3.6 4.8C3.6 2.6 5.1 1.2 7 1.2S10.4 2.6 10.4 4.8C9.6 3.7 8.4 3.3 7 3.3S4.4 3.7 3.6 4.8Z" fill="#4E342E"/></g>
+      <text x="51" y="449" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#004C99">Job Title</text>
+      <text x="32" y="474" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="16" fill="#1C1C1C">Brand Manager</text>
+      <rect x="128" y="831" width="134" height="5" rx="2.5" fill="#000000"/>
+      </g>
+      </g>
+  </g>
+</svg>

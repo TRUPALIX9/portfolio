@@ -106,28 +106,27 @@ export const projectStories: Record<string, ProjectStory> = {
     },
     'fire-forecasting': {
         integration:
-            'Makefile targets ingest NASA FIRMS VIIRS detections (75K+ records, 2019–2024), RAWS weather, and CAL FIRE FRAP perimeters. A feature step builds 7-day lags, rolling stats, seasonality, and neighbour features. Models (baselines, an ANN, and a 14-day LSTM) train behind a FastAPI service with 9 endpoints, and a Next.js dashboard shows metrics, PR/ROC curves, and per-site predictions on a Leaflet map.',
+            'A Next.js 14 App Router front end with Material UI renders four views: the dashboard, a full-width map, ML History and Settings. The dashboard reads a small JSON dataset that a Python script builds from the committed trihourly weather CSV. Leaflet draws the Tri-County box and risk-coloured sites, and ApexCharts plots the selected site\'s risk with threshold and peak annotations. The original ML pipeline and FastAPI service live in the git history.',
         challenges: [
             {
-                title: 'Fire days are rare',
-                problem: 'With heavily imbalanced labels, a model can look accurate by always predicting "no fire".',
-                resolution: 'Computed class weights automatically and used PR-AUC as the primary metric instead of accuracy.',
+                title: 'Showing a forecast without a model',
+                problem: 'The backend had been removed, but an honest dashboard still needed realistic inputs.',
+                resolution: 'Built a reproducible sample from the real weather CSV, labelled the fictional sites and risk values as sample data in the UI, and documented where the original pipeline lives.',
             },
             {
-                title: 'Time-series leakage',
-                problem: 'Random splits and scalers fit on all data quietly leak the future into training.',
-                resolution: 'Predicted t+1, fit the scaler on the training set only, and used a chronological 70/15/15 split.',
+                title: 'A build that would not install',
+                problem: 'A clean install failed on a peer-dependency conflict, and the production build loaded PostCSS plugins that were never installed.',
+                resolution: 'Removed the leftover Tailwind and PostCSS config and resolved the dependency conflict so a clean install and production build work.',
             },
             {
-                title: 'Three datasets, three shapes',
-                problem: 'Satellite points, station weather, and polygon perimeters do not line up on their own.',
-                resolution: 'Automated the joins in a reproducible pipeline so every run rebuilds the same dataset.',
+                title: 'Unthemed components',
+                problem: 'Material UI ran with no theme, so components fell back to Roboto and default spacing.',
+                resolution: 'Added a ThemeProvider with Inter typography and the App Router style cache.',
             },
         ],
         learnings: [
-            'Choosing the evaluation metric is a modelling decision, especially with imbalanced classes.',
-            'Leakage hygiene matters more than model size; the split strategy is part of the model.',
-            'Baselines (logistic regression, random forest) first make it clear whether a neural network is earning its complexity.',
+            'Labelling sample data plainly keeps a prototype honest.',
+            'A clean install and a production build are the first test any repo should pass.',
         ],
     },
     'motion-detection': {
@@ -152,52 +151,77 @@ export const projectStories: Record<string, ProjectStory> = {
     },
     'vehicle-log': {
         integration:
-            'A C# WinForms front end handles record entry and management, while a Windows service (managed through NSSM) runs scheduled work in the background. ServiceManager and UpdateManager classes own the service lifecycle and updates.',
+            'A single .NET 6 WinForms app drives the whole setup. It relaunches itself as administrator, then steps through a notice, an install location and an eight-step install: MongoDB and mongosh are extracted, Mosquitto installs silently as a service, mongod is registered with authentication, a mongosh script creates the database user, and the portal and bot are registered with NSSM. An update path reads installed versions from config.json and pulls newer component zips from S3.',
         challenges: [
             {
-                title: 'Work that runs when the app is closed',
-                problem: 'Scheduled operations cannot depend on someone keeping a window open.',
-                resolution: 'Split background work into a Windows service managed via NSSM.',
+                title: 'Four services, one wizard',
+                problem: 'Each component installs and registers differently, and the installer reported success even when a step failed.',
+                resolution: 'Ran the install as ordered steps with a timestamped log and stopped at the first failed step instead of reporting completion.',
+            },
+            {
+                title: 'Install or update',
+                problem: 'Running the full install again on a working machine would overwrite it.',
+                resolution: 'Detected the four existing Windows services and sent those machines straight to an S3-backed update screen.',
+            },
+            {
+                title: 'Hard-coded environment values',
+                problem: 'The S3 bucket, region and publish settings were baked into the code.',
+                resolution: 'Moved them to environment variables so the proof of concept can point at any deployment.',
             },
         ],
         learnings: [
-            'Separating the UI from background services keeps each simpler and more reliable.',
-            'Owning service lifecycle and updates in dedicated classes avoids scattered, fragile logic.',
+            'Installers need to fail loudly: a green "done" after a failed step costs more than an error.',
+            'Keeping environment-specific values in configuration makes a proof of concept reusable.',
         ],
     },
     'comp-599-webgl': {
         integration:
-            'One Next.js + TypeScript application hosts four WebGL experiences with route-based scene loading, so each scene loads only when visited. The seminar paper and capabilities presentation live alongside the code.',
+            'One client component drives the deck: each slide pairs sidebar notes with a Three.js renderer created for that slide, and switching slides disposes the old renderer before building the next. The /highway and /bunker routes open the same deck on their slide. The seminar paper and slides sit in docs/.',
         challenges: [
             {
-                title: 'Four concepts, one codebase',
-                problem: 'Scene-graph navigation, real-time collision, and orbital visualization each need different structure.',
-                resolution: 'Gave every experience its own route and scene lifecycle inside a shared app shell.',
+                title: 'Six renderers, one page',
+                problem: 'Building a new WebGL scene on every slide change leaks GPU memory and listeners if the old one lingers.',
+                resolution: 'Gave each scene a create and dispose lifecycle so only the active slide has a renderer.',
+            },
+            {
+                title: 'Controls that fought the page',
+                problem: 'The FPS slide listened on the whole window, so using the sidebar turned the camera and Back/Next fired a shot.',
+                resolution: 'Scoped its input handling to the scene so the rest of the deck works normally.',
+            },
+            {
+                title: 'A legend that vanished',
+                problem: 'An unclosed CSS rule swallowed the chart legend and axis-label styles on the plotting slide.',
+                resolution: 'Closed the rule so the legend and X/Y/Z labels render as designed.',
             },
         ],
         learnings: [
-            'Route-level code splitting keeps several heavy 3D scenes from slowing each other down.',
-            'Building the same fundamentals four ways deepened my understanding of the WebGL rendering pipeline.',
+            'Live demos make a technical talk, but each slide has to be robust enough to run in front of an audience.',
+            'Disposing WebGL resources matters as much as creating them.',
         ],
     },
     'file-system-engine': {
         integration:
-            'Electron’s main process owns the file system and a SQLite activity log. The React 19 + Material UI renderer never touches Node directly; it calls a typed, context-isolated preload API over IPC. A strict Content Security Policy allows MUI’s dynamic styles while blocking external scripts.',
+            'Electron\'s main process owns the file system, Android devices over adb, the storage scanner and a SQLite activity log. The React 19 and Material UI renderer never touches Node directly: it calls a typed, context-isolated preload API whose requests are validated with Zod and checked to stay inside the chosen drive. The Storage Analyzer walks a folder in the main process and returns the largest folders for the treemap.',
         challenges: [
             {
                 title: 'A renderer with file-system power',
                 problem: 'Giving the UI direct Node access turns any injected script into full disk access.',
-                resolution: 'Enabled context isolation and exposed only a small, type-safe IPC surface from the preload script.',
+                resolution: 'Enabled context isolation and a sandboxed renderer, and exposed only a small, validated IPC surface from the preload script.',
             },
             {
-                title: 'Strict CSP versus dynamic styling',
-                problem: 'MUI injects styles at runtime, which a naive strict CSP blocks.',
-                resolution: 'Tuned the policy to permit style injection while still refusing external script execution.',
+                title: 'Shell commands built from file names',
+                problem: 'adb copy, create-file and scan ran through the host shell, so a crafted file name could run commands.',
+                resolution: 'Switched to execFile with single-quoted device arguments.',
+            },
+            {
+                title: 'A treemap that added up to more than 100%',
+                problem: 'Nested folders were counted twice, so block widths could exceed the scanned total.',
+                resolution: 'Fixed the aggregation so the treemap blocks add up to the scanned total.',
             },
         ],
         learnings: [
             'Electron security is mostly about what the renderer is not allowed to do.',
-            'An audit log (SQLite) is cheap to add early and invaluable for debugging and automation later.',
+            'A disk analyzer is only useful if its numbers add up; test the totals, not just the drawing.',
         ],
     },
 };

@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="glb-t glb-d">
+  <title id="glb-t">Gatelog</title>
+  <desc id="glb-d">Gatelog banner: proof-of-concept Windows installer and updater for a vehicle-log server stack. The barrier-and-ledger mark, the name, stack chips, and the installer mid-install in a Windows 11 window on a graphite ground.</desc>
+  <defs>
+    <linearGradient id="glb-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#262F38"/><stop offset="1" stop-color="#171C21"/></linearGradient><radialGradient id="glb-glow" cx="50%" cy="46%" r="52%"><stop offset="0" stop-color="#F2C200" stop-opacity="0.16"/><stop offset="1" stop-color="#F2C200" stop-opacity="0"/></radialGradient>
+    <linearGradient id="glbh-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#262F38"/><stop offset="1" stop-color="#171C21"/></linearGradient><radialGradient id="glbh-glow" cx="50%" cy="46%" r="52%"><stop offset="0" stop-color="#F2C200" stop-opacity="0.16"/><stop offset="1" stop-color="#F2C200" stop-opacity="0"/></radialGradient><clipPath id="glbh-win"><rect x="40" y="40" width="1200" height="720" rx="8"/></clipPath><linearGradient id="glbh-lime" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6EE06E"/><stop offset="0.45" stop-color="#32CD32"/><stop offset="1" stop-color="#28B428"/></linearGradient><linearGradient id="glbh-track" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#EDEFF2"/></linearGradient>
+    <linearGradient id="glb-ground" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1280" y2="640">
+      <stop offset="0" stop-color="#1D242B"/>
+      <stop offset="1" stop-color="#11151A"/>
+    </linearGradient>
+    <radialGradient id="glb-halo" gradientUnits="userSpaceOnUse" cx="960" cy="320" r="440">
+      <stop offset="0" stop-color="#F2C200" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#F2C200" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glb-drop" x="-15%" y="-15%" width="130%" height="140%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#glb-ground)"/>
+  <rect width="1280" height="640" fill="url(#glb-halo)"/>
+  <!-- lane markings -->
+  <g stroke="#E9EDF0" stroke-opacity="0.05" stroke-width="3" stroke-dasharray="36 28">
+    <path d="M0 596H1280"/>
+    <path d="M0 44H1280"/>
+  </g>
+
+  <!-- Eyebrow -->
+  <text x="96" y="140" font-family="'Cascadia Mono',Consolas,ui-monospace,Menlo,'Liberation Mono',monospace" font-size="15" letter-spacing="3" fill="#9AA4AE">PROOF OF CONCEPT <tspan fill="#F2C200">/</tspan> WINDOWS</text>
+
+  <!-- Mark + name -->
+  <g transform="translate(96 180)"><g transform="scale(0.20312)"><rect width="512" height="512" rx="112" fill="url(#glb-bg)"/><circle cx="256" cy="250" r="230" fill="url(#glb-glow)"/><path d="M112 1.5H400" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="3"/><rect x="1" y="1" width="510" height="510" rx="111" fill="none" stroke="#FFFFFF" stroke-opacity="0.07" stroke-width="2"/><g transform="translate(88 88) scale(14)"><rect x="11.2" y="12.6" width="9.6" height="1.9" rx="0.95" fill="#F2C200"/><rect x="11.2" y="16.1" width="7.2" height="1.9" rx="0.95" fill="#E9EDF0" fill-opacity="0.85"/><rect x="11.2" y="19.6" width="9.6" height="1.9" rx="0.95" fill="#E9EDF0" fill-opacity="0.85"/><g transform="translate(6 10.2) rotate(-29)"><rect x="-1.2" y="-1.55" width="15.6" height="3.1" rx="1.55" fill="#F2C200"/><rect x="4.2" y="-1.55" width="2.3" height="3.1" fill="#171C21"/><rect x="9.1" y="-1.55" width="2.3" height="3.1" fill="#171C21"/></g><rect x="4.4" y="10.2" width="3.2" height="10.6" rx="1" fill="#E9EDF0"/><rect x="3" y="19.6" width="6" height="1.9" rx="0.95" fill="#E9EDF0"/><circle cx="6" cy="10.2" r="2.35" fill="#E9EDF0"/><circle cx="6" cy="10.2" r="0.95" fill="#171C21"/></g></g></g>
+  <text x="96" y="352" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="72" font-weight="700" letter-spacing="-1.5" fill="#E9EDF0">Gate<tspan fill="#F2C200">log</tspan></text>
+
+  <!-- Tagline -->
+  <text x="96" y="400" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="25" fill="#C3CAD1">Installer and updater for a</text>
+  <text x="96" y="432" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="25" fill="#C3CAD1">vehicle-log server stack</text>
+
+  <!-- Stack chips -->
+  <g font-family="'Cascadia Mono',Consolas,ui-monospace,Menlo,'Liberation Mono',monospace" font-size="14" fill="#C3CAD1">
+    <rect x="96.5" y="462.5" width="158" height="33" rx="16.5" fill="#232B33" stroke="#36414C"/><text x="175.5" y="484" text-anchor="middle">.NET 6 WinForms</text>
+    <rect x="264.5" y="462.5" width="90" height="33" rx="16.5" fill="#232B33" stroke="#36414C"/><text x="309.5" y="484" text-anchor="middle">Krypton</text>
+    <rect x="364.5" y="462.5" width="108" height="33" rx="16.5" fill="#232B33" stroke="#36414C"/><text x="418.5" y="484" text-anchor="middle">MongoDB 7</text>
+    <rect x="482.5" y="462.5" width="108" height="33" rx="16.5" fill="#232B33" stroke="#36414C"/><text x="536.5" y="484" text-anchor="middle">Mosquitto</text>
+  </g>
+
+  <!-- Hero: the installer window -->
+  <g transform="translate(624 112) scale(0.56)">
+    <rect x="40" y="40" width="1200" height="720" rx="8" fill="#FFFFFF" filter="url(#glb-drop)"/>
+    <g clip-path="url(#glbh-win)">
+      <rect x="40" y="40" width="1200" height="720" fill="#FFFFFF"/>
+
+      <!-- Form1 title bar (custom, rebranded): icon, title, minimize, (maximize disabled), close -->
+      <rect x="40" y="40" width="1200" height="32" fill="#171C21"/>
+      <g transform="translate(52 45) scale(0.04297)"><g transform="scale(1.00000)"><rect width="512" height="512" rx="112" fill="url(#glbh-bg)"/><circle cx="256" cy="250" r="230" fill="url(#glbh-glow)"/><path d="M112 1.5H400" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="3"/><rect x="1" y="1" width="510" height="510" rx="111" fill="none" stroke="#FFFFFF" stroke-opacity="0.07" stroke-width="2"/><g transform="translate(88 88) scale(14)"><rect x="11.2" y="12.6" width="9.6" height="1.9" rx="0.95" fill="#F2C200"/><rect x="11.2" y="16.1" width="7.2" height="1.9" rx="0.95" fill="#E9EDF0" fill-opacity="0.85"/><rect x="11.2" y="19.6" width="9.6" height="1.9" rx="0.95" fill="#E9EDF0" fill-opacity="0.85"/><g transform="translate(6 10.2) rotate(-29)"><rect x="-1.2" y="-1.55" width="15.6" height="3.1" rx="1.55" fill="#F2C200"/><rect x="4.2" y="-1.55" width="2.3" height="3.1" fill="#171C21"/><rect x="9.1" y="-1.55" width="2.3" height="3.1" fill="#171C21"/></g><rect x="4.4" y="10.2" width="3.2" height="10.6" rx="1" fill="#E9EDF0"/><rect x="3" y="19.6" width="6" height="1.9" rx="0.95" fill="#E9EDF0"/><circle cx="6" cy="10.2" r="2.35" fill="#E9EDF0"/><circle cx="6" cy="10.2" r="0.95" fill="#171C21"/></g></g></g>
+      <text x="84" y="62.5" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="700" fill="#F0FFF0">Gatelog Server Setup</text>
+      <!-- 46px caption buttons: minimize 1102-1148, maximize (disabled) 1148-1194, close 1194-1240 -->
+      <g stroke="#F0FFF0" stroke-width="1.1" fill="none">
+        <path d="M1120 56.5h10"/>
+        <rect x="1166.5" y="51.5" width="9" height="9" rx="1.5" stroke-opacity="0.35"/>
+      </g>
+      <rect x="1194" y="40" width="46" height="32" fill="#171C21"/>
+      <path d="M1212 51l10 10M1222 51l-10 10" stroke="#F0FFF0" stroke-width="1.1" fill="none"/>
+
+      <!-- MainPanel (FixedSingle) hosting InstallerControl -->
+      <rect x="40.5" y="72.5" width="1199" height="653" fill="#FFFFFF" stroke="#A0A0A0"/>
+
+      <!-- lbl_title -->
+      <text x="640" y="113" text-anchor="middle" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="25" fill="#000000">Installing Gatelog, Please wait...</text>
+
+      <!-- lbl_step: RunInstaller step 5, UpdateControls("Creating MongoDBUser", 57) -->
+      <text x="79" y="159" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="25" fill="#000000">Creating MongoDBUser</text>
+
+      <!-- progressBar: KryptonProgressBar, OneNote style, LimeGreen -> ButtonHighlight, value as text -->
+      <rect x="87.5" y="172.5" width="1107" height="29" rx="2" fill="url(#glbh-track)" stroke="#B7BEC7"/>
+      <rect x="88.5" y="173.5" width="630" height="27" rx="1.5" fill="url(#glbh-lime)"/>
+      <rect x="88.5" y="173.5" width="630" height="9" rx="1.5" fill="#FFFFFF" fill-opacity="0.32"/>
+      <text x="641" y="193" text-anchor="middle" font-family="'Microsoft Sans Serif','Segoe UI',Tahoma,Arial,sans-serif" font-size="16" font-weight="700" fill="#000000">57%</text>
+
+      <!-- panel_installtion: label, disabled textBox1, disabled folder button -->
+      <text x="88" y="243" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="25" fill="#000000">Installation Location</text>
+      <rect x="365.5" y="218.5" width="779" height="32" fill="#F0F0F0" stroke="#CCCCCC"/>
+      <text x="372" y="240.5" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="17" fill="#6D6D6D">C:\Program Files</text>
+      <rect x="1149.5" y="217.5" width="54" height="34" rx="2" fill="#CCCCCC" stroke="#BFBFBF"/>
+      <text x="1176.5" y="239.5" text-anchor="middle" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="16" fill="#838383">...</text>
+
+      <!-- lbl_logs -->
+      <text x="87" y="290" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="25" fill="#000000">Logs Output</text>
+
+      <!-- richTextBox: KryptonRichTextBox -->
+      <rect x="87.5" y="313.5" width="1107" height="345" rx="1" fill="#FFFFFF" stroke="#B7BEC7"/>
+      <g font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="16" fill="#1E1E1E">
+        <text x="96" y="341">09-03-2026 10:41:52 : Extracting MongoDB-7.0.1 ...</text>
+        <text x="96" y="362">09-03-2026 10:42:37 : ZipFile extracted to C:\Program Files\Gatelog successfully</text>
+        <text x="96" y="383">09-03-2026 10:42:37 : Extracting mongosh-2.1.1 ...</text>
+        <text x="96" y="404">09-03-2026 10:42:49 : ZipFile extracted to C:\Program Files\Gatelog successfully</text>
+        <text x="96" y="425">09-03-2026 10:43:06 : MQTT Installation completed successfully Now Starting as a Service.</text>
+        <text x="96" y="446">09-03-2026 10:43:08 : The Mosquitto Broker service is starting.</text>
+        <text x="96" y="467">09-03-2026 10:43:09 : The Mosquitto Broker service was started successfully.</text>
+        <text x="96" y="488">09-03-2026 10:43:09 : --auth --bind_ip 127.0.0.1 --port 27017 --install -dbpath "C:\Program Files\Gatelog\MongoDB-7.0.1\data" --logpath "C:\Program</text>
+        <text x="96" y="509">Files\Gatelog\MongoDB-7.0.1\mongoLogs\mongodb.log" --serviceName MongoDB --serviceDisplayName MongoDBGatelog</text>
+        <text x="96" y="530">09-03-2026 10:43:12 : starting MongoDBGatelog service...</text>
+        <text x="96" y="551">09-03-2026 10:43:13 : The MongoDBGatelog service is starting.</text>
+        <text x="96" y="572">09-03-2026 10:43:15 : The MongoDBGatelog service was started successfully.</text>
+        <text x="96" y="593">09-03-2026 10:43:15 : Creating User</text>
+      </g>
+
+      <!-- btn_continue_finish: KryptonButton, disabled while installing -->
+      <rect x="1075.5" y="667.5" width="119" height="34" rx="4" fill="#D3D3D3" stroke="#404040"/>
+      <text x="1135" y="692" text-anchor="middle" font-family="Arial,'Helvetica Neue',sans-serif" font-size="21" font-weight="700" fill="#696969">Finish</text>
+
+      <!-- bottomPanel (FixedSingle): copyright left, version right (Segoe UI Emoji 12pt) -->
+      <rect x="40.5" y="726.5" width="1199" height="33" fill="#FFFFFF" stroke="#A0A0A0"/>
+      <text x="48" y="750.5" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="21" fill="#000000">&#169; 2024 Gatelog - Proof of concept</text>
+      <text x="1230" y="750.5" text-anchor="end" font-family="'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="21" fill="#000000">Version : V1R1 (1.0.18)</text>
+    </g>
+    <rect x="40.5" y="40.5" width="1199" height="719" rx="7.5" fill="none" stroke="#000000" stroke-opacity="0.22"/>
+  </g>
+
+  <!-- Footer -->
+  <path d="M96 560.5H1184" stroke="#36414C"/>
+  <rect x="96" y="580" width="8" height="8" fill="#F2C200"/>
+  <text x="116" y="589" font-family="'Cascadia Mono',Consolas,ui-monospace,Menlo,'Liberation Mono',monospace" font-size="15" letter-spacing="1" fill="#9AA4AE">trupalpatel.com</text>
+  <text x="1184" y="589" text-anchor="end" font-family="'Cascadia Mono',Consolas,ui-monospace,Menlo,'Liberation Mono',monospace" font-size="15" letter-spacing="1" fill="#9AA4AE">TRUPALIX9/Vehicle-Log-Managment-System</text>
+</svg>
