@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import confetti from 'canvas-confetti';
-import { Mail, Phone, Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Mail, Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import { trackVisitorEvent } from '@/utils/visitor-analytics';
 import Reveal from '@/components/motion/Reveal';
 
@@ -123,7 +123,6 @@ export default function ContactSection() {
 
                         <div className="flex flex-col gap-4 max-w-md w-full">
                             <ContactInfoRow icon={<Mail size={20} />} label="Email" value="trupal.work@gmail.com" href="mailto:trupal.work@gmail.com" />
-                            <ContactInfoRow icon={<Phone size={20} />} label="Phone" value="+1 943 265 1855" href="tel:+19432651855" />
                         </div>
                     </div>
 

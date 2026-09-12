@@ -9,7 +9,7 @@ export default function ProductShowcase() {
         <div className="container mx-auto py-32 w-full border-t border-line-1">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem', maxWidth: '1280px', margin: '0 auto', width: '100%' }}>
                 <Reveal className="text-center flex flex-col items-center">
-                    <p className="eyebrow mb-3">Products</p>
+                    <p className="eyebrow mb-3">Live Products</p>
                     <h2
                         className="text-ink-1"
                         style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.1 }}

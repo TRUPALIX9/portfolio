@@ -6,12 +6,13 @@ import { Sparkles, User, Award, Layers, History, Mail, Cpu, Package } from 'luci
 import { EASE_OUT } from '@/components/motion/Reveal';
 
 const navItems = [
+    // Home sections in page order; certifications, experience and tech-stack live inside About.
     { id: 'hero', label: 'Hero', icon: Sparkles },
     { id: 'about', label: 'About', icon: User },
     { id: 'certifications', label: 'Certifications', icon: Award },
     { id: 'experience', label: 'Experience', icon: History },
     { id: 'tech-stack', label: 'Tech Stack', icon: Cpu },
-    { id: 'products', label: 'Products', icon: Package },
+    { id: 'products', label: 'Live Products', icon: Package },
     { id: 'projects', label: 'Projects', icon: Layers },
     { id: 'contact', label: 'Contact', icon: Mail },
 ];

@@ -15,15 +15,22 @@ const GithubIcon = ({ size = 20 }: { size?: number }) => (
 
 // Map of nav link labels to section IDs for single-page scroll anchors
 const SECTION_ANCHORS: Record<string, string> = {
-  'About':      'about',
-  'Products':   'products',
-  'Work':       'projects',
+  'About':         'about',
+  'Live Products': 'products',
+  'Projects':      'projects',
   'Experience': 'experience',
   'Contact':    'contact',
 };
 
 // These always navigate to their own route regardless of page
 const ROUTE_ONLY = new Set(['/social', '/game']);
+
+// Section links also light up on the pages behind them (/products, /projects/[slug], /experience/[slug]).
+const SECTION_ROUTES: Record<string, string> = {
+  '/#products':   '/products',
+  '/#projects':   '/projects',
+  '/#experience': '/experience',
+};
 
 function NavbarContent() {
   const pathname     = useSitePathname();
@@ -95,7 +102,10 @@ function NavbarContent() {
   const handleToggle = () => setIsOpen(!isOpen);
 
   // Determine if a link is "active" — on home, we always consider it active for section links
-  const isLinkActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const isLinkActive = (href: string) => {
+    const route = SECTION_ROUTES[href] ?? href;
+    return pathname === route || pathname.startsWith(`${route}/`);
+  };
 
   // Render a nav link — on home page, section links scroll instead of navigate
   const renderLink = (link: { href: string; label: string }, onClick?: () => void) => {
@@ -188,18 +198,9 @@ function NavbarContent() {
           )}
 
           <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+            {/* The same menu on every page: "/#section" links take you to that section from anywhere. */}
             <div style={{ display: 'flex', gap: '1.5rem' }} className="nav-links">
-              {pathname === '/projects' || isHome ? (
-                navLinks.map(link => renderLink(link))
-              ) : pathname.startsWith('/projects/') ? (
-                <Link href="/projects" className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem' }}>
-                  &larr; Go to Projects
-                </Link>
-              ) : (
-                <Link href="/" className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem' }}>
-                  &larr; Back to Home
-                </Link>
-              )}
+              {navLinks.map(link => renderLink(link))}
             </div>
 
             <button className="hamburger-btn" onClick={handleToggle} aria-label={isOpen ? 'Close menu' : 'Open menu'} aria-expanded={isOpen}>

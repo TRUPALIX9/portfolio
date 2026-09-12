@@ -24,12 +24,12 @@ export default function ProjectsGallery() {
             <Reveal>
                 {/* Back to Home Button */}
                 <div style={{ marginBottom: '2rem' }}>
-                    <Link href="/" className="btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 1.25rem', fontSize: '0.9rem' }}>
+                    <Link href="/#projects" className="btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 1.25rem', fontSize: '0.9rem' }}>
                         <ArrowLeft size={15} aria-hidden="true" /> Back to Home
                     </Link>
                 </div>
 
-                <p className="eyebrow mb-3">Selected work</p>
+                <p className="eyebrow mb-3">Projects</p>
                 <h1 className="heading-lg text-ink-1" style={{ marginBottom: '3.5rem' }}>
                     Some things I&apos;ve <span className="gradient-text">built.</span>
                 </h1>

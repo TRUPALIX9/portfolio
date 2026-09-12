@@ -148,10 +148,10 @@ export default function Footer() {
                     <p className="text-ink-3">© {new Date().getFullYear()} Trupal Patel. All rights reserved.</p>
                     <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
                         <Link href="/#about" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">About</Link>
-                        <Link href="/products" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Products</Link>
-                        <Link href="/certifications" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Certifications</Link>
-                        <Link href="/#projects" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Work</Link>
+                        <Link href="/#products" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Live Products</Link>
+                        <Link href="/#projects" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Projects</Link>
                         <Link href="/#experience" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Experience</Link>
+                        <Link href="/certifications" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Certifications</Link>
                         <Link href="/game" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Arcade</Link>
                         <Link href="/#contact" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Contact</Link>
                     </div>

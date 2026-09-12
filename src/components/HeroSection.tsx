@@ -1,13 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import dynamic from 'next/dynamic';
 import {
     motion,
     useMotionTemplate,
     useMotionValue,
     useMotionValueEvent,
-    useScroll,
     useTransform,
     type MotionValue,
 } from 'framer-motion';
@@ -35,6 +34,47 @@ function remap(v: number, inMin: number, inMax: number) {
  */
 function useRange(value: MotionValue<number>, inMin: number, inMax: number, from: number, to: number) {
     return useTransform(value, (v: number) => from + (to - from) * remap(v, inMin, inMax));
+}
+
+/**
+ * 0 → 1 as the hero's scroll track passes. Computed from scrollY against a cached track position
+ * (no layout reads per scroll event), and re-synced on every way the page can land mid-scroll:
+ * mount, the next frame, load, back/forward cache restores (pageshow) and resize. framer's
+ * useScroll missed the browser's scroll restoration when coming Back to the page, which left the
+ * full-screen hero panel covering the content.
+ */
+function useHeroProgress(ref: RefObject<HTMLElement | null>) {
+    const progress = useMotionValue(0);
+
+    useEffect(() => {
+        let top = 0;
+        let range = 1;
+        const update = () => progress.set(Math.max(0, Math.min(1, (window.scrollY - top) / range)));
+        const resync = () => {
+            const el = ref.current;
+            if (el) {
+                top = el.getBoundingClientRect().top + window.scrollY;
+                range = Math.max(1, el.offsetHeight - window.innerHeight);
+            }
+            update();
+        };
+
+        resync();
+        const frame = requestAnimationFrame(resync);
+        window.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', resync, { passive: true });
+        window.addEventListener('load', resync);
+        window.addEventListener('pageshow', resync);
+        return () => {
+            cancelAnimationFrame(frame);
+            window.removeEventListener('scroll', update);
+            window.removeEventListener('resize', resync);
+            window.removeEventListener('load', resync);
+            window.removeEventListener('pageshow', resync);
+        };
+    }, [ref, progress]);
+
+    return progress;
 }
 
 const CHARS = "!<>-_\\/[]{}—=+*^?#_";
@@ -75,7 +115,7 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
     const sectionRef = useRef<HTMLElement>(null);
 
     // 0 → 1 as the hero's scroll track passes; drives everything below without React renders.
-    const { scrollYProgress: p } = useScroll({ target: sectionRef, offset: ['start start', 'end end'] });
+    const p = useHeroProgress(sectionRef);
 
     // The only state scrolling touches, and each flips once per pass.
     const [active, setActive] = useState(true); // hero on screen: the 3D scene renders

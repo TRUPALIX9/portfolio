@@ -73,7 +73,9 @@ body {
      which makes every `animation-timeline: view()` attach to a box that never scrolls
      (so the wireframe scroll animation never ran). clip hides overflow without that. */
   overflow-x: clip;
-  scroll-behavior: smooth;
+  /* No global smooth scrolling: a "/#projects" link from another page would otherwise animate
+     all the way through the 500vh hero. In-page nav clicks scroll smoothly on their own
+     (scrollIntoView with behavior: 'smooth'). */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   
