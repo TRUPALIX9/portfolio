@@ -22,7 +22,7 @@ An Android app with four endless brain games for reflexes, memory, math and focu
 
 ## Career History
 
-### Founding Software Engineer @ Allyvia (Jul 2024 – Present)
+### Founding Software Engineer @ Allyvia (Jul 2025 – Apr 2026)
 Allyvia is a comprehensive SaaS platform built to streamline B2B operations. Trupal engineered the platform from the ground up:
 - **Tech Stack**: Next.js 14, React, Tailwind CSS, Django (Python), PostgreSQL, AWS (S3, EC2, SQS), Redis.
 - **Key Achievements**:

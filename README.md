@@ -41,7 +41,7 @@ Software I build, ship and support for real users.
 
 | Role | Company | When |
 |---|---|---|
-| **Founding Software Engineer** | Allyvia | Jul 2024 – Present |
+| **Founding Software Engineer** | Allyvia | Jul 2025 – Apr 2026 |
 | **Software Engineer** | AIVID.AI | Jan 2023 – Jun 2025 |
 | **Frontend Software Engineer** | InfoLabz | Jan 2022 – Dec 2022 |
 
