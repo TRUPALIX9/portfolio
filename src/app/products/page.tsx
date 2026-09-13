@@ -8,7 +8,7 @@ import Reveal, { Stagger, StaggerItem } from '@/components/motion/Reveal';
 
 export const metadata: Metadata = {
     title: 'Live Products | Trupal Patel',
-    description: 'StoreDesk and LogicSprint: software Trupal Patel builds, ships and supports for real users.',
+    description: 'StoreDesk, LogicSprint and the Dr. Nandini physiotherapy site: software Trupal Patel builds, ships and supports for real users.',
     alternates: { canonical: '/products' },
 };
 
@@ -30,7 +30,7 @@ export default function ProductsPage() {
                     </h1>
                 </Reveal>
 
-                <Stagger role="list" className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+                <Stagger role="list" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                     {products.map((product) => (
                         <StaggerItem key={product.slug} role="listitem" className="h-full">
                             <ProductCard product={product} headingLevel="h2" />

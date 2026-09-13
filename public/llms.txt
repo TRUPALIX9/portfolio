@@ -20,6 +20,11 @@ An Android app with four endless brain games for reflexes, memory, math and focu
 - **Website**: https://logicsprint.trupalpatel.com (details for AI tools: https://logicsprint.trupalpatel.com/llms.txt)
 - **Product page**: https://trupalpatel.com/products/logicsprint
 
+### Dr. Nandini Jansari Physiotherapy
+A patient-facing website and admin panel for a home-visit physiotherapist in Ahmedabad: a scroll-driven 3D anatomy explorer, 39 condition pages, WhatsApp booking, verified patient reviews and a key-protected admin panel.
+- **Website**: https://www.drnandini.com
+- **Product page**: https://trupalpatel.com/products/dr-nandini-physio
+
 ## Career History
 
 ### Founding Software Engineer @ Allyvia (Jul 2025 – Apr 2026)
@@ -53,7 +58,7 @@ AIVID.AI provides enterprise-scale edge computer vision and analytics across 200
 
 ## Pages
 - [Home](https://trupalpatel.com/): about, products, selected work and contact
-- [Products](https://trupalpatel.com/products): StoreDesk and LogicSprint
+- [Products](https://trupalpatel.com/products): StoreDesk, LogicSprint and the Dr. Nandini physiotherapy site
 - [Projects](https://trupalpatel.com/projects): project case studies
 - [Certifications](https://trupalpatel.com/certifications)
 - [Resume (PDF)](https://trupalpatel.com/RESUME.pdf)

@@ -54,7 +54,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         description: product.tagline,
         url: product.site.url,
         operatingSystem: product.platform.replaceAll(' · ', ', '),
-        applicationCategory: product.slug === 'logicsprint' ? 'GameApplication' : 'BusinessApplication',
+        applicationCategory: product.category,
         author: { '@type': 'Person', name: 'Trupal Patel', url: SITE_URL },
     };
 

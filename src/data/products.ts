@@ -16,6 +16,8 @@ export type Product = {
     platform: string;
     /** Release state. */
     status: string;
+    /** schema.org applicationCategory for the product page's structured data. */
+    category: 'BusinessApplication' | 'GameApplication' | 'HealthApplication';
     /** The product's own home on the web. */
     site: { url: string; label: string };
     tech: { name: string; icon: string }[];
@@ -44,6 +46,7 @@ export const products: Product[] = [
         ],
         platform: 'Windows · Android · Web',
         status: 'v0.0.4 released',
+        category: 'BusinessApplication',
         site: { url: 'https://storedesk.net', label: 'storedesk.net' },
         tech: [
             { name: 'Electron', icon: 'devicon-electron-original colored' },
@@ -74,6 +77,7 @@ export const products: Product[] = [
         ],
         platform: 'Android',
         status: 'Test build · Google Play soon',
+        category: 'GameApplication',
         site: { url: LOGICSPRINT_URL, label: 'logicsprint.trupalpatel.com' },
         previewImage: { url: APP.featureGraphic, width: 1024, height: 500 },
         tech: [
@@ -83,5 +87,35 @@ export const products: Product[] = [
         ],
         icon: APP.icon,
         image: APP.featureGraphic,
+    },
+    {
+        slug: 'dr-nandini-physio',
+        name: 'Dr. Nandini Jansari Physiotherapy',
+        kicker: 'Healthcare practice site · Web',
+        tagline: 'A patient-facing website and admin panel for a home-visit physiotherapist in Ahmedabad.',
+        summary:
+            'Built for Dr. Nandini Jansari, this site turns a physiotherapy practice into a place patients can explore and book from. A scroll-driven 3D skeleton maps ten pain points to 39 condition pages, patients book over WhatsApp, and a key-protected admin panel lets the doctor edit every word, photo and review without touching code.',
+        highlights: [
+            'Scroll-driven 3D anatomy explorer: tap a glowing joint on a skeleton to see the conditions it covers.',
+            '39 condition pages grouped by body region, each with symptoms, treatment and structured MedicalWebPage data.',
+            'Admin panel with draft preview, publish, Cloudinary media library, enquiries and review request links.',
+            'Verified patient reviews: the doctor sends a personal link on WhatsApp and the review goes live on submit.',
+        ],
+        platform: 'Web',
+        status: 'Live',
+        category: 'HealthApplication',
+        site: { url: 'https://www.drnandini.com', label: 'drnandini.com' },
+        previewImage: { url: '/drnandini/og.jpg', width: 1200, height: 630 },
+        tech: [
+            { name: 'Next.js', icon: 'devicon-nextjs-plain' },
+            { name: 'React', icon: 'devicon-react-original colored' },
+            { name: 'TypeScript', icon: 'devicon-typescript-plain colored' },
+            { name: 'Tailwind CSS', icon: 'devicon-tailwindcss-original colored' },
+            { name: 'Three.js', icon: 'devicon-threejs-original' },
+            { name: 'MongoDB', icon: 'devicon-mongodb-plain colored' },
+            { name: 'Vercel', icon: 'devicon-vercel-original' },
+        ],
+        icon: '/drnandini/logo.png',
+        image: '/drnandini/og.jpg',
     },
 ];

@@ -21,7 +21,7 @@ export default function ProductShowcase() {
                     </p>
                 </Reveal>
 
-                <Stagger className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10 w-full">
+                <Stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10 w-full">
                     {products.map((product) => (
                         <StaggerItem key={product.slug} className="h-full">
                             <ProductCard product={product} />
