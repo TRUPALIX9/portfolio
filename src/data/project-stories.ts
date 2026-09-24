@@ -62,27 +62,6 @@ export const projectStories: Record<string, ProjectStory> = {
             'Scoping matters: role tiers are scaffolded, and enforcing them everywhere is tracked as its own milestone.',
         ],
     },
-    'card-snap': {
-        integration:
-            'The Expo (React Native) client captures a card with expo-camera and sends it as base64 to a Node.js backend. The backend runs Tesseract OCR, then regex-based parsing that pulls out name, title, company, email, and phone, and returns structured fields for the user to review before saving. The backend URL comes from .env, so one codebase targets local, staging, or production.',
-        challenges: [
-            {
-                title: 'OCR output is noisy',
-                problem: 'Logos, fonts, and layouts make raw OCR text unreliable to save as-is.',
-                resolution: 'Added a review step: parsed fields are shown for correction before anything is stored.',
-            },
-            {
-                title: 'Keeping the phone app light',
-                problem: 'Running OCR on-device would bloat the app and vary wildly by hardware.',
-                resolution: 'Moved OCR and parsing server-side; the client only captures, sends, and displays.',
-            },
-        ],
-        learnings: [
-            'When extraction can be wrong, a human-in-the-loop review step beats pretending the model is perfect.',
-            'Splitting heavy processing to the server keeps a cross-platform client simple.',
-            'Environment-driven configuration makes the same build usable across local and deployed backends.',
-        ],
-    },
     'shipping-agent-aws': {
         integration:
             'A Python Streamlit chat app calls a deployed AWS Bedrock Agent through boto3 with IAM-scoped invocation. All AWS credentials, the region, and agent/alias IDs load from environment variables, and quick-action buttons send common shipping requests without typing.',

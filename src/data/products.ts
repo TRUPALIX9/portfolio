@@ -28,6 +28,10 @@ export type Product = {
     image: string;
     /** Logos are shown whole on a plain surface; artwork fills the frame. */
     imageIsLogo?: boolean;
+    /** Launch or demo video, shown on the product page. */
+    video?: { src: string; poster: string; title: string };
+    /** Screenshots of the live product, shown on the product page. */
+    screens?: { src: string; title: string; caption: string }[];
 };
 
 export const products: Product[] = [
@@ -117,5 +121,56 @@ export const products: Product[] = [
         ],
         icon: '/drnandini/logo.png',
         image: '/drnandini/og.jpg',
+    },
+    {
+        slug: 'contact-convoy',
+        name: 'Contact Convoy',
+        kicker: 'Business-card scanner · Android, Web',
+        tagline: 'Scan business cards at exhibitions and meetings, let AI tidy them up, and follow up on every lead as a team.',
+        summary:
+            'Contact Convoy (first built as VisitCard Pro, and before that the Card Snap prototype) is an Android app for Indian sales teams. A salesperson scans a visiting card, the phone reads the text, and AI cleans up the fields. The lead lands in one shared company list with its exhibition, stall and follow-up status. Plans are priced per company, not per person, and sold on the website or in Google Play.',
+        highlights: [
+            'On-device OCR with Google ML Kit for English and Devanagari cards, front and back or from the gallery.',
+            'AI clean-up with Gemini fixes misread fields and marks every change for review before saving.',
+            'One company workspace: admins see every card, employees see their own, and a leaver\'s cards hand over in minutes.',
+            'Exhibition tagging, follow-up status (Hot, Warm, Cold, Done) and automatic thank-you emails.',
+            'Free, Starter and Pro plans with Card Credits, billed through Razorpay on the web or Google Play in the app.',
+        ],
+        platform: 'Android · Web',
+        status: 'Live on Google Play',
+        category: 'BusinessApplication',
+        site: { url: 'https://www.contactconvoy.com', label: 'contactconvoy.com' },
+        previewImage: { url: '/contactconvoy/feature-graphic.jpg', width: 1024, height: 500 },
+        tech: [
+            { name: 'Flutter', icon: 'devicon-flutter-plain colored' },
+            { name: 'Dart', icon: 'devicon-dart-plain colored' },
+            { name: 'Google ML Kit', icon: 'devicon-google-plain colored' },
+            { name: 'Gemini on Vertex AI', icon: 'devicon-googlecloud-plain colored' },
+            { name: 'SQLite', icon: 'devicon-sqlite-plain colored' },
+            { name: 'Node.js', icon: 'devicon-nodejs-plain colored' },
+            { name: 'Express', icon: 'devicon-express-original' },
+            { name: 'MongoDB Atlas', icon: 'devicon-mongodb-plain colored' },
+            { name: 'Mongoose', icon: 'devicon-mongoose-original colored' },
+            { name: 'Cloud Run', icon: 'devicon-googlecloud-plain colored' },
+            { name: 'Firebase', icon: 'devicon-firebase-plain colored' },
+            { name: 'React', icon: 'devicon-react-original colored' },
+            { name: 'Vite', icon: 'devicon-vitejs-plain colored' },
+            { name: 'Swagger', icon: 'devicon-swagger-plain colored' },
+        ],
+        icon: '/contactconvoy/icon.png',
+        image: '/contactconvoy/feature-graphic.jpg',
+        video: {
+            src: '/contactconvoy/launch.mp4',
+            poster: '/contactconvoy/launch-poster.jpg',
+            title: 'Contact Convoy launch video: scan a card, AI clean-up, review and save',
+        },
+        screens: [
+            { src: '/contactconvoy/home-hero.png', title: 'Home', caption: 'Scan a card, AI cleans up the fields, and the lead lands in one list.' },
+            { src: '/contactconvoy/features-ai-review.png', title: 'AI review', caption: 'Fields the AI changed are marked, and nothing is saved until you check it.' },
+            { src: '/contactconvoy/features-handover.png', title: 'Employee handover', caption: 'Move a leaver\'s cards to a colleague, fix their email and deactivate the login.' },
+            { src: '/contactconvoy/pricing-calculator.png', title: 'Pricing calculator', caption: 'Pick a plan, billing period and where you buy to see the exact price.' },
+            { src: '/contactconvoy/home-security.png', title: 'Security and privacy', caption: 'API hosted in Mumbai, private card photos behind expiring signed links.' },
+            { src: '/contactconvoy/pricing-buying-options.png', title: 'Buying options', caption: 'Buy on the website through Razorpay, or in Google Play with auto-renew.' },
+        ],
     },
 ];

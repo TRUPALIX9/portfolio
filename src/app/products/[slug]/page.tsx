@@ -135,6 +135,48 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                         </div>
                     </section>
                 </Reveal>
+
+                {product.video && (
+                    <Reveal delay={0.06}>
+                        <section aria-labelledby="video-title" className="mt-12">
+                            <h2 id="video-title" className={cardLabel}>Watch it</h2>
+                            <video
+                                src={product.video.src}
+                                poster={product.video.poster}
+                                controls
+                                playsInline
+                                preload="none"
+                                aria-label={product.video.title}
+                                className="block aspect-video h-auto w-full rounded-2xl border border-line-1 bg-surface-1"
+                            />
+                        </section>
+                    </Reveal>
+                )}
+
+                {product.screens && product.screens.length > 0 && (
+                    <Reveal delay={0.08}>
+                        <section aria-labelledby="screens-title" className="mt-12">
+                            <h2 id="screens-title" className={cardLabel}>In the product</h2>
+                            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                {product.screens.map((shot) => (
+                                    <figure key={shot.src} className="m-0">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={shot.src}
+                                            alt={`${shot.title}: ${shot.caption}`}
+                                            loading="lazy"
+                                            decoding="async"
+                                            className="block aspect-[16/10] h-auto w-full rounded-xl border border-line-1 bg-surface-1 object-cover"
+                                        />
+                                        <figcaption className="mt-2.5 text-[0.8125rem] leading-[1.55] text-ink-3">
+                                            <span className="font-semibold text-ink-2">{shot.title}.</span> {shot.caption}
+                                        </figcaption>
+                                    </figure>
+                                ))}
+                            </div>
+                        </section>
+                    </Reveal>
+                )}
             </div>
         </main>
     );

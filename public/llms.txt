@@ -25,6 +25,13 @@ A patient-facing website and admin panel for a home-visit physiotherapist in Ahm
 - **Website**: https://www.drnandini.com
 - **Product page**: https://trupalpatel.com/products/dr-nandini-physio
 
+### Contact Convoy
+A business-card scanner for Indian sales teams, formerly VisitCard Pro: on-device OCR, AI clean-up of misread fields, one shared company lead list with exhibition tagging and follow-up status, and per-company plans sold on the website and Google Play.
+- **Stack**: Flutter (Dart) Android app with Google ML Kit OCR and an SQLite offline cache; Node.js / Express API on Google Cloud Run with MongoDB Atlas (Mongoose); Gemini on Vertex AI for field clean-up; Firebase Hosting, Cloud Messaging and Crashlytics; React + Vite super-admin console; Razorpay and Google Play Billing.
+- **Website**: https://www.contactconvoy.com
+- **Google Play**: https://play.google.com/store/apps/details?id=com.ayushtech.contactconvoy
+- **Product page**: https://trupalpatel.com/products/contact-convoy
+
 ## Career History
 
 ### Founding Software Engineer @ Allyvia (Jul 2025 – Apr 2026)
@@ -58,7 +65,7 @@ AIVID.AI provides enterprise-scale edge computer vision and analytics across 200
 
 ## Pages
 - [Home](https://trupalpatel.com/): about, products, selected work and contact
-- [Products](https://trupalpatel.com/products): StoreDesk, LogicSprint and the Dr. Nandini physiotherapy site
+- [Products](https://trupalpatel.com/products): StoreDesk, LogicSprint, the Dr. Nandini physiotherapy site and Contact Convoy
 - [Projects](https://trupalpatel.com/projects): project case studies
 - [Certifications](https://trupalpatel.com/certifications)
 - [Resume (PDF)](https://trupalpatel.com/RESUME.pdf)

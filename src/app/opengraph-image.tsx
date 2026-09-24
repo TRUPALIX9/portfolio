@@ -24,7 +24,7 @@ export default function OpengraphImage() {
                 <div style={{ fontSize: 28, letterSpacing: 6, textTransform: 'uppercase', color: '#4ADE80' }}>trupalpatel.com</div>
                 <div style={{ fontSize: 104, fontWeight: 800, letterSpacing: -3, marginTop: 28 }}>Trupal Patel</div>
                 <div style={{ fontSize: 42, color: '#a1a1aa', marginTop: 12 }}>Software Engineer</div>
-                <div style={{ fontSize: 30, color: '#71717a', marginTop: 48 }}>Products: StoreDesk · LogicSprint · Dr. Nandini Physio</div>
+                <div style={{ fontSize: 30, color: '#71717a', marginTop: 48 }}>Products: StoreDesk · LogicSprint · Contact Convoy · Dr. Nandini Physio</div>
             </div>
         ),
         size,
