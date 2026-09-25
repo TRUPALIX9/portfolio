@@ -123,6 +123,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     // Product shots: phones sit four across; browser/desktop shots two across, with the first
     // spanning the row when the count is odd so no shot sits alone.
     const screens = project.media.filter((m) => m.type === 'image');
+    const videos = project.media.filter((m) => m.type === 'video');
     const phoneShots = screens.length > 0 && screens.every((s) => s.frame === 'phone');
     const spanFirst = !phoneShots && screens.length % 2 === 1;
 
@@ -187,6 +188,31 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                         )}
                     </header>
                 </Reveal>
+
+                {/* ── DEMO VIDEO ──────────────────────────────────────── */}
+                {videos.length > 0 && (
+                    <Reveal delay={0.06}>
+                        <section aria-labelledby="video-title" className="mb-12">
+                            <h2 id="video-title" className={cardLabel}>Watch it</h2>
+                            {videos.map((clip) => (
+                                <figure key={clip.src} className="m-0">
+                                    <video
+                                        src={clip.src}
+                                        poster={clip.poster}
+                                        controls
+                                        playsInline
+                                        preload="none"
+                                        aria-label={clip.title}
+                                        className="block aspect-video h-auto w-full rounded-2xl border border-line-1 bg-surface-1"
+                                    />
+                                    <figcaption className="mt-2.5 text-[0.8125rem] leading-[1.55] text-ink-3">
+                                        <span className="font-semibold text-ink-2">{clip.title}.</span> {clip.caption}
+                                    </figcaption>
+                                </figure>
+                            ))}
+                        </section>
+                    </Reveal>
+                )}
 
                 {/* ── PRODUCT SHOTS ───────────────────────────────────── */}
                 {screens.length > 0 && (

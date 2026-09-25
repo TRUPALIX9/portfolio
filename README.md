@@ -58,7 +58,7 @@ Each project has a story-style case study (problem → solution → integration 
 |---|---|:-:|:-:|
 | **RetailSync** | Multi-tenant SaaS monorepo | [Read](https://trupalpatel.com/projects/retailsync) | [GitHub](https://github.com/comp596-spring-2026/RetailSync) |
 | **Web Warehouse** | Next.js inventory, purchase orders and warehouse slots with a 3D item preview | [Read](https://trupalpatel.com/projects/web-warehouse) | [GitHub](https://github.com/TRUPALIX9/web-warehouse) |
-| **Shipping Agent Assistant** | Streamlit chat front end for an AWS Bedrock shipping agent (team project) | [Read](https://trupalpatel.com/projects/shipping-agent-aws) | [GitHub](https://github.com/TRUPALIX9/Shipping-Agent-AWS) |
+| **Shipping Agent** | Paste an order, get a label: AI shipping desk on ShipStation + Groq, with a [24s demo](https://github.com/Shipping-Agent/shipping-agent/blob/main/docs/demo.mp4) (team project, rebuilt from the AWS Bedrock version) | [Read](https://trupalpatel.com/projects/shipping-agent) | [GitHub](https://github.com/Shipping-Agent/shipping-agent) |
 | **Fire Forecasting** | Wildfire risk dashboard prototype on sample forecasts | [Read](https://trupalpatel.com/projects/fire-forecasting) | [GitHub](https://github.com/TRUPALIX9/fire-forecasting) |
 | **ZoneWatch** | Zone-based motion detection for ONVIF IP cameras (C# WinForms) | [Read](https://trupalpatel.com/projects/motion-detection) | [GitHub](https://github.com/TRUPALIX9/Motion-Detection-Windows-App) |
 | **Gatelog** | Proof-of-concept Windows installer and updater for a vehicle-log server stack | [Read](https://trupalpatel.com/projects/vehicle-log) | [GitHub](https://github.com/TRUPALIX9/Vehicle-Log-Managment-System) |

@@ -18,6 +18,8 @@ const nextConfig = {
             { source: '/projects/storedesk', destination: '/products/storedesk', permanent: true },
             // Card Snap grew into Contact Convoy.
             { source: '/projects/card-snap', destination: '/products/contact-convoy', permanent: true },
+            // The Bedrock prototype was rebuilt as Shipping Agent; its page now covers both.
+            { source: '/projects/shipping-agent-aws', destination: '/projects/shipping-agent', permanent: true },
         ];
     },
     async headers() {

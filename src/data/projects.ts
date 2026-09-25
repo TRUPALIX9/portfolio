@@ -222,68 +222,100 @@ flowchart TD
         `
     },
     {
-        slug: "shipping-agent-aws",
-        title: "Shipping Agent Assistant",
-        tagline: "Streamlit frontend wired to an AWS Bedrock Agent for conversational shipping and logistics assistance.",
-        description: "A Python + Streamlit web app that connects directly to a deployed AWS Bedrock Agent. Users describe shipping needs in natural language and the agent responds with rate guidance, tracking context, or operational recommendations. Pre-built quick-action buttons handle common shipping queries without typing.",
-        scenario: "Logistics teams jump between carrier websites, spreadsheets, and email threads to compare rates and check tracking status. There was no unified conversational entry point that could surface relevant data on demand.",
-        problemSolved: "By wrapping AWS Bedrock Agents in a Streamlit chat interface, this tool lets operators ask shipping questions in plain language and receive structured responses — replacing manual portal hopping with a single conversational workflow.",
+        slug: "shipping-agent",
+        title: "Shipping Agent",
+        tagline: "Paste an order, get a label: an AI shipping desk that quotes every carrier through ShipStation and checks out to a printable label.",
+        description: "A Python + Streamlit shipping desk that started as a four-person team prototype and was rebuilt end to end. An AI assistant (Groq tool calling, with an optional AWS Bedrock Agent) reads a pasted order email, packing slip or address block, builds the shipment, and fetches exact rates from every connected carrier through the ShipStation API v2. Rates come back with carrier logos and Cheapest / Best value / Fastest picks; checkout opens pre-filled and ends in a real label PDF with a tracking number. Around the assistant sit Dashboard, Rates, Checkout, Shipments and Tracking pages. The legacy version was a Streamlit chat wired straight to a deployed AWS Bedrock Agent through boto3, with quick-action buttons for rates and tracking.",
+        scenario: "Shipping one package usually means five tabs of copy-paste: lift the address out of an order email, key it into a carrier portal, compare prices across carriers, then buy and print the label somewhere else.",
+        problemSolved: "The whole desk collapses into one paste. The assistant extracts the sender, recipient, package and contents, quotes every carrier at once, and hands off to a checkout that is already filled in, so the path from order to printable label is a couple of clicks.",
         howToUse: [
-            "Configure .env with your AWS Access Key, Secret, Region, Bedrock Agent ID, and Alias ID.",
-            "Run 'streamlit run app.py' and open the app at localhost:8501.",
-            "Type a shipping request or click a quick-action button (e.g. 'Compare rates' or 'Check tracking').",
-            "The agent invokes AWS Bedrock with proper IAM scoping and streams the response into the chat window.",
+            "Paste an order into the assistant, or drop a .txt or .csv file.",
+            "Groq pulls out the addresses, package and contents, then calls ShipStation for exact rates from every connected carrier.",
+            "Pick a rate from the table, or use Choose cheapest / Choose fastest.",
+            "Checkout opens pre-filled; add signature confirmation or insurance and the price updates with the carrier's itemized charges.",
+            "Buy the label to get a label PDF and tracking number you can print, download (PDF, PNG or ZPL) or void.",
         ],
         outcomes: [
-            "Real-time conversational interface backed by a live AWS Bedrock Agent session.",
-            "Pre-built quick-action buttons reduce friction for common logistics queries.",
-            "Responsive across desktop, tablet, and mobile — deployable as a shareable team tool.",
-            "Credentials never hard-coded: all AWS config loaded from environment variables.",
+            "One paste goes from a messy order to exact multi-carrier rates; the demo run returned 14 rates in 7.4s.",
+            "Cheapest, Best value and Fastest picks, with USPS Media Mail only offered when the contents are books or media.",
+            "Label safety by default: the production key never buys labels unless ALLOW_LIVE_LABELS=1, and the app never collects card numbers.",
+            "Keeps the legacy AWS Bedrock Agent as a switchable assistant provider (CHAT_PROVIDER=bedrock), so the original team build still runs.",
+            "Runs with no keys on labelled demo data; 54 tests drive every page, including the full Rates → Checkout → label flow, without network calls.",
         ],
         progress: [
-            { title: "Bedrock Agent integration", detail: "Streamlit chat app connected to AWS Bedrock Agent via boto3 with IAM-scoped invocation.", state: "done" },
-            { title: "Quick actions & UI", detail: "Pre-built action buttons and clean chat interface implemented.", state: "done" },
-            { title: "Carrier coverage expansion", detail: "Broader logistics tool integrations and tracking provider coverage still being added.", state: "in-progress" },
-            { title: "Observability & error tracing", detail: "Full production traceability and fallback handling on the roadmap.", state: "planned" },
+            { title: "Legacy: Bedrock prototype", detail: "The team's first version: a Streamlit chat app calling a deployed AWS Bedrock Agent via boto3 with IAM-scoped invocation, plus quick-action buttons.", state: "done" },
+            { title: "ShipStation rebuild", detail: "Exact rates, estimates, labels, void, tracking and address validation through the ShipStation API v2.", state: "done" },
+            { title: "AI checkout", detail: "Groq tool-calling agent that builds shipments from pasted text and hands off to a pre-filled checkout.", state: "done" },
+            { title: "Live tracking coverage", detail: "Tracking falls back to carrier pages or simulated scans when the plan or sandbox lacks API tracking.", state: "in-progress" },
         ],
         futureGoals: [
-            "Add cost-history trend comparisons and shipping analytics.",
-            "Build an approval workflow for procurement teams.",
-            "Extend agent knowledge base with carrier-specific SLA data.",
+            "Batch shipping: paste a CSV of orders and buy every label in one pass.",
+            "Cost-history trends and per-carrier spend analytics on the Dashboard.",
+            "Store integrations that pull new orders in automatically.",
         ],
         tech: [
             { name: "Python", icon: "devicon-python-plain colored" },
-            { name: "AWS", icon: "devicon-amazonwebservices-plain colored" },
-            { name: "Streamlit", icon: "devicon-streamlit-plain colored" }
+            { name: "Streamlit", icon: "devicon-streamlit-plain colored" },
+            { name: "ShipStation API", icon: "" },
+            { name: "Groq", icon: "" },
+            { name: "AWS Bedrock", icon: "devicon-amazonwebservices-plain colored" },
+            { name: "pytest", icon: "" }
         ],
-        links: { live: "#", github: "https://github.com/TRUPALIX9/Shipping-Agent-AWS" },
-        image: "/projects/shipping-agent-aws/banner.svg",
-        architectureImage: "/projects/shipping-agent-aws/architecture.svg",
-        logoIcon: "/projects/shipping-agent-aws/icon.svg",
-        mediaDisplay: "storyboard",
+        links: { live: "#", github: "https://github.com/Shipping-Agent/shipping-agent" },
+        image: "/projects/shipping-agent/demo-poster.jpg",
+        logoIcon: "/projects/shipping-agent/icon.svg",
+        mediaDisplay: "spotlight",
         media: [
             {
+                type: "video",
+                src: "/projects/shipping-agent/demo.mp4",
+                poster: "/projects/shipping-agent/demo-poster.jpg",
+                title: "Paste an order, get a label",
+                caption: "A 24-second demo: an order is pasted into the assistant, ShipStation returns 14 rates, Choose cheapest opens checkout, and a USPS Media Mail label prints. The order, rates and tracking number come from a real run against the ShipStation sandbox with Groq.",
+            },
+            {
                 type: "image",
-                src: "/projects/shipping-agent-aws/screen-chat.svg",
-                title: "Chat with your agent",
-                caption: "Connected chat: the agent quotes three shipping rates with delivery dates and tracks a package, with the AWS Agent Configuration form in the sidebar.",
+                src: "/projects/shipping-agent/legacy-chat.svg",
+                title: "Legacy: chat with the Bedrock agent",
+                caption: "The original team build: the agent quotes three shipping rates and tracks a package, with the AWS Agent Configuration form in the sidebar.",
                 frame: "browser",
             },
             {
                 type: "image",
-                src: "/projects/shipping-agent-aws/screen-connect.svg",
-                title: "Connecting to the agent",
-                caption: "First visit: the sidebar form is filled in and shows the Connecting to AWS Bedrock Agent spinner while the main area still reads Not Connected.",
+                src: "/projects/shipping-agent/legacy-connect.svg",
+                title: "Legacy: connecting to the agent",
+                caption: "The sidebar form shows the Connecting to AWS Bedrock Agent spinner while the main area still reads Not Connected.",
                 frame: "browser",
             },
             {
                 type: "image",
-                src: "/projects/shipping-agent-aws/screen-quick-actions.svg",
-                title: "Quick actions",
+                src: "/projects/shipping-agent/legacy-quick-actions.svg",
+                title: "Legacy: quick actions",
                 caption: "Get Shipping Rates, Track Package and Clear Chat, with the Getting shipping rates spinner and the session ID footer.",
                 frame: "browser",
             }
-        ]
+        ],
+        mermaidChart: `
+graph LR
+    classDef client fill:#2563EB,stroke:#8AB4FF,color:#fff
+    classDef ai fill:#7C3AED,stroke:#C4B5FD,color:#fff
+    classDef api fill:#0F766E,stroke:#5EEAD4,color:#fff
+    classDef db fill:#374151,stroke:#9CA3AF,color:#fff
+
+    UI[Streamlit pages + Ask AI]:::client
+    Agent[Groq tool-calling agent]:::ai
+    Bedrock[AWS Bedrock Agent, optional]:::ai
+    Tools[Shipping tools: quote, create shipment, track, validate]:::client
+    SS[ShipStation API v2]:::api
+    Store[(data/quotes.json)]:::db
+
+    UI --> Agent
+    UI -.-> Bedrock
+    Agent --> Tools
+    UI -- Rates / Checkout --> Tools
+    Tools -- rates, labels, tracking --> SS
+    UI --> Store
+        `
     },
     {
         slug: "fire-forecasting",

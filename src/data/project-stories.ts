@@ -62,25 +62,36 @@ export const projectStories: Record<string, ProjectStory> = {
             'Scoping matters: role tiers are scaffolded, and enforcing them everywhere is tracked as its own milestone.',
         ],
     },
-    'shipping-agent-aws': {
+    'shipping-agent': {
         integration:
-            'A Python Streamlit chat app calls a deployed AWS Bedrock Agent through boto3 with IAM-scoped invocation. All AWS credentials, the region, and agent/alias IDs load from environment variables, and quick-action buttons send common shipping requests without typing.',
+            'A multi-page Streamlit app (Dashboard, Rates, Checkout, Shipments, Tracking, Assistant) sits on a small shipping_agent package. A ShipStation API v2 client handles rates, estimates, labels, void, tracking and address validation; a Groq tool-calling agent (or an optional AWS Bedrock Agent) calls quote_rates, create_shipment, track_package, validate_address and list_carriers, and hands a finished shipment to a pre-filled checkout. With no keys, a demo client stands in so every page still works.',
         challenges: [
             {
-                title: 'Portal hopping',
-                problem: 'Comparing rates and checking tracking meant bouncing between carrier sites, spreadsheets, and email.',
-                resolution: 'Put a single conversational entry point in front of the agent so questions are asked in plain language.',
+                title: 'An AI that must not make up prices',
+                problem: 'A chat model will happily invent a rate or say a label was bought when it was not.',
+                resolution: 'Every price comes from a ShipStation tool call, the prompt forbids inventing prices or claiming a purchase, and the rate table and label panel render straight from API results.',
             },
             {
-                title: 'Credentials in a demo app',
-                problem: 'Agent tools tend to end up with keys pasted into code.',
-                resolution: 'Loaded every secret from the environment and scoped invocation through IAM.',
+                title: 'Buying labels safely',
+                problem: 'A production key can buy real, billed labels, which is dangerous in a demo or a misconfigured deploy.',
+                resolution: 'Labels are bought with the sandbox key by default; the production key only buys when ALLOW_LIVE_LABELS=1, and otherwise checkout hands payment to ShipStation or the carrier. The app never collects card numbers.',
+            },
+            {
+                title: 'Picks that respect the rules',
+                problem: 'The cheapest rate is often USPS Media Mail, which is only allowed for books and media.',
+                resolution: 'Media Mail is only picked when the contents are books or media; Cheapest and Fastest prefer services with a delivery estimate, and Best value ranks days saved per extra dollar.',
+            },
+            {
+                title: 'Outgrowing the Bedrock prototype',
+                problem: 'The legacy build answered in prose from a Bedrock Agent, so rates could not be compared, picked or turned into a label.',
+                resolution: 'Moved pricing, labels and tracking into typed ShipStation tools behind structured tables and checkout, and kept the Bedrock Agent as an optional provider rather than the core.',
             },
         ],
         learnings: [
-            'Conversational tools still need shortcuts; quick actions cover the most common requests faster than typing.',
-            'Least-privilege IAM is worth setting up even for internal tools.',
-            'Production agents need observability and fallbacks, which is the next milestone here.',
+            'Grounding the agent in tools, not prose, is what makes its answers trustworthy.',
+            'A demo mode with clearly labelled data makes the app runnable by anyone and testable without network calls.',
+            'Rebuilding a team prototype showed how much of the product lives in checkout and safety rules, not in the chat.',
+            'Least-privilege IAM and env-only credentials, set up in the Bedrock version, carried straight into the rebuild.',
         ],
     },
     'fire-forecasting': {
