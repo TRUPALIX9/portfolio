@@ -2,14 +2,17 @@ import './logicsprint.css';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { IBM_Plex_Sans, JetBrains_Mono, Rajdhani } from 'next/font/google';
+import { JetBrains_Mono, Rajdhani } from 'next/font/google';
+import localFont from 'next/font/local';
 import { ArrowUpRight } from 'lucide-react';
 import { APP } from '@/data/logicsprint';
 import { SITE_URL } from '@/data/site';
 
-// Google Fonts, self-hosted by next/font: no requests to Google from these pages.
+// Fonts are self-hosted by next/font: no requests to Google from these pages. IBM Plex Sans ships
+// from the repo as its Latin variable font (400–600), because fetching it from Google Fonts at build
+// time broke Vercel's Turbopack build.
 const rajdhani = Rajdhani({ subsets: ['latin'], weight: '700', display: 'swap', variable: '--font-rajdhani' });
-const plex = IBM_Plex_Sans({ subsets: ['latin'], weight: ['400', '500', '600'], display: 'swap', variable: '--font-plex' });
+const plex = localFont({ src: './fonts/ibm-plex-sans-latin.woff2', weight: '400 600', display: 'swap', variable: '--font-plex' });
 const jetbrains = JetBrains_Mono({ subsets: ['latin'], weight: ['500', '700'], display: 'swap', variable: '--font-jetbrains' });
 
 export const metadata: Metadata = {
