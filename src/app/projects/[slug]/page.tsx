@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { ArrowLeft, ArrowRight, CheckCircle2, CircleDashed, Clock, ExternalLink, Flag, GraduationCap, Lightbulb, Mountain, Target, Workflow } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, CircleDashed, Clock, ExternalLink, Flag, GraduationCap, History, Lightbulb, Mountain, Target, Workflow } from 'lucide-react';
 import { projects } from '@/data/projects';
 import { projectStories } from '@/data/project-stories';
 import MermaidChart from '@/components/MermaidChart';
@@ -130,6 +130,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     const chapters = [
         { id: 'problem', label: 'Problem' },
         { id: 'solution', label: 'Solution' },
+        ...(project.legacy ? [{ id: 'legacy', label: 'Legacy version' }] : []),
         { id: 'build', label: 'How it’s built' },
         ...(story?.challenges.length ? [{ id: 'challenges', label: 'Challenges' }] : []),
         ...(story?.learnings.length ? [{ id: 'learnings', label: 'Learnings' }] : []),
@@ -278,6 +279,65 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                             <p className={bodyText}>{project.description}</p>
                         </div>
                     </Chapter>
+
+                    {project.legacy && (
+                        <Chapter id="legacy" number={nextNumber()} eyebrow="Where it started" title={`The legacy version: ${project.legacy.title}`} icon={<History size={16} aria-hidden="true" />} accent={ACCENT.amber}>
+                            <div className="flex flex-col gap-6">
+                                <p className={bodyText}>{project.legacy.summary}</p>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className={cardClass}>
+                                        <h3 className={cardLabel}>What it did</h3>
+                                        <ul className="flex flex-col gap-3">
+                                            {project.legacy.features.map((f) => (
+                                                <li key={f} className="flex gap-3 text-[0.9375rem] leading-[1.65] text-ink-2">
+                                                    <span aria-hidden="true" className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: ACCENT.amber }} />
+                                                    <span>{f}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <div className={cardClass}>
+                                        <h3 className={cardLabel}>What the rebuild changed</h3>
+                                        <ul className="flex flex-col gap-3">
+                                            {project.legacy.changes.map((c) => (
+                                                <li key={c} className="flex gap-3 text-[0.9375rem] leading-[1.65] text-ink-2">
+                                                    <span aria-hidden="true" className="font-bold" style={{ color: ACCENT.green }}>→</span>
+                                                    <span>{c}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {project.legacy.screens && project.legacy.screens.length > 0 && (
+                                    <div className={`grid gap-5 ${project.legacy.screens.every((s) => s.frame === 'phone') ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2'}`}>
+                                        {project.legacy.screens.map((shot, i, all) => (
+                                            <figure key={shot.src} className={`m-0 ${all.length % 2 === 1 && i === 0 ? 'sm:col-span-2' : ''}`}>
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img
+                                                    src={shot.src}
+                                                    alt={`Legacy version, ${shot.title}: ${shot.caption}`}
+                                                    loading="lazy"
+                                                    className="block h-auto w-full rounded-xl border border-line-1 bg-surface-1"
+                                                />
+                                                <figcaption className="mt-2.5 text-[0.8125rem] leading-[1.55] text-ink-3">
+                                                    <span className="font-semibold text-ink-2">{shot.title}.</span> {shot.caption}
+                                                </figcaption>
+                                            </figure>
+                                        ))}
+                                        <p className="m-0 text-xs text-ink-3 sm:col-span-2">Screens are recreated from the legacy app&apos;s real UI with fictional demo data.</p>
+                                    </div>
+                                )}
+
+                                {project.legacy.github && (
+                                    <a href={project.legacy.github} target="_blank" rel="noreferrer" className="btn-outline self-start" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.25rem', fontSize: '0.9rem' }}>
+                                        Legacy source code <GithubIcon size={15} />
+                                    </a>
+                                )}
+                            </div>
+                        </Chapter>
+                    )}
 
                     <Chapter id="build" number={nextNumber()} eyebrow="Integration" title="How it fits together" icon={<Workflow size={16} aria-hidden="true" />} accent={ACCENT.sky}>
                         <div className="flex flex-col gap-6">
