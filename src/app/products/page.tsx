@@ -8,7 +8,7 @@ import Reveal, { Stagger, StaggerItem } from '@/components/motion/Reveal';
 
 export const metadata: Metadata = {
     title: 'Live Products | Trupal Patel',
-    description: 'StoreDesk, LogicSprint, Contact Convoy and the Dr. Nandini physiotherapy site: software Trupal Patel builds, ships and supports for real users.',
+    description: 'StoreDesk, LogicSprint, Contact Convoy, the Dr. Nandini physiotherapy site and the MeghVin Foundation site: software Trupal Patel builds, ships and supports for real users.',
     alternates: { canonical: '/products' },
 };
 

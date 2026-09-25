@@ -32,6 +32,12 @@ A business-card scanner for Indian sales teams, formerly VisitCard Pro: on-devic
 - **Google Play**: https://play.google.com/store/apps/details?id=com.ayushtech.contactconvoy
 - **Product page**: https://trupalpatel.com/products/contact-convoy
 
+### MeghVin Foundation
+The website and admin for MeghVin Foundation, a public charitable trust in Ahmedabad and Navi Mumbai that plants and cares for trees at Sindoor Valley (Kharghar), runs a community kitchen and takes doctor-led health talks into schools. The public site tells its story in English and Gujarati. One admin gives the trustees control of everything: every page's text and photos, the daily activity diary, gallery, stories, a poster studio, letterhead receipts and certificates, media, messages, settings and team, with no code.
+- **Stack**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4 with shadcn/ui and Radix UI; MongoDB Atlas with Mongoose; Cloudinary for media; Konva poster canvas; three.js with React Three Fiber; Motion; jsPDF; Zod; jose JWT sessions with bcrypt; Formspree; deployed on Vercel.
+- **Website**: https://meghvin.vercel.app
+- **Product page**: https://trupalpatel.com/products/meghvin-foundation
+
 ## Career History
 
 ### Founding Software Engineer @ Allyvia (Jul 2025 – Apr 2026)
@@ -65,7 +71,7 @@ AIVID.AI provides enterprise-scale edge computer vision and analytics across 200
 
 ## Pages
 - [Home](https://trupalpatel.com/): about, products, selected work and contact
-- [Products](https://trupalpatel.com/products): StoreDesk, LogicSprint, the Dr. Nandini physiotherapy site and Contact Convoy
+- [Products](https://trupalpatel.com/products): StoreDesk, LogicSprint, the Dr. Nandini physiotherapy site, Contact Convoy and the MeghVin Foundation site
 - [Projects](https://trupalpatel.com/projects): project case studies
 - [Certifications](https://trupalpatel.com/certifications)
 - [Resume (PDF)](https://trupalpatel.com/RESUME.pdf)
