@@ -51,6 +51,7 @@ const techArsenal: Record<string, Skill[] | Record<string, Skill[]>> = {
         { name: "Node.js", class: "devicon-nodejs-plain colored" },
         { name: ".NET", class: "devicon-dotnetcore-plain colored" },
         { name: "Django", class: "devicon-django-plain colored" },
+        { name: "FastAPI", class: "devicon-fastapi-plain colored" },
         { name: "Flask", class: "devicon-flask-original colored" },
         { name: "Windows Services", class: "devicon-windows8-original colored" },
         { name: "GraphQL", class: "devicon-graphql-plain colored" }
@@ -65,6 +66,8 @@ const techArsenal: Record<string, Skill[] | Record<string, Skill[]>> = {
         { name: "PostgreSQL", class: "devicon-postgresql-plain colored" },
         { name: "MongoDB", class: "devicon-mongodb-plain colored" },
         { name: "SQL & MySQL", class: "devicon-mysql-plain colored" },
+        { name: "BigQuery", class: "devicon-googlecloud-plain colored" },
+        { name: "Elasticsearch", class: "devicon-elasticsearch-plain colored" },
         { name: "Oracle", class: "devicon-oracle-original" },
         { name: "Redis", class: "devicon-redis-plain colored" },
         { name: "Firebase", class: "devicon-firebase-plain colored" }

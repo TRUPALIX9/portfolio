@@ -5,8 +5,8 @@
         "email": "trupal.work@gmail.com",
         "phone": "+1 (943) 265-1855",
         "location": "Atlanta, GA",
-        "storyText": "I am a true all round Software Engineer. I don't box myself into just frontend or backend, and I'm not tied to a single programming language. I thrive on handling the entire software lifecycle, from architecting intricate backend logic and designing seamless user interfaces, all the way to deploying highly scalable production ready systems.\n\nMost recently, as the Founding Software Engineer at Allyvia, I had the opportunity to build a comprehensive SaaS platform from the ground up, touching every part of the stack from React UI design to asynchronous AWS SQS task queues. Before that, at AIVID.AI, I engineered high performance analytics pipelines and optimized Elasticsearch queries for over 200 production sites to ensure everything ran fast and reliably at scale.\n\nBeyond corporate roles, I love building robust systems like StoreDesk, a production grade 5 module retail command center and POS ecosystem I architected from scratch. It seamlessly connects local edge nodes to cloud dashboards and mobile apps via WebSockets, completely eliminating downtime risks for convenience stores. For me, it is all about deeply understanding a problem, designing a scalable architecture, and writing clean code that actually makes a difference.",
-        "voiceSummary": "Hi, I'm Trupal Patel. I am a true all round Software Engineer. I don't box myself into just frontend or backend roles, and I'm not tied to a single language. I handle the entire software lifecycle, from architecting intricate backend logic and designing seamless user interfaces, all the way to deploying highly scalable production ready systems. Most recently, as the Founding Software Engineer at Allyvia, I built a comprehensive SaaS platform from the ground up, touching every part of the stack from React UI design to asynchronous AWS task queues. Before that, at AIVID.AI, I engineered high performance analytics pipelines and optimized Elasticsearch queries for over two hundred production sites. Beyond corporate roles, I also architected StoreDesk, a production grade five module retail command center and POS ecosystem from scratch to eliminate downtime risks for convenience stores. For me, it is all about deeply understanding a problem, designing a scalable architecture, and writing clean code that makes a real impact. I would love to bring this exact same drive and architectural vision to your team. Feel free to connect with me on the socials page or download my resume to get in touch!"
+        "storyText": "I am a true all round Software Engineer. I don't box myself into just frontend or backend, and I'm not tied to a single programming language. I thrive on handling the entire software lifecycle, from architecting intricate backend logic and designing seamless user interfaces, all the way to deploying highly scalable production ready systems.\n\nMost recently, as the Founding Software Engineer at Allyvia, I had the opportunity to build a comprehensive SaaS platform from the ground up, touching every part of the stack on GCP, from React 19 UI design and Django REST APIs to BigQuery analytics pipelines and Pub/Sub event-driven ingestion. Before that, at AIVID.AI, I engineered high performance analytics pipelines and optimized Elasticsearch queries for over 200 production sites to ensure everything ran fast and reliably at scale.\n\nBeyond corporate roles, I love building robust systems like StoreDesk, a production grade 5 module retail command center and POS ecosystem I architected from scratch. It seamlessly connects local edge nodes to cloud dashboards and mobile apps via WebSockets, completely eliminating downtime risks for convenience stores. For me, it is all about deeply understanding a problem, designing a scalable architecture, and writing clean code that actually makes a difference.",
+        "voiceSummary": "Hi, I'm Trupal Patel. I am a true all round Software Engineer. I don't box myself into just frontend or backend roles, and I'm not tied to a single language. I handle the entire software lifecycle, from architecting intricate backend logic and designing seamless user interfaces, all the way to deploying highly scalable production ready systems. Most recently, as the Founding Software Engineer at Allyvia, I built a comprehensive SaaS platform from the ground up, touching every part of the stack on Google Cloud, from React UI design and Python REST APIs to BigQuery analytics pipelines and event driven Pub/Sub ingestion. Before that, at AIVID.AI, I engineered high performance analytics pipelines and optimized Elasticsearch queries for over two hundred production sites. Beyond corporate roles, I also architected StoreDesk, a production grade five module retail command center and POS ecosystem from scratch to eliminate downtime risks for convenience stores. For me, it is all about deeply understanding a problem, designing a scalable architecture, and writing clean code that makes a real impact. I would love to bring this exact same drive and architectural vision to your team. Feel free to connect with me on the socials page or download my resume to get in touch!"
     },
     "experiences": [
         {
@@ -17,42 +17,42 @@
             "role": "Founding Software Engineer",
             "period": "Jul 2025 – Apr 2026",
             "achievements": [
-                "Architected and built the end-to-end SaaS application utilizing a React 19 + TypeScript frontend and a Django 5.0 + Django REST Framework backend.",
-                "Engineered an asynchronous background task runner utilizing AWS SQS queues to offload heavy QuickBooks Online data synchronization and webhook ingestion, improving web server latency.",
-                "Implemented a secure, end-to-end employee onboarding workflow with automated temporary credentials, SendGrid welcome emails, and a PIN-authorized clock-in/out kiosk console.",
-                "Integrated Google Drive API for secure document storage, designing OAuth verification, token refresh cycles, and symmetrically encrypted credential storage.",
-                "Developed a robust CRM Hub featuring leads tracking, deals pipelines, tasks, and call notes, alongside document attachment support for client folders.",
-                "Built an Inventory Synchronization module mapping QuickBooks items to local stock databases, implementing reorder points, stock-on-hand tracking, and PostgreSQL trigram similarity searches.",
-                "Designed a multi-module reporting and analytics engine covering Finance, Inventory, CRM, and Employee shifts, utilizing client-side charts to visualize business intelligence metrics."
+                "Architected a cloud-native, full-stack SaaS platform on GCP using Python, React 19, TypeScript, and Django REST Framework.",
+                "Engineered BigQuery-based analytics and data processing pipelines that sync QuickBooks accounting data, using incremental loads and Python-based transformations to keep API response latency under 200ms.",
+                "Built secure multi-tenant workflows including PIN-authorized kiosk clock-in/out consoles, RBAC route guarding, and OAuth token refresh cycles, owning design, development, testing, and production support.",
+                "Developed AI-enabled REST APIs and integrations, using GCP Cloud Storage and Pub/Sub for event-driven ingestion in an emerging GenAI prototype assistant.",
+                "Developed a CRM Hub with leads tracking, deals pipelines, tasks, and call notes, linked to client documents and financial invoices.",
+                "Built an Inventory Synchronization module mapping QuickBooks items to local stock, with reorder points, stock-on-hand tracking, and PostgreSQL trigram similarity search.",
+                "Designed a multi-module reporting and analytics engine covering Finance, Inventory, CRM, and Employee shifts, served from BigQuery aggregates."
             ],
             "deepDive": {
-                "systemOverview": "Enterprise workflow, financial management, and CRM platform built with React 19, TypeScript, Material UI, Django 5.0, Django REST Framework, and AWS SQS. Featuring live QuickBooks Online synchronization, Google Drive file storage, CRM pipeline management, employee shifts tracking, and multi-module reports and analytics dashboards.",
-                "responsibilities": "Led the end-to-end full-stack development of the SaaS application. Designed the frontend state management (Redux Toolkit, React Query) and scalable RESTful API endpoints. Configured AWS SQS queue polling, Change Data Capture (CDC) syncing, third-party integrations, and dynamic role-based access control (RBAC).",
+                "systemOverview": "Cloud-native enterprise workflow, financial management, and CRM platform on Google Cloud, built with React 19, TypeScript, Material UI, Python, Django REST Framework, BigQuery, Pub/Sub, and Cloud Storage. Featuring incremental QuickBooks Online sync into BigQuery, event-driven ingestion, CRM pipeline management, employee shift tracking, multi-module reports and analytics, and a GenAI prototype assistant.",
+                "responsibilities": "Led the end-to-end full-stack development of the SaaS platform on GCP. Designed the frontend state management (Redux Toolkit, React Query) and scalable Django REST API endpoints. Built the BigQuery data pipelines for QuickBooks sync and analytics, the Pub/Sub and Cloud Storage event-driven ingestion layer, AI-enabled REST APIs for the GenAI prototype assistant, third-party OAuth integrations, and dynamic role-based access control (RBAC).",
                 "challenges": [
-                    "Ensuring real-time data consistency and high-velocity synchronization with QuickBooks Online while staying within API rate limits and preventing request timeouts.",
-                    "Securing sensitive customer credentials and managing automated token refresh cycles for both QuickBooks and Google Drive OAuth flows.",
-                    "Handling complex, fuzzy search queries across large, high-concurrency database tables (inventory, contacts, transactions) efficiently.",
-                    "Offloading time-consuming data processing tasks from the main HTTP request thread to maintain a responsive user experience.",
+                    "Keeping QuickBooks Online accounting data consistent in the platform while staying within API rate limits and avoiding request timeouts.",
+                    "Serving multi-module business intelligence metrics (utilization rates, conversion funnels, cash flows) fast, without heavy queries on every page load.",
+                    "Securing sensitive customer credentials and managing automated token refresh cycles for QuickBooks and Google OAuth flows.",
+                    "Ingesting uploaded documents and webhook events reliably without blocking the main HTTP request thread.",
                     "Designing a reliable, stateful clock-in/out console (Kiosk) to manage employee time tracking and shift durations securely.",
-                    "Calculating complex, multi-module business intelligence metrics (utilization rates, conversion funnels, cash flows) in real-time without introducing database locks or loading lags."
+                    "Handling fuzzy search across large inventory, contact, and transaction tables efficiently."
                 ],
                 "solutions": [
-                    "Implemented QuickBooks Change Data Capture (CDC) sync, checking updates since the last recorded timestamp and caching sync state in a QBSync model.",
-                    "Utilized symmetric database-level cryptography (django-fernet-fields) to store access and refresh tokens, alongside automated background refresh checks.",
-                    "Optimized query performance by annotating PostgreSQL TrigramSimilarity for fast fuzzy string matching on names, SKUs, and descriptions, with SQLite icontains fallbacks.",
-                    "Designed a dedicated queue runner polling AWS SQS to execute background sync tasks and handle webhook events asynchronously.",
-                    "Implemented a PIN-authorized Kiosk dashboard with session locking (/employee/kiosk/login) to manage employee shifts and clock-in/out time logs.",
-                    "Engineered a database-level caching mechanism (AnalyticsCache model) with a 5-minute TTL to store pre-calculated metrics, completely bypassing external API call latency during page loads."
+                    "Built incremental-load pipelines that pull only QuickBooks changes since the last recorded sync, transform them in Python, and land them in BigQuery.",
+                    "Pre-aggregated reporting metrics in BigQuery and cached results so the Finance, Inventory, CRM, Employee, and Overview pages load from ready aggregates.",
+                    "Stored access and refresh tokens with symmetric database-level encryption, alongside automated background refresh checks.",
+                    "Published upload and webhook events to Pub/Sub with files in Cloud Storage, processed asynchronously by background workers that also feed the GenAI prototype assistant.",
+                    "Implemented a PIN-authorized Kiosk dashboard with session locking to manage employee shifts and clock-in/out time logs.",
+                    "Used PostgreSQL TrigramSimilarity for fast fuzzy matching on names, SKUs, and descriptions."
                 ],
                 "impact": [
-                    "Successfully synchronized 10 critical accounting entities (Invoices, Bills, Inventory Items, Payments, etc.) between Allyvia and QuickBooks Online, ensuring ledger consistency.",
-                    "Decoupled heavy processing tasks into SQS-backed background jobs, keeping web server latency under 200ms.",
-                    "Created an automated onboarding system that lowered user setup times by sending temporary credentials and tracking active status.",
-                    "Encrypted and secured third-party OAuth access tokens across all active company profiles, preventing credential leakage.",
-                    "Delivered dynamic menu filtering, route guarding, and UI action permissions based on subscription tiers and user roles.",
-                    "Provisioned a secure physical kiosk station allowing zero-friction clock-in/out time entries and generating automated shift durations.",
-                    "Enabled full client pipeline management (leads, deals, and notes) linked directly to company documents and financial invoices.",
-                    "Delivered sub-200ms response times for all reports pages (Finance, Inventory, Employee, CRM, Overview) through efficient backend caching and database aggregates."
+                    "Kept API response latency under 200ms, including every reports page, by serving analytics from BigQuery aggregates.",
+                    "Synchronized 10 critical accounting entities (Invoices, Bills, Inventory Items, Payments, etc.) between Allyvia and QuickBooks Online, ensuring ledger consistency.",
+                    "Moved document and webhook ingestion onto event-driven Pub/Sub workers, keeping the web tier responsive.",
+                    "Shipped AI-enabled REST APIs powering an early GenAI prototype assistant.",
+                    "Encrypted third-party OAuth tokens across all company profiles, preventing credential leakage.",
+                    "Delivered RBAC route guarding, dynamic menu filtering, and UI action permissions based on subscription tiers and user roles.",
+                    "Provisioned a secure physical kiosk station for zero-friction clock-in/out and automated shift durations.",
+                    "Enabled full client pipeline management (leads, deals, and notes) linked to company documents and financial invoices."
                 ]
             }
         },

@@ -5,7 +5,7 @@
 ## Overview
 **Trupal Patel** (also known online as **True Pal** or **TrupalIX9**) is a high-performance Full-Stack Software Engineer and Systems Architect. He handles the entire software lifecycle, from architecting intricate backend logic and designing seamless user interfaces, all the way to deploying highly scalable production-ready systems.
 
-He does not box himself into just frontend or backend roles, nor is he tied to a single language. His expertise spans React, Next.js, Node.js, Python, C#, MongoDB, PostgreSQL, and AWS.
+He does not box himself into just frontend or backend roles, nor is he tied to a single language. His expertise spans React, Next.js, Node.js, Python, C#, MongoDB, PostgreSQL, BigQuery, GCP and AWS.
 
 ## Products
 
@@ -41,14 +41,14 @@ The website and admin for MeghVin Foundation, a public charitable trust in Ahmed
 ## Career History
 
 ### Founding Software Engineer @ Allyvia (Jul 2025 – Apr 2026)
-Allyvia is a comprehensive SaaS platform built to streamline B2B operations. Trupal engineered the platform from the ground up:
-- **Tech Stack**: Next.js 14, React, Tailwind CSS, Django (Python), PostgreSQL, AWS (S3, EC2, SQS), Redis.
+Allyvia is a cloud-native SaaS platform built to streamline B2B operations. Trupal engineered the platform from the ground up on Google Cloud:
+- **Tech Stack**: React 19, TypeScript, Material UI, Redux Toolkit, Python, Django REST Framework, PostgreSQL, GCP (BigQuery, Pub/Sub, Cloud Storage).
 - **Key Achievements**:
-  - Architected a robust multi-tenant role-based access control (RBAC) system supporting hierarchical permissions (Owner, Admin, Manager, Standard).
-  - Built a 5-module ecosystem covering Employee Management, Inventory Tracking, CRM, Financial ledgers, and Analytics.
-  - Implemented seamless QuickBooks Online bidirectional integration via OAuth 2.0, utilizing CDC (Change Data Capture) and background AWS SQS workers.
-  - Designed a secure physical Employee Kiosk system with PIN-based locking for shift clock-ins.
-  - Optimized database aggregations with caching, dropping report load times to sub-200ms.
+  - Architected a cloud-native, full-stack SaaS platform on GCP using Python, React 19, TypeScript and Django REST Framework.
+  - Engineered BigQuery-based analytics and data processing pipelines syncing QuickBooks accounting data, with incremental loads and Python transformations keeping API latency under 200ms.
+  - Built secure multi-tenant workflows: PIN-authorized kiosk clock-in/out consoles, RBAC route guarding and OAuth token refresh cycles.
+  - Developed AI-enabled REST APIs using GCP Cloud Storage and Pub/Sub for event-driven ingestion in a GenAI prototype assistant.
+  - Delivered CRM, inventory, employee and finance modules with multi-module reporting and analytics.
 
 ### Software Engineer @ AIVID.AI (Jan 2023 – Jun 2025)
 AIVID.AI provides enterprise-scale edge computer vision and analytics across 200+ deployment sites.
