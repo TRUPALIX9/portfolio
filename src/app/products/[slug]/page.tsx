@@ -126,7 +126,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                                 <ul className="flex flex-wrap gap-2" aria-label="Tech stack">
                                     {product.tech.map((t) => (
                                         <li key={t.name} className="flex items-center gap-1.5 rounded-full border border-line-1 bg-surface-3 px-3 py-1.5 text-[0.8125rem] font-medium text-ink-2">
-                                            <i className={t.icon} aria-hidden="true" style={{ fontSize: '1rem' }} />
+                                            {t.icon && <i className={t.icon} aria-hidden="true" style={{ fontSize: '1rem' }} />}
                                             {t.name}
                                         </li>
                                     ))}
