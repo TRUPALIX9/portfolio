@@ -53,6 +53,8 @@ export type Project = {
     architectureImage?: string;
     mermaidChart?: string;
     logoIcon?: string;
+    /** Replaces the default "screens are recreated" note under the product shots. */
+    screensNote?: string;
     /** An earlier version the project grew out of, shown as its own chapter on the case study. */
     legacy?: ProjectLegacy;
 };
@@ -286,18 +288,62 @@ flowchart TD
                 title: "Paste an order, get a label",
                 caption: "A 24-second demo: an order is pasted into the assistant, ShipStation returns 14 rates, Choose cheapest opens checkout, and a USPS Media Mail label prints. The order, rates and tracking number come from a real run against the ShipStation sandbox with Groq.",
             },
+            {
+                type: "image",
+                src: "/projects/shipping-agent/screen-rates.jpg",
+                title: "Rates",
+                caption: "12 rates from 4 carriers side by side, with carrier logos and Cheapest, Best value and Fastest picks, then Ship cheapest or Ship fastest in one click.",
+                frame: "browser",
+            },
+            {
+                type: "image",
+                src: "/projects/shipping-agent/screen-dashboard.jpg",
+                title: "Dashboard",
+                caption: "Shipments, labels and postage at a glance, with shortcuts to compare and ship, track a package or ask the assistant.",
+                frame: "browser",
+            },
+            {
+                type: "image",
+                src: "/projects/shipping-agent/screen-assistant.jpg",
+                title: "Assistant",
+                caption: "Paste an order to build a shipment, quote a package or track a delivery, all in plain language.",
+                frame: "browser",
+            },
+            {
+                type: "image",
+                src: "/projects/shipping-agent/screen-checkout-label.jpg",
+                title: "Checkout: label and options",
+                caption: "Ship date, delivery confirmation, insurance and label format (PDF, PNG or ZPL), with a live preview of the label.",
+                frame: "browser",
+            },
+            {
+                type: "image",
+                src: "/projects/shipping-agent/screen-checkout-review.jpg",
+                title: "Checkout: review and pay",
+                caption: "Every detail on one screen with Edit links, then a test label in sandbox mode or payment in ShipStation.",
+                frame: "browser",
+            },
+            {
+                type: "image",
+                src: "/projects/shipping-agent/screen-tracking.jpg",
+                title: "Tracking",
+                caption: "Status, delivery date and every carrier scan in one place.",
+                frame: "browser",
+            },
         ],
+        screensNote: "Screenshots of the app running in demo mode, with simulated rates and fictional addresses.",
         legacy: {
             title: "Shipping Agent Assistant (AWS Bedrock)",
-            summary: "The project started as Shipping Agent Assistant, a four-person team prototype. It was a single-page Streamlit chat app wired straight to a deployed AWS Bedrock Agent through boto3. You typed a shipping question or pressed a quick-action button, and the Bedrock Agent answered in prose. Its source still lives in the original repo, and the rebuild keeps that Bedrock Agent as an optional assistant provider.",
+            summary: "The project started as Shipping Agent Assistant, a four-person team prototype. It was a single-page Streamlit chat app wired straight to a deployed AWS Bedrock Agent through boto3. The agent called the ShipStation API for rates and tracking, and answered in the chat as prose. Its source still lives in the original repo, and the rebuild keeps that Bedrock Agent as an optional assistant provider.",
             features: [
                 "Chat with a deployed AWS Bedrock Agent through boto3, with IAM-scoped invocation and session IDs.",
+                "The Bedrock Agent called the ShipStation API itself to fetch shipping rates and tracking.",
                 "A sidebar form for the AWS region, agent ID and alias ID. Credentials loaded only from environment variables, never hard-coded.",
                 "Quick-action buttons for Get Shipping Rates, Track Package and Clear Chat.",
                 "Rates and tracking came back as chat text, so they could not be compared, picked or turned into a label.",
             ],
             changes: [
-                "Prose answers became real data: exact rates, labels, void and tracking come from the ShipStation API v2.",
+                "ShipStation results became structured data instead of chat text: a rate table you can sort and pick from, plus labels, void and tracking through the ShipStation API v2.",
                 "The Bedrock Agent is no longer the core. A Groq tool-calling agent builds shipments from a pasted order, and Bedrock stays switchable with CHAT_PROVIDER=bedrock.",
                 "One chat page grew into a full desk: Dashboard, Rates, Checkout, Shipments, Tracking and the Assistant.",
                 "Added what the prototype never had: a checkout that ends in a printable label, label-safety rules, a keyless demo mode and 54 tests.",

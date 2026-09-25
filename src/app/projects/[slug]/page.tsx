@@ -236,7 +236,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                                     </figure>
                                 ))}
                             </div>
-                            <p className="mt-4 text-xs text-ink-3">Screens are recreated from the app&apos;s real UI with fictional demo data.</p>
+                            <p className="mt-4 text-xs text-ink-3">{project.screensNote ?? 'Screens are recreated from the app’s real UI with fictional demo data.'}</p>
                         </section>
                     </Reveal>
                 )}
