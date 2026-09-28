@@ -10,7 +10,6 @@ const PUBLISHABLE_KEY = 'sb_publishable_dzJkARQ59BSHuvJIlhnoTg_4NI5kWo0';
 const GAME_TYPES: GameType[] = ['rocketLaunch', 'memoryLane', 'quickMath', 'guessColor'];
 
 export type GameStat = { players: number; plays: number; topScore: number };
-export type LeaderboardEntry = { name: string; score: number };
 
 export type LogicSprintStats = {
     /** Highest per-game player count (players aren't deduplicated across games). */
@@ -63,18 +62,31 @@ export async function getLogicSprintStats(): Promise<LogicSprintStats | null> {
     return { players: Math.max(...stats.map(s => s.players)), plays, byGame };
 }
 
-/** Top 3 on medium difficulty for each game; games without entries are omitted. */
-export async function getTopThreeByGame(): Promise<Partial<Record<GameType, LeaderboardEntry[]>>> {
-    const results = await Promise.all(
-        GAME_TYPES.map(async (game) => {
-            const rows = await getRows(
-                `leaderboard_top?select=player_name,score,game_type,difficulty&game_type=eq.${game}&difficulty=eq.medium&order=score.desc,tie_key.asc&limit=3`,
-            );
-            const entries = (rows ?? [])
-                .filter(r => typeof r.player_name === 'string' && r.player_name.trim())
-                .map(r => ({ name: String(r.player_name), score: toCount(r.score) }));
-            return [game, entries] as const;
-        }),
+export type Difficulty = 'easy' | 'medium' | 'hard';
+export type BoardEntry = { rank: number; name: string; score: number; durationMs: number | null };
+/** Keyed `${game}:${difficulty}`. Rocket Launch and Guess Color have one board, stored as medium. */
+export type Boards = Partial<Record<`${GameType}:${Difficulty}`, BoardEntry[]>>;
+
+const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard'];
+const isDifficulty = (value: unknown): value is Difficulty => DIFFICULTIES.includes(value as Difficulty);
+
+/** Every board's Top 10 in one request, like the app's daily fetch. Empty on any failure. */
+export async function getBoards(): Promise<Boards> {
+    const rows = await getRows(
+        'leaderboard_ranked?select=player_name,game_type,difficulty,score,duration_ms,board_rank&board_rank=lte.10&order=board_rank.asc',
     );
-    return Object.fromEntries(results.filter(([, entries]) => entries.length > 0));
+    const boards: Boards = {};
+    for (const row of rows ?? []) {
+        if (!isGameType(row.game_type) || !isDifficulty(row.difficulty)) continue;
+        if (typeof row.player_name !== 'string' || !row.player_name.trim()) continue;
+        const key = `${row.game_type}:${row.difficulty}` as const;
+        const duration = Number(row.duration_ms);
+        (boards[key] ??= []).push({
+            rank: toCount(row.board_rank),
+            name: row.player_name,
+            score: toCount(row.score),
+            durationMs: row.duration_ms != null && Number.isFinite(duration) ? duration : null,
+        });
+    }
+    return boards;
 }

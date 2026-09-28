@@ -1,0 +1,54 @@
+/* Chamfered page wipe between the LogicSprint home and privacy pages (see PageWipe.tsx). */
+.ls-root .lst-wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  overflow: hidden;
+  pointer-events: all;
+}
+
+.ls-root .lst-panel {
+  --lst-cut: clamp(48px, 12vw, 140px);
+  position: absolute;
+  inset: 0 calc(var(--lst-cut) * -1);
+  display: grid;
+  place-items: center;
+  background: linear-gradient(100deg, var(--ls-teal), var(--ls-aqua) 45%, var(--ls-blue));
+  /* Cut top-left and bottom-right corners, like every LogicSprint card. */
+  clip-path: polygon(var(--lst-cut) 0, 100% 0, 100% calc(100% - var(--lst-cut)), calc(100% - var(--lst-cut)) 100%, 0 100%, 0 var(--lst-cut));
+  transform: translateX(-110%);
+  will-change: transform;
+}
+
+.ls-root .lst-wipe[data-phase='cover'] .lst-panel {
+  animation: lst-cover 320ms cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+
+.ls-root .lst-wipe[data-phase='covered'] .lst-panel { transform: none; }
+
+.ls-root .lst-wipe[data-phase='reveal'] .lst-panel {
+  animation: lst-reveal 380ms cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+
+.ls-root .lst-mark {
+  font-size: clamp(2rem, 7vw, 4rem);
+  color: #000;
+  opacity: 0.85;
+  font-style: italic;
+}
+
+.ls-root .lst-mark span { color: #fff; }
+
+@keyframes lst-cover {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes lst-reveal {
+  from { transform: translateX(0); }
+  to { transform: translateX(110%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-root .lst-wipe { display: none; }
+}

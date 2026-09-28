@@ -7,6 +7,9 @@ import localFont from 'next/font/local';
 import { ArrowUpRight } from 'lucide-react';
 import { APP } from '@/data/logicsprint';
 import { SITE_URL } from '@/data/site';
+import HiddenHeart from '@/components/logicsprint/hearts/HiddenHeart';
+import HeartsToaster from '@/components/logicsprint/hearts/HeartsToaster';
+import PageWipe from '@/components/logicsprint/transitions/PageWipe';
 
 // Fonts are self-hosted by next/font: no requests to Google from these pages. IBM Plex Sans ships
 // from the repo as its Latin variable font (400–600), because fetching it from Google Fonts at build
@@ -26,7 +29,6 @@ export const metadata: Metadata = {
 const SECTIONS = [
     { href: '/#games', label: 'Games' },
     { href: '/#how', label: 'How it works' },
-    { href: '/#leaderboard', label: 'Leaderboard' },
     { href: '/#screenshots', label: 'Screenshots' },
     { href: '/#faq', label: 'FAQ' },
 ];
@@ -86,13 +88,17 @@ export default function LogicSprintLayout({ children }: { children: React.ReactN
                         </div>
                     </div>
                     <div className="ls-footer-bottom">
-                        <span>© {new Date().getFullYear()} LogicSprint · Contains ads</span>
+                        <span>
+                            © {new Date().getFullYear()} LogicSprint · Contains ads <HiddenHeart id="footer" />
+                        </span>
                         <span>
                             Built by <a href={SITE_URL} target="_blank" rel="noopener" className="ls-link">Trupal Patel</a>
                         </span>
                     </div>
                 </div>
             </footer>
+            <HeartsToaster />
+            <PageWipe />
         </div>
     );
 }

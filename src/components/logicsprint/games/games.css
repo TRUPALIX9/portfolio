@@ -1,0 +1,910 @@
+/* ── LogicSprint games showcase ───────────────────────────────────────────────
+   One tall section per game. From 960px the sections scroll on the left while one sticky phone on
+   the right plays the game in view; below that each section carries its own phone above its copy.
+   The phones play scripted recordings of the real app, laid out at the app's own 392×872 dp and
+   scaled to fit (PhoneFrame.tsx). Everything is scoped under .ls-root .lsg-. */
+
+.ls-root .lsg-section { padding-bottom: 0; }
+
+.ls-root .lsg-live {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: -1.5rem 0 1.5rem;
+  font-family: var(--ls-font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--ls-muted);
+}
+
+.ls-root .lsg-live i {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  background: var(--ls-teal);
+  box-shadow: 0 0 0 0 rgb(52 194 154 / 0.6);
+  animation: lsg-live 2.4s ease-out infinite;
+}
+
+@keyframes lsg-live {
+  0% { box-shadow: 0 0 0 0 rgb(52 194 154 / 0.55); }
+  70%, 100% { box-shadow: 0 0 0 8px rgb(52 194 154 / 0); }
+}
+
+/* ── Layout: phones and tablets ── */
+
+.ls-root .lsg-stage { --lsg-accent: var(--ls-blue); }
+.ls-root .lsg-rail { display: none; }
+
+.ls-root .lsg-game {
+  --lsg-accent: var(--ls-teal);
+  padding: 2.75rem clamp(1.25rem, 5vw, 3rem) 3.5rem;
+  border-top: 1px solid var(--ls-line);
+  scroll-margin-top: 64px;
+}
+
+.ls-root .lsg-slot {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2.25rem;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--lsg-accent) 14%, transparent), transparent);
+}
+
+.ls-root .lsg-slot .lsg-phone { height: min(70svh, 600px); }
+
+.ls-root .lsg-copy { max-width: 36rem; margin-inline: auto; }
+
+.ls-root .lsg-skill { color: var(--lsg-accent); }
+
+.ls-root .lsg-name {
+  font-size: clamp(2.1rem, 7vw, 3.25rem);
+  margin: 0.35rem 0 0.7rem;
+}
+
+.ls-root .lsg-desc {
+  color: var(--ls-muted);
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 52ch;
+}
+
+.ls-root .lsg-modes,
+.ls-root .lsg-stats {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 1.25rem 0 0;
+  max-width: 30rem;
+  border: 1px solid var(--ls-line);
+  background: var(--ls-surface);
+}
+
+.ls-root .lsg-modes > div,
+.ls-root .lsg-stats > div {
+  flex: 1 1 auto;
+  min-width: 4.5rem;
+  white-space: nowrap;
+  padding: 0.5rem 0.75rem;
+}
+
+.ls-root .lsg-modes > div + div { border-left: 1px solid var(--ls-line); }
+
+.ls-root .lsg-modes dd,
+.ls-root .lsg-stats dd { margin: 0.15rem 0 0; }
+
+.ls-root .lsg-modes dd { font-size: 1rem; }
+
+.ls-root .lsg-stats {
+  border: 0;
+  background: none;
+  gap: 1.75rem;
+}
+
+.ls-root .lsg-stats > div { flex: 0 0 auto; padding: 0; min-width: 0; }
+.ls-root .lsg-stats dd { font-size: 1.5rem; line-height: 1.2; }
+.ls-root .lsg-accent { color: var(--lsg-accent); }
+
+/* ── High scores (the app's Ranks rows) ── */
+
+.ls-root .lsg-hs { margin-top: 1.75rem; max-width: 34rem; }
+
+.ls-root .lsg-hs-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.ls-root .lsg-hs-head h4 { margin: 0; }
+
+.ls-root .lsg-hs-tabs {
+  --ls-cut: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 1px;
+  padding: 1px;
+  background: var(--ls-line);
+  clip-path: var(--ls-chamfer);
+}
+
+.ls-root .lsg-hs-tabs button {
+  min-height: 40px;
+  padding: 0.35rem 0.8rem;
+  border: 0;
+  background: var(--ls-surface);
+  color: var(--ls-muted);
+  font-family: var(--ls-font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.ls-root .lsg-hs-tabs button:hover { color: var(--ls-text); background: var(--ls-surface-2); }
+
+.ls-root .lsg-hs-tabs button[aria-pressed='true'] {
+  color: var(--lsg-accent);
+  background: color-mix(in srgb, var(--lsg-accent) 16%, var(--ls-surface));
+  box-shadow: inset 0 -2px 0 var(--lsg-accent);
+}
+
+.ls-root .lsg-hs-tabs button:focus-visible { outline-offset: -3px; }
+.ls-root .lsg-hs-detail { font-weight: 500; letter-spacing: 0.02em; opacity: 0.75; }
+
+.ls-root .lsg-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ls-root .lsg-row {
+  --ls-cut: 10px;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 2.9rem;
+  padding: 0.45rem 0.95rem;
+  background: var(--ls-line);
+  clip-path: var(--ls-chamfer);
+}
+
+.ls-root .lsg-row::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: var(--ls-surface);
+  clip-path: var(--ls-chamfer);
+}
+
+.ls-root .lsg-row[data-rank='1'] { background: var(--lsg-accent); }
+.ls-root .lsg-row[data-rank='1']::before { background: color-mix(in srgb, var(--lsg-accent) 7%, #05090D); }
+
+.ls-root .lsg-row-rank { font-size: 1rem; color: var(--ls-muted); min-width: 2ch; }
+.ls-root .lsg-row[data-rank='1'] .lsg-row-rank { color: var(--lsg-accent); }
+
+.ls-root .lsg-row-name {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--ls-font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.ls-root .lsg-row-tag {
+  font-family: var(--ls-font-mono);
+  font-weight: 500;
+  font-size: 0.72rem;
+  color: var(--ls-muted);
+  text-transform: none;
+}
+
+.ls-root .lsg-row-time { font-size: 0.8rem; color: var(--ls-muted); }
+.ls-root .lsg-row-score { font-size: 1.15rem; min-width: 4ch; text-align: right; }
+.ls-root .lsg-row[data-rank='1'] .lsg-row-score { color: var(--lsg-accent); }
+
+.ls-root .lsg-row[data-empty] {
+  background: none;
+  clip-path: none;
+  border: 1px dashed var(--ls-line);
+}
+
+.ls-root .lsg-row[data-empty]::before { display: none; }
+.ls-root .lsg-row[data-empty] .lsg-row-rank { color: #4A5A69; }
+.ls-root .lsg-row[data-empty] .lsg-row-name { color: #4A5A69; font-size: 1rem; }
+
+/* ── Layout: wide screens, one sticky phone ── */
+
+@media (min-width: 960px) {
+  .ls-root .lsg-stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+    column-gap: clamp(2rem, 4vw, 4rem);
+    max-width: 1240px;
+    margin: 0 auto;
+    padding-inline: clamp(1.25rem, 3vw, 3rem);
+  }
+
+  .ls-root .lsg-slot { display: none; }
+
+  .ls-root .lsg-game {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: calc(100svh - 64px);
+    padding: 4rem 0;
+    border-top: 0;
+  }
+
+  .ls-root .lsg-game + .lsg-game { border-top: 1px solid var(--ls-line); }
+  .ls-root .lsg-copy { margin-inline: 0; }
+
+  .ls-root .lsg-rail { display: block; position: relative; }
+
+  .ls-root .lsg-sticky {
+    position: sticky;
+    top: 64px;
+    height: calc(100svh - 64px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1.25rem, 2.5vw, 2.5rem);
+  }
+
+  .ls-root .lsg-phone-hero { height: min(calc(100svh - 64px - 4.5rem), 820px); }
+}
+
+/* Progress: 01–04 with short names; the active one takes its game's accent. Fixed width, so the
+   phone doesn't shift as the active marker grows. */
+.ls-root .lsg-dots { flex: none; width: 8.5rem; }
+
+.ls-root .lsg-dots ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ls-root .lsg-dots button {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 36px;
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  color: var(--ls-muted);
+  font-family: var(--ls-font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.ls-root .lsg-dots button::before {
+  content: '';
+  flex: none;
+  width: 12px;
+  height: 2px;
+  background: var(--ls-line);
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.ls-root .lsg-dots button:hover { color: var(--ls-text); }
+.ls-root .lsg-dots button[aria-current='true'] { color: var(--ls-text); }
+.ls-root .lsg-dots button[aria-current='true']::before { width: 28px; background: var(--lsg-dot); }
+.ls-root .lsg-dots button[aria-current='true'] .ls-num { color: var(--lsg-dot); }
+
+/* ── The phone ── */
+
+.ls-root .lsg-phone {
+  position: relative;
+  flex: none;
+  aspect-ratio: 412 / 892;
+  visibility: hidden;
+}
+
+.ls-root .lsg-phone[data-ready] { visibility: visible; }
+
+.ls-root .lsg-device {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 412px;
+  height: 892px;
+  padding: 10px;
+  box-sizing: border-box;
+  transform-origin: 0 0;
+  border-radius: 58px;
+  background: linear-gradient(160deg, #1B222A, #0B0F13 40%, #07090C);
+  box-shadow:
+    inset 0 0 0 1.5px #2A3440,
+    inset 0 0 0 4px #0A0D10,
+    0 50px 140px -30px color-mix(in srgb, var(--lsg-accent) 55%, transparent),
+    0 0 0 1px rgb(0 0 0 / 0.6);
+  transition: box-shadow 0.6s ease;
+}
+
+.ls-root .lsg-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 392px;
+  height: 872px;
+  overflow: hidden;
+  border-radius: 48px;
+  background: #000;
+  color: var(--ls-text);
+  font-family: var(--ls-font-body);
+  line-height: 1.2;
+  /* Keep the app's own type sizes whatever the page's text settings. */
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+}
+
+.ls-root .lsg-status {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 24px;
+  padding: 2px 30px 0 34px;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgb(234 242 247 / 0.55);
+}
+
+.ls-root .lsg-status-icons { display: flex; align-items: center; gap: 4px; }
+
+.ls-root .lsg-cam {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #26303A 0 2px, #050608 3px);
+  box-shadow: 0 0 0 1.5px #0E1216;
+}
+
+.ls-root .lsg-apps { position: relative; flex: 1 1 auto; overflow: hidden; }
+
+.ls-root .lsg-gesture {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 16px;
+}
+
+.ls-root .lsg-gesture i {
+  width: 108px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgb(234 242 247 / 0.28);
+}
+
+/* App screens, and the switch between them (like changing apps). */
+.ls-root .lsg-layer {
+  position: absolute;
+  inset: 0;
+  background: #000;
+}
+
+.ls-root .lsg-layer[data-enter] {
+  z-index: 1;
+  box-shadow: -24px 0 48px rgb(0 0 0 / 0.7);
+  animation: lsg-enter 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.ls-root .lsg-layer[data-leave] { z-index: 0; animation: lsg-leave 420ms ease both; }
+
+@keyframes lsg-enter {
+  from { transform: translateX(100%); }
+  to { transform: none; }
+}
+
+@keyframes lsg-leave {
+  to { transform: translateX(-30%) scale(0.94); opacity: 0; }
+}
+
+.ls-root .lsg-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.ls-root .lsg-field {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  transition: opacity 0.35s ease;
+}
+
+.ls-root .lsg-app[data-fade] .lsg-field { opacity: 0; }
+
+.ls-root .lsg-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Chamfered box like the app's ChamferBox: top-left and bottom-right cut at --c, a 1px border in
+   --b (the element's background) around a fill in --f (an inset ::before). --f must be opaque. */
+.ls-root .lsg-ch {
+  --c: 10px;
+  --b: #1E2A36;
+  --f: #0A1016;
+  position: relative;
+  isolation: isolate;
+  background-color: var(--b);
+  clip-path: polygon(var(--c) 0, 100% 0, 100% calc(100% - var(--c)), calc(100% - var(--c)) 100%, 0 100%, 0 var(--c));
+}
+
+.ls-root .lsg-ch::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background-color: var(--f);
+  clip-path: polygon(
+    calc(var(--c) - 0.41px) 0, 100% 0, 100% calc(100% - var(--c) + 0.41px),
+    calc(100% - var(--c) + 0.41px) 100%, 0 100%, 0 calc(var(--c) - 0.41px)
+  );
+}
+
+/* The game bar (lib/ui/game_bar.dart). */
+.ls-root .lsg-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  height: 57px;
+  box-sizing: border-box;
+  padding: 6px 12px;
+  border-bottom: 1px solid #1E2A36;
+  background: #000;
+}
+
+.ls-root .lsg-pause {
+  --c: 6px;
+  --b: rgb(52 194 154 / 0.6);
+  --f: #000;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 44px;
+  height: 44px;
+}
+
+.ls-root .lsg-pause i {
+  width: 4px;
+  height: 13px;
+  border-radius: 1.5px;
+  background: #34C29A;
+}
+
+.ls-root .lsg-bar-ad { flex: 1 1 auto; margin: 0 12px 0 16px; }
+
+.ls-root .lsg-bar-score {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  width: 72px;
+}
+
+.ls-root .lsg-bar-score small {
+  font-family: var(--ls-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.2px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: #8C9DAD;
+}
+
+.ls-root .lsg-bar-score b {
+  margin-top: 2px;
+  font-family: var(--ls-font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Android "show taps". */
+.ls-root .lsg-touch {
+  position: absolute;
+  z-index: 5;
+  left: calc(50% + var(--tx, 0px));
+  top: calc(50% + var(--ty, 0px));
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.3);
+  box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.5);
+  pointer-events: none;
+  opacity: 0;
+  animation: lsg-touch 520ms ease-out forwards;
+}
+
+@keyframes lsg-touch {
+  0% { opacity: 0; transform: scale(0.7); }
+  14% { opacity: 1; transform: scale(1); }
+  50% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.06); }
+}
+
+/* Like Flutter's FittedBox(scaleDown). */
+.ls-root .lsg-fit {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.ls-root .lsg-fit > span {
+  display: inline-block;
+  flex: none;
+  white-space: nowrap;
+  transform-origin: center;
+}
+
+/* ── Quick Math ── */
+.ls-root .lsg-qm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 20px 24px;
+}
+
+.ls-root .lsg-qm-card {
+  --c: 16px;
+  --f: #04080C;
+  flex: 5 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  min-height: 0;
+}
+
+.ls-root .lsg-qm-problem,
+.ls-root .lsg-qm-value,
+.ls-root .lsg-gc-word,
+.ls-root .lsg-gc-label,
+.ls-root .lsg-ml-strip-text,
+.ls-root .lsg-gc-side {
+  font-family: var(--ls-font-heading);
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.ls-root .lsg-qm-problem { font-size: 88px; letter-spacing: 2.64px; color: #EAF2F7; }
+
+.ls-root .lsg-qm-eq {
+  margin-top: 14px;
+  font-family: var(--ls-font-mono);
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #667A8C;
+}
+
+.ls-root .lsg-qm-answers {
+  flex: 4 1 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 12px;
+  min-height: 0;
+}
+
+.ls-root .lsg-qm-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ls-root .lsg-qm-value { font-size: 44px; letter-spacing: 1.32px; color: #EAF2F7; }
+
+.ls-root .lsg-qm-btn[data-right] { --b: #34C29A; --f: #071B16; }
+.ls-root .lsg-qm-btn[data-right] .lsg-qm-value { color: #34C29A; }
+
+/* ── Memory Lane ── */
+.ls-root .lsg-ml-field {
+  display: flex;
+  flex-direction: column;
+  padding: 18px 20px 24px;
+}
+
+.ls-root .lsg-ml-strip {
+  --b: #114033;
+  --f: #030C09;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.ls-root .lsg-ml-strip[data-watch] { --b: #1A090B; --f: #1A090B; }
+
+.ls-root .lsg-ml-strip-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 19px;
+  letter-spacing: 0.57px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #34C29A;
+}
+
+.ls-root .lsg-ml-strip[data-watch] .lsg-ml-strip-text { color: #FF5A6E; }
+
+.ls-root .lsg-ml-strip b {
+  font-family: var(--ls-font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  line-height: 1.2;
+  color: #34C29A;
+}
+
+.ls-root .lsg-ml-strip[data-watch] b { color: #667A8C; }
+
+.ls-root .lsg-ml-level {
+  flex: none;
+  margin: 16px 0;
+  font-family: var(--ls-font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.44px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: #2BB3D6;
+}
+
+.ls-root .lsg-ml-board {
+  --mark: #FF5A6E;
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.ls-root .lsg-ml-board[data-turn] { --mark: #34C29A; }
+
+.ls-root .lsg-ml-grid {
+  --c: 16px;
+  --f: #04080C;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  padding: 16px;
+}
+
+.ls-root .lsg-ml-cell { position: relative; }
+.ls-root .lsg-ml-cell[data-lit] { filter: drop-shadow(0 0 6px rgb(43 179 214 / 0.7)); }
+
+.ls-root .lsg-ml-tile {
+  --c: 6px;
+  --b: #111A23;
+  --f: #111A23;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ls-root .lsg-ml-tile i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1E2A36;
+}
+
+.ls-root .lsg-ml-cell[data-lit] .lsg-ml-tile { --b: #2BB3D6; --f: #2BB3D6; }
+.ls-root .lsg-ml-cell[data-lit] .lsg-ml-tile i { width: 10px; height: 10px; border-radius: 0; background: #000; }
+.ls-root .lsg-ml-tile[data-ok] { --b: #081D17; --f: #081D17; }
+.ls-root .lsg-ml-tile[data-ok] i { width: 8px; height: 8px; background: #34C29A; }
+
+.ls-root .lsg-ml-corner {
+  position: absolute;
+  z-index: 2;
+  width: 26px;
+  height: 26px;
+  border: 0 solid var(--mark);
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--mark) 70%, transparent));
+  transition: border-color 220ms ease;
+  pointer-events: none;
+}
+
+.ls-root .lsg-ml-corner[data-c='tl'] { top: 0; left: 0; border-top-width: 3px; border-left-width: 3px; }
+.ls-root .lsg-ml-corner[data-c='tr'] { top: 0; right: 0; border-top-width: 3px; border-right-width: 3px; }
+.ls-root .lsg-ml-corner[data-c='bl'] { bottom: 0; left: 0; border-bottom-width: 3px; border-left-width: 3px; }
+.ls-root .lsg-ml-corner[data-c='br'] { bottom: 0; right: 0; border-bottom-width: 3px; border-right-width: 3px; }
+
+/* ── Guess Color ── */
+.ls-root .lsg-gc-field {
+  display: flex;
+  flex-direction: column;
+  padding: 18px 20px 24px;
+}
+
+.ls-root .lsg-gc-switch {
+  --c: 6px;
+  flex: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 52px;
+  padding: 2px;
+}
+
+.ls-root .lsg-gc-thumb {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  width: calc(50% - 2px);
+  transition: transform 260ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.ls-root .lsg-gc-switch[data-rule='text'] .lsg-gc-thumb { transform: translateX(100%); }
+
+.ls-root .lsg-gc-thumb > span {
+  --c: 6px;
+  --b: #8C8CFF;
+  --f: #1F243B;
+  position: absolute;
+  inset: 0;
+}
+
+.ls-root .lsg-gc-thumb > span[data-flip] { animation: lsg-gc-pulse 420ms ease-out; }
+
+@keyframes lsg-gc-pulse {
+  50% { transform: scale(1.08); }
+}
+
+.ls-root .lsg-gc-side {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 17px;
+  letter-spacing: 0.51px;
+  color: #667A8C;
+  transition: color 200ms ease;
+}
+
+.ls-root .lsg-gc-side[data-on] { color: #8C8CFF; }
+.ls-root .lsg-gc-side em { font-style: normal; font-size: 14px; text-transform: none; }
+
+.ls-root .lsg-gc-card {
+  --c: 16px;
+  --f: #04080C;
+  flex: 3 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 14px;
+  padding: 20px;
+  min-height: 0;
+}
+
+.ls-root .lsg-gc-word { font-size: 88px; letter-spacing: 2.64px; }
+
+.ls-root .lsg-gc-clock {
+  flex: none;
+  height: 4px;
+  margin: 12px 0 14px;
+  background: #111A23;
+}
+
+.ls-root .lsg-gc-clock span {
+  display: block;
+  height: 100%;
+  background: #8C8CFF;
+  transform-origin: left center;
+  transform: scaleX(calc(var(--start) * 0.6));
+  animation: lsg-gc-clock var(--dur) linear forwards;
+}
+
+.ls-root .lsg-gc-clock span[data-frozen] { animation-play-state: paused; }
+
+@keyframes lsg-gc-clock {
+  from { transform: scaleX(var(--start)); }
+  to { transform: scaleX(0); }
+}
+
+.ls-root .lsg-gc-answers {
+  flex: 2 1 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 12px;
+  min-height: 0;
+}
+
+.ls-root .lsg-gc-btn {
+  --b: #000;
+  --f: #000;
+  padding: 4px;
+  transition: opacity 180ms ease;
+}
+
+.ls-root .lsg-gc-btn[data-state='right'] { --b: #34C29A; }
+.ls-root .lsg-gc-btn[data-state='dim'] { opacity: 0.3; }
+
+.ls-root .lsg-gc-fill {
+  --b: var(--fill);
+  --f: var(--fill);
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 8px;
+  transition: background-color 180ms ease;
+}
+
+.ls-root .lsg-gc-fill::before { transition: background-color 180ms ease; }
+
+.ls-root .lsg-gc-label {
+  padding: 6px 10px;
+  font-size: 22px;
+  letter-spacing: 0.66px;
+  color: #EAF2F7;
+  background: rgb(0 0 0 / 0.6);
+}
+
+.ls-root .lsg-gc-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: #34C29A;
+  background: rgb(0 0 0 / 0.6);
+}
+
+/* Reduced motion: the recordings render still frames; drop every CSS transition and loop too. */
+@media (prefers-reduced-motion: reduce) {
+  .ls-root .lsg-section *,
+  .ls-root .lsg-section *::before {
+    animation: none !important;
+    transition: none !important;
+  }
+}

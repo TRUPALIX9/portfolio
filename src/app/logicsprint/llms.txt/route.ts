@@ -31,7 +31,7 @@ export function GET() {
         '## FAQ',
         ...FAQ.flatMap((item) => [`### ${item.question}`, item.answer, '']),
         '## Pages',
-        `- [Home](${LOGICSPRINT_URL}): games, leaderboard, screenshots, FAQ and download`,
+        `- [Home](${LOGICSPRINT_URL}): games with live high scores, screenshots, FAQ and download`,
         `- [Privacy policy](${LOGICSPRINT_URL}/privacy)`,
         '',
     ].join('\n');

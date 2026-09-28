@@ -1,0 +1,140 @@
+/* Hidden hearts easter egg (LogicSprint product site). */
+.ls-root {
+  --lsh-red: #FF5468;
+}
+
+.ls-root .lsh-heart {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: var(--lsh-red);
+  opacity: 0.32;
+  cursor: pointer;
+  vertical-align: middle;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+/* Bigger hit area than the glyph without making the heart easier to spot. */
+.ls-root .lsh-heart::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+.ls-root .lsh-heart:hover,
+.ls-root .lsh-heart:focus-visible { opacity: 1; transform: scale(1.15); }
+
+.ls-root .lsh-heart:focus-visible {
+  outline: 2px solid var(--ls-teal);
+  outline-offset: 2px;
+}
+
+.ls-root .lsh-heart[data-collected] {
+  opacity: 0.9;
+  cursor: default;
+  filter: drop-shadow(0 0 6px rgb(255 84 104 / 0.55));
+}
+
+.ls-root .lsh-heart[data-collected]:hover { transform: none; }
+
+.ls-root .lsh-burst {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  pointer-events: none;
+}
+
+.ls-root .lsh-burst > span {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  background: var(--lsh-red);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  animation: lsh-burst 700ms cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+
+.ls-root .lsh-burst > span:nth-child(even) { background: var(--ls-teal); }
+
+@keyframes lsh-burst {
+  from { transform: rotate(var(--lsh-a)) translateY(0) scale(1.2); opacity: 1; }
+  to { transform: rotate(var(--lsh-a)) translateY(-26px) scale(0.4); opacity: 0; }
+}
+
+/* ── Toast (app style: chamfered surface, 1px line border, heading type) ── */
+.ls-root .lsh-toaster {
+  position: fixed;
+  left: 50%;
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  z-index: 90;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  pointer-events: none;
+}
+
+.ls-root .lsh-toast {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 1.1rem 0.7rem 0.8rem;
+  background: rgb(255 84 104 / 0.5);
+  clip-path: var(--ls-chamfer);
+  animation: lsh-toast-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.ls-root .lsh-toast::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: var(--ls-surface);
+  clip-path: var(--ls-chamfer);
+}
+
+.ls-root .lsh-toast[data-done] { background: var(--ls-gradient); }
+
+.ls-root .lsh-toast-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  color: var(--lsh-red);
+  background: var(--ls-surface-2);
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+.ls-root .lsh-toast-text { display: grid; gap: 0.2rem; }
+.ls-root .lsh-toast-title { font-size: 1.35rem; color: var(--ls-text); }
+.ls-root .lsh-toast-title .ls-num { font-size: 1rem; color: var(--ls-teal); margin-left: 0.35rem; }
+.ls-root .lsh-toast-sub { color: var(--ls-text); letter-spacing: 0.1em; max-width: 40ch; line-height: 1.5; }
+
+.ls-root .lsh-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@keyframes lsh-toast-in {
+  from { transform: translateY(14px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-root .lsh-heart { transition: none; }
+  .ls-root .lsh-heart:hover,
+  .ls-root .lsh-heart:focus-visible { transform: none; }
+  .ls-root .lsh-burst { display: none; }
+  .ls-root .lsh-toast { animation: none; }
+}

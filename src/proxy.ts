@@ -13,6 +13,11 @@ const LOGICSPRINT_PAGES: Record<string, string> = {
     '/llms.txt': '/logicsprint/llms.txt',
 };
 
+/** Top-level portfolio routes (src/app/*) that logicsprint.* forwards to the portfolio. */
+const PORTFOLIO_SECTIONS = new Set([
+    'arcade', 'certifications', 'experience', 'game', 'game-only', 'playground', 'products', 'projects', 'social', 'social-only',
+]);
+
 /** Where to send cross-host redirects: the matching local hosts in dev, production otherwise. */
 function origins(request: NextRequest, rootHost: string) {
     if (rootHost.startsWith('localhost')) {
@@ -40,7 +45,12 @@ export function proxy(request: NextRequest) {
     const target = LOGICSPRINT_PAGES[pathname];
     if (target) return NextResponse.rewrite(new URL(target + search, request.url));
     if (LOGICSPRINT_PAGES[productPath]) return NextResponse.redirect(new URL(productPath + search, request.url));
-    return NextResponse.redirect(new URL(pathname + search, site));
+    // Portfolio pages still go to the portfolio; any other path is a dead end on the product
+    // site, so render its own 404 (src/app/logicsprint/[...missing] -> not-found.tsx). The target is
+    // a fixed "_" path, which can never be a route folder, so this can't expose other routes under
+    // src/app/logicsprint; only the pages listed above are reachable here.
+    if (PORTFOLIO_SECTIONS.has(pathname.split('/')[1])) return NextResponse.redirect(new URL(pathname + search, site));
+    return NextResponse.rewrite(new URL('/logicsprint/_missing', request.url));
 }
 
 export const config = {

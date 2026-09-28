@@ -6,6 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 import { APP } from '@/data/logicsprint';
 import { LOGICSPRINT_URL } from '@/data/site';
 import PolicyMarkdown from '@/components/logicsprint/PolicyMarkdown';
+import DataStory from '@/components/logicsprint/story/DataStory';
 
 // Google Play links here: keep this URL stable. Rendered once at build time from a
 // verbatim copy of assets/brand/docs/privacy_policy.md in the logic-sprint repo.
@@ -34,6 +35,7 @@ export default function LogicSprintPrivacyPage() {
                 <ArrowLeft size={16} aria-hidden="true" />
                 {APP.name}
             </Link>
+            <DataStory />
             <PolicyMarkdown source={source} />
         </main>
     );

@@ -1,0 +1,228 @@
+/* "Where your data lives" scene on /privacy (DataStory.tsx). */
+.ls-root .lss-story {
+  margin-bottom: clamp(3rem, 8vw, 5rem);
+  padding-bottom: clamp(2rem, 6vw, 3rem);
+  border-bottom: 1px solid var(--ls-line);
+}
+
+.ls-root .lss-title { font-size: clamp(2rem, 6vw, 3rem); margin: 0.6rem 0 0.9rem; }
+.ls-root .lss-lead { max-width: 62ch; margin-bottom: 1.75rem; }
+
+/* Sticky mode (wide + tall screens): a tall track, the stage pinned below the 64px top bar. */
+.ls-root .lss-track[data-sticky] { height: 240vh; }
+.ls-root .lss-track[data-sticky] .lss-stage {
+  position: sticky;
+  top: 64px;
+  min-height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: 1.25rem;
+}
+
+.ls-root .lss-stage { position: relative; isolation: isolate; display: grid; gap: 1.25rem; }
+
+/* ── Chips ── */
+.ls-root .lss-chip {
+  --c: var(--ls-teal);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.42rem 0.7rem 0.42rem 0.6rem;
+  font-family: var(--ls-font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--ls-text);
+  background: var(--ls-surface-2);
+  box-shadow: inset 3px 0 0 var(--c);
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+.ls-root .lss-chip-cloud { --c: var(--ls-blue); }
+.ls-root .lss-chip-admob { --c: var(--ls-violet); }
+.ls-root .lss-chip-icon { color: var(--c); flex: none; }
+.ls-root .lss-chip-lock { color: var(--ls-teal); flex: none; }
+
+.ls-root .lss-slot { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+.ls-root .lss-slot[data-moving] { z-index: 2; }
+.ls-root .lss-slot[data-moving] > .lss-chip {
+  transform: translate(calc(var(--dx) * (1 - var(--t))), calc(var(--dy) * (1 - var(--t)) - var(--arc) * 1px));
+  box-shadow: inset 3px 0 0 var(--c), 0 0 0 1px color-mix(in srgb, var(--c) calc((1 - var(--t)) * 60%), transparent);
+}
+.ls-root .lss-slot[data-moving] .lss-chip-lock { opacity: clamp(0, (var(--t) - 0.8) * 5, 1); }
+.ls-root .lss-slot[data-moving] > .lss-chip-note { opacity: clamp(0, (var(--t) - 0.7) * 3.4, 1); }
+
+/* Until chips are measured (first client pass), keep them out of sight so they don't flash in place. */
+.ls-root .lss-stage:not([data-ready]) .lss-slot > .lss-chip,
+.ls-root .lss-stage:not([data-ready]) .lss-chip-note { opacity: 0; }
+
+.ls-root .lss-chip-note {
+  font-family: var(--ls-font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ls-muted);
+  padding-left: 0.7rem;
+}
+
+/* ── Pile: the ghost slots the chips leave from ── */
+.ls-root .lss-pile {
+  position: relative;
+  padding: 1.1rem 1rem 1rem;
+  border: 1px dashed var(--ls-line);
+}
+
+.ls-root .lss-pile-label {
+  position: absolute;
+  top: -0.6rem;
+  left: 0.9rem;
+  padding: 0 0.5rem;
+  background: var(--ls-bg);
+  font-size: 0.66rem;
+}
+
+.ls-root .lss-pile-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+
+.ls-root .lss-ghost {
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+  outline: 1px dashed var(--ls-line);
+  outline-offset: -1px;
+}
+.ls-root .lss-ghost > * { visibility: hidden; }
+
+/* ── Destinations ── */
+.ls-root .lss-dests {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.9fr) minmax(0, 1.1fr) minmax(0, 0.8fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.ls-root .lss-phone {
+  --ls-cut: 22px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem 1rem;
+}
+
+/* Frame drawn on pseudo-elements, not the box itself: a clip-path on the box would clip the chips
+   while they fly in from the pile. ::before is the border, ::after the inset fill. The boxes don't
+   isolate, so every frame sits at the stage's z -1 and flying chips pass over all of them. */
+.ls-root .lss-phone::before,
+.ls-root .lss-phone::after,
+.ls-root .lss-box::before,
+.ls-root .lss-box::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  clip-path: var(--ls-chamfer);
+}
+
+.ls-root .lss-phone::before { inset: 0; background: var(--ls-teal); }
+.ls-root .lss-phone::after { inset: 2px; background: #000; }
+
+.ls-root .lss-phone-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.25rem 0.55rem 0.6rem;
+  border-bottom: 1px solid var(--ls-line);
+}
+
+.ls-root .lss-phone-bar .ls-label { font-size: 0.66rem; color: var(--ls-teal); }
+.ls-root .lss-phone-body { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; flex: 1; }
+
+.ls-root .lss-phone-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--ls-teal);
+}
+
+.ls-root .lss-side { display: grid; gap: 1rem; align-content: stretch; }
+
+.ls-root .lss-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1rem;
+}
+
+.ls-root .lss-box::before { inset: 0; background: var(--ls-line); }
+.ls-root .lss-box::after { inset: 1px; background: var(--ls-surface); }
+.ls-root .lss-cloud::before { background: color-mix(in srgb, var(--ls-blue) 55%, var(--ls-line)); }
+.ls-root .lss-admob::before { background: color-mix(in srgb, var(--ls-violet) 45%, var(--ls-line)); }
+
+.ls-root .lss-box-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.ls-root .lss-box-head .ls-heading { font-size: 1.3rem; }
+.ls-root .lss-box-head .ls-label { font-size: 0.64rem; margin-left: auto; }
+.ls-root .lss-cloud .lss-box-head svg { color: var(--ls-blue); }
+.ls-root .lss-admob .lss-box-head svg { color: var(--ls-violet); }
+.ls-root .lss-bin .lss-box-head svg { color: #FF5468; }
+
+.ls-root .lss-box-chips { display: flex; flex-wrap: wrap; gap: 0.6rem 0.5rem; min-height: 2rem; }
+
+.ls-root .lss-box-note {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--ls-muted);
+}
+
+.ls-root .lss-bin-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.35rem; }
+
+.ls-root .lss-bin-list li {
+  position: relative;
+  justify-self: start;
+  font-family: var(--ls-font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--ls-muted);
+}
+
+.ls-root .lss-strike {
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 50%;
+  height: 2px;
+  background: #FF5468;
+  transform-origin: left center;
+}
+
+/* ── Stacked layout (phones, short screens): no pin, the destinations rise to meet the chips ── */
+@media (max-width: 879px) {
+  .ls-root .lss-dests { grid-template-columns: 1fr 1fr; }
+  .ls-root .lss-phone { grid-column: 1 / -1; }
+  .ls-root .lss-side { grid-column: 1 / -1; grid-template-columns: 1fr 1fr; }
+  .ls-root .lss-bin { grid-column: 1 / -1; }
+  .ls-root .lss-bin-list { grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .ls-root .lss-side { grid-template-columns: 1fr; }
+}
+
+.ls-root .lss-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

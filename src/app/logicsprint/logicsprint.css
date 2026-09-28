@@ -68,9 +68,7 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
   letter-spacing: 0.01em;
 }
 
-.ls-h1 { font-size: clamp(3rem, 11vw, 5.5rem); }
 .ls-h2 { font-size: clamp(2rem, 6vw, 3rem); margin-bottom: 2rem; }
-.ls-h3 { font-size: 1.75rem; }
 
 .ls-label {
   font-family: var(--ls-font-mono);
@@ -265,16 +263,17 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
   gap: 0.75rem;
 }
 
-/* ── Hero ── */
-.ls-hero {
+/* ── Intro (under the full-screen hero) ── */
+.ls-intro {
   display: grid;
-  gap: 2.5rem;
-  align-items: center;
-  padding-block: clamp(2.5rem, 7vw, 5rem);
+  gap: 1.75rem;
+  align-items: start;
+  padding-block: clamp(3rem, 8vw, 5rem);
+  scroll-margin-top: 64px;
 }
 
-@media (min-width: 960px) {
-  .ls-hero { grid-template-columns: 1fr 1.1fr; gap: 3.5rem; }
+@media (min-width: 720px) {
+  .ls-intro { grid-template-columns: auto 1fr; gap: 2.5rem; }
 }
 
 .ls-app-icon {
@@ -301,64 +300,6 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
   font-size: clamp(1.75rem, 5vw, 2.5rem);
   line-height: 1.1;
   margin-top: 0.35rem;
-}
-
-/* ── Games ── */
-.ls-games {
-  display: grid;
-  gap: 1.25rem;
-}
-
-@media (min-width: 768px) {
-  .ls-games { grid-template-columns: repeat(2, 1fr); }
-}
-
-.ls-game {
-  display: flex;
-  flex-direction: column;
-  padding: 1.75rem 1.5rem 1.5rem;
-}
-
-.ls-game-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-}
-
-.ls-modes {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  margin-top: 1.25rem;
-  background: var(--ls-line);
-  border: 1px solid var(--ls-line);
-}
-
-.ls-mode {
-  background: var(--ls-surface-2);
-  padding: 0.6rem 0.75rem;
-}
-
-.ls-game-footer {
-  margin-top: auto;
-  padding-top: 1.25rem;
-}
-
-.ls-game-footer-inner {
-  border-top: 1px solid var(--ls-line);
-  padding-top: 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem 2rem;
-}
-
-.ls-top3 li {
-  display: flex;
-  gap: 0.75rem;
-  align-items: baseline;
-  font-size: 0.9375rem;
 }
 
 /* ── How a run works: four steps, one row on desktop, pairs on tablet ── */
@@ -400,29 +341,6 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
 }
 
 .ls-feature { padding: 1.5rem 1.25rem; }
-
-/* ── Leaderboard ── */
-.ls-boards {
-  display: grid;
-  gap: 1rem;
-}
-
-@media (min-width: 768px) {
-  .ls-boards { grid-template-columns: repeat(2, 1fr); }
-}
-
-.ls-board {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding: 1.75rem 1.5rem 1.5rem;
-}
-
-.ls-board .ls-top3 {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
 
 /* ── FAQ ── */
 .ls-faq {

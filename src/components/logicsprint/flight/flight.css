@@ -1,0 +1,113 @@
+/* Full-screen hero: title opens in the centre, fades away, and leaves a full-width dogfight. */
+
+.ls-root .lsf-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: calc(100svh - 65px);
+  overflow: hidden;
+  background: #000;
+  border-bottom: 1px solid var(--ls-line);
+}
+
+.ls-root .lsf-stage {
+  position: absolute;
+  inset: 0;
+  /* A dark field while the WebGL scene loads. */
+  background:
+    radial-gradient(40% 50% at 25% 60%, rgba(61, 220, 132, 0.08), transparent 70%),
+    radial-gradient(40% 50% at 75% 40%, rgba(255, 79, 184, 0.08), transparent 70%),
+    #000;
+}
+
+.ls-root .lsf-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(60% 55% at 50% 50%, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.35));
+  animation: lsf-fade-out 1.4s ease 2.4s forwards;
+}
+
+.ls-root .lsf-title {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1rem;
+  padding-inline: 16px;
+  text-align: center;
+  pointer-events: none;
+  animation: lsf-title-out 1.4s cubic-bezier(0.6, 0, 0.2, 1) 2.4s forwards;
+}
+
+.ls-root .lsf-title h1 {
+  margin: 0;
+  font-size: clamp(3.25rem, 14vw, 11rem);
+  line-height: 0.9;
+  letter-spacing: 0.01em;
+  text-shadow: 0 0 40px rgba(52, 194, 154, 0.25);
+}
+
+.ls-root .lsf-tagline {
+  margin: 0;
+  max-width: 34ch;
+  font-size: clamp(1rem, 2.2vw, 1.375rem);
+  color: var(--ls-text);
+}
+
+@keyframes lsf-title-out {
+  to { opacity: 0; transform: scale(1.12); filter: blur(14px); letter-spacing: 0.06em; }
+}
+
+@keyframes lsf-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes lsf-fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ── Bottom of the hero: the hidden heart and a scroll cue ── */
+.ls-root .lsf-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem 16px 1.25rem;
+  opacity: 0;
+  animation: lsf-fade-in 0.8s ease 3.1s forwards;
+}
+
+.ls-root .lsf-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ls-root .lsf-scroll {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  min-height: 44px;
+  justify-content: flex-end;
+  color: var(--ls-muted);
+}
+
+.ls-root .lsf-scroll:focus-visible {
+  outline: 2px solid var(--ls-teal);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-root .lsf-title,
+  .ls-root .lsf-veil { animation: none; }
+  .ls-root .lsf-bottom { animation: none; opacity: 1; }
+}
