@@ -1,6 +1,6 @@
 # Trupal Patel (True Pal)
 
-> Full-stack software engineer and systems architect. Portfolio, products and project case studies at https://trupalpatel.com.
+> Full-stack software engineer and systems architect. Portfolio, products and project case studies at https://www.trupalpatel.com.
 
 ## Overview
 **Trupal Patel** (also known online as **True Pal** or **TrupalIX9**) is a high-performance Full-Stack Software Engineer and Systems Architect. He handles the entire software lifecycle, from architecting intricate backend logic and designing seamless user interfaces, all the way to deploying highly scalable production-ready systems.
@@ -13,30 +13,30 @@ He does not box himself into just frontend or backend roles, nor is he tied to a
 A production-grade, 5-module retail command center and Point-of-Sale (POS) ecosystem built from scratch for convenience stores and gas stations.
 - **Focus**: Eliminating downtime risks for convenience stores with offline-first edge capabilities and ultra-fast transaction processing.
 - **Website**: https://storedesk.net
-- **Product page**: https://trupalpatel.com/products/storedesk
+- **Product page**: https://www.trupalpatel.com/products/storedesk
 
 ### LogicSprint: Brain Games
 An Android app with four endless brain games for reflexes, memory, math and focus, with a global Top 10 per game and difficulty and no login.
 - **Website**: https://logicsprint.trupalpatel.com (details for AI tools: https://logicsprint.trupalpatel.com/llms.txt)
-- **Product page**: https://trupalpatel.com/products/logicsprint
+- **Product page**: https://www.trupalpatel.com/products/logicsprint
 
 ### Dr. Nandini Jansari Physiotherapy
 A patient-facing website and admin panel for a home-visit physiotherapist in Ahmedabad: a scroll-driven 3D anatomy explorer, 39 condition pages, WhatsApp booking, verified patient reviews and a key-protected admin panel.
 - **Website**: https://www.drnandini.com
-- **Product page**: https://trupalpatel.com/products/dr-nandini-physio
+- **Product page**: https://www.trupalpatel.com/products/dr-nandini-physio
 
 ### Contact Convoy
 A business-card scanner for Indian sales teams, formerly VisitCard Pro: on-device OCR, AI clean-up of misread fields, one shared company lead list with exhibition tagging and follow-up status, and per-company plans sold on the website and Google Play.
 - **Stack**: Flutter (Dart) Android app with Google ML Kit OCR and an SQLite offline cache; Node.js / Express API on Google Cloud Run with MongoDB Atlas (Mongoose); Gemini on Vertex AI for field clean-up; Firebase Hosting, Cloud Messaging and Crashlytics; React + Vite super-admin console; Razorpay and Google Play Billing.
 - **Website**: https://www.contactconvoy.com
 - **Google Play**: https://play.google.com/store/apps/details?id=com.ayushtech.contactconvoy
-- **Product page**: https://trupalpatel.com/products/contact-convoy
+- **Product page**: https://www.trupalpatel.com/products/contact-convoy
 
 ### MeghVin Foundation
 The website and admin for MeghVin Foundation, a public charitable trust in Ahmedabad and Navi Mumbai that plants and cares for trees at Sindoor Valley (Kharghar), runs a community kitchen and takes doctor-led health talks into schools. The public site tells its story in English and Gujarati. One admin gives the trustees control of everything: every page's text and photos, the daily activity diary, gallery, stories, a poster studio, letterhead receipts and certificates, media, messages, settings and team, with no code.
 - **Stack**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4 with shadcn/ui and Radix UI; MongoDB Atlas with Mongoose; Cloudinary for media; Konva poster canvas; three.js with React Three Fiber; Motion; jsPDF; Zod; jose JWT sessions with bcrypt; Formspree; deployed on Vercel.
 - **Website**: https://meghvin.vercel.app
-- **Product page**: https://trupalpatel.com/products/meghvin-foundation
+- **Product page**: https://www.trupalpatel.com/products/meghvin-foundation
 
 ## Career History
 
@@ -70,28 +70,28 @@ AIVID.AI provides enterprise-scale edge computer vision and analytics across 200
 "For me, it is all about deeply understanding a problem, designing a scalable architecture, and writing clean code that makes a real impact. I would love to bring this exact same drive and architectural vision to your team."
 
 ## Project Case Studies
-- [RetailSync](https://trupalpatel.com/projects/retailsync): full-stack multi-tenant SaaS with POS ingestion, bank statement OCR and QuickBooks sync.
-- [Web Warehouse](https://trupalpatel.com/projects/web-warehouse): inventory and purchase-order management with a 3D warehouse model in Three.js.
-- [Shipping Agent](https://trupalpatel.com/projects/shipping-agent): an AI shipping desk that quotes every carrier through ShipStation and checks out to a printable label.
-- [Fire Forecasting](https://trupalpatel.com/projects/fire-forecasting): a wildfire risk dashboard prototype for the Tri-County area.
-- [ZoneWatch](https://trupalpatel.com/projects/motion-detection): a C# Windows app for ONVIF IP cameras with EmguCV motion detection and PTZ control.
-- [Gatelog](https://trupalpatel.com/projects/vehicle-log): a Windows installer and updater for a vehicle-log server stack.
-- [WebGL Academic Presentation](https://trupalpatel.com/projects/comp-599-webgl): a seminar slide deck where every slide runs a live Three.js scene.
-- [File System Engine](https://trupalpatel.com/projects/file-system-engine): an Electron file manager with a dual-pane Transfer Hub and a treemap disk analyzer.
+- [RetailSync](https://www.trupalpatel.com/projects/retailsync): full-stack multi-tenant SaaS with POS ingestion, bank statement OCR and QuickBooks sync.
+- [Web Warehouse](https://www.trupalpatel.com/projects/web-warehouse): inventory and purchase-order management with a 3D warehouse model in Three.js.
+- [Shipping Agent](https://www.trupalpatel.com/projects/shipping-agent): an AI shipping desk that quotes every carrier through ShipStation and checks out to a printable label.
+- [Fire Forecasting](https://www.trupalpatel.com/projects/fire-forecasting): a wildfire risk dashboard prototype for the Tri-County area.
+- [ZoneWatch](https://www.trupalpatel.com/projects/motion-detection): a C# Windows app for ONVIF IP cameras with EmguCV motion detection and PTZ control.
+- [Gatelog](https://www.trupalpatel.com/projects/vehicle-log): a Windows installer and updater for a vehicle-log server stack.
+- [WebGL Academic Presentation](https://www.trupalpatel.com/projects/comp-599-webgl): a seminar slide deck where every slide runs a live Three.js scene.
+- [File System Engine](https://www.trupalpatel.com/projects/file-system-engine): an Electron file manager with a dual-pane Transfer Hub and a treemap disk analyzer.
 
 ## Pages
-- [Home](https://trupalpatel.com/): about, products, selected work and contact
-- [Products](https://trupalpatel.com/products): StoreDesk, LogicSprint, the Dr. Nandini physiotherapy site, Contact Convoy and the MeghVin Foundation site
-- [Projects](https://trupalpatel.com/projects): project case studies
-- [Allyvia (Founding Software Engineer)](https://trupalpatel.com/experience/allyvia)
-- [AIVID.AI (Software Engineer)](https://trupalpatel.com/experience/aivid-ai)
-- [InfoLabz (Frontend Software Engineer)](https://trupalpatel.com/experience/infolabz)
-- [Certifications](https://trupalpatel.com/certifications)
-- [Resume (PDF)](https://trupalpatel.com/RESUME.pdf)
+- [Home](https://www.trupalpatel.com/): about, products, selected work and contact
+- [Products](https://www.trupalpatel.com/products): StoreDesk, LogicSprint, the Dr. Nandini physiotherapy site, Contact Convoy and the MeghVin Foundation site
+- [Projects](https://www.trupalpatel.com/projects): project case studies
+- [Allyvia (Founding Software Engineer)](https://www.trupalpatel.com/experience/allyvia)
+- [AIVID.AI (Software Engineer)](https://www.trupalpatel.com/experience/aivid-ai)
+- [InfoLabz (Frontend Software Engineer)](https://www.trupalpatel.com/experience/infolabz)
+- [Certifications](https://www.trupalpatel.com/certifications)
+- [Resume (PDF)](https://www.trupalpatel.com/RESUME.pdf)
 
 ## Connect
 - **Unique Identifier / SEO Key**: TrupalIX9
 - **Email**: trupal.work@gmail.com
 - **LinkedIn**: linkedin.com/in/trupalix
 - **GitHub**: github.com/TRUPALIX9
-- **Portfolio**: https://trupalpatel.com
+- **Portfolio**: https://www.trupalpatel.com
