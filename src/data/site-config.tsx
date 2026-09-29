@@ -78,7 +78,6 @@ export const navLinks: NavLink[] = [
     { href: "/#products", label: "Live Products" },
     { href: "/#projects", label: "Projects" },
     { href: "/#experience", label: "Experience" },
-    { href: "/game", label: "Are You Smart?" },
     { href: "/#contact", label: "Contact" },
 ];
 

@@ -67,10 +67,6 @@ export default function Footer() {
     };
 
 
-    if (pathname === '/game' || pathname === '/game-only' || pathname?.startsWith('/arcade')) {
-        return null;
-    }
-
     const scrollToTop = () => {
         if (typeof window !== 'undefined') {
             if (window.location.pathname === '/') {
@@ -152,7 +148,6 @@ export default function Footer() {
                         <Link href="/#projects" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Projects</Link>
                         <Link href="/#experience" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Experience</Link>
                         <Link href="/certifications" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Certifications</Link>
-                        <Link href="/game" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Arcade</Link>
                         <Link href="/#contact" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">Contact</Link>
                     </div>
                 </div>

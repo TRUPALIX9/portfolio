@@ -20,6 +20,10 @@ const nextConfig = {
             { source: '/projects/card-snap', destination: '/products/contact-convoy', permanent: true },
             // The Bedrock prototype was rebuilt as Shipping Agent; its page now covers both.
             { source: '/projects/shipping-agent-aws', destination: '/projects/shipping-agent', permanent: true },
+            // The web memory game was retired in favour of LogicSprint; old and shared links land there.
+            { source: '/game', destination: '/products/logicsprint', permanent: true },
+            { source: '/game-only', destination: '/products/logicsprint', permanent: true },
+            { source: '/arcade/:token', destination: '/products/logicsprint', permanent: true },
         ];
     },
     async headers() {

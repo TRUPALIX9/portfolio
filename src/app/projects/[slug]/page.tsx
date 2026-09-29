@@ -7,6 +7,7 @@ import { projectStories } from '@/data/project-stories';
 import MermaidChart from '@/components/MermaidChart';
 import Reveal, { Stagger, StaggerItem } from '@/components/motion/Reveal';
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/utils/seo';
 
 /**
  * Chapter accents. Used only for small marks — timeline nodes, icons, eyebrow labels,
@@ -41,10 +42,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const { slug } = await params;
     const project = projects.find(p => p.slug === slug);
     if (!project) return {};
-    return {
+    return pageMetadata({
         title: `${project.title} | Trupal Patel`,
         description: project.tagline || project.description,
-    };
+        path: `/projects/${project.slug}`,
+    });
 }
 
 // ── Shared type scale ────────────────────────────────────────────────────────

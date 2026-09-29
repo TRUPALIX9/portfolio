@@ -28,3 +28,13 @@ export async function getDb(): Promise<Db> {
     const client = await clientPromise;
     return client.db();
 }
+
+/**
+ * Visitor analytics live in the main database in production, and in a separate
+ * `<db>_dev` database everywhere else, so local testing never mixes with real traffic.
+ */
+export async function getAnalyticsDb(): Promise<Db> {
+    const client = await clientPromise;
+    if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV !== 'preview') return client.db();
+    return client.db(`${client.db().databaseName}_dev`);
+}

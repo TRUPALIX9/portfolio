@@ -6,7 +6,6 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { BriefcaseBusiness, Sparkles } from 'lucide-react';
 import { EASE_OUT } from '@/components/motion/Reveal';
 import { socialLinks } from '@/data/site-config';
-import { trackVisitorEvent } from '@/utils/visitor-analytics';
 
 type SocialScene = {
     key: string;
@@ -68,14 +67,6 @@ export default function SocialPage({
 
         return () => window.clearInterval(interval);
     }, [hoveredIndex, prefersReducedMotion, scenes.length]);
-
-    useEffect(() => {
-        void trackVisitorEvent({
-            event: 'page_view',
-            route: standalone ? '/social-only' : '/social',
-            source: standalone ? 'share-page' : 'portfolio-page',
-        });
-    }, [standalone]);
 
     const displayedIndex = hoveredIndex ?? activeIndex;
     const activeScene = scenes[displayedIndex];
@@ -177,7 +168,7 @@ export default function SocialPage({
                                     <div aria-hidden="true" className="social-stage__shine" />
                                 </div>
 
-                                <div className={`social-stage__cluster social-stage__cluster--${activeScene.key}`}>
+                                <div className={`social-stage__cluster social-stage__cluster--${activeScene.key}`} data-track-placement={`social-${activeScene.key}`}>
                                     {activeScene.links.map((social, index) => (
                                         <motion.a
                                             key={`${activeScene.key}-${social.name}`}
@@ -185,15 +176,6 @@ export default function SocialPage({
                                             target={social.external === false ? undefined : "_blank"}
                                             rel={social.external === false ? undefined : "noreferrer"}
                                             className="social-mini-card"
-                                            onClick={() => {
-                                                void trackVisitorEvent({
-                                                    event: 'link_open',
-                                                    route: standalone ? '/social-only' : '/social',
-                                                    source: activeScene.key,
-                                                    linkName: social.name,
-                                                    linkUrl: social.url,
-                                                });
-                                            }}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 0.12 + index * 0.05, duration: 0.45, ease: EASE_OUT }}

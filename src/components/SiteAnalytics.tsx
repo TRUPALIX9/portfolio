@@ -3,11 +3,14 @@
 import { useLayoutEffect } from 'react';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { useSitePathname } from '@/hooks/useSitePathname';
-import BehavioralTracker from './BehavioralTracker';
+import AnalyticsTracker from './AnalyticsTracker';
 
-/** Routes that must stay free of analytics and cookies (the LogicSprint product + privacy pages). */
+/**
+ * Routes that must stay free of analytics and cookies (the LogicSprint product + privacy pages),
+ * plus the private admin dashboard, which isn't part of the visitor journey.
+ */
 export const isAnalyticsFreePath = (pathname: string) =>
-    pathname === '/logicsprint' || pathname.startsWith('/logicsprint/');
+    pathname === '/logicsprint' || pathname.startsWith('/logicsprint/') || pathname === '/playground';
 
 export default function SiteAnalytics({ gaId }: { gaId?: string }) {
     const excluded = isAnalyticsFreePath(useSitePathname());
@@ -22,7 +25,7 @@ export default function SiteAnalytics({ gaId }: { gaId?: string }) {
     if (excluded) return null;
     return (
         <>
-            <BehavioralTracker />
+            <AnalyticsTracker />
             {/* Was hard-coded to the "G-XXXXXXXXXX" placeholder, which sent hits nowhere. */}
             {gaId && <GoogleAnalytics gaId={gaId} />}
         </>

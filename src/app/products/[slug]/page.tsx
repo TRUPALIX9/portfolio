@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/utils/seo';
 import { ArrowLeft, ArrowUpRight, CheckCircle2 } from 'lucide-react';
 import Reveal from '@/components/motion/Reveal';
 import { products } from '@/data/products';
@@ -16,20 +17,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const { slug } = await params;
     const product = products.find((p) => p.slug === slug);
     if (!product) return {};
-    return {
+    return pageMetadata({
         title: `${product.name} | Trupal Patel`,
         description: product.tagline,
-        alternates: { canonical: `/products/${product.slug}` },
-        openGraph: {
-            title: product.name,
-            description: product.tagline,
-            url: `/products/${product.slug}`,
-            siteName: 'Trupal Patel Portfolio',
-            type: 'website',
-            // Setting openGraph here drops the inherited card, so name an image explicitly.
-            images: [product.previewImage ?? { url: '/opengraph-image', width: 1200, height: 630 }],
-        },
-    };
+        path: `/products/${product.slug}`,
+        image: product.previewImage,
+    });
 }
 
 const buttonStyle = { display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1.35rem', fontSize: '0.925rem' } as const;

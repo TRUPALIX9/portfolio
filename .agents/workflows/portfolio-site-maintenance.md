@@ -14,7 +14,7 @@ From the visitor perspective, this site has four jobs:
 
 1. Establish credibility quickly.
 2. Explain who Trupal is and what kinds of systems he builds.
-3. Provide proof through projects, experience, resume, and the interactive arcade.
+3. Provide proof through projects, products, and experience.
 4. Create a low-friction path to contact or social connection.
 
 Every page should be judged against those jobs before being judged against code elegance.
@@ -192,7 +192,7 @@ Customer reality:
 Maintenance expectations:
 - Keep the message short, inviting, and action-oriented.
 - `mailto:` must remain working.
-- Resume shortcut is useful here and should stay discoverable.
+- Form starts, sends and failures are tracked (`contact_start` / `contact_submit` / `contact_error`); keep those calls when editing the form.
 
 ### Social
 
@@ -214,34 +214,33 @@ Change risks:
 ### Playground
 
 Primary files:
-- `src/app/playground/page.tsx`
-- `src/app/api/leaderboard/route.ts`
-- `src/app/api/playground/share-link/route.ts`
+- `src/app/playground/page.tsx` (tab shell and sign-in)
+- `src/components/admin/playground/*` (Overview, Acquisition, Content, Intent, Visitors, Live, Inbox, Data)
+- `src/app/api/analytics/{collect,report,admin}/route.ts`
+- `src/utils/analytics/*` (shared taxonomy, browser client, server helpers, report queries)
+- `src/components/AnalyticsTracker.tsx` (the site-wide tracker, mounted by `SiteAnalytics`)
 
 Customer reality:
 - This is not a normal visitor page.
-- It is an operational admin surface for the arcade system.
+- It is the owner's analytics and contact inbox. Signing in sets a `pv_owner` cookie so the owner's own visits are excluded from reports.
 
 Maintenance expectations:
 - It must remain server-validated.
 - Never convert it back into a purely client-side “fake lock”.
 - All destructive actions should remain explicit and understandable.
 
-### Arcade Share Route
+### Visitor Analytics
 
-Primary files:
-- `src/app/arcade/[token]/page.tsx`
-- `src/utils/arcade-share.ts`
-- `src/components/Navbar.tsx`
-
-Customer reality:
-- This is a focused, game-only share experience.
-- A shared visitor should land directly in the arcade without the rest of the portfolio distracting them.
+How it works:
+- Every page view, engaged time and scroll per page, home-section reach (`data-track-section`), outbound clicks (GitHub, LinkedIn, email, demos), contact form steps, rage clicks, JS errors and Core Web Vitals are tracked automatically.
+- A visitor id lives in both a cookie and local storage; a visit (session) ends after 30 idle minutes or when a new campaign/referrer arrives.
+- The tracker only sends in production, or in dev with `NEXT_PUBLIC_ANALYTICS_DEV=1`. Dev and Vercel preview writes go to the `<db>_dev` database.
+- Owner visits, bots and blocked IPs are stored but filtered out of reports by default.
 
 Maintenance expectations:
-- The token must remain signed and tamper-resistant.
-- The navbar should stay hidden on these routes.
-- If token semantics change, keep the route secure-by-default.
+- New outbound links need no wiring; give them a `data-track-placement` only if the default (navbar / footer / section id) isn't specific enough.
+- New home sections should get a `data-track-section` so they show up in the reach report.
+- Never put names, emails or message text into analytics events.
 
 ## 3. Shared Systems
 
@@ -254,7 +253,7 @@ Primary files:
 
 Core behavior:
 - `layout.tsx` wraps the entire app and mounts the shared navbar.
-- `Navbar.tsx` hides itself on strict or arcade-only routes.
+- `Navbar.tsx` hides itself on strict, share-only (`/social-only`) and playground routes.
 - Active link styling should highlight only the current page.
 
 Maintenance rules:
@@ -298,14 +297,7 @@ Typical technical peer path:
 1. Land on `/projects`
 2. Open project details
 3. Inspect `/experience/[slug]`
-4. Explore `/game`
-5. Review resume
-
-Typical casual or shared-link path:
-
-1. Open `/arcade/[token]`
-2. Play a game
-3. Optionally navigate later to the full site if the user finds the root domain separately
+4. Open `/products/logicsprint` or the LogicSprint site
 
 ## 5. Maintenance Checklist
 

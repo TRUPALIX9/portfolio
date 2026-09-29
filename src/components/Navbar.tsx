@@ -23,7 +23,7 @@ const SECTION_ANCHORS: Record<string, string> = {
 };
 
 // These always navigate to their own route regardless of page
-const ROUTE_ONLY = new Set(['/social', '/game']);
+const ROUTE_ONLY = new Set(['/social']);
 
 // Section links also light up on the pages behind them (/products, /projects/[slug], /experience/[slug]).
 const SECTION_ROUTES: Record<string, string> = {
@@ -36,8 +36,7 @@ function NavbarContent() {
   const pathname     = useSitePathname();
   const searchParams = useSearchParams();
   const isStrict            = searchParams.get('strict') === 'true';
-  const isArcadeOnly        = pathname.startsWith('/arcade/');
-  const isDedicatedSharePage = pathname === '/social-only' || pathname === '/arcade-only' || pathname === '/game-only';
+  const isDedicatedSharePage = pathname === '/social-only';
   const isPlayground        = pathname === '/playground';
   const isHome              = pathname === '/';
   const [isOpen, setIsOpen] = useState(false);
@@ -97,7 +96,7 @@ function NavbarContent() {
     }
   }, []);
 
-  if (isStrict || isArcadeOnly || isDedicatedSharePage || isPlayground) return null;
+  if (isStrict || isDedicatedSharePage || isPlayground) return null;
 
   const handleToggle = () => setIsOpen(!isOpen);
 
@@ -210,23 +209,6 @@ function NavbarContent() {
             </button>
 
             <div style={{ display: 'flex', gap: '1.25rem', borderLeft: '1px solid var(--line-2)', paddingLeft: '2rem', alignItems: 'center' }} className="nav-auth">
-              <a 
-                href="/RESUME.pdf" 
-                download="Trupal_Patel_Resume.pdf"
-                className="btn-outline" 
-                style={{ 
-                  padding: '0.4rem 1rem', 
-                  fontSize: '0.85rem', 
-                  display: 'inline-flex', 
-                  alignItems: 'center', 
-                  gap: '0.4rem',
-                  fontWeight: 600,
-                  textDecoration: 'none',
-                }}
-              >
-                <span>Resume</span>
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-              </a>
               <a href="https://github.com/TRUPALIX9" target="_blank" rel="noreferrer" aria-label="GitHub profile" className="flex items-center text-ink-2 transition-colors duration-150 hover:text-ink-1">
                 <GithubIcon size={20} />
               </a>
@@ -256,31 +238,6 @@ function NavbarContent() {
                 {renderLink(link, () => setIsOpen(false))}
               </motion.div>
             ))}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: navLinks.length * 0.05 }}
-              style={{ marginTop: '1.5rem' }}
-            >
-              <a 
-                href="/RESUME.pdf" 
-                download="Trupal_Patel_Resume.pdf"
-                className="btn-outline" 
-                onClick={() => setIsOpen(false)}
-                style={{ 
-                  padding: '0.6rem 1.5rem', 
-                  fontSize: '0.95rem', 
-                  display: 'inline-flex', 
-                  alignItems: 'center', 
-                  gap: '0.5rem',
-                  fontWeight: 600,
-                  textDecoration: 'none',
-                }}
-              >
-                <span>Download Resume</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-              </a>
-            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

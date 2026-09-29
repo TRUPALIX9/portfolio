@@ -98,8 +98,7 @@ The full list, with every credential link, is at **[trupalpatel.com/certificatio
 - 🧠 The full LogicSprint product site, served on its own subdomain
 - 📚 Story-style project case studies and experience deep dives
 - 🏅 A certifications page with verified credential links
-- 🎮 A memory game with a global leaderboard, plus signed arcade-only share links
-- 🔐 A protected admin playground (leaderboard moderation, contact inbox, visitor analytics)
+- 📊 First-party visitor analytics with a protected admin dashboard (traffic sources, content, intent, live view, contact inbox)
 - ✅ Playwright end-to-end smoke tests
 
 ### 🌐 Two sites, one app
@@ -122,11 +121,9 @@ On the subdomain the portfolio navbar and footer are hidden before first paint a
 | `/projects`, `/projects/[slug]` | Project gallery and case studies |
 | `/experience/[slug]` | Experience deep dives |
 | `/certifications` | All credentials |
-| `/game`, `/game-only` | Memory game and leaderboard |
 | `/social`, `/social-only` | Link hub (not indexed) |
 | `/playground` | Protected admin dashboard |
-| `/arcade/[token]` | Signed arcade-only mode |
-| `/api/*` | Leaderboard, contact submissions, visitor analytics, admin session and share links |
+| `/api/*` | Contact submissions, analytics collection and reports, admin session |
 
 ### 🔎 SEO
 
@@ -159,15 +156,14 @@ Create `.env.local`:
 ```env
 MONGODB_URI=...
 KEY=...
-SHARE_LINK_SECRET=...
 NEXT_PUBLIC_GA_ID=...
 ```
 
 | Variable | Purpose |
 |---|---|
-| `MONGODB_URI` | MongoDB connection (leaderboard, contact submissions, analytics) |
+| `MONGODB_URI` | MongoDB connection (contact submissions, analytics; dev and preview analytics use `<db>_dev`) |
 | `KEY` | Protects the admin playground and admin API actions |
-| `SHARE_LINK_SECRET` | Signs arcade-only URLs; falls back to `KEY` if omitted |
+| `OWNER_IPS` | Optional comma-separated IPs whose visits count as yours and are excluded from reports |
 | `NEXT_PUBLIC_GA_ID` | Optional Google Analytics ID; GA only loads when it's set |
 
 ### 💻 Local development
@@ -195,11 +191,11 @@ LogicSprint has its own look, scoped under `.ls-root` in [`src/app/logicsprint/l
 
 ### 🔐 Admin playground
 
-The dashboard at `/playground` supports key-based access (httpOnly session cookie), leaderboard insights and moderation, player renaming, a contact inbox, a visitor analytics explorer, and signed arcade-only share links. Key files: [`src/app/playground/page.tsx`](src/app/playground/page.tsx), [`src/components/admin/MasterVisitorExplorer.tsx`](src/components/admin/MasterVisitorExplorer.tsx), [`src/utils/admin.ts`](src/utils/admin.ts) and [`src/utils/arcade-share.ts`](src/utils/arcade-share.ts).
+The dashboard at `/playground` uses key-based access (httpOnly session cookie) and has eight tabs: Overview, Acquisition, Content, Intent, Visitors, Live, Inbox and Data. Signing in marks the browser as yours, so your own visits stay out of the numbers. Tracking is first-party: [`AnalyticsTracker`](src/components/AnalyticsTracker.tsx) records page views, engaged time, scroll, home-section reach, outbound clicks, contact-form steps, errors and Core Web Vitals, and sends them to [`/api/analytics/collect`](src/app/api/analytics/collect/route.ts). Key files: [`src/app/playground/page.tsx`](src/app/playground/page.tsx), [`src/components/admin/playground/`](src/components/admin/playground/), [`src/utils/analytics/`](src/utils/analytics/) and [`src/utils/admin.ts`](src/utils/admin.ts).
 
 ### 📖 Maintainer docs
 
-[TESTING.md](TESTING.md) · [Arcade system](.agents/docs/arcade-system.md) · [Site maintenance](.agents/workflows/portfolio-site-maintenance.md) · [Arcade maintenance](.agents/workflows/arcade-maintenance.md) · [Game development](.agents/workflows/game-development.md)
+[TESTING.md](TESTING.md) · [Site maintenance](.agents/workflows/portfolio-site-maintenance.md)
 
 ---
 

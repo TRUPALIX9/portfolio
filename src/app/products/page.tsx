@@ -1,16 +1,17 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/utils/seo';
 import { ArrowLeft } from 'lucide-react';
 import { products } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import ProjectsBackground from '@/components/effects/ProjectsBackground';
 import Reveal, { Stagger, StaggerItem } from '@/components/motion/Reveal';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
     title: 'Live Products | Trupal Patel',
     description: 'StoreDesk, LogicSprint, Contact Convoy, the Dr. Nandini physiotherapy site and the MeghVin Foundation site: software Trupal Patel builds, ships and supports for real users.',
-    alternates: { canonical: '/products' },
-};
+    path: '/products',
+});
 
 export default function ProductsPage() {
     return (

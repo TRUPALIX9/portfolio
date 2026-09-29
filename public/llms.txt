@@ -69,10 +69,23 @@ AIVID.AI provides enterprise-scale edge computer vision and analytics across 200
 ## Professional Philosophy
 "For me, it is all about deeply understanding a problem, designing a scalable architecture, and writing clean code that makes a real impact. I would love to bring this exact same drive and architectural vision to your team."
 
+## Project Case Studies
+- [RetailSync](https://trupalpatel.com/projects/retailsync): full-stack multi-tenant SaaS with POS ingestion, bank statement OCR and QuickBooks sync.
+- [Web Warehouse](https://trupalpatel.com/projects/web-warehouse): inventory and purchase-order management with a 3D warehouse model in Three.js.
+- [Shipping Agent](https://trupalpatel.com/projects/shipping-agent): an AI shipping desk that quotes every carrier through ShipStation and checks out to a printable label.
+- [Fire Forecasting](https://trupalpatel.com/projects/fire-forecasting): a wildfire risk dashboard prototype for the Tri-County area.
+- [ZoneWatch](https://trupalpatel.com/projects/motion-detection): a C# Windows app for ONVIF IP cameras with EmguCV motion detection and PTZ control.
+- [Gatelog](https://trupalpatel.com/projects/vehicle-log): a Windows installer and updater for a vehicle-log server stack.
+- [WebGL Academic Presentation](https://trupalpatel.com/projects/comp-599-webgl): a seminar slide deck where every slide runs a live Three.js scene.
+- [File System Engine](https://trupalpatel.com/projects/file-system-engine): an Electron file manager with a dual-pane Transfer Hub and a treemap disk analyzer.
+
 ## Pages
 - [Home](https://trupalpatel.com/): about, products, selected work and contact
 - [Products](https://trupalpatel.com/products): StoreDesk, LogicSprint, the Dr. Nandini physiotherapy site, Contact Convoy and the MeghVin Foundation site
 - [Projects](https://trupalpatel.com/projects): project case studies
+- [Allyvia (Founding Software Engineer)](https://trupalpatel.com/experience/allyvia)
+- [AIVID.AI (Software Engineer)](https://trupalpatel.com/experience/aivid-ai)
+- [InfoLabz (Frontend Software Engineer)](https://trupalpatel.com/experience/infolabz)
 - [Certifications](https://trupalpatel.com/certifications)
 - [Resume (PDF)](https://trupalpatel.com/RESUME.pdf)
 

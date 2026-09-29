@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { ArrowLeft, Check, ClipboardList, Lightbulb, Target, Sparkles, BookOpen, ExternalLink } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/utils/seo';
 import Reveal, { Stagger, StaggerItem } from '@/components/motion/Reveal';
 
 /** Small accents only (icons, labels, bullets) — body text always stays in the ink tiers. */
@@ -17,10 +18,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const { slug } = await params;
     const exp = master.experiences.find(e => e.slug === slug);
     if (!exp) return {};
-    return {
+    return pageMetadata({
         title: `${exp.role} @ ${exp.company} | Trupal Patel`,
         description: exp.deepDive.systemOverview,
-    };
+        path: `/experience/${exp.slug}`,
+    });
 }
 
 /** Icon + small uppercase heading, matching the case-study chapter eyebrows. */

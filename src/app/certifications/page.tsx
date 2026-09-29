@@ -1,14 +1,16 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/utils/seo';
 import { ArrowLeft } from 'lucide-react';
 import CertificationsSection from '@/components/CertificationsSection';
 import Reveal from '@/components/motion/Reveal';
 import { certifications } from '@/data/certifications';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
     title: 'Certifications | Trupal Patel',
     description: 'Verified certifications earned by Trupal Patel — AI Mastery (Cal Poly DXHub & AWS), Meta Front-End Developer, and courses from Google, Duke, Johns Hopkins, and Coursera.',
-};
+    path: '/certifications',
+});
 
 export default function CertificationsPage() {
     const issuers = new Set(certifications.map((c) => c.issuer)).size;

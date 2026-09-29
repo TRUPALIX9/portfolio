@@ -125,10 +125,12 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
         setAtTop(v <= 0.02);
     });
 
-    // Word drift distance, scaled down on smaller screens.
+    // Word drift distance, scaled down on smaller screens. On phones it shrinks with the width
+    // (0.45 from ~455px, 0.22 at 375px, 0.06 at 320px) so SO/ARE never drift past the screen edge.
     const driftScale = useMotionValue(1);
     useEffect(() => {
-        const onResize = () => driftScale.set(window.innerWidth < 640 ? 0.45 : window.innerWidth < 1024 ? 0.75 : 1);
+        const phoneScale = (width: number) => Math.min(0.45, Math.max(0.05, 0.22 + (width - 375) * 0.0029));
+        const onResize = () => driftScale.set(window.innerWidth < 640 ? phoneScale(window.innerWidth) : window.innerWidth < 1024 ? 0.75 : 1);
         onResize();
         window.addEventListener('resize', onResize, { passive: true });
         return () => window.removeEventListener('resize', onResize);
@@ -268,6 +270,7 @@ export default function HeroSection({ onScrollNext: _onScrollNext }: HeroSection
             <section
                 ref={sectionRef}
                 id="hero"
+                data-track-section="hero"
                 style={{ position: 'relative', height: `${HERO_VH}vh`, width: '100%' }}
             />
 

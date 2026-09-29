@@ -15,7 +15,7 @@ const LOGICSPRINT_PAGES: Record<string, string> = {
 
 /** Top-level portfolio routes (src/app/*) that logicsprint.* forwards to the portfolio. */
 const PORTFOLIO_SECTIONS = new Set([
-    'arcade', 'certifications', 'experience', 'game', 'game-only', 'playground', 'products', 'projects', 'social', 'social-only',
+    'certifications', 'experience', 'playground', 'products', 'projects', 'social', 'social-only',
 ]);
 
 /** Where to send cross-host redirects: the matching local hosts in dev, production otherwise. */

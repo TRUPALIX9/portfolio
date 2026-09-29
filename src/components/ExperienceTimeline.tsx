@@ -5,7 +5,7 @@ import Reveal from '@/components/motion/Reveal';
 
 export default function ExperienceTimeline() {
     return (
-        <div id="experience" style={{ width: '100%', paddingTop: '2rem' }}>
+        <div id="experience" data-track-section="experience" style={{ width: '100%', paddingTop: '2rem' }}>
             <Reveal className="text-center mb-14">
                 <p className="eyebrow mb-3">Experience</p>
                 <h2

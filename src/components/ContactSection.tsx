@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
-import { useInView } from 'framer-motion';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import confetti from 'canvas-confetti';
 import { Mail, Send, CheckCircle2, AlertCircle } from 'lucide-react';
-import { trackVisitorEvent } from '@/utils/visitor-analytics';
+import { track } from '@/utils/analytics/client';
 import Reveal from '@/components/motion/Reveal';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -28,8 +27,8 @@ export default function ContactSection() {
     const [status, setStatus] = useState<string | null>(null);
     const [isSuccess, setIsSuccess] = useState(false);
 
-    const sectionRef = useRef<HTMLElement>(null);
-    const isInView = useInView(sectionRef, { once: true, margin: "-100px 0px" });
+    // Section reach is tracked by AnalyticsTracker; this only marks the first interaction with the form.
+    const startedRef = useRef(false);
 
     const {
         register,
@@ -45,16 +44,6 @@ export default function ContactSection() {
             message: '',
         },
     });
-
-    useEffect(() => {
-        if (isInView) {
-            void trackVisitorEvent({
-                event: 'page_view',
-                route: '/contact',
-                source: 'contact-page',
-            });
-        }
-    }, [isInView]);
 
     const onSubmit = async (data: ContactFormData) => {
         setStatus(null);
@@ -81,11 +70,7 @@ export default function ContactSection() {
             }
 
             // Don't copy the visitor's name/email into analytics — it's already in contact_submissions.
-            void trackVisitorEvent({
-                event: 'contact_submit',
-                route: '/contact',
-                source: 'contact-form',
-            });
+            track('contact_submit', undefined, { immediate: true });
 
             setIsSuccess(true);
             setStatus('Message sent successfully! I will get back to you shortly.');
@@ -97,13 +82,14 @@ export default function ContactSection() {
                 origin: { y: 0.7 },
             });
         } catch (error) {
+            track('contact_error', { reason: error instanceof TypeError ? 'network' : 'server' });
             setIsSuccess(false);
             setStatus(error instanceof Error ? error.message : 'Unable to send your message right now.');
         }
     };
 
     return (
-        <section ref={sectionRef} aria-labelledby="contact-heading" className="section container pt-24 md:pt-32 pb-6 md:pb-8" style={{ minHeight: 'auto' }}>
+        <section aria-labelledby="contact-heading" className="section container pt-24 md:pt-32 pb-6 md:pb-8" style={{ minHeight: 'auto' }}>
             <Reveal className="w-full">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
                     {/* Left Column: Direct pathways */}
@@ -131,6 +117,11 @@ export default function ContactSection() {
                         noValidate
                         aria-label="Send a message"
                         onSubmit={handleSubmit(onSubmit)}
+                        onFocusCapture={() => {
+                            if (startedRef.current) return;
+                            startedRef.current = true;
+                            track('contact_start');
+                        }}
                         className="card w-full rounded-2xl relative overflow-hidden flex flex-col"
                     >
 
