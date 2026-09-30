@@ -46,6 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         title: `${project.title} | Trupal Patel`,
         description: project.tagline || project.description,
         path: `/projects/${project.slug}`,
+        image: { url: `/projects/${project.slug}/opengraph-image`, width: 1200, height: 630, alt: `${project.title} case study` },
     });
 }
 
