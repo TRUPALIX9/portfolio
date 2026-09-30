@@ -171,6 +171,7 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
 }
 .ls-btn-ghost:hover:not(:disabled)::after { background: var(--ls-surface-2); }
 .ls-btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
+.ls-btn-soon { color: var(--ls-muted); cursor: default; }
 
 .ls-icon-btn {
   min-height: 44px;

@@ -18,9 +18,8 @@ export const APP = {
     tagline: 'Endless brain games for reflexes, memory, math and focus.',
     pitch: 'Four quick games, each training one skill. Every run is endless and ends on your first mistake, so you can play for a minute or keep chasing your best, and your top scores go up against everyone on a daily global Top 10. No sign-up, no login.',
     version: '1.0.1',
-    apkUrl: 'https://github.com/TRUPALIX9/logic-sprint/releases/download/v1.0.1/app-release.apk',
-    apkLabel: 'Download APK (1.0.1)',
-    buildNote: 'Android · version 1.0.1 · Google Play coming soon',
+    playUrl: 'https://play.google.com/store/apps/details?id=com.trupal.logicsprint',
+    buildNote: 'Android on Google Play · iPhone and iPad coming soon to the App Store',
     supportEmail: 'trupal.work@gmail.com',
     icon: '/logicsprint/icon.png',
     featureGraphic: '/logicsprint/feature-graphic.png',
@@ -133,12 +132,8 @@ export const FAQ: { question: string; answer: string }[] = [
         answer: 'No. There’s no email, password or login. The app creates an anonymous profile for your device automatically.',
     },
     {
-        question: 'Is it on Google Play?',
-        answer: 'Not yet. The Google Play release is coming soon. Until then you can install version 1.0.1 for Android directly.',
-    },
-    {
-        question: 'How do I install the APK?',
-        answer: 'Download the APK on your Android phone and open it. If Android asks, allow your browser to install apps, then tap Install.',
+        question: 'Where can I get it?',
+        answer: 'LogicSprint is on Google Play for Android. The iPhone and iPad version is coming soon to the App Store.',
     },
     {
         question: 'How does the leaderboard work?',

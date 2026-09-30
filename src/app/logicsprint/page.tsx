@@ -1,13 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { Download } from 'lucide-react';
 import { APP, FACTS, FAQ, FEATURES, GAMES, PRIVACY_POINTS, RUN_STEPS, SCREENSHOTS } from '@/data/logicsprint';
 import { LOGICSPRINT_URL } from '@/data/site';
 import { getBoards, getLogicSprintStats } from '@/utils/logicsprint-stats';
 import ScreenshotCarousel from '@/components/logicsprint/ScreenshotCarousel';
 import GamesShowcase from '@/components/logicsprint/games/GamesShowcase';
 import HeroFlight from '@/components/logicsprint/flight/HeroFlight';
+import StoreButtons from '@/components/logicsprint/StoreButtons';
 
 // Live stats are cached for an hour (the fetches also set revalidate: 3600).
 export const revalidate = 3600;
@@ -45,7 +45,8 @@ const jsonLd = {
     applicationCategory: 'GameApplication',
     operatingSystem: 'Android',
     image: `${LOGICSPRINT_URL}${APP.icon}`,
-    downloadUrl: APP.apkUrl,
+    downloadUrl: APP.playUrl,
+    installUrl: APP.playUrl,
     author: { '@type': 'Person', name: 'Trupal Patel' },
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
 };
@@ -97,11 +98,7 @@ export default async function LogicSprintPage() {
                             {FACTS.map((fact) => <li key={fact}>{fact}</li>)}
                         </ul>
                         <div className="ls-hero-actions">
-                            <a href={APP.apkUrl} className="ls-btn ls-btn-primary">
-                                <Download size={20} aria-hidden="true" />
-                                {APP.apkLabel}
-                            </a>
-                            <a href="#games" className="ls-btn ls-btn-ghost">See the games</a>
+                            <StoreButtons />
                         </div>
                         <p className="ls-label" style={{ marginTop: '1rem' }}>{APP.buildNote}</p>
                     </div>
@@ -218,13 +215,12 @@ export default async function LogicSprintPage() {
                     <div className="ls-card ls-cta">
                         <div>
                             <h2 id="ls-download-title" className="ls-heading ls-h2" style={{ marginBottom: '0.75rem' }}>Ready to sprint?</h2>
-                            <p className="ls-muted" style={{ maxWidth: '46ch' }}>Install version 1.0.1 for Android today. Google Play is coming soon.</p>
+                            <p className="ls-muted" style={{ maxWidth: '46ch' }}>Get it free on Google Play for Android. iPhone and iPad are coming soon to the App Store.</p>
                         </div>
                         <div>
-                            <a href={APP.apkUrl} className="ls-btn ls-btn-primary">
-                                <Download size={20} aria-hidden="true" />
-                                {APP.apkLabel}
-                            </a>
+                            <div className="ls-hero-actions">
+                                <StoreButtons />
+                            </div>
                             <p className="ls-label" style={{ marginTop: '0.75rem' }}>Free · contains ads · no login</p>
                         </div>
                     </div>

@@ -16,9 +16,10 @@ A production-grade, 5-module retail command center and Point-of-Sale (POS) ecosy
 - **Product page**: https://www.trupalpatel.com/products/storedesk
 
 ### LogicSprint: Brain Games
-An Android app with four endless brain games for reflexes, memory, math and focus, with a global Top 10 per game and difficulty and no login.
+An Android app (iPhone and iPad coming soon to the App Store) with four endless brain games for reflexes, memory, math and focus, with a global Top 10 per game and difficulty and no login.
 - **Website**: https://logicsprint.trupalpatel.com (details for AI tools: https://logicsprint.trupalpatel.com/llms.txt)
 - **Product page**: https://www.trupalpatel.com/products/logicsprint
+- **Google Play**: https://play.google.com/store/apps/details?id=com.trupal.logicsprint
 
 ### Dr. Nandini Jansari Physiotherapy
 A patient-facing website and admin panel for a home-visit physiotherapist in Ahmedabad: a scroll-driven 3D anatomy explorer, 39 condition pages, WhatsApp booking, verified patient reviews and a key-protected admin panel.
