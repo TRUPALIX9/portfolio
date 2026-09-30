@@ -257,7 +257,7 @@ export default function DataStory() {
                 <ul>
                     <li>High scores and their run times</li>
                     <li>Run history, which never leaves your device</li>
-                    <li>Hearts, revives and donations, never sold or linked to your identity</li>
+                    <li>Hearts and revives, never sold or linked to your identity</li>
                     <li>Settings (sound, vibration)</li>
                     <li>Your display name</li>
                     <li>A cached copy of the leaderboard</li>
@@ -268,12 +268,12 @@ export default function DataStory() {
                     <li>Your display name and its 4-digit code, shown publicly on the Top 10</li>
                     <li>Your best score per game, and how many times you have played each game</li>
                 </ul>
-                <p>The app uses an anonymous account for your device. No email, password or login.</p>
+                <p>The app uses an anonymous account for your device. No email, password or login. Delete it any time in Settings → Delete leaderboard data.</p>
                 <h3>Shared with Google AdMob for ads</h3>
                 <ul>
                     <li>Your device&apos;s advertising ID (Google may also process your IP address, approximate location, device and app information, and ad interactions)</li>
                 </ul>
-                <p>With no internet connection the app shows no ads at all.</p>
+                <p>On iPhone, the app asks for permission (Apple&apos;s App Tracking Transparency prompt) before the advertising ID can be used for personalized ads. With no internet connection the app shows no ads at all.</p>
                 <h3>Never collected</h3>
                 <ul>
                     {NEVER.map((item) => <li key={item}>{item}</li>)}

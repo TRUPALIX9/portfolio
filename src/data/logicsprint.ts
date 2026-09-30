@@ -118,7 +118,7 @@ export const FEATURES: Point[] = [
 export const PRIVACY_POINTS: Point[] = [
     { title: 'No account needed', detail: 'No email, phone number or password. Your device gets an anonymous player profile.' },
     { title: 'Kept on your phone', detail: 'High scores, run history, hearts, settings and your display name live on your device. Run history never leaves it.' },
-    { title: 'Ads by Google AdMob', detail: 'Banners outside gameplay and optional videos. No internet, no ads. In the EEA, UK and Switzerland the app asks before showing personalized ads.' },
+    { title: 'Ads by Google AdMob', detail: 'Banners outside gameplay and optional videos. No internet, no ads. In the EEA, UK and Switzerland the app asks before showing personalized ads, and on iPhone it asks before tracking.' },
     { title: 'Never collected', detail: 'Contacts, photos, camera, microphone or precise location. No analytics SDKs.' },
 ];
 
@@ -137,7 +137,7 @@ export const FAQ: { question: string; answer: string }[] = [
     },
     {
         question: 'How does the leaderboard work?',
-        answer: 'Each game and difficulty has a global Top 10 ranked by best score. Boards update for everyone daily at 00:00 UTC, and your own new best shows right away. Pick a name with a 4-digit code (like NEON_FOX#0420) to appear on it, and don’t use your real name.',
+        answer: 'Each game and difficulty has a global Top 10 ranked by best score. Boards update for everyone daily at 00:00 UTC, and your own new best shows right away. Pick a name with a 4-digit code (like NEON_FOX#0420) to appear on it, and don’t use your real name. Offensive names are refused, and you can long-press a name to report it.',
     },
     {
         question: 'What are hearts?',
@@ -145,7 +145,7 @@ export const FAQ: { question: string; answer: string }[] = [
     },
     {
         question: 'Can I reset or delete my data?',
-        answer: 'Reset your high scores in Settings → Reset High Scores. Uninstalling deletes everything on your device. To remove your profile and scores from the leaderboard, email support with your display name and its 4-digit code.',
+        answer: 'Reset your high scores in Settings → Reset High Scores. Uninstalling deletes everything on your device. To remove your profile and scores from the leaderboard, open Settings → Delete leaderboard data, or email support with your display name and its 4-digit code.',
     },
 ];
 
