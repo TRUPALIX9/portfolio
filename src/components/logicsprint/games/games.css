@@ -908,3 +908,23 @@
     transition: none !important;
   }
 }
+
+/* ── Reduced-motion notice with a "Play the game demos" button ── */
+.ls-root .lsg-motion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin: -0.5rem 0 1.5rem;
+}
+
+.ls-root .lsg-motion p { margin: 0; font-size: 0.9rem; }
+
+/* Phones: a smaller phone per game, so each game fits in about two screens instead of three. */
+@media (max-width: 719px) {
+  .ls-root .lsg-game { padding: 2rem 1.25rem 2.5rem; }
+  .ls-root .lsg-slot { margin-bottom: 1.5rem; }
+  .ls-root .lsg-slot .lsg-phone { height: min(58svh, 500px); }
+  .ls-root .lsg-hs { margin-top: 1.25rem; }
+  .ls-root .lsg-row { min-height: 2.6rem; padding: 0.35rem 0.85rem; }
+}

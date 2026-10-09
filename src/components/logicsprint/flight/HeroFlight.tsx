@@ -1,10 +1,11 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { APP } from '@/data/logicsprint';
 import HiddenHeart from '@/components/logicsprint/hearts/HiddenHeart';
+import { useReducedMotion } from '@/components/logicsprint/games/useDemoRuntime';
 import { SHIPS, type DogfightControls } from './themes';
 import './flight.css';
 
@@ -15,7 +16,6 @@ const HEARTS_KEY = 'ls-hearts';
 /** Spaceship vs UFO (indices into SHIPS). */
 const SPACESHIP = 2;
 const UFO = 1;
-const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
 
 function heartsFound(): number {
     try {
@@ -24,12 +24,6 @@ function heartsFound(): number {
     } catch {
         return 0;
     }
-}
-
-function subscribeReducedMotion(onChange: () => void) {
-    const query = window.matchMedia(REDUCED_MOTION);
-    query.addEventListener('change', onChange);
-    return () => query.removeEventListener('change', onChange);
 }
 
 /**
@@ -42,8 +36,9 @@ export default function HeroFlight() {
     const [onScreen, setOnScreen] = useState(true);
     const [secret, setSecret] = useState(false);
     const [fonts, setFonts] = useState<{ mono: string; heading: string } | null>(null);
-    // Reduced motion: a still frame, and the title stays up (see flight.css).
-    const reducedMotion = useSyncExternalStore(subscribeReducedMotion, () => window.matchMedia(REDUCED_MOTION).matches, () => false);
+    // Reduced motion: a still frame, and the title stays up (see flight.css), unless the visitor
+    // pressed "Play the game demos".
+    const reducedMotion = useReducedMotion();
 
     // Resolve the next/font families (for canvas text) and wait for them before the first draw.
     useEffect(() => {

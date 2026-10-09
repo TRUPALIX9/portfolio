@@ -184,9 +184,13 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgb(0 0 0 / 0.85);
-  backdrop-filter: blur(12px);
+  background: rgb(0 0 0 / 0.94);
   border-bottom: 1px solid var(--ls-line);
+}
+
+/* The frosted bar re-blurs the moving hero every frame; phones get the plain one above. */
+@media (min-width: 960px) and (pointer: fine) {
+  .ls-topbar { background: rgb(0 0 0 / 0.85); backdrop-filter: blur(12px); }
 }
 
 .ls-topbar-inner {
@@ -496,4 +500,46 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
 
 @media (prefers-reduced-motion: reduce) {
   .ls-btn::before { transition: none; }
+}
+
+/* ── Trailer ── */
+.ls-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border: 1px solid var(--ls-line);
+}
+
+/* ── Phones (tested at 412×915, Galaxy S24 Ultra, and 375×812): tighter, shorter page ── */
+.ls-stats { grid-template-columns: repeat(3, 1fr); }
+
+@media (max-width: 719px) {
+  .ls-section { padding-block: 2.75rem; }
+  .ls-h2 { margin-bottom: 1.25rem; }
+  .ls-lead { margin: -0.5rem 0 1.75rem; font-size: 1rem; }
+
+  .ls-intro { gap: 1.25rem; padding-block: 2.5rem; }
+  .ls-app-icon { width: 64px; height: 64px; }
+  .ls-intro-tagline { display: none; }
+  .ls-facts { margin-bottom: 1.5rem; }
+  .ls-facts li { font-size: 0.68rem; padding: 0.35rem 0.6rem; }
+
+  .ls-stat { padding: 0.9rem 0.75rem; }
+  .ls-stat .ls-label { font-size: 0.62rem; letter-spacing: 0.1em; }
+  .ls-stat-value { font-size: 1.6rem; }
+
+  .ls-run, .ls-features, .ls-privacy { gap: 0.75rem; }
+  .ls-run-step, .ls-feature { padding: 1.15rem 1rem; }
+  .ls-run-step { gap: 0.4rem; }
+
+  .ls-faq summary { padding: 0.9rem 1rem; }
+  .ls-faq details p { padding: 0 1rem 1rem; }
+  .ls-cta { gap: 1.5rem; padding: 1.75rem 1.25rem; }
+}
+
+/* Store buttons fill the width on phones instead of wrapping their text. */
+@media (max-width: 519px) {
+  .ls-hero-actions .ls-btn { flex: 1 1 100%; padding: 0.85rem 1rem; font-size: 1.05rem; white-space: nowrap; }
 }

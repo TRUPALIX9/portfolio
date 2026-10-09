@@ -19,8 +19,46 @@ function subscribeVisibility(onChange: () => void) {
     return () => document.removeEventListener('visibilitychange', onChange);
 }
 
-export function useReducedMotion(): boolean {
+/** The device's own setting. Android turns it on with Power saving or "Remove animations". */
+export function useSystemReducedMotion(): boolean {
     return useSyncExternalStore(subscribeReduced, () => window.matchMedia(REDUCED_QUERY).matches, () => false);
+}
+
+/* The visitor can override it for this tab ("Play the game demos"), since the demos are the
+   content, not decoration. Kept in sessionStorage so it lasts across reloads of the tab. */
+const PLAY_KEY = 'ls-play-motion';
+const playListeners = new Set<() => void>();
+
+function readPlay(): boolean {
+    try {
+        return sessionStorage.getItem(PLAY_KEY) === '1';
+    } catch {
+        return false;
+    }
+}
+
+function subscribePlay(onChange: () => void) {
+    playListeners.add(onChange);
+    return () => playListeners.delete(onChange);
+}
+
+export function playMotionAnyway() {
+    try {
+        sessionStorage.setItem(PLAY_KEY, '1');
+    } catch {
+        // Storage blocked: the override still applies until the page is closed.
+    }
+    played = true;
+    playListeners.forEach((l) => l());
+}
+
+let played = false;
+
+/** Reduced motion after the visitor's override. */
+export function useReducedMotion(): boolean {
+    const system = useSystemReducedMotion();
+    const play = useSyncExternalStore(subscribePlay, () => played || readPlay(), () => false);
+    return system && !play;
 }
 
 function usePageVisible(): boolean {
@@ -148,7 +186,8 @@ export function useCanvasScene(
             // getBoundingClientRect includes the phone's transform: the size the canvas really shows at.
             const rect = canvas.getBoundingClientRect();
             if (rect.width < 1 || rect.height < 1) return;
-            dpr = Math.min(2, window.devicePixelRatio || 1);
+            // Touch screens cap at 1.5×: four demo canvases at a phone's 3× were a lot of pixels.
+            dpr = Math.min(window.matchMedia('(pointer: coarse)').matches ? 1.5 : 2, window.devicePixelRatio || 1);
             canvas.width = Math.round(rect.width * dpr);
             canvas.height = Math.round(rect.height * dpr);
             scene.resize(rect.width, rect.height);

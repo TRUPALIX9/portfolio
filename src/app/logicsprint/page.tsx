@@ -90,7 +90,8 @@ export default async function LogicSprintPage() {
                 <section id="intro" className="ls-intro" aria-label="About LogicSprint">
                     <Image src={APP.icon} alt="" width={88} height={88} priority className="ls-app-icon" />
                     <div>
-                        <p style={{ fontSize: 'clamp(1.125rem, 2.5vw, 1.375rem)', lineHeight: 1.5, margin: '0 0 1rem', maxWidth: '40ch' }}>
+                        {/* Phones keep the hero title (and this line) on screen, so it isn't repeated here. */}
+                        <p className="ls-intro-tagline" style={{ fontSize: 'clamp(1.125rem, 2.5vw, 1.375rem)', lineHeight: 1.5, margin: '0 0 1rem', maxWidth: '40ch' }}>
                             {APP.tagline}
                         </p>
                         <p className="ls-muted" style={{ maxWidth: '60ch', marginBottom: '1.5rem' }}>{APP.pitch}</p>
@@ -125,6 +126,25 @@ export default async function LogicSprintPage() {
                     </section>
                 )}
             </div>
+
+            {/* ── Trailer: the whole app in about a minute. preload="none" so phones don't spend data on it. ── */}
+            <section id="trailer" className="ls-section ls-trailer" aria-labelledby="ls-trailer-title">
+                <div className="ls-container">
+                    <SectionHeading id="ls-trailer-title" label="Trailer · 1 min" title="See it in action" lead="All four games, the daily Top 10 and your profile, from the real app." />
+                    <video
+                        className="ls-video"
+                        src={APP.trailer}
+                        poster={APP.trailerPoster}
+                        controls
+                        playsInline
+                        muted
+                        preload="none"
+                        width={1920}
+                        height={1080}
+                        aria-label="LogicSprint trailer: Rocket Launch, Memory Lane, Quick Math and Guess Color gameplay, then the Global Top 10 and profile."
+                    />
+                </div>
+            </section>
 
             {/* ── Games: a live demo of each ── */}
             <GamesShowcase stats={stats?.byGame} boards={boards} />

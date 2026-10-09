@@ -15,18 +15,20 @@ export type LogicSprintGame = {
 export const APP = {
     name: 'LogicSprint',
     title: 'LogicSprint: Brain Games',
-    tagline: 'Endless brain games for reflexes, memory, math and focus.',
-    pitch: 'Four quick games, each training one skill. Every run is endless and ends on your first mistake, so you can play for a minute or keep chasing your best, and your top scores go up against everyone on a daily global Top 10. No sign-up, no login.',
+    tagline: 'Brain training games for memory, math, reflexes and focus. How far can you go?',
+    pitch: 'Train your brain in a minute a day. Four endless mini games, each training one skill, and every run gets harder until your first mistake. Play for a minute or keep chasing your best, and your top scores go up against everyone on a daily global Top 10. No sign-up, no login.',
     version: '1.0.1',
     playUrl: 'https://play.google.com/store/apps/details?id=com.trupal.logicsprint',
     buildNote: 'Android on Google Play · iPhone and iPad coming soon to the App Store',
     supportEmail: 'trupal.work@gmail.com',
     icon: '/logicsprint/icon.png',
     featureGraphic: '/logicsprint/feature-graphic.png',
+    trailer: '/logicsprint/trailer.mp4',
+    trailerPoster: '/logicsprint/trailer-poster.jpg',
 } as const;
 
 /** Hero chips. */
-export const FACTS = ['4 games', 'Up to 3 revives', 'Daily global Top 10', 'No login'];
+export const FACTS = ['4 games', 'Up to 3 revives', 'Daily global Top 10', 'No login', 'Plays offline'];
 
 export const GAMES: LogicSprintGame[] = [
     {
@@ -35,7 +37,7 @@ export const GAMES: LogicSprintGame[] = [
         skill: 'Reflex',
         accent: '#3B7BF0',
         description:
-            'Pick a Rocket, UFO, Spaceship or Missile and steer through an asteroid storm. Planets drift past, shooting stars streak by, and space changes colour every 1250 points. It speeds up gently, and one hit ends the run. Can you reach 10,000?',
+            'Pick a Rocket, UFO, Spaceship or Missile and steer through an asteroid storm with one finger. Space changes colour every 1250 points and the storm speeds up little by little. One hit ends the run. Can you reach 10,000?',
         modes: [
             { level: 'Ships', detail: '4' },
             { level: 'Themes', detail: '5' },
@@ -48,7 +50,7 @@ export const GAMES: LogicSprintGame[] = [
         skill: 'Memory',
         accent: '#2BB3D6',
         description:
-            'Watch the tiles light up, then tap them back in order. Each level replays the same pattern with one more tile, a little faster. Red corners mean watch, teal means your turn.',
+            'Watch tiles light up on a 3×3, 4×4 or 5×5 grid, then tap them back in the same order. Every level replays the pattern with one more tile, a little faster. Red corners mean watch, teal means your turn.',
         modes: [
             { level: 'Easy', detail: '3×3' },
             { level: 'Medium', detail: '4×4' },
@@ -60,7 +62,7 @@ export const GAMES: LogicSprintGame[] = [
         name: 'Quick Math',
         skill: 'Arithmetic',
         accent: '#34C29A',
-        description: 'Pick the right answer of four. Problems get harder every 10, and your time is saved with your best.',
+        description: 'Addition, subtraction, multiplication and division against the clock. Pick the right answer of four; the numbers grow every 10 problems, and your time is saved with your best.',
         modes: [
             { level: 'Easy', detail: '+ −' },
             { level: 'Medium', detail: '+ − ×' },
@@ -73,7 +75,7 @@ export const GAMES: LogicSprintGame[] = [
         skill: 'Focus',
         accent: '#8C8CFF',
         description:
-            'A COLOR | TEXT switch tells you whether to tap the color the word is painted in or the color it names. The rule flips, buttons shuffle, their labels stop matching and the clock shrinks from 3 s to 1 s.',
+            'A Stroop color test: the COLOR | TEXT switch says whether to tap the color a word is painted in or the color it names. The rule flips, the buttons shuffle, their labels stop matching and the clock shrinks from 3 s to 1 s.',
     },
 ];
 
@@ -97,8 +99,8 @@ export const FEATURES: Point[] = [
         detail: 'Every game and difficulty has its own worldwide Top 10, updated for everyone at 00:00 UTC. Your own new best shows right away, and a short video refreshes the boards early.',
     },
     {
-        title: 'Your name, your code',
-        detail: 'Names carry a 4-digit code, like NEON_FOX#0420, so two players can share a name. "Find a free code" picks one for you.',
+        title: 'Fair leaderboards',
+        detail: 'Names carry a 4-digit code, like NEON_FOX#0420. Offensive names are blocked, you can report one with a long-press on Ranks, and impossible scores don’t count. Delete your name and scores any time in Settings.',
     },
     {
         title: 'Hearts and revives',

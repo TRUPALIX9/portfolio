@@ -417,13 +417,18 @@ function Dogfight({ controls, fonts }: Omit<Props, 'paused'>) {
     return null;
 }
 
+/** Phones and touch screens: render at 1× without antialiasing. A high-DPR phone at 1.75× with
+    MSAA is several times the pixels of a laptop and made the hero (and the page) lag. */
+const LITE = '(max-width: 719px), (pointer: coarse)';
+
 export default function DogfightScene({ paused, ...props }: Props) {
+    const lite = window.matchMedia(LITE).matches;
     return (
         <Canvas
             frameloop={paused ? 'demand' : 'always'}
-            dpr={[1, 1.75]}
+            dpr={lite ? 1 : [1, 1.75]}
             camera={{ position: [0, 0, CAM_Z], fov: FOV }}
-            gl={{ antialias: true, powerPreference: 'high-performance' }}
+            gl={{ antialias: !lite, powerPreference: lite ? 'default' : 'high-performance' }}
             style={{ position: 'absolute', inset: 0, touchAction: 'pan-y' }}
         >
             <color attach="background" args={['#000000']} />

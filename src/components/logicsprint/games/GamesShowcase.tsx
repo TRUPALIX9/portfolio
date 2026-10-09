@@ -4,6 +4,7 @@ import { GAMES, type GameType } from '@/data/logicsprint';
 import type { Boards } from '@/utils/logicsprint-stats';
 import GamesStage, { GamePhone } from './GamesStage';
 import HighScores from './HighScores';
+import MotionNotice from './MotionNotice';
 
 /* "Four ways to sprint": one tall section per game (what it trains, how it plays, its modes, live
    stats and top 5), with a phone playing a scripted recording of the real app. Wide screens get one
@@ -34,6 +35,7 @@ export default function GamesShowcase({
                     <i aria-hidden="true" />
                     High scores update live · the app&apos;s boards refresh daily at 00:00 UTC
                 </p>
+                <MotionNotice />
             </div>
 
             <GamesStage>

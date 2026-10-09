@@ -111,3 +111,12 @@
   .ls-root .lsf-veil { animation: none; }
   .ls-root .lsf-bottom { animation: none; opacity: 1; }
 }
+
+/* Phones: a shorter hero that keeps the title up (the fade left an empty screen of stars),
+   with a softer veil so the ships still show around it. */
+@media (max-width: 719px) {
+  .ls-root .lsf-hero { min-height: min(72svh, 620px); }
+  .ls-root .lsf-title,
+  .ls-root .lsf-veil { animation: none; }
+  .ls-root .lsf-veil { background: radial-gradient(75% 40% at 50% 50%, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.1)); }
+}
