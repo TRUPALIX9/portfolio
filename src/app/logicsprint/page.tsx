@@ -6,7 +6,8 @@ import { LOGICSPRINT_URL } from '@/data/site';
 import { getBoards, getLogicSprintStats } from '@/utils/logicsprint-stats';
 import ScreenshotCarousel from '@/components/logicsprint/ScreenshotCarousel';
 import GamesShowcase from '@/components/logicsprint/games/GamesShowcase';
-import HeroFlight from '@/components/logicsprint/flight/HeroFlight';
+// import HeroFlight from '@/components/logicsprint/flight/HeroFlight';
+import HiddenHeart from '@/components/logicsprint/hearts/HiddenHeart';
 import StoreButtons from '@/components/logicsprint/StoreButtons';
 
 // Live stats are cached for an hour (the fetches also set revalidate: 3600).
@@ -82,26 +83,38 @@ export default async function LogicSprintPage() {
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(jsonLd) }} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(faqJsonLd) }} />
 
-            {/* ── Hero: full-screen dogfight under the title ── */}
-            <HeroFlight />
+            {/* ── Hero: full-screen dogfight under the title. Off for now: the page opens on the product itself. ── */}
+            {/* <HeroFlight /> */}
 
             <div className="ls-container">
-                {/* ── Intro ── */}
-                <section id="intro" className="ls-intro" aria-label="About LogicSprint">
-                    <Image src={APP.icon} alt="" width={88} height={88} priority className="ls-app-icon" />
-                    <div>
-                        {/* Phones keep the hero title (and this line) on screen, so it isn't repeated here. */}
-                        <p className="ls-intro-tagline" style={{ fontSize: 'clamp(1.125rem, 2.5vw, 1.375rem)', lineHeight: 1.5, margin: '0 0 1rem', maxWidth: '40ch' }}>
-                            {APP.tagline}
-                        </p>
+                {/* ── Product: what it is, where to get it, and the app on screen ── */}
+                <section id="intro" className="ls-product" aria-labelledby="ls-title">
+                    <div className="ls-product-info">
+                        <div className="ls-product-head">
+                            <Image src={APP.icon} alt="" width={80} height={80} priority className="ls-app-icon" />
+                            <div>
+                                <p className="ls-label">
+                                    Brain games · Android & iOS <HiddenHeart id="hero" />
+                                </p>
+                                <h1 id="ls-title" className="ls-heading ls-product-title">
+                                    Logic<span style={{ color: 'var(--ls-teal)' }}>Sprint</span>
+                                </h1>
+                            </div>
+                        </div>
+                        <p className="ls-product-tagline">{APP.tagline}</p>
                         <p className="ls-muted" style={{ maxWidth: '60ch', marginBottom: '1.5rem' }}>{APP.pitch}</p>
                         <ul className="ls-facts" aria-label="At a glance">
                             {FACTS.map((fact) => <li key={fact}>{fact}</li>)}
                         </ul>
-                        <div className="ls-hero-actions">
-                            <StoreButtons />
-                        </div>
-                        <p className="ls-label" style={{ marginTop: '1rem' }}>{APP.buildNote}</p>
+                        <StoreButtons picker />
+                        <p className="ls-label" style={{ marginTop: '1rem' }}>Free · contains ads · no login</p>
+                    </div>
+                    <div className="ls-product-shots">
+                        {[SCREENSHOTS[0], SCREENSHOTS[2]].map((shot, i) => (
+                            <div key={shot.src} className={`ls-phone ls-product-phone ls-product-phone-${i + 1}`}>
+                                <Image src={shot.src} alt={shot.alt} width={1080} height={2400} priority={i === 0} sizes="(min-width: 960px) 260px, 40vw" />
+                            </div>
+                        ))}
                     </div>
                 </section>
 
@@ -238,9 +251,7 @@ export default async function LogicSprintPage() {
                             <p className="ls-muted" style={{ maxWidth: '46ch' }}>Get it free on Google Play for Android and on the App Store for iPhone and iPad.</p>
                         </div>
                         <div>
-                            <div className="ls-hero-actions">
-                                <StoreButtons />
-                            </div>
+                            <StoreButtons />
                             <p className="ls-label" style={{ marginTop: '0.75rem' }}>Free · contains ads · no login</p>
                         </div>
                     </div>

@@ -212,22 +212,6 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
   clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
 }
 
-.ls-topbar-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  min-height: 44px;
-  color: var(--ls-text);
-  white-space: nowrap;
-}
-
-.ls-topbar-link:hover { color: var(--ls-teal); }
-
-/* Phones: "Portfolio" alone, so the link stays on one line next to the brand. */
-@media (max-width: 420px) {
-  .ls-topbar-long { display: none; }
-}
-
 /* Section links: desktop only; phones get them in the footer. */
 .ls-topbar-nav { display: none; }
 
@@ -261,30 +245,130 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
   padding: 0.4rem 0.7rem;
 }
 
-.ls-hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
+.ls-topbar-download { min-height: 40px; padding: 0.55rem 1.1rem; font-size: 1rem; }
 
-/* ── Intro (under the full-screen hero) ── */
-.ls-intro {
+/* ── Product (top of the page): info and store badges, with the app on screen beside them ── */
+.ls-product {
   display: grid;
-  gap: 1.75rem;
-  align-items: start;
-  padding-block: clamp(3rem, 8vw, 5rem);
+  gap: 2.5rem;
+  align-items: center;
+  padding-block: clamp(2.5rem, 7vw, 5rem);
   scroll-margin-top: 64px;
 }
 
-@media (min-width: 720px) {
-  .ls-intro { grid-template-columns: auto 1fr; gap: 2.5rem; }
+@media (min-width: 960px) {
+  .ls-product { grid-template-columns: 1fr auto; gap: 3.5rem; }
+}
+
+.ls-product-head {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.ls-product-title {
+  font-size: clamp(2.75rem, 7vw, 4.5rem);
+  line-height: 0.95;
+  margin-top: 0.35rem;
+}
+
+.ls-product-tagline {
+  font-size: clamp(1.125rem, 2.5vw, 1.375rem);
+  line-height: 1.5;
+  margin: 0 0 1rem;
+  max-width: 40ch;
 }
 
 .ls-app-icon {
-  width: 88px;
-  height: 88px;
+  width: 80px;
+  height: 80px;
+  flex: none;
   clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
 }
+
+/* Two phones, the second tucked behind and lower. */
+.ls-product-shots {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.ls-product-phone { width: min(40vw, 240px); }
+.ls-product-phone-2 { margin-left: -2.5rem; margin-top: 3rem; opacity: 0.85; }
+
+@media (min-width: 960px) {
+  .ls-product-phone { width: 250px; }
+  .ls-product-phone-2 { margin-left: -4rem; margin-top: 4.5rem; }
+}
+
+/* ── Platform picker and store badges ── */
+.ls-stores { display: grid; gap: 1rem; justify-items: start; }
+
+.ls-platform {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  background: var(--ls-surface);
+  border: 1px solid var(--ls-line);
+}
+
+.ls-platform button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 40px;
+  padding: 0.45rem 0.95rem;
+  font-family: var(--ls-font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ls-muted);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.ls-platform button:hover { color: var(--ls-text); }
+.ls-platform button[aria-pressed='true'] { background: var(--ls-surface-2); color: var(--ls-teal); }
+
+.ls-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+
+/* Store badges look like the stores' own: black, white type, a thin grey edge, rounded corners. */
+.ls-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  height: 56px;
+  padding: 0 1.25rem 0 0.95rem;
+  background: #000;
+  color: #fff;
+  border: 1px solid #A6A6A6;
+  border-radius: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+  transition: border-color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+
+.ls-badge:hover { border-color: #fff; transform: translateY(-1px); }
+
+.ls-badge-text { display: grid; line-height: 1.05; text-align: left; }
+.ls-badge small { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.02em; }
+.ls-badge strong { font-size: 1.45rem; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
+
+/* The visitor's own store: bigger, with a teal ring. The other one steps back. */
+.ls-badge-primary {
+  height: 64px;
+  padding-inline: 1.1rem 1.5rem;
+  border-color: #fff;
+  box-shadow: 0 0 0 3px #000, 0 0 0 4px var(--ls-teal), 0 10px 30px rgb(52 194 154 / 0.25);
+}
+.ls-badge-primary strong { font-size: 1.65rem; }
+.ls-badge-primary svg { width: 30px; height: 30px; }
+
+.ls-badge-secondary { height: 48px; padding-inline: 0.8rem 1rem; opacity: 0.8; }
+.ls-badge-secondary:hover { opacity: 1; }
+.ls-badge-secondary strong { font-size: 1.15rem; }
+.ls-badge-secondary small { font-size: 0.6rem; }
+.ls-badge-secondary svg { width: 22px; height: 22px; }
 
 /* ── Stats strip ── */
 .ls-stats {
@@ -498,7 +582,8 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
 .ls-prose a { overflow-wrap: anywhere; }
 
 @media (prefers-reduced-motion: reduce) {
-  .ls-btn::before { transition: none; }
+  .ls-btn::before, .ls-badge, .ls-platform button { transition: none; }
+  .ls-badge:hover { transform: none; }
 }
 
 /* ── Trailer ── */
@@ -519,9 +604,9 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
   .ls-h2 { margin-bottom: 1.25rem; }
   .ls-lead { margin: -0.5rem 0 1.75rem; font-size: 1rem; }
 
-  .ls-intro { gap: 1.25rem; padding-block: 2.5rem; }
+  .ls-product { gap: 2rem; padding-block: 2rem 2.5rem; }
+  .ls-product-head { gap: 1rem; }
   .ls-app-icon { width: 64px; height: 64px; }
-  .ls-intro-tagline { display: none; }
   .ls-facts { margin-bottom: 1.5rem; }
   .ls-facts li { font-size: 0.68rem; padding: 0.35rem 0.6rem; }
 
@@ -536,9 +621,4 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
   .ls-faq summary { padding: 0.9rem 1rem; }
   .ls-faq details p { padding: 0 1rem 1rem; }
   .ls-cta { gap: 1.5rem; padding: 1.75rem 1.25rem; }
-}
-
-/* Store buttons fill the width on phones instead of wrapping their text. */
-@media (max-width: 519px) {
-  .ls-hero-actions .ls-btn { flex: 1 1 100%; padding: 0.85rem 1rem; font-size: 1.05rem; white-space: nowrap; }
 }

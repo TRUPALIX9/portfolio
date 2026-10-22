@@ -4,12 +4,12 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { JetBrains_Mono, Rajdhani } from 'next/font/google';
 import localFont from 'next/font/local';
-import { ArrowUpRight } from 'lucide-react';
 import { APP } from '@/data/logicsprint';
 import { SITE_URL } from '@/data/site';
 import HiddenHeart from '@/components/logicsprint/hearts/HiddenHeart';
 import HeartsToaster from '@/components/logicsprint/hearts/HeartsToaster';
 import PageWipe from '@/components/logicsprint/transitions/PageWipe';
+import { DownloadButton } from '@/components/logicsprint/StoreButtons';
 
 // Fonts are self-hosted by next/font: no requests to Google from these pages. IBM Plex Sans ships
 // from the repo as its Latin variable font (400–600), because fetching it from Google Fonts at build
@@ -52,10 +52,8 @@ export default function LogicSprintLayout({ children }: { children: React.ReactN
                             <Link key={section.href} href={section.href} className="ls-label">{section.label}</Link>
                         ))}
                     </nav>
-                    <a href={SITE_URL} target="_blank" rel="noopener" className="ls-label ls-topbar-link">
-                        <span><span className="ls-topbar-long">Developer </span>portfolio</span>
-                        <ArrowUpRight size={14} aria-hidden="true" />
-                    </a>
+                    {/* The developer credit lives in the footer ("Built by"), so the bar's action is the app itself. */}
+                    <DownloadButton />
                 </div>
             </header>
 
