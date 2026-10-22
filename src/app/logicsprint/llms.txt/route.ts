@@ -15,6 +15,7 @@ export function GET() {
         '',
         `- Platforms: ${APP.buildNote}`,
         `- Google Play: ${APP.playUrl}`,
+        `- App Store: ${APP.appStoreUrl}`,
         `- Price: free, contains ads (Google AdMob)`,
         `- Developer: Trupal Patel (${SITE_URL})`,
         `- Support: ${APP.supportEmail}`,

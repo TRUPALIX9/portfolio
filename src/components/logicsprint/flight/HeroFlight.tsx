@@ -89,7 +89,7 @@ export default function HeroFlight() {
             <div className="lsf-veil" aria-hidden="true" />
 
             <div className="lsf-title">
-                <p className="ls-label">Brain games · Android</p>
+                <p className="ls-label">Brain games · Android & iOS</p>
                 <h1 id="ls-title" className="ls-heading">
                     Logic<span style={{ color: 'var(--ls-teal)' }}>Sprint</span>
                 </h1>

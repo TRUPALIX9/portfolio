@@ -69,18 +69,18 @@ export const products: Product[] = [
     {
         slug: 'logicsprint',
         name: APP.name,
-        kicker: 'Brain games · Android, iOS soon',
+        kicker: 'Brain games · Android, iOS',
         tagline: APP.tagline,
         summary:
-            'An Android app with four endless brain games (Rocket Launch, Memory Lane, Quick Math and Guess Color) where your first mistake ends the run. Every game and difficulty has a daily global Top 10 with NAME#1234 name tags, backed by an anonymous Supabase account per device, so there is no login.',
+            'An Android and iOS app with four endless brain games (Rocket Launch, Memory Lane, Quick Math and Guess Color) where your first mistake ends the run. Every game and difficulty has a daily global Top 10 with NAME#1234 name tags, backed by an anonymous Supabase account per device, so there is no login.',
         highlights: [
             'Four games, each training one skill: reflex, memory, arithmetic and focus.',
             'Global Top 10 per game and difficulty, with anonymous per-device accounts.',
             'Up to 3 revives per run with hearts or a short video, and a pause button in every game.',
             'Live, read-only game stats and leaderboards on the product site.',
         ],
-        platform: 'Android · iOS (soon)',
-        status: 'Live on Google Play · App Store soon',
+        platform: 'Android · iOS',
+        status: 'Live on Google Play and the App Store',
         category: 'GameApplication',
         site: { url: LOGICSPRINT_URL, label: 'logicsprint.trupalpatel.com' },
         previewImage: { url: APP.featureGraphic, width: 1024, height: 500 },

@@ -19,7 +19,8 @@ export const APP = {
     pitch: 'Train your brain in a minute a day. Four endless mini games, each training one skill, and every run gets harder until your first mistake. Play for a minute or keep chasing your best, and your top scores go up against everyone on a daily global Top 10. No sign-up, no login.',
     version: '1.0.1',
     playUrl: 'https://play.google.com/store/apps/details?id=com.trupal.logicsprint',
-    buildNote: 'Android on Google Play · iPhone and iPad coming soon to the App Store',
+    appStoreUrl: 'https://apps.apple.com/us/app/logicsprint-brain-games/id6817549079',
+    buildNote: 'Android on Google Play · iPhone and iPad on the App Store',
     supportEmail: 'trupal.work@gmail.com',
     icon: '/logicsprint/icon.png',
     featureGraphic: '/logicsprint/feature-graphic.png',
@@ -135,7 +136,7 @@ export const FAQ: { question: string; answer: string }[] = [
     },
     {
         question: 'Where can I get it?',
-        answer: 'LogicSprint is on Google Play for Android. The iPhone and iPad version is coming soon to the App Store.',
+        answer: 'LogicSprint is on Google Play for Android and on the App Store for iPhone and iPad.',
     },
     {
         question: 'How does the leaderboard work?',

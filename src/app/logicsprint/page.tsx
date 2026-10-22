@@ -43,7 +43,7 @@ const jsonLd = {
     description: APP.tagline,
     url: LOGICSPRINT_URL,
     applicationCategory: 'GameApplication',
-    operatingSystem: 'Android',
+    operatingSystem: 'Android, iOS',
     image: `${LOGICSPRINT_URL}${APP.icon}`,
     downloadUrl: APP.playUrl,
     installUrl: APP.playUrl,
@@ -235,7 +235,7 @@ export default async function LogicSprintPage() {
                     <div className="ls-card ls-cta">
                         <div>
                             <h2 id="ls-download-title" className="ls-heading ls-h2" style={{ marginBottom: '0.75rem' }}>Ready to sprint?</h2>
-                            <p className="ls-muted" style={{ maxWidth: '46ch' }}>Get it free on Google Play for Android. iPhone and iPad are coming soon to the App Store.</p>
+                            <p className="ls-muted" style={{ maxWidth: '46ch' }}>Get it free on Google Play for Android and on the App Store for iPhone and iPad.</p>
                         </div>
                         <div>
                             <div className="ls-hero-actions">

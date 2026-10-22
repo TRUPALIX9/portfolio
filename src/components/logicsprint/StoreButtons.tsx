@@ -1,6 +1,6 @@
 import { APP } from '@/data/logicsprint';
 
-/* Google Play (live) and the App Store (not yet), styled as the site's chamfered buttons. */
+/* Google Play and the App Store, styled as the site's chamfered buttons. */
 
 function PlayIcon() {
     return (
@@ -28,10 +28,10 @@ export default function StoreButtons() {
                 <PlayIcon />
                 Get it on Google Play
             </a>
-            <span className="ls-btn ls-btn-ghost ls-btn-soon" aria-disabled="true">
+            <a href={APP.appStoreUrl} className="ls-btn ls-btn-ghost" target="_blank" rel="noopener noreferrer">
                 <AppleIcon />
-                App Store · Coming soon
-            </span>
+                Download on the App Store
+            </a>
         </>
     );
 }

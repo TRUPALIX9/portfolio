@@ -84,6 +84,7 @@ export default function LogicSprintLayout({ children }: { children: React.ReactN
                                 <li><a href={`mailto:${APP.supportEmail}`} className="ls-link">{APP.supportEmail}</a></li>
                                 <li><Link href="/privacy" className="ls-link">Privacy policy</Link></li>
                                 <li><a href={APP.playUrl} className="ls-link">Google Play</a></li>
+                                <li><a href={APP.appStoreUrl} className="ls-link">App Store</a></li>
                             </ul>
                         </div>
                     </div>
