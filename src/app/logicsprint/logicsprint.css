@@ -328,6 +328,40 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
   white-space: nowrap;
 }
 
+/* A square share button beside each badge, the same height. */
+.ls-badge-group { display: inline-flex; align-items: center; gap: 6px; }
+
+.ls-share {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 56px;
+  color: var(--ls-muted);
+  background: #000;
+  border: 1px solid var(--ls-line);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+.ls-share:hover { color: var(--ls-text); border-color: #A6A6A6; }
+
+/* The download section's one shareable link. */
+.ls-share-link { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--ls-line); }
+.ls-link-row { display: flex; gap: 6px; margin-top: 0.6rem; }
+.ls-link-row input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 0.75rem;
+  font-family: var(--ls-font-mono);
+  font-size: 0.8rem;
+  color: var(--ls-text);
+  background: #000;
+  border: 1px solid var(--ls-line);
+}
+.ls-link-row .ls-btn { min-height: 44px; padding: 0.5rem 0.9rem; font-size: 0.95rem; }
+.ls-link-row .ls-share { height: 44px; }
+
 /* ── Stats strip ── */
 .ls-stats {
   display: grid;
@@ -437,6 +471,9 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
   padding: clamp(2rem, 6vw, 3.5rem);
 }
 
+/* Let the share-link row shrink instead of pushing past the card. */
+.ls-cta > * { min-width: 0; }
+
 @media (min-width: 860px) {
   .ls-cta { grid-template-columns: 1fr auto; }
 }
@@ -540,7 +577,7 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
 .ls-prose a { overflow-wrap: anywhere; }
 
 @media (prefers-reduced-motion: reduce) {
-  .ls-btn::before, .ls-badge { transition: none; }
+  .ls-btn::before, .ls-badge, .ls-share { transition: none; }
   .ls-badge:hover { transform: none; }
 }
 

@@ -7,6 +7,8 @@ import { LOGICSPRINT_URL, SITE_URL } from '@/data/site';
 const LOGICSPRINT_PAGES: Record<string, string> = {
     '/': '/logicsprint',
     '/privacy': '/logicsprint/privacy',
+    // One shareable link that sends each device to its own store.
+    '/download': '/logicsprint/download',
     // The subdomain's own crawler files, so it can be a separate Search Console property.
     '/robots.txt': '/logicsprint/robots.txt',
     '/sitemap.xml': '/logicsprint/sitemap.xml',

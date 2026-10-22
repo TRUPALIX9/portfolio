@@ -8,7 +8,7 @@ import ScreenshotCarousel from '@/components/logicsprint/ScreenshotCarousel';
 import GamesShowcase from '@/components/logicsprint/games/GamesShowcase';
 // import HeroFlight from '@/components/logicsprint/flight/HeroFlight';
 import HiddenHeart from '@/components/logicsprint/hearts/HiddenHeart';
-import StoreButtons from '@/components/logicsprint/StoreButtons';
+import StoreButtons, { ShareLink } from '@/components/logicsprint/StoreButtons';
 
 // Live stats are cached for an hour (the fetches also set revalidate: 3600).
 export const revalidate = 3600;
@@ -244,8 +244,9 @@ export default async function LogicSprintPage() {
                             <p className="ls-muted" style={{ maxWidth: '46ch' }}>Get it free on Google Play for Android and on the App Store for iPhone and iPad.</p>
                         </div>
                         <div>
-                            <StoreButtons />
+                            <StoreButtons share />
                             <p className="ls-label" style={{ marginTop: '0.75rem' }}>Free · contains ads · no login</p>
+                            <ShareLink />
                         </div>
                     </div>
                 </div>

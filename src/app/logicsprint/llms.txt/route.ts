@@ -14,6 +14,7 @@ export function GET() {
         APP.pitch,
         '',
         `- Platforms: ${APP.buildNote}`,
+        `- Download (sends each device to its store): ${LOGICSPRINT_URL}/download`,
         `- Google Play: ${APP.playUrl}`,
         `- App Store: ${APP.appStoreUrl}`,
         `- Price: free, contains ads (Google AdMob)`,
