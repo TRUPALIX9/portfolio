@@ -247,17 +247,10 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
 
 .ls-topbar-download { min-height: 40px; padding: 0.55rem 1.1rem; font-size: 1rem; }
 
-/* ── Product (top of the page): info and store badges, with the app on screen beside them ── */
+/* ── Product (top of the page): info and store badges ── */
 .ls-product {
-  display: grid;
-  gap: 2.5rem;
-  align-items: center;
   padding-block: clamp(2.5rem, 7vw, 5rem);
   scroll-margin-top: 64px;
-}
-
-@media (min-width: 960px) {
-  .ls-product { grid-template-columns: 1fr auto; gap: 3.5rem; }
 }
 
 .ls-product-head {
@@ -287,57 +280,15 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
   clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
 }
 
-/* Two phones, the second tucked behind and lower. */
-.ls-product-shots {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.ls-product-phone { width: min(40vw, 240px); }
-.ls-product-phone-2 { margin-left: -2.5rem; margin-top: 3rem; opacity: 0.85; }
-
-@media (min-width: 960px) {
-  .ls-product-phone { width: 250px; }
-  .ls-product-phone-2 { margin-left: -4rem; margin-top: 4.5rem; }
-}
-
-/* ── Platform picker and store badges ── */
-.ls-stores { display: grid; gap: 1rem; justify-items: start; }
-
-.ls-platform {
-  display: inline-flex;
-  padding: 3px;
-  gap: 3px;
-  background: var(--ls-surface);
-  border: 1px solid var(--ls-line);
-}
-
-.ls-platform button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 40px;
-  padding: 0.45rem 0.95rem;
-  font-family: var(--ls-font-mono);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--ls-muted);
-  cursor: pointer;
-  transition: background-color 150ms ease, color 150ms ease;
-}
-
-.ls-platform button:hover { color: var(--ls-text); }
-.ls-platform button[aria-pressed='true'] { background: var(--ls-surface-2); color: var(--ls-teal); }
-
-.ls-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+/* ── Store badges ── */
+.ls-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 0.75rem; padding-top: 6px; }
 
 /* Store badges look like the stores' own: black, white type, a thin grey edge, rounded corners. */
 .ls-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.65rem;
+  width: 200px;
   height: 56px;
   padding: 0 1.25rem 0 0.95rem;
   background: #000;
@@ -354,21 +305,28 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
 .ls-badge small { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.02em; }
 .ls-badge strong { font-size: 1.45rem; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
 
-/* The visitor's own store: bigger, with a teal ring. The other one steps back. */
-.ls-badge-primary {
-  height: 64px;
-  padding-inline: 1.1rem 1.5rem;
+/* The visitor's own store (only when we're sure which phone it is): same size, teal ring and tag. */
+.ls-badge-yours {
+  position: relative;
   border-color: #fff;
-  box-shadow: 0 0 0 3px #000, 0 0 0 4px var(--ls-teal), 0 10px 30px rgb(52 194 154 / 0.25);
+  box-shadow: 0 0 0 3px #000, 0 0 0 4px var(--ls-teal), 0 10px 30px rgb(52 194 154 / 0.2);
 }
-.ls-badge-primary strong { font-size: 1.65rem; }
-.ls-badge-primary svg { width: 30px; height: 30px; }
 
-.ls-badge-secondary { height: 48px; padding-inline: 0.8rem 1rem; opacity: 0.8; }
-.ls-badge-secondary:hover { opacity: 1; }
-.ls-badge-secondary strong { font-size: 1.15rem; }
-.ls-badge-secondary small { font-size: 0.6rem; }
-.ls-badge-secondary svg { width: 22px; height: 22px; }
+.ls-badge-tag {
+  position: absolute;
+  top: -11px;
+  right: 10px;
+  padding: 0.15rem 0.45rem;
+  background: var(--ls-teal);
+  color: #000;
+  font-family: var(--ls-font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
 
 /* ── Stats strip ── */
 .ls-stats {
@@ -582,7 +540,7 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
 .ls-prose a { overflow-wrap: anywhere; }
 
 @media (prefers-reduced-motion: reduce) {
-  .ls-btn::before, .ls-badge, .ls-platform button { transition: none; }
+  .ls-btn::before, .ls-badge { transition: none; }
   .ls-badge:hover { transform: none; }
 }
 
@@ -604,7 +562,7 @@ html[data-site='logicsprint'] [data-site-chrome] { display: none !important; }
   .ls-h2 { margin-bottom: 1.25rem; }
   .ls-lead { margin: -0.5rem 0 1.75rem; font-size: 1rem; }
 
-  .ls-product { gap: 2rem; padding-block: 2rem 2.5rem; }
+  .ls-product { padding-block: 2rem 2.5rem; }
   .ls-product-head { gap: 1rem; }
   .ls-app-icon { width: 64px; height: 64px; }
   .ls-facts { margin-bottom: 1.5rem; }

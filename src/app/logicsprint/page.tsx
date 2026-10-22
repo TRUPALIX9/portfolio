@@ -87,7 +87,7 @@ export default async function LogicSprintPage() {
             {/* <HeroFlight /> */}
 
             <div className="ls-container">
-                {/* ── Product: what it is, where to get it, and the app on screen ── */}
+                {/* ── Product: what it is and where to get it (screens are further down) ── */}
                 <section id="intro" className="ls-product" aria-labelledby="ls-title">
                     <div className="ls-product-info">
                         <div className="ls-product-head">
@@ -106,15 +106,8 @@ export default async function LogicSprintPage() {
                         <ul className="ls-facts" aria-label="At a glance">
                             {FACTS.map((fact) => <li key={fact}>{fact}</li>)}
                         </ul>
-                        <StoreButtons picker />
+                        <StoreButtons />
                         <p className="ls-label" style={{ marginTop: '1rem' }}>Free · contains ads · no login</p>
-                    </div>
-                    <div className="ls-product-shots">
-                        {[SCREENSHOTS[0], SCREENSHOTS[2]].map((shot, i) => (
-                            <div key={shot.src} className={`ls-phone ls-product-phone ls-product-phone-${i + 1}`}>
-                                <Image src={shot.src} alt={shot.alt} width={1080} height={2400} priority={i === 0} sizes="(min-width: 960px) 260px, 40vw" />
-                            </div>
-                        ))}
                     </div>
                 </section>
 
