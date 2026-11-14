@@ -4,16 +4,16 @@
    Contrast (WCAG) measured against surface-2 #111113:
      ink-1 #F5F5F5 ≈ 17.9:1   ink-2 #B4B4B4 ≈ 9.6:1   ink-3 #8C8C8C ≈ 5.7:1  (all ≥ AA 4.5:1) */
 @theme {
-  --color-ink-1: #F5F5F5;
-  --color-ink-2: #B4B4B4;
-  --color-ink-3: #8C8C8C;
-  --color-surface-0: #000000;
-  --color-surface-1: #0A0A0B;
-  --color-surface-2: #111113;
-  --color-surface-3: #18181B;
+  --color-ink-1: #F1EFE9;
+  --color-ink-2: #B5B2AA;
+  --color-ink-3: #8F8C85;
+  --color-surface-0: #0C0C0D;
+  --color-surface-1: #111113;
+  --color-surface-2: #18181B;
+  --color-surface-3: #1F1F23;
   --color-line-1: rgba(255, 255, 255, 0.07);
   --color-line-2: rgba(255, 255, 255, 0.14);
-  --color-accent: #4ADE80;
+  --color-accent: #2FD480;
   /* neutral-500 (#737373) measured 4.2–4.4:1 on the site's dark cards — below AA for the
      small meta text it's used for. Brightened once here instead of patching 20+ call sites. */
   --color-neutral-500: #8C8C8C;
@@ -22,22 +22,22 @@
 
 :root {
   /* Premium Black/White/Green Palette */
-  --bg-primary: #000000;
-  --bg-secondary: #0A0A0A;
-  --bg-tertiary: #121212;
-  --text-primary: #FFFFFF;
-  --text-secondary: #B4B4B4; /* = ink-2, so legacy inline styles inherit the new tier */
-  --accent-primary: #4ADE80; /* Vibrant Green Accent */
+  --bg-primary: #0C0C0D;
+  --bg-secondary: #111113;
+  --bg-tertiary: #18181B;
+  --text-primary: #F1EFE9;
+  --text-secondary: #B5B2AA; /* = ink-2, so legacy inline styles inherit the new tier */
+  --accent-primary: #2FD480; /* Vibrant Green Accent */
   --accent-secondary: #166534; /* Deep Green Accent — decorative only, too dark for text */
   --border-color: rgba(255, 255, 255, 0.08);
 
   /* Plain-CSS aliases of the @theme tokens, for inline styles */
-  --ink-1: #F5F5F5;
-  --ink-2: #B4B4B4;
-  --ink-3: #8C8C8C;
-  --surface-1: #0A0A0B;
-  --surface-2: #111113;
-  --surface-3: #18181B;
+  --ink-1: #F1EFE9;
+  --ink-2: #B5B2AA;
+  --ink-3: #8F8C85;
+  --surface-1: #111113;
+  --surface-2: #18181B;
+  --surface-3: #1F1F23;
   --line-1: rgba(255, 255, 255, 0.07);
   --line-2: rgba(255, 255, 255, 0.14);
 
@@ -50,7 +50,7 @@
   --dur-fast: 150ms;
   --dur-base: 250ms;
 
-  --font-sans: var(--font-outfit), 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: var(--font-geist), 'Geist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --nav-height: 80px;
 }
 

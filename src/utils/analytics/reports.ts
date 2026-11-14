@@ -46,7 +46,8 @@ type SessionDoc = {
 const DAY_MS = 24 * 60 * 60 * 1000;
 /** Datacenter IPs are only treated as bots when the visit shows no real engagement. */
 const DATACENTER_MIN_ENGAGED_MS = 5000;
-const HOME_SECTIONS = ['hero', 'about', 'products', 'projects', 'experience', 'contact'];
+// Current home sections first; the older names stay so past sessions still report.
+const HOME_SECTIONS = ['hero', 'studio', 'skills', 'work', 'contact', 'about', 'products', 'projects', 'experience'];
 
 function periodBounds(range: RangeKey) {
     const days = RANGES[range];
