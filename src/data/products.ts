@@ -82,7 +82,7 @@ export const products: Product[] = [
         platform: 'Android · iOS',
         status: 'Live on Google Play and the App Store',
         category: 'GameApplication',
-        site: { url: LOGICSPRINT_URL, label: 'logicsprint.trupalpatel.com' },
+        site: { url: LOGICSPRINT_URL, label: 'logicsprint.trueorfalse.dev' },
         previewImage: { url: APP.featureGraphic, width: 1024, height: 500 },
         tech: [
             { name: 'Flutter', icon: 'devicon-flutter-plain colored' },
