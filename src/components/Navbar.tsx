@@ -1,254 +1,105 @@
 "use client";
-import { useState, Suspense, useCallback, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
-import { LinkedinIcon, navLinks } from '@/data/site-config';
-import { useSitePathname } from '@/hooks/useSitePathname';
 
-const GithubIcon = ({ size = 20 }: { size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.02c3.18-.35 6.5-1.56 6.5-7.16 0-1.49-.5-2.7-1.35-3.68.14-.33.6-1.74-.15-3.63 0 0-1.12-.36-3.7 1.38a12.8 12.8 0 0 0-6.7 0c-2.58-1.74-3.7-1.38-3.7-1.38-.75 1.89-.29 3.3-.15 3.63-.85.98-1.35 2.19-1.35 3.68 0 5.6 3.32 6.81 6.5 7.16A4.8 4.8 0 0 0 3 18.28V22" />
-  </svg>
+import { Suspense, useState } from 'react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { Menu, X } from 'lucide-react';
+import { useSitePathname } from '@/hooks/useSitePathname';
+import { LinkedinIcon } from '@/data/site-config';
+
+const GithubIcon = ({ size = 17 }: { size?: number }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.02c3.18-.35 6.5-1.56 6.5-7.16 0-1.49-.5-2.7-1.35-3.68.14-.33.6-1.74-.15-3.63 0 0-1.12-.36-3.7 1.38a12.8 12.8 0 0 0-6.7 0c-2.58-1.74-3.7-1.38-3.7-1.38-.75 1.89-.29 3.3-.15 3.63-.85.98-1.35 2.19-1.35 3.68 0 5.6 3.32 6.81 6.5 7.16A4.8 4.8 0 0 0 3 18.28V22" />
+    </svg>
 );
 
-// Map of nav link labels to section IDs for single-page scroll anchors
-const SECTION_ANCHORS: Record<string, string> = {
-  'About':         'about',
-  'Live Products': 'products',
-  'Projects':      'projects',
-  'Experience': 'experience',
-  'Contact':    'contact',
-};
-
-// These always navigate to their own route regardless of page
-const ROUTE_ONLY = new Set(['/social']);
-
-// Section links also light up on the pages behind them (/products, /projects/[slug], /experience/[slug]).
-const SECTION_ROUTES: Record<string, string> = {
-  '/#products':   '/products',
-  '/#projects':   '/projects',
-  '/#experience': '/experience',
-};
+/** Sections of the home datasheet, then the other pages. */
+const SECTIONS = [
+    { href: '/#pinout', no: '2', label: 'Pinout' },
+    { href: '/#applications', no: '3', label: 'Applications' },
+    { href: '/#revisions', no: '4', label: 'Revisions' },
+    { href: '/#ordering', no: '6', label: 'Contact' },
+];
+const PAGES = [
+    { href: '/about', label: 'About' },
+    { href: '/binge', label: 'Binge' },
+];
 
 function NavbarContent() {
-  const pathname     = useSitePathname();
-  const searchParams = useSearchParams();
-  const isStrict            = searchParams.get('strict') === 'true';
-  const isDedicatedSharePage = pathname === '/social-only';
-  const isPlayground        = pathname === '/playground';
-  const isHome              = pathname === '/';
-  const [isOpen, setIsOpen] = useState(false);
+    const pathname = useSitePathname();
+    const searchParams = useSearchParams();
+    const [open, setOpen] = useState(false);
+    const isHome = pathname === '/';
 
-  // New logic for hiding/showing navbar based on scroll direction and mouse position
-  const [isScrollingUp, setIsScrollingUp] = useState(false);
-  const [isHoveringTop, setIsHoveringTop] = useState(false);
-  const [isAtTop, setIsAtTop] = useState(true);
-  const [isMobileView, setIsMobileView] = useState(false);
-  const [hasFocusWithin, setHasFocusWithin] = useState(false);
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    lastScrollY.current = window.scrollY;
-    setIsAtTop(window.scrollY < 50);
-
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setIsAtTop(currentScrollY < 50);
-      
-      if (currentScrollY > lastScrollY.current + 10) {
-        setIsScrollingUp(false); // Scrolled down
-      } else if (currentScrollY < lastScrollY.current - 10) {
-        setIsScrollingUp(true); // Scrolled up
-      }
-      lastScrollY.current = currentScrollY;
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      setIsHoveringTop(e.clientY < 120);
-    };
-
-    const handleResize = () => {
-      setIsMobileView(window.innerWidth <= 1024);
-    };
-    handleResize();
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('resize', handleResize, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  // Must stay above the early return below: hooks called conditionally crash React
-  // ("Rendered fewer hooks than expected") when navigating to/from /playground etc.
-  const scrollToSection = useCallback((sectionId: string) => {
-    const el = document.getElementById(sectionId);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setIsOpen(false);
-    }
-  }, []);
-
-  if (isStrict || isDedicatedSharePage || isPlayground) return null;
-
-  const handleToggle = () => setIsOpen(!isOpen);
-
-  // Determine if a link is "active" — on home, we always consider it active for section links
-  const isLinkActive = (href: string) => {
-    const route = SECTION_ROUTES[href] ?? href;
-    return pathname === route || pathname.startsWith(`${route}/`);
-  };
-
-  // Render a nav link — on home page, section links scroll instead of navigate
-  const renderLink = (link: { href: string; label: string }, onClick?: () => void) => {
-    const sectionId = isHome ? SECTION_ANCHORS[link.label] : undefined;
-    const isExternal = ROUTE_ONLY.has(link.href);
-
-    if (sectionId && !isExternal) {
-      return (
-        <button
-          key={link.href}
-          type="button"
-          onClick={() => { scrollToSection(sectionId); onClick?.(); }}
-          className="text-ink-2 transition-colors duration-150 hover:text-ink-1"
-          style={{
-            background: 'none',
-            border: 'none',
-            padding: 0,
-            fontWeight: 500,
-            fontSize: 'inherit',
-            fontFamily: 'inherit',
-            cursor: 'pointer',
-          }}
-        >
-          {link.label}
-        </button>
-      );
+    // Close the mobile menu on navigation (adjusting state during render, not in an effect).
+    const [menuPath, setMenuPath] = useState(pathname);
+    if (menuPath !== pathname) {
+        setMenuPath(pathname);
+        setOpen(false);
     }
 
-    const isActive = isLinkActive(link.href);
+    if (
+        searchParams.get('strict') === 'true' ||
+        pathname === '/social-only' ||
+        pathname === '/playground' ||
+        pathname.startsWith('/binge')
+    ) return null;
+
+    const href = (h: string) => (isHome && h.startsWith('/#') ? h.slice(1) : h);
+
     return (
-      <Link
-        key={link.href}
-        href={link.href}
-        onClick={onClick}
-        aria-current={isActive ? 'page' : undefined}
-        className={`transition-colors duration-150 ${isActive ? 'text-accent' : 'text-ink-2 hover:text-ink-1'}`}
-        style={{
-          fontWeight: isActive ? 600 : 500,
-          textShadow: isActive ? '0 0 12px rgba(74, 222, 128, 0.4)' : 'none',
-          textDecoration: 'none',
-        }}
-      >
-        {link.label}
-      </Link>
+        <>
+            <nav aria-label="Primary" data-site-chrome className="sp-bar">
+                <div className="sp-bar__inner">
+                    <Link href="/" className="sp-bar__pn" aria-label="Trupal Patel, home">
+                        <i aria-hidden="true" />TP-SDE-2026
+                    </Link>
+
+                    <div className="sp-bar__links">
+                        {SECTIONS.map((s) => (
+                            <a key={s.href} href={href(s.href)}>{s.no} · {s.label}</a>
+                        ))}
+                        <span className="sep" aria-hidden="true" />
+                        {PAGES.map((p) => (
+                            <Link key={p.href} href={p.href} aria-current={pathname === p.href ? 'page' : undefined}>{p.label}</Link>
+                        ))}
+                    </div>
+
+                    <div className="sp-bar__right">
+                        <span className="sp-bar__rev">REV 4</span>
+                        <a href="https://github.com/TRUPALIX9" target="_blank" rel="noreferrer" aria-label="GitHub" className="sp-iconbtn"><GithubIcon /></a>
+                        <a href="https://www.linkedin.com/in/trupalix" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="sp-iconbtn"><LinkedinIcon size={17} /></a>
+                        <button
+                            type="button"
+                            className="sp-iconbtn sp-burger"
+                            aria-label={open ? 'Close menu' : 'Open menu'}
+                            aria-expanded={open}
+                            onClick={() => setOpen((o) => !o)}
+                        >
+                            {open ? <X size={20} /> : <Menu size={20} />}
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            {open && (
+                <div className="sp-menu" data-site-chrome>
+                    {SECTIONS.map((s) => (
+                        <a key={s.href} href={href(s.href)} onClick={() => setOpen(false)}>{s.label} <span>§{s.no}</span></a>
+                    ))}
+                    {PAGES.map((p) => (
+                        <Link key={p.href} href={p.href} onClick={() => setOpen(false)}>{p.label} <span>→</span></Link>
+                    ))}
+                </div>
+            )}
+        </>
     );
-  };
-
-  // Desktop: Only show on hover or if menu is open
-  // Mobile/Tablet: Also show when at the top or scrolling up (since there's no hover)
-  // Keyboard users can't "hover", so also reveal the bar while focus is inside it.
-  const showNav = isHoveringTop || isOpen || hasFocusWithin || (isMobileView && (isAtTop || isScrollingUp));
-
-  return (
-    <>
-      <motion.nav
-        aria-label="Primary"
-        data-site-chrome
-        onFocus={() => setHasFocusWithin(true)}
-        onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHasFocusWithin(false);
-        }}
-        initial={{ y: -100 }}
-        animate={{ y: showNav ? 0 : -100 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0,
-          height: 'var(--nav-height)',
-          zIndex: 150,
-          display: 'flex',
-          alignItems: 'center',
-        }}
-        className="glass"
-      >
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {isHome ? (
-            <button
-              type="button"
-              onClick={() => scrollToSection('hero')}
-              style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', fontFamily: 'inherit' }}
-            >
-              <Image src="/favicon.svg" alt="" width={28} height={28} priority style={{ objectFit: 'contain' }} />
-              <span>TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span></span>
-            </button>
-          ) : (
-            <Link href="/" aria-label="Trupal Patel — home" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', textDecoration: 'none', color: 'inherit' }}>
-              <Image src="/favicon.svg" alt="" width={28} height={28} priority style={{ objectFit: 'contain' }} />
-              <span>TRUPAL PATEL<span style={{ color: 'var(--accent-primary)' }}>.</span></span>
-            </Link>
-          )}
-
-          <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-            {/* The same menu on every page: "/#section" links take you to that section from anywhere. */}
-            <div style={{ display: 'flex', gap: '1.5rem' }} className="nav-links">
-              {navLinks.map(link => renderLink(link))}
-            </div>
-
-            <button className="hamburger-btn" onClick={handleToggle} aria-label={isOpen ? 'Close menu' : 'Open menu'} aria-expanded={isOpen}>
-              <span style={{ transform: isOpen ? 'rotate(45deg) translate(0, 8px)' : 'none' }}></span>
-              <span style={{ opacity: isOpen ? 0 : 1 }}></span>
-              <span style={{ transform: isOpen ? 'rotate(-45deg) translate(0, -8px)' : 'none' }}></span>
-            </button>
-
-            <div style={{ display: 'flex', gap: '1.25rem', borderLeft: '1px solid var(--line-2)', paddingLeft: '2rem', alignItems: 'center' }} className="nav-auth">
-              <a href="https://github.com/TRUPALIX9" target="_blank" rel="noreferrer" aria-label="GitHub profile" className="flex items-center text-ink-2 transition-colors duration-150 hover:text-ink-1">
-                <GithubIcon size={20} />
-              </a>
-              <a href="https://www.linkedin.com/in/trupalix" target="_blank" rel="noreferrer" aria-label="LinkedIn profile" className="flex items-center text-ink-2 transition-colors duration-150 hover:text-ink-1">
-                <LinkedinIcon size={20} />
-              </a>
-            </div>
-          </div>
-        </div>
-      </motion.nav>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="mobile-menu-overlay"
-          >
-            {navLinks.map((link, i) => (
-              <motion.div
-                key={link.href}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05 }}
-              >
-                {renderLink(link, () => setIsOpen(false))}
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
 }
 
 export default function Navbar() {
-  return (
-    <Suspense fallback={<nav className="glass" style={{ height: 'var(--nav-height)' }} />}>
-      <NavbarContent />
-    </Suspense>
-  );
+    return (
+        <Suspense fallback={null}>
+            <NavbarContent />
+        </Suspense>
+    );
 }

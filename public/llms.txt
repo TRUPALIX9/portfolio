@@ -1,46 +1,24 @@
 # Trupal Patel (True Pal)
 
-> Full-stack software engineer and systems architect. Portfolio, products and project case studies at https://www.trupalpatel.com.
+> Software engineer at Aetna, a CVS Health company, and a member of trueorfalse.dev, True or False (https://trueorfalse.dev), a small software studio that builds mobile apps, web products and websites, ships them, and keeps them running.
 
 ## Overview
-**Trupal Patel** (also known online as **True Pal** or **TrupalIX9**) is a high-performance Full-Stack Software Engineer and Systems Architect. He handles the entire software lifecycle, from architecting intricate backend logic and designing seamless user interfaces, all the way to deploying highly scalable production-ready systems.
+**Trupal Patel** (also known online as **True Pal** or **TrupalIX9**) is a full-stack software engineer. His day job is at Aetna (CVS Health), working on utilization management and care management with BigQuery and AI. He is also a member of **trueorfalse.dev** (True or False), whose motto is "Every idea starts false. We ship it true." He works across the whole stack: Flutter and React front ends, Node.js, Django and FastAPI back ends, PostgreSQL, MongoDB and BigQuery, and Google Cloud, AWS and Cloudflare.
 
-He does not box himself into just frontend or backend roles, nor is he tied to a single language. His expertise spans React, Next.js, Node.js, Python, C#, MongoDB, PostgreSQL, BigQuery, GCP and AWS.
-
-## Products
-
-### StoreDesk
-A production-grade, 5-module retail command center and Point-of-Sale (POS) ecosystem built from scratch for convenience stores and gas stations.
-- **Focus**: Eliminating downtime risks for convenience stores with offline-first edge capabilities and ultra-fast transaction processing.
-- **Website**: https://storedesk.net
-- **Product page**: https://www.trupalpatel.com/products/storedesk
-
-### LogicSprint: Brain Games
-An Android, iPhone and iPad app with four endless brain games for reflexes, memory, math and focus, with a global Top 10 per game and difficulty and no login.
-- **Website**: https://logicsprint.trupalpatel.com (details for AI tools: https://logicsprint.trupalpatel.com/llms.txt)
-- **Product page**: https://www.trupalpatel.com/products/logicsprint
-- **Google Play**: https://play.google.com/store/apps/details?id=com.trupal.logicsprint
-- **App Store**: https://apps.apple.com/us/app/logicsprint-brain-games/id6817549079
-
-### Dr. Nandini Jansari Physiotherapy
-A patient-facing website and admin panel for a home-visit physiotherapist in Ahmedabad: a scroll-driven 3D anatomy explorer, 39 condition pages, WhatsApp booking, verified patient reviews and a key-protected admin panel.
-- **Website**: https://www.drnandini.com
-- **Product page**: https://www.trupalpatel.com/products/dr-nandini-physio
-
-### Contact Convoy
-A business-card scanner for Indian sales teams, formerly VisitCard Pro: on-device OCR, AI clean-up of misread fields, one shared company lead list with exhibition tagging and follow-up status, and per-company plans sold on the website and Google Play.
-- **Stack**: Flutter (Dart) Android app with Google ML Kit OCR and an SQLite offline cache; Node.js / Express API on Google Cloud Run with MongoDB Atlas (Mongoose); Gemini on Vertex AI for field clean-up; Firebase Hosting, Cloud Messaging and Crashlytics; React + Vite super-admin console; Razorpay and Google Play Billing.
-- **Website**: https://www.contactconvoy.com
-- **Google Play**: https://play.google.com/store/apps/details?id=com.ayushtech.contactconvoy
-- **Product page**: https://www.trupalpatel.com/products/contact-convoy
-
-### MeghVin Foundation
-The website and admin for MeghVin Foundation, a public charitable trust in Ahmedabad and Navi Mumbai that plants and cares for trees at Sindoor Valley (Kharghar), runs a community kitchen and takes doctor-led health talks into schools. The public site tells its story in English and Gujarati. One admin gives the trustees control of everything: every page's text and photos, the daily activity diary, gallery, stories, a poster studio, letterhead receipts and certificates, media, messages, settings and team, with no code.
-- **Stack**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4 with shadcn/ui and Radix UI; MongoDB Atlas with Mongoose; Cloudinary for media; Konva poster canvas; three.js with React Three Fiber; Motion; jsPDF; Zod; jose JWT sessions with bcrypt; Formspree; deployed on Vercel.
-- **Website**: https://meghvin.vercel.app
-- **Product page**: https://www.trupalpatel.com/products/meghvin-foundation
+## True or False (the studio)
+Products, client websites and in-progress projects now live on the studio site. Each product has its own site and llms.txt:
+- Studio: https://trueorfalse.dev (https://trueorfalse.dev/llms.txt)
+- Skills & Agents: https://skills.trueorfalse.dev. A catalog of agent skills, subagents, workflows and MCP servers for Claude Code, Claude.ai, Codex and ChatGPT, with a remote read-only MCP server at https://skills.trueorfalse.dev/api/mcp
+- LogicSprint: https://logicsprint.trueorfalse.dev. Brain-training games for iPhone and Android with a daily global Top 10
+- Family Tree: https://family.trueorfalse.dev. A private family tree relatives build together
+- Contact Convoy: https://www.contactconvoy.com. Business-card scanning and lead follow-up for sales teams
+- StoreDesk: https://storedesk.net. A local-first back office for convenience stores and gas stations
+- Client websites: Dr. Nandini Jansari (https://www.drnandini.com), MeghVin Foundation (https://meghvin.vercel.app), Nyara Melamine
 
 ## Career History
+
+### Software Development Engineer @ Aetna, a CVS Health company (Oct 2026 – present)
+Cloud-native applications on Google Cloud for utilization management and care management: BigQuery analytics and data pipelines, GenAI prototypes, and APIs for AI-enabled applications. Python, SQL, GCP (Cloud Storage, Pub/Sub, Vertex AI).
 
 ### Founding Software Engineer @ Allyvia (Jul 2025 – Apr 2026)
 Allyvia is a cloud-native SaaS platform built to streamline B2B operations. Trupal engineered the platform from the ground up on Google Cloud:
@@ -82,9 +60,8 @@ AIVID.AI provides enterprise-scale edge computer vision and analytics across 200
 - [File System Engine](https://www.trupalpatel.com/projects/file-system-engine): an Electron file manager with a dual-pane Transfer Hub and a treemap disk analyzer.
 
 ## Pages
-- [Home](https://www.trupalpatel.com/): about, products, selected work and contact
-- [Products](https://www.trupalpatel.com/products): StoreDesk, LogicSprint, the Dr. Nandini physiotherapy site, Contact Convoy and the MeghVin Foundation site
-- [Projects](https://www.trupalpatel.com/projects): project case studies
+- [Home](https://www.trupalpatel.com/): the True or False studio and its products, skill map, work history and contact
+- [Projects](https://www.trupalpatel.com/projects): project case studies (archive)
 - [Allyvia (Founding Software Engineer)](https://www.trupalpatel.com/experience/allyvia)
 - [AIVID.AI (Software Engineer)](https://www.trupalpatel.com/experience/aivid-ai)
 - [InfoLabz (Frontend Software Engineer)](https://www.trupalpatel.com/experience/infolabz)
@@ -97,3 +74,4 @@ AIVID.AI provides enterprise-scale edge computer vision and analytics across 200
 - **LinkedIn**: linkedin.com/in/trupalix
 - **GitHub**: github.com/TRUPALIX9
 - **Portfolio**: https://www.trupalpatel.com
+- **Studio**: https://trueorfalse.dev (hello@trueorfalse.dev)

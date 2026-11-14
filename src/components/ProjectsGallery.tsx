@@ -21,7 +21,7 @@ export default function ProjectsGallery() {
             <Reveal>
                 {/* Back to Home Button */}
                 <div style={{ marginBottom: '2rem' }}>
-                    <Link href="/#projects" className="btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 1.25rem', fontSize: '0.9rem' }}>
+                    <Link href="/#work" className="btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 1.25rem', fontSize: '0.9rem' }}>
                         <ArrowLeft size={15} aria-hidden="true" /> Back to Home
                     </Link>
                 </div>

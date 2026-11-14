@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AcquisitionTab, ActivityTab, ContentTab, IntentTab, OverviewTab, PageViewsTab } from "@/components/admin/playground/AnalyticsTabs";
 import { DataTab } from "@/components/admin/playground/DataTab";
 import { InboxTab } from "@/components/admin/playground/InboxTab";
+import { BingeTab } from "@/components/admin/playground/BingeTab";
 import { VisitorsTab } from "@/components/admin/playground/VisitorsTab";
 import {
     Segmented,
@@ -29,6 +30,7 @@ const TABS = [
     { id: "content", label: "Content", question: "What do they read? Time, scroll and exits per page, and how far down the home page they get.", filters: true },
     { id: "intent", label: "Intent", question: "Who is interested? The path from visit to message, and the most promising visits.", filters: true },
     { id: "inbox", label: "Inbox", question: "Messages sent through the contact form.", filters: false },
+    { id: "binge", label: "Binge", question: "What you have watched: search series and films, tick seasons and episodes, star recommendations, and read visitor suggestions.", filters: false },
     { id: "settings", label: "Settings", question: "Keep your own devices out of the numbers, block bots, share tagged links, and reset data.", filters: false },
 ] as const;
 
@@ -278,6 +280,7 @@ export default function Playground() {
                 {tab === "intent" && <IntentTab {...tabProps} />}
                 {tab === "visitors" && <VisitorsTab {...tabProps} selectedVisitor={selectedVisitor} setSelectedVisitor={setSelectedVisitor} />}
                 {tab === "inbox" && <InboxTab refreshKey={refreshKey} onUnauthorized={handleUnauthorized} />}
+                {tab === "binge" && <BingeTab refreshKey={refreshKey} onUnauthorized={handleUnauthorized} />}
                 {tab === "settings" && (
                     <DataTab
                         refreshKey={refreshKey}

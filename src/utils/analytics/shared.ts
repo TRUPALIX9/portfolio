@@ -10,6 +10,7 @@ export const EVENT_TYPES = [
     'contact_start',
     'contact_submit',
     'contact_error',
+    'quiz_complete',
     'rage_click',
     'js_error',
     'web_vital',
