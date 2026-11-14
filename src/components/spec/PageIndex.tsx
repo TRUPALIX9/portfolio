@@ -42,7 +42,7 @@ export function PageIndex() {
                     </li>
                 ))}
             </ol>
-            <p className="sp-index__meta">TP-SDE-2026<br />Rev 4 · Oct 2026<br />Atlanta, GA</p>
+            <p className="sp-index__meta">TP-SDE-2026<br />Rev 4 · Oct 2026<br />Georgia, USA</p>
         </nav>
     );
 }

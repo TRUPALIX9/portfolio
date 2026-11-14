@@ -120,7 +120,7 @@ export default function SpecPage() {
                                 <p className="sp-part"><b>{PART_NO}</b><span>Software engineer</span><span>Rev 4 · {SINCE}</span></p>
                                 <h1 className="sp-name">Trupal Patel</h1>
                                 <p className="sp-role">{CURRENT_JOB.role} · <b>{CURRENT_JOB.company}</b></p>
-                                <p className="sp-status"><span className="sp-led sp-led--live" aria-hidden="true" /><MapPin size={13} aria-hidden="true" /> Atlanta, GA · status: active</p>
+                                <p className="sp-status"><span className="sp-led sp-led--live" aria-hidden="true" /><MapPin size={13} aria-hidden="true" /> Georgia, USA · status: active</p>
                             </Reveal>
                             <Reveal delay={0.1}>
                                 <figure className="sp-fig">
@@ -152,7 +152,7 @@ export default function SpecPage() {
                                         <tr><th scope="row">Since</th><td className="sp-num">{SINCE}</td></tr>
                                         <tr><th scope="row">Experience</th><td className="sp-num"><CountUp to={YEARS} suffix="+ years" /></td></tr>
                                         <tr><th scope="row">Platforms shipped</th><td>iOS · Android · Windows · Web</td></tr>
-                                        <tr><th scope="row">Location</th><td>Atlanta, GA</td></tr>
+                                        <tr><th scope="row">Location</th><td>Georgia, USA · raised in Ahmedabad, India</td></tr>
                                     </tbody>
                                 </table>
                             </div>
