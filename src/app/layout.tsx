@@ -24,8 +24,8 @@ const gaId = process.env.NEXT_PUBLIC_GA_ID;
 export const metadata: Metadata = {
     metadataBase: new URL(SITE_URL),
     title: 'Trupal Patel · Software Development Engineer',
-    description: 'Trupal Patel (True Pal): software development engineer at Aetna (CVS Health) and member of trueorfalse.dev, the True or False studio behind Skills & Agents, LogicSprint, Family Tree, Contact Convoy and StoreDesk.',
-    keywords: 'Trupal Patel, True Pal, TruePal, TrupalIX9, True or False, trueorfalse.dev, Aetna, CVS Health, utilization management, care management, BigQuery, Software Engineer, Skills & Agents, MCP, LogicSprint, StoreDesk, Contact Convoy, React, Next.js, Flutter',
+    description: 'Trupal Patel: software development engineer at Aetna (CVS Health) and member of trueorfalse.dev, the True or False studio behind Skills & Agents, LogicSprint, Family Tree, Contact Convoy and StoreDesk.',
+    keywords: 'Trupal Patel, TrupalIX9, True or False, trueorfalse.dev, Aetna, CVS Health, utilization management, care management, BigQuery, Software Engineer, Skills & Agents, MCP, LogicSprint, StoreDesk, Contact Convoy, React, Next.js, Flutter',
     icons: {
         icon: [
             { url: '/favicon.ico', sizes: 'any' },

@@ -1,9 +1,9 @@
-# Trupal Patel (True Pal)
+# Trupal Patel
 
 > Software engineer at Aetna, a CVS Health company, and a member of trueorfalse.dev, True or False (https://trueorfalse.dev), a small software studio that builds mobile apps, web products and websites, ships them, and keeps them running.
 
 ## Overview
-**Trupal Patel** (also known online as **True Pal** or **TrupalIX9**) is a full-stack software engineer. His day job is at Aetna (CVS Health), working on utilization management and care management with BigQuery and AI. He is also a member of **trueorfalse.dev** (True or False), whose motto is "Every idea starts false. We ship it true." He works across the whole stack: Flutter and React front ends, Node.js, Django and FastAPI back ends, PostgreSQL, MongoDB and BigQuery, and Google Cloud, AWS and Cloudflare.
+**Trupal Patel** (**TrupalIX9** on GitHub) is a full-stack software engineer. His day job is at Aetna (CVS Health), working on utilization management and care management with BigQuery and AI. He is also a member of **trueorfalse.dev** (True or False), whose motto is "Every idea starts false. We ship it true." He works across the whole stack: Flutter and React front ends, Node.js, Django and FastAPI back ends, PostgreSQL, MongoDB and BigQuery, and Google Cloud, AWS and Cloudflare.
 
 ## True or False (the studio)
 Products, client websites and in-progress projects now live on the studio site. Each product has its own site and llms.txt:

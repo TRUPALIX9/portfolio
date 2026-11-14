@@ -14,14 +14,13 @@ const jsonLd = [
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         name: 'Trupal Patel',
-        alternateName: 'True Pal',
         url: SITE_URL,
     },
     {
         '@context': 'https://schema.org',
         '@type': 'Person',
         name: 'Trupal Patel',
-        alternateName: ['True Pal', 'TrupalIX9'],
+        alternateName: ['TrupalIX9'],
         jobTitle: CURRENT_JOB.role,
         worksFor: {
             '@type': 'Organization',
