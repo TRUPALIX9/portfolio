@@ -48,7 +48,7 @@ export default function AboutPage() {
                             <h1 className="sp-name">Trupal Patel</h1>
                             <p className="sp-role">{CURRENT_JOB.role} · <b>{CURRENT_JOB.company}</b></p>
                             <ul className="sp-features" style={{ marginTop: '1.4rem' }}>
-                                <li><span className="sp-features__icon"><MapPin size={16} aria-hidden="true" /></span><span>Lives in Atlanta, GA. Also known online as True Pal.</span></li>
+                                <li><span className="sp-features__icon"><MapPin size={16} aria-hidden="true" /></span><span>Lives in Atlanta, GA.</span></li>
                                 <li><span className="sp-features__icon"><Briefcase size={16} aria-hidden="true" /></span><span>Works on utilization management and care management on Google Cloud at {CURRENT_JOB.employer}, with BigQuery and AI.</span></li>
                                 <li><span className="sp-features__icon"><Sparkles size={16} aria-hidden="true" /></span><span>Member of <a className="sp-link" href={STUDIO.url} target="_blank" rel="noreferrer">trueorfalse.dev</a>, a small software studio.</span></li>
                                 <li><span className="sp-features__icon"><Clapperboard size={16} aria-hidden="true" /></span><span>Watches a lot of series and films; the full log is on <Link className="sp-link" href="/binge">Binge</Link>.</span></li>
