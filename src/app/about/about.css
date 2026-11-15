@@ -1,0 +1,59 @@
+/* About: the personal page. Same paper and accent as the site, but rounder and more playful than the datasheet. */
+.ab { --ab-round-f: var(--ab-round), 'Fredoka', system-ui, sans-serif; --ab-hand-f: var(--ab-hand), 'Caveat', cursive; }
+
+.ab-hello { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 320px); gap: clamp(28px, 5vw, 64px); align-items: center; padding: clamp(36px, 7vh, 72px) 0 clamp(28px, 5vh, 48px); }
+.ab-polaroid { order: 2; margin: 0; padding: 14px 14px 0; background: #fff; box-shadow: 0 1px 0 #e9e6dd, 0 26px 50px -24px rgb(40 30 10 / 0.35); transform: rotate(3deg); position: relative; transition: transform 400ms cubic-bezier(.3, 1.5, .5, 1); }
+.ab-polaroid:hover { transform: rotate(0deg) scale(1.02); }
+.ab-polaroid::before { content: ''; position: absolute; top: -12px; left: 50%; width: 96px; height: 26px; transform: translateX(-50%) rotate(2deg); background: rgb(255 214 102 / 0.7); }
+.ab-polaroid__img { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: var(--sp-paper-2); }
+.ab-polaroid figcaption { font-family: var(--ab-hand-f); font-size: 1.7rem; text-align: center; padding: 6px 0 10px; color: #3a3a3a; }
+
+.ab-eyebrow, .ab-head__kicker { font-family: var(--ab-round-f); font-weight: 600; font-size: 0.8rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sp-accent); }
+.ab-hello h1 { font-family: var(--ab-round-f); font-weight: 600; font-size: clamp(2.8rem, 6.4vw, 5rem); line-height: 0.98; letter-spacing: -0.03em; margin: 0.3rem 0 0.9rem; }
+.ab-hello h1 em { font-style: normal; background: linear-gradient(transparent 62%, #ffd166 62%); padding: 0 0.08em; }
+.ab-lede { font-size: 1.15rem; line-height: 1.6; color: var(--sp-ink-2); max-width: 46ch; }
+
+.ab-facts { margin-top: 1.4rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; padding: 0; }
+.ab-facts li { list-style: none; }
+.ab-facts a, .ab-facts li > div { height: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 16px; background: #fff; border: 1.5px solid #ece9e0; font-family: var(--ab-round-f); transition: transform 180ms cubic-bezier(.3, 1.6, .5, 1), border-color 180ms; }
+.ab-facts a:hover { transform: translateY(-2px) rotate(-1deg); border-color: var(--sp-accent); }
+.ab-facts__icon { flex: none; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: var(--sp-accent-soft); color: var(--sp-accent); }
+.ab-facts small { display: block; font-size: 0.72rem; color: var(--sp-ink-3); }
+.ab-facts b { font-weight: 500; font-size: 0.98rem; }
+.ab-work { display: inline-flex; align-items: center; gap: 6px; margin-top: 1.2rem; font-family: var(--ab-round-f); font-size: 0.92rem; color: var(--sp-ink-3); }
+.ab-work:hover { color: var(--sp-accent); }
+
+.ab-jump { position: sticky; top: calc(var(--sp-bar-h) + 6px); z-index: 20; display: flex; gap: 6px; overflow-x: auto; padding: 0.6rem 0; background: color-mix(in srgb, var(--sp-paper) 92%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); scrollbar-width: none; }
+.ab-jump::-webkit-scrollbar { display: none; }
+.ab-jump a { flex: none; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.4rem 0.85rem; border-radius: 999px; border: 1.5px solid #e6e2d8; background: #fff; font-family: var(--ab-round-f); font-weight: 500; font-size: 0.9rem; color: var(--sp-ink); }
+.ab-jump a span { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--sp-ink); color: #fff; font-size: 0.72rem; }
+.ab-jump a:hover { border-color: var(--sp-accent); }
+.ab .sp-section { scroll-margin-top: calc(var(--sp-bar-h) + 64px); }
+
+.ab-head { display: flex; align-items: center; gap: 14px; }
+.ab-head__no { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--sp-ink); color: #fff; font-family: var(--ab-round-f); font-weight: 600; font-size: 1.3rem; transform: rotate(-6deg); box-shadow: 3px 3px 0 var(--sp-accent); }
+.ab-head h2 { font-family: var(--ab-round-f); font-weight: 600; font-size: clamp(1.6rem, 3.4vw, 2.4rem); letter-spacing: -0.02em; line-height: 1.05; }
+
+.ab-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 0.7rem 1.1rem; border-radius: 999px; background: var(--sp-ink); color: #fff; font-family: var(--ab-round-f); font-weight: 600; }
+.ab-cta:hover { background: var(--sp-accent); }
+
+/* Softer corners on the shared blocks, so About reads friendlier than the datasheet */
+.ab .sp-readout, .ab .sp-adv__cat, .ab .sp-globe, .ab .sp-sports li, .ab .sp-soon__card { border-radius: 18px; overflow: hidden; }
+.ab .sp-sports__icon { border-radius: 12px; }
+.ab .sp-adv__head, .ab .sp-sports b, .ab .sp-adv__body b { font-family: var(--ab-round-f); }
+
+@media (max-width: 760px) {
+  .ab-hello { grid-template-columns: minmax(0, 1fr); }
+  .ab-polaroid { order: 0; max-width: 260px; justify-self: center; }
+}
+@media (prefers-reduced-motion: reduce) { .ab-polaroid, .ab-facts a { transition: none; } }
+
+/* Travel door: stickers + a link to the full map */
+.ab-trip { display: grid; grid-template-columns: minmax(200px, 300px) minmax(0, 1fr) auto; gap: clamp(16px, 3vw, 32px); align-items: center; margin: 12px 0 8px; padding: clamp(16px, 3vw, 28px); border-radius: 24px; background: radial-gradient(120% 90% at 30% 30%, #f3f8fd 0%, #e2ecf8 100%); border: 1px solid #d6e3f2; color: var(--sp-ink); transition: transform 220ms cubic-bezier(.3, 1.5, .5, 1), box-shadow 220ms; }
+.ab-trip:hover { transform: translateY(-3px) rotate(-0.4deg); box-shadow: 0 24px 40px -28px rgb(20 40 80 / 0.5); }
+.ab-trip__stickers { width: 100%; height: auto; }
+.ab-trip h2 { font-family: var(--ab-round-f); font-weight: 600; font-size: clamp(1.4rem, 2.8vw, 2rem); letter-spacing: -0.02em; line-height: 1.05; margin: 0.3rem 0 0.4rem; }
+.ab-trip p:last-child { color: #3f4a5c; }
+.ab-trip .ab-cta { margin: 0; white-space: nowrap; }
+.ab-trip:hover .ab-cta { background: var(--sp-accent); }
+@media (max-width: 820px) { .ab-trip { grid-template-columns: minmax(0, 1fr); } .ab-trip__stickers { max-width: 320px; } .ab-trip .ab-cta { justify-self: start; } }

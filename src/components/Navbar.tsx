@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
@@ -15,7 +16,7 @@ const GithubIcon = ({ size = 17 }: { size?: number }) => (
 
 /** Sections of the home datasheet, then the other pages. */
 const SECTIONS = [
-    { href: '/#pinout', no: '2', label: 'Pinout' },
+    { href: '/#pinout', no: '2', label: 'System map' },
     { href: '/#applications', no: '3', label: 'Applications' },
     { href: '/#revisions', no: '4', label: 'Revisions' },
     { href: '/#ordering', no: '6', label: 'Contact' },
@@ -42,7 +43,8 @@ function NavbarContent() {
         searchParams.get('strict') === 'true' ||
         pathname === '/social-only' ||
         pathname === '/playground' ||
-        pathname.startsWith('/binge')
+        pathname.startsWith('/binge') ||
+        pathname.startsWith('/travel')
     ) return null;
 
     const href = (h: string) => (isHome && h.startsWith('/#') ? h.slice(1) : h);
@@ -52,7 +54,7 @@ function NavbarContent() {
             <nav aria-label="Primary" data-site-chrome className="sp-bar">
                 <div className="sp-bar__inner">
                     <Link href="/" className="sp-bar__pn" aria-label="Trupal Patel, home">
-                        <i aria-hidden="true" />TP-SDE-2026
+                        <Image src="/logo-penrose.png" alt="" width={30} height={30} priority className="sp-bar__logo" />Trupal Patel
                     </Link>
 
                     <div className="sp-bar__links">

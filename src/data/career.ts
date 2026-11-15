@@ -10,6 +10,8 @@ export type CareerEntry = {
     period: string;
     url: string;
     summary: string;
+    /** Company icon, saved under public/logos. */
+    logo?: string;
     /** Deep-dive page, when there is one. */
     href?: string;
     current?: boolean;
@@ -26,6 +28,8 @@ export const CURRENT_JOB = {
     focus: 'Utilization management and care management, with BigQuery and AI',
 };
 
+const LOGOS: Record<string, string> = { allyvia: '/logos/allyvia.png', 'aivid-ai': '/logos/aivid.png', infolabz: '/logos/infolabz.png' };
+
 const SUMMARIES: Record<string, string> = {
     allyvia: 'First engineer. Built the SaaS platform on GCP: React 19 front end, Django REST APIs, BigQuery pipelines that sync QuickBooks, Pub/Sub ingestion and RBAC.',
     'aivid-ai': 'Analytics apps and data pipelines running across 200+ production sites. Cut Elasticsearch query time by about 25%.',
@@ -37,6 +41,7 @@ export const CAREER: CareerEntry[] = [
         role: CURRENT_JOB.role,
         period: CURRENT_JOB.period,
         url: CURRENT_JOB.url,
+        logo: '/logos/aetna.png',
         summary: 'Cloud-native apps on GCP for utilization management and care management: BigQuery analytics and data pipelines, GenAI prototypes, and the APIs that connect them.',
         current: true,
     },
@@ -47,6 +52,7 @@ export const CAREER: CareerEntry[] = [
         url: exp.url,
         summary: SUMMARIES[exp.slug] ?? exp.achievements[0],
         href: `/experience/${exp.slug}`,
+        logo: LOGOS[exp.slug],
     })),
 ];
 
