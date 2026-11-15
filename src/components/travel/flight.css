@@ -1,0 +1,52 @@
+.fl {
+  --fl-bg: #04060d;
+  --fl-ink: #e9eefc;
+  --fl-dim: #8b97b8;
+  --fl-line: rgb(160 190 255 / 0.18);
+  --fl-accent: #ff7a2f;
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: radial-gradient(120% 90% at 70% 40%, #0b1430 0%, var(--fl-bg) 60%);
+  color: var(--fl-ink);
+  font-family: var(--font-plex), 'IBM Plex Sans', system-ui, sans-serif;
+}
+html:has(.fl), html:has(.fl) body { background: #04060d; }
+.fl-stage { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; cursor: grab; }
+.fl-stage[data-ready='true'] { opacity: 1; }
+.fl-stage:active { cursor: grabbing; }
+.fl-stage canvas { display: block; }
+.fl-labels { position: absolute; inset: 0; pointer-events: none; }
+.fl-label { position: absolute; left: 0; top: 0; display: grid; gap: 1px; padding-left: 10px; margin-top: -8px; font-family: var(--font-plex-mono), ui-monospace, monospace; font-size: 10.5px; white-space: nowrap; transition: opacity 200ms; text-shadow: 0 1px 6px #000; }
+.fl-label b { font-weight: 500; letter-spacing: 0.04em; }
+.fl-label span { color: var(--fl-dim); font-size: 9.5px; }
+.fl-label--home b { color: var(--fl-accent); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.fl-top { position: absolute; inset: 0 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 20px clamp(16px, 4vw, 48px); font-family: var(--font-plex-mono), ui-monospace, monospace; font-size: 12px; z-index: 2; }
+.fl-back { color: var(--fl-ink); opacity: 0.8; }
+.fl-back:hover { opacity: 1; color: var(--fl-accent); }
+.fl-code { color: var(--fl-dim); letter-spacing: 0.18em; }
+
+.fl-hud { position: absolute; left: clamp(16px, 4vw, 48px); top: 50%; transform: translateY(-50%); width: min(300px, 80vw); z-index: 2; }
+.fl-kicker { font-family: var(--font-plex-mono), ui-monospace, monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--fl-accent); }
+.fl-title { margin: 0.6rem 0 1.4rem; font-size: clamp(2.6rem, 6vw, 4.4rem); line-height: 0.92; font-weight: 600; letter-spacing: -0.04em; }
+.fl-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--fl-line); border-bottom: 1px solid var(--fl-line); margin-bottom: 1.2rem; }
+.fl-stats div { padding: 0.7rem 0; }
+.fl-stats div + div { padding-left: 0.9rem; border-left: 1px solid var(--fl-line); }
+.fl-stats dt { font-family: var(--font-plex-mono), ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fl-dim); }
+.fl-stats dd { font-size: 1.9rem; font-weight: 600; letter-spacing: -0.03em; }
+.fl-countries { display: grid; gap: 2px; }
+.fl-countries li { list-style: none; }
+.fl-countries button { width: 100%; display: flex; justify-content: space-between; align-items: baseline; padding: 0.55rem 0.7rem; background: rgb(255 255 255 / 0.03); border: 1px solid transparent; color: var(--fl-ink); font: inherit; font-size: 0.95rem; cursor: pointer; text-align: left; transition: background-color 160ms, border-color 160ms; backdrop-filter: blur(4px); }
+.fl-countries button:hover { background: rgb(255 255 255 / 0.07); }
+.fl-countries button[aria-pressed='true'] { border-color: var(--fl-accent); background: rgb(255 122 47 / 0.12); }
+.fl-countries small { font-family: var(--font-plex-mono), ui-monospace, monospace; font-size: 11px; color: var(--fl-dim); }
+.fl-hint { margin-top: 1rem; font-family: var(--font-plex-mono), ui-monospace, monospace; font-size: 10.5px; color: var(--fl-dim); letter-spacing: 0.08em; }
+
+@media (max-width: 760px) {
+  .fl { display: flex; flex-direction: column; }
+  .fl-stage { position: relative; height: 62dvh; inset: auto; margin-top: 56px; }
+  .fl-labels { height: calc(62dvh + 56px); }
+  .fl-hud { position: relative; left: auto; top: auto; transform: none; width: auto; padding: 0 16px 32px; margin-top: -12dvh; }
+  .fl-title { font-size: 2.6rem; }
+}

@@ -12,7 +12,7 @@ export default function Footer() {
     const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    if (pathname === '/social-only' || pathname === '/playground' || pathname.startsWith('/binge')) return null;
+    if (pathname === '/social-only' || pathname === '/playground' || pathname.startsWith('/binge') || pathname.startsWith('/travel')) return null;
 
     // Hidden door to /social-only: tap the name five times, or press and hold it for two seconds.
     const onNameClick = () => {

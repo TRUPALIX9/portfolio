@@ -5,7 +5,7 @@ import { motion, useScroll, useSpring } from 'framer-motion';
 
 export const SECTIONS = [
     { id: 'overview', no: 1, label: 'Overview' },
-    { id: 'pinout', no: 2, label: 'Pinout' },
+    { id: 'pinout', no: 2, label: 'System map' },
     { id: 'applications', no: 3, label: 'Applications' },
     { id: 'revisions', no: 4, label: 'Revision history' },
     { id: 'documents', no: 5, label: 'Related documents' },
