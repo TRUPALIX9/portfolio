@@ -1003,3 +1003,17 @@ html:has(.sp-page), html:has(.sp-page) body { background: var(--sp-paper); }
 .sp-sys__logos .sp-logo { width: 70% !important; height: 70% !important; }
 .sp-sys__logos .sp-logo:not(.sp-logo--mono) { font-size: clamp(11px, 1.6vw, 18px) !important; }
 .sp-sys__logos .sp-logo--mono { font-size: clamp(6px, 0.7vw, 8px) !important; }
+
+/* System map: nine boxes, protocol labels on the wires, protocol legend */
+.sp-sys__canvas--9 { aspect-ratio: 1000 / 600; }
+.sp-sys__edge[data-dim='true'] { opacity: 0.18; }
+.sp-sys__wire-label { position: absolute; transform: translate(-50%, -50%); z-index: 2; max-width: 13%; padding: 0.12rem 0.4rem; text-align: center; font-family: var(--sp-mono); font-size: clamp(0.5rem, 0.95vw, 0.66rem); line-height: 1.25; background: var(--sp-card); border: 1px solid var(--sp-rule-2); color: var(--sp-ink-2); pointer-events: none; transition: opacity 200ms, border-color 200ms, color 200ms; }
+.sp-sys__wire-label[data-kind='note'] { border-style: dashed; color: var(--sp-ink-3); }
+.sp-sys__wire-label[data-on='true'] { border-color: var(--sp-accent); color: var(--sp-ink); }
+.sp-sys__wire-label[data-dim='true'] { opacity: 0.25; }
+.sp-sys__protos { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; }
+.sp-sys__protos-label { font-family: var(--sp-mono); font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sp-ink-3); margin-right: 4px; }
+.sp-sys__protos button { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.65rem 0.3rem 0.4rem; border: 1px solid var(--sp-rule-2); background: var(--sp-card); font: inherit; font-size: 0.82rem; cursor: pointer; transition: border-color 150ms, background-color 150ms; }
+.sp-sys__protos button:hover { border-color: var(--sp-ink); }
+.sp-sys__protos button[aria-pressed='true'] { border-color: var(--sp-accent); background: var(--sp-accent-soft); box-shadow: 3px 3px 0 var(--sp-accent); }
+@media (max-width: 760px) { .sp-sys__wire-label { display: none; } }
