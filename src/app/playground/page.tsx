@@ -300,6 +300,64 @@ function TopBar({ authenticated, onLock }: { authenticated: boolean; onLock: () 
 
 // Inline styles can't express :focus-visible, so scope a small rule to the dashboard root.
 const focusVisibleCss = `
+/* Binge: views, swipe deck, season checklist, updates */
+.bs-views { display: inline-flex; border: 1px solid #111; justify-self: start; }
+.bs-views button { padding: 0.55rem 1rem; border: 0; border-right: 1px solid #d9d7cf; background: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+.bs-views button:last-child { border-right: 0; }
+.bs-views button[aria-selected='true'] { background: #111; color: #fafaf7; }
+.bs-sources { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0.9rem; }
+.bs-sources button { padding: 0.35rem 0.75rem; border: 1px solid #d9d7cf; background: #fff; font: inherit; font-size: 0.85rem; cursor: pointer; }
+.bs-sources button b { font-family: var(--font-plex-mono), monospace; font-size: 0.72rem; margin-left: 0.2rem; color: #ea580c; }
+.bs-sources button[aria-checked='true'] { border-color: #111; background: #111; color: #fafaf7; }
+.bs-stage { position: relative; height: min(560px, 74vh); display: grid; place-items: center; overflow: hidden; }
+.bs-card { position: absolute; width: min(360px, 92%); height: 100%; max-height: 540px; display: flex; flex-direction: column; background: #fff; border: 1px solid #111; box-shadow: 6px 6px 0 #111; touch-action: none; user-select: none; cursor: grab; overflow: hidden; }
+.bs-card:active { cursor: grabbing; }
+.bs-card--next { transform: scale(0.95) translateY(10px); box-shadow: none; opacity: 0.6; pointer-events: none; }
+.bs-card[data-hint='right'] { box-shadow: 6px 6px 0 #ea580c; }
+.bs-card[data-hint='left'] { box-shadow: 6px 6px 0 #666; }
+.bs-card[data-hint='up'] { box-shadow: 6px 6px 0 #16a34a; }
+.bs-art { flex: 1; min-height: 0; background: #f3f2ec; display: grid; place-items: center; overflow: hidden; }
+.bs-art img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.bs-art span { font-size: 4rem; font-weight: 600; color: #bdbab0; }
+.bs-info { padding: 0.9rem 1rem 1rem; display: grid; gap: 0.35rem; border-top: 1px solid #111; }
+.bs-info h3 { margin: 0; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; }
+.bs-info h3 small { font-weight: 400; color: #666; }
+.bs-info p { margin: 0; color: #444; font-size: 0.9rem; }
+.bs-date { font-family: var(--font-plex-mono), monospace; color: #ea580c !important; }
+.bs-genres { font-family: var(--font-plex-mono), monospace; font-size: 0.72rem !important; color: #666 !important; }
+.bs-tag { justify-self: start; font-family: var(--font-plex-mono), monospace; font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.1rem 0.45rem; background: #111; color: #fafaf7; }
+.bs-tag[data-kind='coming_soon'], .bs-tag[data-kind='new_season'] { background: #ea580c; }
+.bs-tag[data-kind='watching'] { background: #b45309; }
+.bs-bar { height: 6px; background: #eee; }
+.bs-bar i { display: block; height: 100%; background: #16a34a; }
+.bs-stamp { position: absolute; top: 18px; padding: 0.3rem 0.7rem; border: 3px solid; font-family: var(--font-plex-mono), monospace; font-weight: 700; font-size: 1rem; text-transform: uppercase; background: rgb(255 255 255 / 0.92); opacity: 0; transition: opacity 120ms; pointer-events: none; }
+.bs-stamp[data-on='true'] { opacity: 1; }
+.bs-stamp--right { left: 16px; color: #ea580c; transform: rotate(-12deg); }
+.bs-stamp--left { right: 16px; color: #555; transform: rotate(12deg); }
+.bs-stamp--up { left: 50%; top: auto; bottom: 120px; transform: translateX(-50%); color: #16a34a; }
+.bs-buttons { display: flex; justify-content: center; gap: 0.6rem; flex-wrap: wrap; margin-top: 1rem; }
+.bs-buttons button { min-width: 120px; min-height: 44px; }
+.bs-sheet { position: fixed; inset: 0; z-index: 200; display: grid; place-items: end center; background: rgb(17 17 17 / 0.45); }
+.bs-sheet__card { width: min(520px, 100%); max-height: 80vh; overflow: auto; background: #fff; border: 1px solid #111; border-bottom: 0; padding: 1.1rem 1.2rem 1.3rem; animation: bs-up 260ms cubic-bezier(.2,.9,.3,1); }
+@keyframes bs-up { from { transform: translateY(40px); opacity: 0; } }
+.bs-sheet__card h3 { margin: 0 0 0.7rem; font-size: 1.1rem; font-weight: 600; }
+.bs-sheet__quick { display: flex; gap: 0.4rem; margin-bottom: 0.6rem; }
+.bs-sheet__card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.bs-sheet__card li label { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.7rem; border: 1px solid #d9d7cf; cursor: pointer; }
+.bs-sheet__card li label:has(input:checked) { border-color: #16a34a; background: rgb(22 163 74 / 0.08); }
+.bs-sheet__card li small { color: #666; }
+.bs-sheet__actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.9rem; }
+.bu-group + .bu-group { margin-top: 1rem; }
+.bu-group header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.4rem; border-bottom: 1px solid #111; margin-bottom: 0.5rem; }
+.bu-group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.bu-group li { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 0.75rem; align-items: center; padding: 0.55rem 0.7rem; border: 1px solid #d9d7cf; background: #fff; }
+.bu-group li img, .bu-ph { width: 44px; height: 60px; object-fit: cover; background: #f3f2ec; display: grid; place-items: center; color: #999; }
+.bu-group li div:nth-child(2) { display: grid; min-width: 0; }
+.bu-group li small { color: #444; }
+.bu-actions { display: flex; gap: 0.35rem; }
+@media (max-width: 640px) { .bu-group li { grid-template-columns: 44px minmax(0, 1fr); } .bu-actions { grid-column: 1 / -1; } }
+@media (prefers-reduced-motion: reduce) { .bs-card { transition: none !important; } .bs-sheet__card { animation: none; } }
+
 .playground-admin :is(button, a, input, select, textarea, summary, tr[tabindex]):focus-visible { outline: 2px solid #ea580c; outline-offset: 2px; }
 .playground-admin button:disabled { cursor: not-allowed; opacity: 0.6; }
 .playground-admin tbody tr:nth-child(even) { background: rgba(17,17,17,0.025); }

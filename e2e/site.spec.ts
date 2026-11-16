@@ -62,6 +62,16 @@ test.describe('Home datasheet', () => {
     await expect(detail).toContainText('Gemini');
   });
 
+  test('protocol legend lights up the links that use it', async ({ page }) => {
+    await page.goto('/#pinout');
+    await page.locator('.sp-sys__protos').getByRole('button', { name: 'RTSP' }).click();
+    const detail = page.locator('#sys-detail');
+    await expect(detail).toContainText('Streaming live video from IP cameras');
+    await expect(detail).toContainText('Edge · Devices');
+    await expect(page.getByRole('button', { name: /^DevOps:/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Deploy · Hosting:/ })).toBeVisible();
+  });
+
   test('related documents open About, Binge and Travel', async ({ page }) => {
     await page.goto('/#documents');
     const docs = page.locator('.rd');
@@ -210,6 +220,13 @@ test.describe('API guards', () => {
     expect((await request.get('/api/binge/suggestions')).status()).toBe(401);
   });
 
+  test('binge sync and updates need the secret or an admin session', async ({ request }) => {
+    expect((await request.post('/api/binge/sync', { data: {} })).status()).toBe(401);
+    expect((await request.post('/api/binge/sync', { data: {}, headers: { authorization: 'Bearer wrong-secret-value-123' } })).status()).toBe(401);
+    expect((await request.get('/api/binge/updates')).status()).toBe(401);
+    expect((await request.patch('/api/binge/updates', { data: { id: '0'.repeat(24), action: 'apply' } })).status()).toBe(401);
+  });
+
   test('travel suggestion needs a place', async ({ request }) => {
     const res = await request.post('/api/travel/suggestions', { data: { place: '' } });
     expect(res.status()).toBe(400);
@@ -228,5 +245,59 @@ test.describe('API guards', () => {
     });
     expect(response.status()).toBe(200);
     expect(await response.json()).toEqual({ authenticated: false });
+  });
+});
+
+// The playground with a mocked admin session: nothing reaches the real database.
+test.describe('Playground · Binge swipe', () => {
+  const series = { id: 'a'.repeat(24), kind: 'series', source: 'tvmaze', sourceId: '1', title: 'Test Show', year: 2020, image: null, genres: ['Drama'], shelf: '', status: 'watching', recommended: false, seasons: [1, 2, 3].map((n) => ({ number: n, episodes: 8, seenEpisodes: [], complete: false })), note: '', addedAt: '', updatedAt: '' };
+  const film = { ...series, id: 'b'.repeat(24), kind: 'film', source: 'wikidata', title: 'Test Film', status: 'watchlist', seasons: [] };
+  let patches: Record<string, unknown>[] = [];
+
+  test.beforeEach(async ({ page }) => {
+    patches = [];
+    await page.route('**/api/playground/session', (r) => r.fulfill({ json: { authenticated: true } }));
+    await page.route('**/api/travel/suggestions', (r) => r.fulfill({ json: [] }));
+    await page.route('**/api/binge/suggestions', (r) => r.fulfill({ json: [] }));
+    await page.route('**/api/contact-submissions', (r) => r.fulfill({ json: [] }));
+    await page.route('**/api/binge/updates*', (r) => r.fulfill({ json: [] }));
+    await page.route('**/api/binge', (r) => {
+      if (r.request().method() === 'PATCH') { patches.push(r.request().postDataJSON()); return r.fulfill({ json: { ok: true } }); }
+      return r.fulfill({ json: [series, film] });
+    });
+    await page.goto('/playground');
+    await page.locator('.pg-side').getByRole('button', { name: 'Binge' }).click();
+  });
+
+  test('swipe up marks every season seen, and undo restores it', async ({ page }) => {
+    const card = page.locator('.bs-card:not(.bs-card--next)');
+    await expect(card).toContainText('Test Show');
+    await card.scrollIntoViewIfNeeded();
+    const box = (await card.boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2 - 200, { steps: 8 });
+    await page.mouse.up();
+    await expect.poll(() => patches.length).toBe(1);
+    expect(patches[0]).toMatchObject({ id: series.id, status: 'seen' });
+    expect((patches[0].seasons as { complete: boolean }[]).every((s) => s.complete)).toBe(true);
+    await expect(card).toContainText('Test Film');
+    await page.getByRole('button', { name: /Undo/ }).click();
+    await expect.poll(() => patches.length).toBe(2);
+    expect(patches[1]).toMatchObject({ id: series.id, status: 'watching' });
+  });
+
+  test('right opens the season checklist; films are seen or not seen', async ({ page }) => {
+    await page.getByRole('button', { name: /Pick seasons/ }).click();
+    const sheet = page.getByRole('dialog', { name: /Seasons of Test Show/ });
+    await sheet.getByLabel(/Season 1/).check();
+    await sheet.getByLabel(/Season 2/).check();
+    await sheet.getByRole('button', { name: /Save 2 seasons/ }).click();
+    await expect.poll(() => patches.length).toBe(1);
+    expect((patches[0].seasons as { complete: boolean }[]).map((s) => s.complete)).toEqual([true, true, false]);
+    await expect(page.locator('.bs-buttons')).toContainText('Not seen');
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(() => patches.length).toBe(2);
+    expect(patches[1]).toMatchObject({ id: film.id, status: 'seen' });
   });
 });

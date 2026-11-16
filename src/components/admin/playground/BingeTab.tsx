@@ -1,5 +1,6 @@
 "use client";
 
+import { BingeSwipe, BingeUpdates } from "./BingeSwipe";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import type { BingeSeason, BingeStatus, BingeSuggestion, BingeTitle, SearchHit } from "@/utils/binge";
 import { AdminRequestError, EmptyState, Grid, Panel, Pill, adminFetch, buttonStyle, colors, dangerButtonStyle, fmtAgo, inputStyle, primaryButtonStyle, Segmented } from "./ui";
@@ -114,6 +115,7 @@ export function BingeTab({ refreshKey, onUnauthorized }: { refreshKey: number; o
     const [kindFilter, setKindFilter] = useState<"all" | Kind>("all");
     const [find, setFind] = useState("");
     const [open, setOpen] = useState("");
+    const [view, setView] = useState<"swipe" | "updates" | "library">("swipe");
 
     const fail = (err: unknown) => {
         if (err instanceof AdminRequestError && err.unauthorized) onUnauthorized();
@@ -183,8 +185,34 @@ export function BingeTab({ refreshKey, onUnauthorized }: { refreshKey: number; o
         (!find || i.title.toLowerCase().includes(find.toLowerCase())));
     const newSuggestions = suggestions.filter((s) => s.status === "new");
 
+    const views = (
+        <div className="bs-views" role="tablist" aria-label="Binge views">
+            {([["swipe", "Swipe"], ["updates", "Updates"], ["library", "Library"]] as const).map(([id, label]) => (
+                <button key={id} type="button" role="tab" aria-selected={view === id} onClick={() => setView(id)}>{label}</button>
+            ))}
+        </div>
+    );
+
+    if (view === "swipe") {
+        return (
+            <div style={{ display: "grid", gap: "1rem" }}>
+                {views}
+                {items ? <BingeSwipe items={items} onChanged={() => setTick((t) => t + 1)} onUnauthorized={onUnauthorized} /> : <p style={{ color: colors.ink3 }}>Loading…</p>}
+            </div>
+        );
+    }
+    if (view === "updates") {
+        return (
+            <div style={{ display: "grid", gap: "1rem" }}>
+                {views}
+                <BingeUpdates onChanged={() => setTick((t) => t + 1)} onUnauthorized={onUnauthorized} />
+            </div>
+        );
+    }
+
     return (
         <div style={{ display: "grid", gap: "1rem" }}>
+            {views}
             {error && <p role="alert" style={{ margin: 0, color: "#b91c1c", fontWeight: 700 }}>{error}</p>}
 
             <Grid min={380}>

@@ -1,0 +1,58 @@
+name: Binge weekly sync
+
+# Every Monday, check the series on the Binge list for new seasons, upcoming
+# episodes and missing data. Findings land in the playground's Binge → Updates
+# list; nothing on the list changes until it's applied there.
+on:
+  schedule:
+    - cron: '0 13 * * 1' # Mondays 13:00 UTC (8–9am in Georgia)
+  workflow_dispatch:
+    inputs:
+      batch:
+        description: 'Titles per request'
+        default: '40'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: binge-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SITE: https://www.trupalpatel.com
+      BINGE_SYNC_SECRET: ${{ secrets.BINGE_SYNC_SECRET }}
+      BATCH: ${{ github.event.inputs.batch || '40' }}
+    steps:
+      - name: Check the secret is set
+        run: |
+          if [ -z "$BINGE_SYNC_SECRET" ]; then
+            echo "::error::Add BINGE_SYNC_SECRET in Settings → Secrets and variables → Actions (same value as on Vercel)."
+            exit 1
+          fi
+
+      - name: Sync in batches until nothing is due
+        run: |
+          set -euo pipefail
+          total_checked=0; total_found=0
+          for round in $(seq 1 10); do
+            res=$(curl -sS --fail-with-body -X POST "$SITE/api/binge/sync" \
+              -H "Authorization: Bearer $BINGE_SYNC_SECRET" \
+              -H "Content-Type: application/json" \
+              -d "{\"limit\": $BATCH}" --max-time 290)
+            echo "Round $round: $res"
+            checked=$(echo "$res" | jq -r '.checked')
+            found=$(echo "$res" | jq -r '.found')
+            remaining=$(echo "$res" | jq -r '.remaining')
+            errors=$(echo "$res" | jq -r '.errors | length')
+            total_checked=$((total_checked + checked)); total_found=$((total_found + found))
+            if [ "$errors" -gt 0 ]; then echo "::warning::$(echo "$res" | jq -r '.errors | join("; ")')"; fi
+            if [ "$remaining" -eq 0 ] || [ "$checked" -eq 0 ]; then break; fi
+          done
+          echo "### Binge sync" >> "$GITHUB_STEP_SUMMARY"
+          echo "Checked **$total_checked** series, found **$total_found** new updates." >> "$GITHUB_STEP_SUMMARY"
+          echo "Review them in the playground → Binge → Updates." >> "$GITHUB_STEP_SUMMARY"
