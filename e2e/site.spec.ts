@@ -69,7 +69,7 @@ test.describe('Home datasheet', () => {
     await expect(detail).toContainText('Streaming live video from IP cameras');
     await expect(detail).toContainText('Edge · Devices');
     await expect(page.getByRole('button', { name: /^DevOps:/ })).toBeVisible();
-    await expect(page.getByRole('button', { name: /^Deploy · Hosting:/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Cloud · Deploy:/ })).toBeVisible();
   });
 
   test('related documents open About, Binge and Travel', async ({ page }) => {
