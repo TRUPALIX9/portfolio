@@ -1,6 +1,9 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import SectionHead, { PART_NO } from '@/components/spec/SectionHead';
+
+export const metadata: Metadata = { title: 'Page not found · Trupal Patel', robots: { index: false } };
 
 /** 404 as a datasheet error page: the pin you asked for isn't connected. */
 export default function NotFound() {

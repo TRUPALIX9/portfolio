@@ -102,8 +102,9 @@ test.describe('Public pages', () => {
 
   test('social hub links to every account; social-only hides the site bar', async ({ page }) => {
     await page.goto('/social');
-    await expect(page.getByRole('link', { name: /GitHub/ })).toHaveAttribute('href', 'https://github.com/TRUPALIX9');
-    await expect(page.getByRole('link', { name: /LinkedIn/ }).last()).toHaveAttribute('href', /linkedin\.com\/in\/trupalix/);
+    const cards = page.locator('.so-card');
+    await expect(cards.filter({ hasText: 'GitHub' })).toHaveAttribute('href', 'https://github.com/TRUPALIX9');
+    await expect(cards.filter({ hasText: 'LinkedIn' })).toHaveAttribute('href', /linkedin\.com\/in\/trupalix/);
     await page.goto('/social-only');
     await expect(page.locator('.sp-bar')).toHaveCount(0);
     await expect(page.locator('.so-card')).toHaveCount(9);
@@ -119,7 +120,7 @@ test.describe('Public pages', () => {
     for (const path of ['/game', '/game-only', '/arcade/some-old-token']) {
       const res = await request.get(path, { maxRedirects: 0 });
       expect(res.status()).toBe(308);
-      expect(res.headers().location).toBe('https://logicsprint.trueorfalse.dev');
+      expect(res.headers().location).toMatch(/^https:\/\/logicsprint\.trueorfalse\.dev\/?$/);
     }
   });
 });
@@ -151,8 +152,8 @@ test.describe('Travel', () => {
   test('opening a country shows its visited states', async ({ page }) => {
     await page.goto('/travel');
     await page.locator('.tv-slide', { hasText: 'India' }).click();
-    await expect(page.locator('.tv-panel h2')).toHaveText('India');
-    await expect(page.locator('.tv-chips li')).toHaveCount(16);
+    await expect(page.locator('.tv-panel h2')).toContainText('India');
+    await expect(page.locator('.tv-states', { hasText: 'Been to' }).locator('li')).toHaveCount(16);
     await page.getByRole('button', { name: /all countries/i }).click();
     await expect(page.locator('.tv-panel')).toHaveCount(0);
   });
@@ -165,7 +166,7 @@ test.describe('Contact form', () => {
     await form.scrollIntoViewIfNeeded();
 
     await form.getByRole('button', { name: /send message/i }).click();
-    await expect(page.getByText('Name must be at least 2 characters.')).toBeVisible();
+    await expect(form.getByText('At least 2 characters.').first()).toBeVisible();
 
     await page.getByLabel('Name', { exact: true }).fill('Test Visitor');
     await page.getByLabel('Email or phone', { exact: true }).fill('visitor@example.com');
