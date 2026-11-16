@@ -244,7 +244,7 @@ export default async function LogicSprintPage() {
                             <p className="ls-muted" style={{ maxWidth: '46ch' }}>Get it free on Google Play for Android and on the App Store for iPhone and iPad.</p>
                         </div>
                         <div>
-                            <StoreButtons share />
+                            <StoreButtons copy />
                             <p className="ls-label" style={{ marginTop: '0.75rem' }}>Free · contains ads · no login</p>
                             <ShareLink />
                         </div>

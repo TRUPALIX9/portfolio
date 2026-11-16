@@ -3,16 +3,35 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { geoGraticule, geoMercator, geoNaturalEarth1, geoPath, type GeoPermissibleObjects } from 'd3-geo';
-import { COUNTRIES, type Country } from '@/data/travel';
+import { COUNTRIES, NOT_A_STATE, type Country } from '@/data/travel';
+import { EXPLORE } from '@/data/explore';
 import { TOTAL_REGIONS, useTravelGeo, type TravelGeo } from './geo';
 import { INK, LIT, countryFeature, land, landFit, pretty, rand, regionsOf, shapeOf } from './lab/shared';
 import TravelSuggest from './TravelSuggest';
+import Wishlist from './Wishlist';
+import Explore from './Explore';
 import './travel.css';
 
 const W = 1000;
 
 /** Bright colours for the states and provinces that pop out of a country. */
-const POP = ['#ff6b35', '#3a86ff', '#ef233c', '#8338ec', '#ffb703', '#06d6a0', '#ff4d8d', '#118ab2', '#f77f00', '#7bc043', '#9b5de5', '#00bbf9', '#e76f51', '#2a9d8f'];
+/** Visited states use shades of their country's colour, so the legend reads "this colour = been there". */
+const STEPS = [0, 0.22, 0.38, 0.12, 0.3, 0.46];
+function shade(hex: string, i: number) {
+    const t = STEPS[i % STEPS.length];
+    const n = parseInt(hex.slice(1), 16);
+    const mix = (c: number) => Math.round(c + (255 - c) * t);
+    return `rgb(${mix(n >> 16)}, ${mix((n >> 8) & 255)}, ${mix(n & 255)})`;
+}
+
+const FLAG: Record<string, string> = { India: 'IN', 'United States': 'US', Canada: 'CA', Nepal: 'NP', Australia: 'AU' };
+const flag = (label: string) => String.fromCodePoint(...[...(FLAG[label] ?? '')].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65));
+
+/** US territories in the states file that are not among the 50 states. */
+const TERRITORIES = ['Puerto Rico', 'United States Virgin Islands', 'Guam', 'Commonwealth of the Northern Mariana Islands', 'American Samoa'];
+
+/** States visited, not counting places like Washington, D.C. that are not states. */
+const regionCount = (c: Country) => c.regions?.visited.filter((r) => !NOT_A_STATE.includes(r)).length ?? 0;
 
 function Sticker({ f, size, color, outline = 8 }: { f: GeoPermissibleObjects; size: number; color: string; outline?: number }) {
     const pad = outline + 3;
@@ -39,7 +58,7 @@ function useWide() {
 
 type Mode = { kind: 'world'; focus: number } | { kind: 'country'; label: string };
 
-function Atlas({ geo, mode, onPick, wide, H, px }: { geo: TravelGeo; mode: Mode; onPick: (label: string) => void; wide: boolean; H: number; px: number }) {
+function Atlas({ geo, mode, onPick, wide, H, px, hot, onHot }: { geo: TravelGeo; mode: Mode; onPick: (label: string) => void; wide: boolean; H: number; px: number; hot: string | null; onHot: (name: string | null) => void }) {
     // On wide screens leave the bottom for the carousel; on narrow ones, centre the world in the band above it.
     const proj = useMemo(() => geoNaturalEarth1().fitExtent(wide ? [[W * 0.24, 28], [W - 8, H * 0.75]] : [[16, H * 0.24], [W - 16, H * 0.66]], landFit(geo)), [geo, H, wide]);
     const path = useMemo(() => geoPath(proj), [proj]);
@@ -146,8 +165,15 @@ function Atlas({ geo, mode, onPick, wide, H, px }: { geo: TravelGeo; mode: Mode;
                                 const dx = (rx - center[0]) * 0.2, dy = (ry - center[1]) * 0.2 - 8 * s;
                                 const d = path(r) ?? '';
                                 return (
-                                    <g key={r.properties.name} className="tv-pop" style={{ transform: out ? `translate(${dx}px, ${dy}px) scale(1.08)` : 'none', transitionDelay: `${i * 45}ms` }}>
-                                        <path d={d} fill={POP[i % POP.length]} className="tv-pop__fill" />
+                                    <g
+                                        key={r.properties.name}
+                                        className="tv-pop"
+                                        data-hot={String(hot === r.properties.name)}
+                                        style={{ transform: out ? `translate(${dx}px, ${dy}px) scale(${hot === r.properties.name ? 1.18 : 1.08})` : 'none', transitionDelay: hot ? '0ms' : `${i * 45}ms` }}
+                                        onMouseEnter={() => onHot(r.properties.name)}
+                                        onMouseLeave={() => onHot(null)}
+                                    >
+                                        <path d={d} fill={shade(INK[country.label], i)} className="tv-pop__fill" />
                                         <path d={d} fill="url(#tvGloss)" className="tv-country__gloss" />
                                         <title>{pretty(r.properties.name)}</title>
                                     </g>
@@ -178,22 +204,79 @@ function Atlas({ geo, mode, onPick, wide, H, px }: { geo: TravelGeo; mode: Mode;
     );
 }
 
-function Panel({ country, geo, onBack, onStep }: { country: Country; geo: TravelGeo; onBack: () => void; onStep: (d: number) => void }) {
-    const visited = regionsOf(geo, country.label).filter((r) => LIT.has(r.properties.name));
+function Panel({ country, geo, onBack, onStep, hot, onHot, onExplore }: {
+    country: Country; geo: TravelGeo; onBack: () => void; onStep: (d: number) => void;
+    hot: string | null; onHot: (name: string | null) => void; onExplore: (label: string) => void;
+}) {
+    const all = regionsOf(geo, country.label);
+    const visited = all.filter((r) => LIT.has(r.properties.name));
+    const togo = all.filter((r) => !LIT.has(r.properties.name) && !NOT_A_STATE.includes(r.properties.name) && !TERRITORIES.includes(r.properties.name)).map((r) => pretty(r.properties.name)).sort();
+    const extra = visited.filter((r) => NOT_A_STATE.includes(r.properties.name));
+    const done = regionCount(country);
+    const total = country.regions?.total ?? 1;
+    const pct = country.regions ? Math.round((done / total) * 100) : 100;
+    const someday = EXPLORE.filter((s) => s.country === country.label).length;
+    const ink = INK[country.label];
     return (
-        <aside className="tv-panel" style={{ ['--ink' as string]: INK[country.label] }} aria-live="polite">
-            <button type="button" className="tv-panel__back" onClick={onBack}>← All countries</button>
-            <h2>{country.label}</h2>
-            <p className="tv-panel__count">{country.regions ? <><b>{country.regions.visited.length}</b> of {country.regions.total} {country.regions.noun}</> : 'The whole country'}</p>
-            {visited.length > 0 && (
-                <ul className="tv-chips">
-                    {visited.map((r, i) => <li key={r.properties.name} style={{ ['--c' as string]: POP[i % POP.length], animationDelay: `${600 + i * 40}ms` }}>{pretty(r.properties.name)}</li>)}
+        <aside className="tv-panel" style={{ ['--ink' as string]: ink }} aria-live="polite">
+            <div className="tv-panel__top">
+                <button type="button" className="tv-panel__back" onClick={onBack}>← All countries</button>
+                <div className="tv-panel__nav">
+                    <button type="button" onClick={() => onStep(-1)} aria-label="Previous country">←</button>
+                    <button type="button" onClick={() => onStep(1)} aria-label="Next country">→</button>
+                </div>
+            </div>
+            <h2><span className="tv-panel__flag" aria-hidden="true">{flag(country.label)}</span>{country.label}</h2>
+
+            <div className="tv-stat">
+                <p><b>{country.regions ? done : '✓'}</b>{country.regions ? <> of {total} {country.regions.noun}</> : ' Been to the whole country'}</p>
+                {country.regions && <span className="tv-stat__pct">{pct}%</span>}
+                <div className="tv-stat__bar" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={country.regions ? done : total} aria-label="Regions visited"><i style={{ width: `${pct}%` }} /></div>
+            </div>
+
+            {country.regions && (
+                <ul className="tv-legend" aria-label="Map key">
+                    <li><i style={{ background: `linear-gradient(90deg, ${ink}, ${shade(ink, 5)})` }} />Been there</li>
+                    <li><i className="tv-legend__no" />Not yet</li>
                 </ul>
             )}
-            <div className="tv-panel__nav">
-                <button type="button" onClick={() => onStep(-1)}>← Previous</button>
-                <button type="button" onClick={() => onStep(1)}>Next →</button>
-            </div>
+
+            {visited.length > 0 && (
+                <section className="tv-states">
+                    <h3>Been to <span>{visited.length}</span></h3>
+                    <ul>
+                        {visited.map((r, i) => (
+                            <li
+                                key={r.properties.name}
+                                data-hot={String(hot === r.properties.name)}
+                                style={{ ['--c' as string]: shade(ink, i), animationDelay: `${500 + i * 30}ms` }}
+                                onMouseEnter={() => onHot(r.properties.name)}
+                                onMouseLeave={() => onHot(null)}
+                            >
+                                <i aria-hidden="true" />{pretty(r.properties.name)}{extra.includes(r) && <small> not a state</small>}
+                            </li>
+                        ))}
+                    </ul>
+                </section>
+            )}
+            {country.cities && (
+                <section className="tv-states">
+                    <h3>Cities <span>{country.cities.length}</span></h3>
+                    <ul>{country.cities.map((c) => <li key={c} style={{ ['--c' as string]: ink }}><i aria-hidden="true" />{c}</li>)}</ul>
+                </section>
+            )}
+            {togo.length > 0 && (
+                <details className="tv-states tv-states--togo">
+                    <summary>Still to go <span>{togo.length}</span></summary>
+                    <ul>{togo.map((n) => <li key={n}><i aria-hidden="true" />{n}</li>)}</ul>
+                </details>
+            )}
+
+            {someday > 0 && (
+                <button type="button" className="tv-panel__explore" onClick={() => onExplore(country.label)}>
+                    <b>{someday}</b> places on my someday list here <span aria-hidden="true">→</span>
+                </button>
+            )}
         </aside>
     );
 }
@@ -217,6 +300,7 @@ export default function StickerTravel() {
     const trackRef = useRef<HTMLDivElement>(null);
     const [focus, setFocus] = useState(0);
     const [open, setOpen] = useState<string | null>(null);
+    const [hot, setHot] = useState<string | null>(null);
     const n = COUNTRIES.length;
 
     // The carousel scrolls sideways on its own; the card nearest the middle is the one in focus.
@@ -250,12 +334,27 @@ export default function StickerTravel() {
         });
     }, [n]);
 
+    // Once the map has scrolled away, the floating header gets a solid strip so it doesn't sit on top of the list.
+    const [solid, setSolid] = useState(false);
+    useEffect(() => {
+        const on = () => setSolid(window.scrollY > window.innerHeight * 0.85);
+        on();
+        window.addEventListener('scroll', on, { passive: true });
+        return () => window.removeEventListener('scroll', on);
+    }, []);
+
+    /** Close the country and jump down to the someday list, filtered to it. */
+    const goExplore = useCallback((label: string) => {
+        setOpen(null);
+        requestAnimationFrame(() => window.dispatchEvent(new CustomEvent('tv-explore', { detail: { country: label } })));
+    }, []);
+
     const mode: Mode = open ? { kind: 'country', label: open } : { kind: 'world', focus };
     const openCountry = COUNTRIES.find((c) => c.label === open);
 
     return (
         <main className="tv" data-open={String(!!open)}>
-            <header className="tv-top">
+            <header className="tv-top" data-solid={String(solid)}>
                 <Link href="/about" className="tv-back"><img src="/logo-penrose.png" alt="" width={24} height={24} />Trupal Patel</Link>
                 <span className="tv-top__count">{n} countries · {TOTAL_REGIONS} regions</span>
             </header>
@@ -268,7 +367,7 @@ export default function StickerTravel() {
                         <p className="tv-scroll" aria-hidden="true">swipe the stickers →</p>
                     </div>
 
-                    <div className="tv-mapwrap" ref={mapRef}>{geo ? <Atlas geo={geo} mode={mode} onPick={setOpen} wide={wide} H={mapH} px={px} /> : <p className="tv-loading">Unfolding the map…</p>}</div>
+                    <div className="tv-mapwrap" ref={mapRef}>{geo ? <Atlas geo={geo} mode={mode} onPick={setOpen} wide={wide} H={mapH} px={px} hot={hot} onHot={setHot} /> : <p className="tv-loading">Unfolding the map…</p>}</div>
 
                     <div className="tv-carousel" data-hide={String(!!open)} aria-label="Countries">
                         <div className="tv-track" ref={trackRef} onScroll={onTrackScroll}>
@@ -287,7 +386,7 @@ export default function StickerTravel() {
                                     >
                                         <span className="tv-slide__art">{shape && <Sticker f={shape} size={92} color={INK[c.label]} outline={6} />}</span>
                                         <span className="tv-slide__name">{c.label}</span>
-                                        <span className="tv-slide__meta">{c.regions ? `${c.regions.visited.length} / ${c.regions.total} ${c.regions.noun.split(' ')[0]}` : 'whole country'}</span>
+                                        <span className="tv-slide__meta">{c.regions ? `${regionCount(c)} / ${c.regions.total} ${c.regions.noun.split(' ')[0]}` : 'whole country'}</span>
                                         <span className="tv-slide__go">Open →</span>
                                     </button>
                                 );
@@ -295,11 +394,14 @@ export default function StickerTravel() {
                         </div>
                     </div>
 
-                    {openCountry && geo && <Panel key={openCountry.label} country={openCountry} geo={geo} onBack={() => setOpen(null)} onStep={step} />}
+                    {openCountry && geo && <Panel key={openCountry.label} country={openCountry} geo={geo} onBack={() => setOpen(null)} onStep={step} hot={hot} onHot={setHot} onExplore={goExplore} />}
                 </div>
             </section>
 
+            <Explore />
+
             <section className="tv-end">
+                <Wishlist />
                 <TravelSuggest geo={geo} />
             </section>
         </main>

@@ -7,6 +7,7 @@ import { AcquisitionTab, ActivityTab, ContentTab, IntentTab, OverviewTab, PageVi
 import { DataTab } from "@/components/admin/playground/DataTab";
 import { InboxTab } from "@/components/admin/playground/InboxTab";
 import { BingeTab } from "@/components/admin/playground/BingeTab";
+import { ReviewTab } from "@/components/admin/playground/ReviewTab";
 import { VisitorsTab } from "@/components/admin/playground/VisitorsTab";
 import {
     Segmented,
@@ -22,16 +23,17 @@ import {
 
 // Each tab answers one question; `filters` says which of the global filters apply to it.
 const TABS = [
-    { id: "overview", label: "Overview", question: "How is the site doing? Headline numbers vs. the previous period, the trend, and who the audience is.", filters: true },
-    { id: "activity", label: "Activity", question: "What did each visitor do? One card per device visit, with every page and click in order.", filters: true },
-    { id: "pageviews", label: "Page views", question: "What was viewed, and by whom? Every page view, newest first.", filters: true },
-    { id: "visitors", label: "Visitors", question: "Who are they? One row per device, with a full profile and history.", filters: true },
-    { id: "sources", label: "Sources", question: "Where do visitors come from, and which sources bring engaged ones?", filters: true },
-    { id: "content", label: "Content", question: "What do they read? Time, scroll and exits per page, and how far down the home page they get.", filters: true },
-    { id: "intent", label: "Intent", question: "Who is interested? The path from visit to message, and the most promising visits.", filters: true },
-    { id: "inbox", label: "Inbox", question: "Messages sent through the contact form.", filters: false },
-    { id: "binge", label: "Binge", question: "What you have watched: search series and films, tick seasons and episodes, star recommendations, and read visitor suggestions.", filters: false },
-    { id: "settings", label: "Settings", question: "Keep your own devices out of the numbers, block bots, share tagged links, and reset data.", filters: false },
+    { id: "review", label: "Review queue", group: "Review", question: "Everything visitors sent in: travel ideas, Binge suggestions and messages. Approve, dismiss or undo, one by one or in bulk.", filters: false },
+    { id: "overview", group: "Analytics", label: "Overview", question: "How is the site doing? Headline numbers vs. the previous period, the trend, and who the audience is.", filters: true },
+    { id: "activity", group: "Analytics", label: "Activity", question: "What did each visitor do? One card per device visit, with every page and click in order.", filters: true },
+    { id: "pageviews", group: "Analytics", label: "Page views", question: "What was viewed, and by whom? Every page view, newest first.", filters: true },
+    { id: "visitors", group: "Analytics", label: "Visitors", question: "Who are they? One row per device, with a full profile and history.", filters: true },
+    { id: "sources", group: "Analytics", label: "Sources", question: "Where do visitors come from, and which sources bring engaged ones?", filters: true },
+    { id: "content", group: "Analytics", label: "Content", question: "What do they read? Time, scroll and exits per page, and how far down the home page they get.", filters: true },
+    { id: "intent", group: "Analytics", label: "Intent", question: "Who is interested? The path from visit to message, and the most promising visits.", filters: true },
+    { id: "inbox", group: "Review", label: "Inbox", question: "Messages sent through the contact form.", filters: false },
+    { id: "binge", group: "Manage", label: "Binge", question: "What you have watched: search series and films, tick seasons and episodes, star recommendations, and read visitor suggestions.", filters: false },
+    { id: "settings", group: "Manage", label: "Settings", question: "Keep your own devices out of the numbers, block bots, share tagged links, and reset data.", filters: false },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -83,7 +85,8 @@ export default function Playground() {
     const [authError, setAuthError] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const [tab, setTab] = useState<TabId>("overview");
+    const [tab, setTab] = useState<TabId>("review");
+    const [waiting, setWaiting] = useState(0);
     const [filters, setFilters] = useState<ReportFilters>({ range: "7d", traffic: "human", device: "all" });
     const [refreshKey, setRefreshKey] = useState(0);
     const [selectedVisitor, setSelectedVisitor] = useState<string | null>(null);
@@ -162,31 +165,23 @@ export default function Playground() {
 
     if (!sessionChecked) {
         return (
-            <div style={{ minHeight: "100dvh", display: "grid", placeItems: "center", padding: "2rem", background: "radial-gradient(circle at top, #1f2937 0%, #020617 45%, #000 100%)", color: "#fff" }}>
-                <p style={{ margin: 0, letterSpacing: "0.18em", textTransform: "uppercase", color: colors.ink3, fontWeight: 800 }}>Checking admin session…</p>
+            <div className="pg-shell" style={{ minHeight: "100dvh", display: "grid", placeItems: "center", padding: "2rem" }}>
+                <p className="pg-mono" style={{ margin: 0, letterSpacing: "0.18em", textTransform: "uppercase", color: colors.ink3 }}>Checking admin session…</p>
             </div>
         );
     }
 
     if (!authenticated) {
         return (
-            <div className="playground-admin" style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "6.5rem 1rem 2rem", background: "radial-gradient(circle at top, #1f2937 0%, #020617 45%, #000 100%)" }}>
+            <div className="playground-admin pg-shell pg-login">
                 <style>{focusVisibleCss}</style>
                 <TopBar authenticated={false} onLock={() => undefined} />
-                <form
-                    onSubmit={attemptLogin}
-                    data-testid="playground-login-form"
-                    style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "1.25rem", padding: "2rem", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "24px", background: "rgba(15, 23, 42, 0.9)", color: "#fff", boxShadow: "0 24px 80px rgba(0,0,0,0.35)" }}
-                >
-                    <div>
-                        <p style={{ margin: 0, fontSize: "0.75rem", letterSpacing: "0.24em", textTransform: "uppercase", color: "#fca5a5" }}>Secure Admin</p>
-                        <h1 style={{ margin: "0.5rem 0 0", fontSize: "2rem", fontWeight: 900 }}>Playground</h1>
-                    </div>
-                    <p style={{ margin: 0, color: colors.ink2, lineHeight: 1.6 }}>
-                        Sign in with your management key to see who visits the site, where they come from, and what they do. Signing in also marks this browser as yours, so your own visits stay out of the numbers.
-                    </p>
-                    <label style={{ display: "flex", flexDirection: "column", gap: "0.5rem", fontWeight: 700 }}>
-                        KEY
+                <form onSubmit={attemptLogin} data-testid="playground-login-form" className="pg-login__card">
+                    <div className="pg-login__strip"><span>PLAYGROUND · CONTROL PANEL</span><span>LOCKED</span></div>
+                    <h1>Playground</h1>
+                    <p>Sign in with your management key to review what visitors sent, see who visits, and manage Binge. Signing in also marks this browser as yours, so your own visits stay out of the numbers.</p>
+                    <label>
+                        <span className="pg-mono">KEY</span>
                         <input
                             type="password"
                             autoComplete="current-password"
@@ -195,19 +190,10 @@ export default function Playground() {
                             onChange={(event) => setKey(event.target.value)}
                             placeholder="Enter admin key"
                             data-testid="playground-key-input"
-                            style={{ padding: "0.9rem 1rem", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.2)", background: "#020617", color: "#fff" }}
                         />
                     </label>
-                    {authError && (
-                        <p data-testid="playground-auth-error" role="alert" style={{ margin: 0, color: "#fca5a5", fontSize: "0.9rem" }}>{authError}</p>
-                    )}
-                    <button
-                        type="submit"
-                        disabled={loading || !key.trim()}
-                        style={{ padding: "1rem", borderRadius: "14px", border: "none", background: loading ? "#475569" : "#b91c1c", color: "#fff", fontWeight: 900, cursor: loading ? "wait" : "pointer" }}
-                    >
-                        {loading ? "VALIDATING..." : "ACCESS PLAYGROUND"}
-                    </button>
+                    {authError && <p data-testid="playground-auth-error" role="alert" className="pg-login__err">{authError}</p>}
+                    <button type="submit" disabled={loading || !key.trim()}>{loading ? "Checking…" : "Unlock"}</button>
                 </form>
             </div>
         );
@@ -217,45 +203,41 @@ export default function Playground() {
     const activeTab = TABS.find((t) => t.id === tab) ?? TABS[0];
 
     return (
-        <div className="playground-admin" style={{ minHeight: "100vh", background: "radial-gradient(circle at top, rgba(14,165,233,0.14) 0%, rgba(2,6,23,0.96) 24%, #020617 56%, #000 100%)", padding: "6rem 1rem 4rem" }}>
+        <div className="playground-admin pg-shell">
             <style>{focusVisibleCss}</style>
             <TopBar authenticated onLock={() => void lock()} />
-            <div style={{ maxWidth: "1340px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "1rem", minWidth: 0 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: "1rem", flexWrap: "wrap" }}>
-                    <div>
-                        <p style={{ margin: 0, fontSize: "0.72rem", letterSpacing: "0.2em", textTransform: "uppercase", color: colors.accent, fontWeight: 800 }}>Admin dashboard</p>
-                        <h1 style={{ margin: "0.3rem 0 0", fontSize: "clamp(1.5rem, 5vw, 2.1rem)", fontWeight: 900, color: colors.ink1 }}>Site analytics</h1>
-                    </div>
-                    <button type="button" onClick={() => setRefreshKey((k) => k + 1)} style={primaryButtonStyle}>Refresh</button>
-                </div>
-
-                <nav aria-label="Dashboard sections" style={{ display: "flex", gap: "0.35rem", overflowX: "auto", paddingBottom: "0.25rem", borderBottom: `1px solid ${colors.line}` }}>
-                    {TABS.map((t) => (
-                        <button
-                            key={t.id}
-                            type="button"
-                            aria-current={tab === t.id ? "page" : undefined}
-                            onClick={() => {
-                                setTab(t.id);
-                                if (t.id !== "visitors") setSelectedVisitor(null);
-                            }}
-                            style={{
-                                padding: "0.65rem 0.95rem",
-                                border: "none",
-                                borderBottom: `2px solid ${tab === t.id ? colors.accent : "transparent"}`,
-                                background: "transparent",
-                                color: tab === t.id ? colors.ink1 : colors.ink3,
-                                fontWeight: 800,
-                                cursor: "pointer",
-                                whiteSpace: "nowrap",
-                            }}
-                        >
-                            {t.label}
-                        </button>
+            <div className="pg-layout">
+                <nav aria-label="Dashboard sections" className="pg-side">
+                    {(["Review", "Analytics", "Manage"] as const).map((g) => (
+                        <div key={g} className="pg-side__group">
+                            <p className="pg-mono">{g}</p>
+                            {TABS.filter((t) => t.group === g).map((t) => (
+                                <button
+                                    key={t.id}
+                                    type="button"
+                                    aria-current={tab === t.id ? "page" : undefined}
+                                    onClick={() => {
+                                        setTab(t.id);
+                                        if (t.id !== "visitors") setSelectedVisitor(null);
+                                    }}
+                                >
+                                    {t.label}
+                                    {t.id === "review" && waiting > 0 && <b>{waiting}</b>}
+                                </button>
+                            ))}
+                        </div>
                     ))}
                 </nav>
 
-                <p style={{ margin: 0, color: colors.ink2, lineHeight: 1.55 }}>{activeTab.question}</p>
+                <main className="pg-main">
+                    <header className="pg-head">
+                        <div>
+                            <p className="pg-mono pg-head__kicker">{activeTab.group} · {activeTab.label}</p>
+                            <h1>{activeTab.label}</h1>
+                            <p>{activeTab.question}</p>
+                        </div>
+                        <button type="button" onClick={() => setRefreshKey((k) => k + 1)} style={primaryButtonStyle}>Refresh</button>
+                    </header>
 
                 {activeTab.filters && (
                     <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
@@ -272,6 +254,7 @@ export default function Playground() {
                     </div>
                 )}
 
+                {tab === "review" && <ReviewTab refreshKey={refreshKey} onUnauthorized={handleUnauthorized} onCount={setWaiting} />}
                 {tab === "overview" && <OverviewTab {...tabProps} />}
                 {tab === "activity" && <ActivityTab {...tabProps} />}
                 {tab === "pageviews" && <PageViewsTab {...tabProps} />}
@@ -289,6 +272,7 @@ export default function Playground() {
                         openVisitor={openVisitor}
                     />
                 )}
+                </main>
             </div>
         </div>
     );
@@ -296,21 +280,19 @@ export default function Playground() {
 
 function TopBar({ authenticated, onLock }: { authenticated: boolean; onLock: () => void }) {
     return (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 160, backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", background: "linear-gradient(180deg, rgba(2, 6, 23, 0.92), rgba(2, 6, 23, 0.8))", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-            <div style={{ maxWidth: "1340px", margin: "0 auto", padding: "0.85rem 1rem", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
-                <strong style={{ color: "#fff", fontSize: "1.05rem", fontWeight: 900 }}>Trupal&apos;s Playground</strong>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                    <Link href="/" style={{ ...buttonStyle, textDecoration: "none" }}>Back to website</Link>
-                    <button
-                        type="button"
-                        onClick={onLock}
-                        disabled={!authenticated}
-                        aria-label={authenticated ? "Lock admin session" : "Admin session locked"}
-                        style={{ ...buttonStyle, background: authenticated ? "#b91c1c" : "rgba(255,255,255,0.04)", color: "#fff", cursor: authenticated ? "pointer" : "default" }}
-                    >
-                        {authenticated ? "Lock" : "Locked"}
-                    </button>
-                </div>
+        <div className="pg-bar">
+            <strong><img src="/logo-penrose.png" alt="" width={22} height={22} /> Trupal&apos;s Playground</strong>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <Link href="/" style={{ ...buttonStyle, textDecoration: "none" }}>Back to website</Link>
+                <button
+                    type="button"
+                    onClick={onLock}
+                    disabled={!authenticated}
+                    aria-label={authenticated ? "Lock admin session" : "Admin session locked"}
+                    style={{ ...buttonStyle, background: authenticated ? colors.ink1 : "#fafaf7", color: authenticated ? "#fafaf7" : colors.ink3 }}
+                >
+                    {authenticated ? "Lock" : "Locked"}
+                </button>
             </div>
         </div>
     );
@@ -318,18 +300,47 @@ function TopBar({ authenticated, onLock }: { authenticated: boolean; onLock: () 
 
 // Inline styles can't express :focus-visible, so scope a small rule to the dashboard root.
 const focusVisibleCss = `
-.playground-admin :is(button, a, input, select, textarea, summary, tr[tabindex]):focus-visible {
-    outline: 2px solid #38bdf8;
-    outline-offset: 2px;
-}
-.playground-admin button:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-.playground-admin tbody tr:nth-child(even) {
-    background: rgba(255,255,255,0.015);
-}
-.playground-admin tbody tr[tabindex]:hover {
-    background: rgba(56,189,248,0.06);
+.playground-admin :is(button, a, input, select, textarea, summary, tr[tabindex]):focus-visible { outline: 2px solid #ea580c; outline-offset: 2px; }
+.playground-admin button:disabled { cursor: not-allowed; opacity: 0.6; }
+.playground-admin tbody tr:nth-child(even) { background: rgba(17,17,17,0.025); }
+.playground-admin tbody tr[tabindex]:hover { background: rgba(234,88,12,0.06); }
+.pg-shell { min-height: 100vh; background: #fafaf7; color: #111; font-family: var(--font-plex), 'IBM Plex Sans', system-ui, sans-serif;
+  background-image: linear-gradient(rgb(17 17 17 / 0.045) 1px, transparent 1px), linear-gradient(90deg, rgb(17 17 17 / 0.045) 1px, transparent 1px); background-size: 24px 24px; }
+.pg-mono { font-family: var(--font-plex-mono), ui-monospace, monospace; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: #666; margin: 0; }
+.pg-bar { position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.7rem clamp(12px, 3vw, 28px); background: rgb(250 250 247 / 0.94); backdrop-filter: blur(8px); border-bottom: 1px solid #111; }
+.pg-bar strong { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600; font-family: var(--font-plex-mono), ui-monospace, monospace; }
+.pg-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: clamp(12px, 2.4vw, 28px); max-width: 1420px; margin: 0 auto; padding: 1.4rem clamp(12px, 3vw, 28px) 4rem; }
+.pg-side { position: sticky; top: 70px; align-self: start; display: grid; gap: 1rem; }
+.pg-side__group { display: grid; gap: 2px; }
+.pg-side__group .pg-mono { padding: 0 0 0.35rem; border-bottom: 1px solid #111; margin-bottom: 0.25rem; }
+.pg-side button { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.65rem; border: 1px solid transparent; background: transparent; color: #444; font: inherit; font-size: 0.92rem; text-align: left; cursor: pointer; }
+.pg-side button:hover { background: #fff; border-color: #d9d7cf; color: #111; }
+.pg-side button[aria-current='page'] { background: #111; color: #fafaf7; border-color: #111; }
+.pg-side button b { font-family: var(--font-plex-mono), ui-monospace, monospace; font-size: 0.7rem; padding: 0 0.4rem; background: #ea580c; color: #fff; }
+.pg-main { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.pg-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap; padding-bottom: 0.8rem; border-bottom: 1px dotted #bdbab0; }
+.pg-head__kicker { color: #ea580c; }
+.pg-head h1 { margin: 0.25rem 0 0.3rem; font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 600; letter-spacing: -0.02em; }
+.pg-head p:last-child { margin: 0; color: #444; max-width: 70ch; line-height: 1.5; }
+.pg-login { display: grid; place-items: center; padding-bottom: 3rem; }
+.pg-login .pg-bar { position: fixed; inset: 0 0 auto; }
+.pg-login__card { width: min(440px, 92vw); display: flex; flex-direction: column; gap: 1rem; padding: 0 0 1.4rem; background: #fff; border: 1px solid #111; box-shadow: 6px 6px 0 #ea580c; }
+.pg-login__strip { display: flex; justify-content: space-between; padding: 0.6rem 1rem; background: #111; color: #fafaf7; font-family: var(--font-plex-mono), ui-monospace, monospace; font-size: 0.7rem; letter-spacing: 0.12em; }
+.pg-login__strip span:last-child { color: #ea580c; }
+.pg-login__card > :not(.pg-login__strip) { margin-left: 1.3rem; margin-right: 1.3rem; }
+.pg-login__card h1 { margin: 0.4rem 1.3rem 0; font-size: 2.2rem; font-weight: 600; letter-spacing: -0.03em; }
+.pg-login__card p { margin: 0; color: #444; line-height: 1.6; }
+.pg-login__card label { display: grid; gap: 0.4rem; }
+.pg-login__card input { padding: 0.75rem 0.9rem; border: 1px solid #bdbab0; background: #fafaf7; font: inherit; }
+.pg-login__card input:focus { outline: 2px solid #ea580c; outline-offset: -1px; }
+.pg-login__card button { padding: 0.8rem; border: 1px solid #111; background: #111; color: #fafaf7; font-family: var(--font-plex-mono), ui-monospace, monospace; letter-spacing: 0.08em; cursor: pointer; }
+.pg-login__card button:hover:not(:disabled) { background: #ea580c; border-color: #ea580c; }
+.pg-login__err { color: #b91c1c !important; }
+@media (max-width: 860px) {
+  .pg-layout { grid-template-columns: minmax(0, 1fr); }
+  .pg-side { position: static; display: flex; gap: 0.6rem; overflow-x: auto; }
+  .pg-side__group { display: flex; gap: 2px; }
+  .pg-side__group .pg-mono { display: none; }
+  .pg-side button { white-space: nowrap; }
 }
 `;

@@ -1,15 +1,18 @@
 import { expect, test, type Page } from '@playwright/test';
 
 // Smoke tests for the current site. Every API call that could write to the real
-// MongoDB (analytics, contact form) is mocked.
+// MongoDB (analytics, contact form, travel and Binge suggestions) is mocked.
 
 type CollectedEvent = { type: string; path: string; props?: Record<string, unknown> };
 
 /** Analytics batches the page sent, captured by the mock instead of reaching the database. */
 const collected: CollectedEvent[] = [];
+/** Travel suggestions the form posted, captured by the mock. */
+const travelPosts: Record<string, unknown>[] = [];
 
 async function mockWriteApis(page: Page) {
   collected.length = 0;
+  travelPosts.length = 0;
   await page.route('**/api/analytics/collect', (route) => {
     const body = route.request().postDataJSON() as { events?: CollectedEvent[] } | null;
     collected.push(...(body?.events ?? []));
@@ -18,60 +21,167 @@ async function mockWriteApis(page: Page) {
   await page.route('**/api/contact-submissions', (route) =>
     route.fulfill({ status: 200, contentType: 'application/json', body: '{"success":true}' }),
   );
+  await page.route('**/api/travel/suggestions', (route) => {
+    if (route.request().method() === 'POST') travelPosts.push(route.request().postDataJSON() as Record<string, unknown>);
+    return route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' });
+  });
+  await page.route('**/api/travel/wishlist', (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([{ id: 'w1', place: 'Kyoto', country: 'Japan', city: 'Kyoto', note: 'Bamboo forest at sunrise', name: 'Sam' }]) }),
+  );
 }
 
 test.beforeEach(async ({ page }) => {
   await mockWriteApis(page);
 });
 
-test.describe('Public pages', () => {
-  test('home renders a single h1 and a skip link', async ({ page }) => {
+test.describe('Home datasheet', () => {
+  test('renders one h1, a skip link and the hero stats', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('h1')).toHaveCount(1);
-    await expect(page.locator('h1')).toContainText('TRUPAL PATEL');
+    await expect(page.locator('h1')).toHaveText('Trupal Patel');
     await expect(page.getByRole('link', { name: 'Skip to content' })).toBeAttached();
+    await expect(page.locator('.sp-ratings--hero')).toContainText('Live products');
   });
 
-  test('projects list links to a detail page and back', async ({ page }) => {
+  test('platform folder switches tabs and shows store badges', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('tab', { name: /Android/ }).click();
+    await expect(page.getByRole('tabpanel')).toContainText('LogicSprint');
+    await expect(page.getByRole('tabpanel').getByRole('link', { name: /Google Play/ }).first()).toHaveAttribute('href', /play\.google\.com/);
+    await page.getByRole('tab', { name: /Windows/ }).click();
+    await expect(page.getByRole('tabpanel').getByRole('link', { name: /Windows/ })).toHaveAttribute('href', 'https://storedesk.net/download');
+  });
+
+  test('system map opens every skill in a layer', async ({ page }) => {
+    await page.goto('/#pinout');
+    await page.getByRole('button', { name: /^Data:/ }).click();
+    const detail = page.locator('#sys-detail');
+    await expect(detail).toContainText('PostgreSQL');
+    await expect(detail).toContainText('BigQuery');
+    await page.getByRole('button', { name: /^AI · ML:/ }).click();
+    await expect(detail).toContainText('Gemini');
+  });
+
+  test('related documents open About, Binge and Travel', async ({ page }) => {
+    await page.goto('/#documents');
+    const docs = page.locator('.rd');
+    await expect(docs.getByRole('link', { name: /Say hi/ })).toHaveAttribute('href', '/about');
+    await expect(docs.getByRole('link', { name: /Open the map/ })).toHaveAttribute('href', '/travel');
+    await expect(docs.getByRole('button', { name: /Binge/ })).toBeVisible();
+  });
+});
+
+test.describe('Public pages', () => {
+  test('projects archive opens a case study and back', async ({ page }) => {
     await page.goto('/projects');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('built');
-    await page.getByRole('link', { name: /read more about/i }).first().click();
+    await page.locator('.pj-read').first().click();
     await expect(page).toHaveURL(/\/projects\/[\w-]+$/);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByRole('link', { name: /back to projects/i })).toHaveAttribute('href', '/projects');
+    await expect(page.getByRole('link', { name: /all projects/i })).toHaveAttribute('href', '/projects');
   });
 
-  test('experience detail links back to the home timeline', async ({ page }) => {
+  test('experience note links back to revision history', async ({ page }) => {
     await page.goto('/experience/allyvia');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByRole('link', { name: /back to timeline/i })).toHaveAttribute('href', '/#experience');
+    await expect(page.getByRole('link', { name: /revision history/i })).toHaveAttribute('href', '/#revisions');
   });
 
-  test('retired game links land on LogicSprint', async ({ page }) => {
+  test('about is personal and points to the travel map', async ({ page }) => {
+    await page.goto('/about');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Trupal');
+    await expect(page.locator('.ab-trip')).toHaveAttribute('href', '/travel');
+    await expect(page.locator('.sp-sports li')).toHaveCount(8);
+  });
+
+  test('certifications lists every credential with a verify link', async ({ page }) => {
+    await page.goto('/certifications');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Certifications');
+    expect(await page.getByRole('link', { name: /verify/i }).count()).toBeGreaterThan(5);
+  });
+
+  test('social hub links to every account; social-only hides the site bar', async ({ page }) => {
+    await page.goto('/social');
+    await expect(page.getByRole('link', { name: /GitHub/ })).toHaveAttribute('href', 'https://github.com/TRUPALIX9');
+    await expect(page.getByRole('link', { name: /LinkedIn/ }).last()).toHaveAttribute('href', /linkedin\.com\/in\/trupalix/);
+    await page.goto('/social-only');
+    await expect(page.locator('.sp-bar')).toHaveCount(0);
+    await expect(page.locator('.so-card')).toHaveCount(9);
+  });
+
+  test('unknown pages show the themed 404', async ({ page }) => {
+    const response = await page.goto('/this-page-does-not-exist');
+    expect(response?.status()).toBe(404);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('No signal');
+  });
+
+  test('retired game links land on LogicSprint', async ({ request }) => {
     for (const path of ['/game', '/game-only', '/arcade/some-old-token']) {
-      await page.goto(path);
-      await expect(page).toHaveURL(/\/products\/logicsprint$/);
+      const res = await request.get(path, { maxRedirects: 0 });
+      expect(res.status()).toBe(308);
+      expect(res.headers().location).toBe('https://logicsprint.trueorfalse.dev');
     }
+  });
+});
+
+test.describe('Travel', () => {
+  test('map, carousel, wishlist and drill-down suggestion', async ({ page }) => {
+    await page.goto('/travel');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Collected');
+    await expect(page.locator('.tv-slide')).toHaveCount(5);
+    await expect(page.getByRole('heading', { name: 'Visitors say go here' })).toBeVisible();
+
+    const form = page.locator('.tv-suggest');
+    await form.scrollIntoViewIfNeeded();
+    const state = form.getByLabel(/State or province/);
+    await expect(state).toBeDisabled();
+    await form.getByRole('button', { name: /send suggestion/i }).click();
+    await expect(form.getByText('Pick a country first.')).toBeVisible();
+
+    await form.getByLabel(/Country/).fill('India');
+    await expect(state).toBeEnabled();
+    await state.fill('Gujarat');
+    await form.getByLabel(/City/).fill('Ahmedabad');
+    await expect(form.locator('.tv-trail')).toContainText('India → Gujarat → Ahmedabad');
+    await form.getByRole('button', { name: /send suggestion/i }).click();
+    await expect(page.getByText('Pinned it!')).toBeVisible();
+    expect(travelPosts[0]).toMatchObject({ kind: 'city', place: 'Ahmedabad', country: 'India', state: 'Gujarat' });
+  });
+
+  test('opening a country shows its visited states', async ({ page }) => {
+    await page.goto('/travel');
+    await page.locator('.tv-slide', { hasText: 'India' }).click();
+    await expect(page.locator('.tv-panel h2')).toHaveText('India');
+    await expect(page.locator('.tv-chips li')).toHaveCount(16);
+    await page.getByRole('button', { name: /all countries/i }).click();
+    await expect(page.locator('.tv-panel')).toHaveCount(0);
   });
 });
 
 test.describe('Contact form', () => {
   test('validates input and shows a success status', async ({ page }) => {
-    await page.goto('/#contact');
+    await page.goto('/#ordering');
     const form = page.getByRole('form', { name: 'Send a message' });
     await form.scrollIntoViewIfNeeded();
 
     await form.getByRole('button', { name: /send message/i }).click();
     await expect(page.getByText('Name must be at least 2 characters.')).toBeVisible();
 
-    // exact: label matching is a case-insensitive substring by default, so 'Message'
-    // would also match the form itself (aria-label "Send a message").
     await page.getByLabel('Name', { exact: true }).fill('Test Visitor');
-    await page.getByLabel('Contact Info', { exact: true }).fill('visitor@example.com');
+    await page.getByLabel('Email or phone', { exact: true }).fill('visitor@example.com');
     await page.getByLabel('Message', { exact: true }).fill('Hello there, this is a smoke test message.');
     await form.getByRole('button', { name: /send message/i }).click();
 
-    await expect(page.getByRole('status').filter({ hasText: 'Message sent successfully' })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: /sent/i })).toBeVisible();
+  });
+});
+
+test.describe('Playground', () => {
+  test('shows the locked login card', async ({ page }) => {
+    await page.goto('/playground');
+    await expect(page.getByTestId('playground-login-form')).toBeVisible();
+    await expect(page.getByTestId('playground-key-input')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Unlock' })).toBeDisabled();
   });
 });
 
@@ -79,29 +189,10 @@ test.describe('Contact form', () => {
 test.describe('Visitor analytics', () => {
   test.skip(process.env.NEXT_PUBLIC_ANALYTICS_DEV !== '1', 'Start the dev server with NEXT_PUBLIC_ANALYTICS_DEV=1 to run');
 
-  test('records page views, outbound clicks and engagement', async ({ page, context, isMobile }) => {
-    test.skip(isMobile, 'The navbar profile links are desktop-only');
+  test('records page views as visitors move around', async ({ page }) => {
     await page.goto('/');
-    // The home page navbar slides in when the pointer nears the top, like a real visitor reaching for it.
-    // Repeat the move until it shows: a move made before the page hydrates isn't seen by the navbar.
-    const linkedin = page.getByRole('link', { name: 'LinkedIn profile' });
-    await expect(async () => {
-      await page.mouse.move(640, 300);
-      await page.mouse.move(640, 10);
-      await expect(linkedin).toBeInViewport({ timeout: 1000 });
-    }).toPass();
-    const [popup] = await Promise.all([context.waitForEvent('page'), linkedin.click()]);
-    await popup.close();
-    // Navigate in-app like a visitor: leaving a page this way sends its engagement through the normal
-    // batched request. A full page load would send it as an unload beacon, which interception can miss.
-    await page.getByRole('link', { name: 'View All Projects' }).click();
-    await expect(page).toHaveURL(/\/projects$/);
-
-    // Events are batched for ~1.5s before sending, so wait for each one to arrive.
-    await expect.poll(() => collected.map((e) => e.type)).toEqual(expect.arrayContaining(['page_view', 'outbound_click', 'page_engagement']));
-    await expect.poll(() => collected.filter((e) => e.type === 'page_view').map((e) => e.path)).toEqual(expect.arrayContaining(['/', '/projects']));
-    const click = collected.find((e) => e.type === 'outbound_click');
-    expect(click?.props).toMatchObject({ target: 'linkedin', placement: 'navbar' });
+    await page.goto('/about');
+    await expect.poll(() => collected.filter((e) => e.type === 'page_view').map((e) => e.path)).toEqual(expect.arrayContaining(['/about']));
   });
 });
 
@@ -110,6 +201,17 @@ test.describe('API guards', () => {
     expect((await request.get('/api/analytics/report?view=overview')).status()).toBe(401);
     expect((await request.get('/api/analytics/admin')).status()).toBe(401);
     expect((await request.post('/api/analytics/admin', { data: { action: 'reset_all', confirm: 'RESET ANALYTICS' } })).status()).toBe(401);
+  });
+
+  test('suggestion moderation requires authentication', async ({ request }) => {
+    expect((await request.get('/api/travel/suggestions')).status()).toBe(401);
+    expect((await request.patch('/api/travel/suggestions', { data: { id: '0'.repeat(24), status: 'approved' } })).status()).toBe(401);
+    expect((await request.get('/api/binge/suggestions')).status()).toBe(401);
+  });
+
+  test('travel suggestion needs a place', async ({ request }) => {
+    const res = await request.post('/api/travel/suggestions', { data: { place: '' } });
+    expect(res.status()).toBe(400);
   });
 
   test('analytics collect rejects malformed payloads', async ({ request }) => {

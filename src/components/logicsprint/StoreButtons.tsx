@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { Check, Copy, Share2 } from 'lucide-react';
+import { Check, Copy } from 'lucide-react';
 import { APP } from '@/data/logicsprint';
 import { LOGICSPRINT_URL } from '@/data/site';
 
-/* Black App Store and Google Play badges, always the same size, optionally with share buttons. When the
+/* Black App Store and Google Play badges, always the same size, optionally with copy-link buttons. When the
    visitor is clearly on an iPhone, iPad or Android phone, that store comes first and is marked as
    theirs, and the top bar shows a Download button straight to it. */
 
@@ -59,56 +59,47 @@ const STORES = {
     android: { href: APP.playUrl, kicker: 'GET IT ON', name: 'Google Play', Logo: PlayLogo },
 } as const;
 
-/** The phone's share sheet where there is one; otherwise copy the link. */
-async function shareOrCopy(url: string, title: string): Promise<'shared' | 'copied' | 'failed'> {
-    if (navigator.share) {
-        try {
-            await navigator.share({ title, url });
-            return 'shared';
-        } catch (error) {
-            // Closing the share sheet isn't a failure, so don't fall back to copying.
-            if (error instanceof DOMException && error.name === 'AbortError') return 'shared';
-        }
-    }
+/** Copies text; falls back to the older copy command where the Clipboard API is blocked. */
+async function copyText(text: string): Promise<boolean> {
     try {
-        await navigator.clipboard.writeText(url);
-        return 'copied';
+        await navigator.clipboard.writeText(text);
+        return true;
     } catch {
-        return 'failed';
+        const field = document.createElement('textarea');
+        field.value = text;
+        field.setAttribute('readonly', '');
+        field.style.position = 'fixed';
+        field.style.opacity = '0';
+        document.body.append(field);
+        field.focus({ preventScroll: true });
+        field.select();
+        const ok = document.execCommand('copy');
+        field.remove();
+        return ok;
     }
 }
 
-/** Shows a tick for a moment after a copy. */
-function useCopied() {
+/** A copy-icon button that turns into a tick for a moment after copying. */
+function CopyButton({ text, label }: { text: string; label: string }) {
     const [copied, setCopied] = useState(false);
     const timer = useRef<number | undefined>(undefined);
     useEffect(() => () => window.clearTimeout(timer.current), []);
-    const flash = () => {
+
+    const onClick = async () => {
+        if (!(await copyText(text))) return;
         setCopied(true);
         window.clearTimeout(timer.current);
         timer.current = window.setTimeout(() => setCopied(false), 1800);
     };
-    return [copied, flash] as const;
-}
 
-function ShareButton({ url, label }: { url: string; label: string }) {
-    const [copied, flash] = useCopied();
     return (
-        <button
-            type="button"
-            className="ls-share"
-            aria-label={copied ? 'Link copied' : label}
-            title={copied ? 'Link copied' : label}
-            onClick={async () => {
-                if ((await shareOrCopy(url, APP.title)) === 'copied') flash();
-            }}
-        >
-            {copied ? <Check size={18} aria-hidden="true" /> : <Share2 size={18} aria-hidden="true" />}
+        <button type="button" className="ls-copy" aria-label={copied ? 'Link copied' : label} title={copied ? 'Copied' : label} onClick={onClick}>
+            {copied ? <Check size={18} aria-hidden="true" /> : <Copy size={18} aria-hidden="true" />}
         </button>
     );
 }
 
-function StoreBadge({ store, yours, share }: { store: Platform; yours: boolean; share: boolean }) {
+function StoreBadge({ store, yours, copy }: { store: Platform; yours: boolean; copy: boolean }) {
     const { href, kicker, name, Logo } = STORES[store];
     return (
         <div className="ls-badge-group">
@@ -126,20 +117,20 @@ function StoreBadge({ store, yours, share }: { store: Platform; yours: boolean; 
                     <strong>{name}</strong>
                 </span>
             </a>
-            {share && <ShareButton url={href} label={`Share the ${name} link`} />}
+            {copy && <CopyButton text={href} label={`Copy the ${name} link`} />}
         </div>
     );
 }
 
-/** `share` adds a share button beside each badge (the download section only). */
-export default function StoreButtons({ share = false }: { share?: boolean }) {
+/** `copy` adds a copy-link button beside each badge (the download section only). */
+export default function StoreButtons({ copy = false }: { copy?: boolean }) {
     const current = usePlatform();
     const order: Platform[] = current === 'android' ? ['android', 'ios'] : ['ios', 'android'];
 
     return (
         <div className="ls-badges">
             {order.map((store) => (
-                <StoreBadge key={store} store={store} yours={store === current} share={share} />
+                <StoreBadge key={store} store={store} yours={store === current} copy={copy} />
             ))}
         </div>
     );
@@ -156,37 +147,14 @@ export function DownloadButton() {
     );
 }
 
-/** The one link to share: copy it, or send it with the phone's share sheet. */
+/** The one link to share, with a copy button. */
 export function ShareLink() {
-    const [copied, flash] = useCopied();
-    const inputRef = useRef<HTMLInputElement>(null);
-
-    const copy = async () => {
-        try {
-            await navigator.clipboard.writeText(SHARE_LINK);
-            flash();
-        } catch {
-            // Clipboard API blocked: select the field and use the older copy command; if that fails
-            // too, the link stays selected, ready to copy by hand.
-            inputRef.current?.select();
-            if (document.execCommand('copy')) flash();
-        }
-    };
-
     return (
         <div className="ls-share-link">
             <p className="ls-label">Share one link · opens the right store on each phone</p>
             <div className="ls-link-row">
-                <input ref={inputRef} readOnly value={SHARE_LINK} aria-label="Download link" onFocus={(e) => e.currentTarget.select()} />
-                <button
-                    type="button"
-                    className="ls-btn ls-btn-ghost"
-                    onClick={copy}
-                >
-                    {copied ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
-                    {copied ? 'Copied' : 'Copy'}
-                </button>
-                <ShareButton url={SHARE_LINK} label="Share the download link" />
+                <input readOnly value={SHARE_LINK} aria-label="Download link" onFocus={(e) => e.currentTarget.select()} />
+                <CopyButton text={SHARE_LINK} label="Copy the download link" />
             </div>
         </div>
     );

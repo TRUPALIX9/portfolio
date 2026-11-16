@@ -389,8 +389,8 @@ function JourneyCard({ journey, onOpen }: { journey: Journey; onOpen: () => void
     const d = journey.device;
     const who = journey.visitor_name || `${d.os ?? "Unknown OS"} · ${d.browser ?? "browser"}`;
     return (
-        <article style={{ border: `1px solid ${colors.line}`, borderRadius: "16px", background: "rgba(255,255,255,0.02)", overflow: "hidden" }}>
-            <header style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap", alignItems: "center", padding: "0.85rem 1rem", borderBottom: `1px solid ${colors.line}`, background: "rgba(255,255,255,0.03)" }}>
+        <article style={{ border: `1px solid ${colors.line}`, borderRadius: "0", background: "#fafaf7", overflow: "hidden" }}>
+            <header style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap", alignItems: "center", padding: "0.85rem 1rem", borderBottom: `1px solid ${colors.line}`, background: "#fafaf7" }}>
                 <div style={{ display: "flex", gap: "0.7rem", alignItems: "center", minWidth: 0 }}>
                     <span aria-hidden="true" style={{ fontSize: "1.4rem" }}>{deviceIcon(d.class)}</span>
                     <div style={{ minWidth: 0 }}>

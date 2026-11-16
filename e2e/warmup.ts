@@ -5,11 +5,16 @@ import type { FullConfig } from '@playwright/test';
 // ("SyntaxError ... JSON"). Requesting the routes one at a time first means tests only hit warm routes.
 const ROUTES = [
   '/',
+  '/about',
+  '/travel',
+  '/certifications',
   '/projects',
   '/projects/retailsync',
   '/experience/allyvia',
-  '/products/logicsprint',
   '/social',
+  '/social-only',
+  '/playground',
+  '/this-page-does-not-exist',
   '/api/playground/session',
 ];
 

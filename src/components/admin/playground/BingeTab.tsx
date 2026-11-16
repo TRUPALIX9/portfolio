@@ -16,7 +16,7 @@ const chip = (on: boolean): CSSProperties => ({
     border: `1px solid ${on ? "rgba(74,222,128,0.6)" : colors.line}`,
     background: on ? "rgba(74,222,128,0.18)" : "transparent",
     color: on ? colors.good : colors.ink2,
-    fontWeight: 800,
+    fontWeight: 600,
     fontSize: "0.75rem",
     cursor: "pointer",
 });
@@ -54,7 +54,7 @@ function SeasonEditor({ item, onSave }: { item: BingeTitle; onSave: (seasons: Bi
     };
 
     return (
-        <div style={{ display: "grid", gap: "0.6rem", padding: "0.8rem", borderRadius: 12, background: "rgba(255,255,255,0.03)", border: `1px solid ${colors.line}` }}>
+        <div style={{ display: "grid", gap: "0.6rem", padding: "0.8rem", borderRadius: 12, background: "#fafaf7", border: `1px solid ${colors.line}` }}>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
                 {item.source === "tvmaze" && (
                     <button type="button" style={buttonStyle} onClick={() => void loadFromTvmaze()}>{loading || "Load seasons & episodes from TVMaze"}</button>
@@ -66,7 +66,7 @@ function SeasonEditor({ item, onSave }: { item: BingeTitle; onSave: (seasons: Bi
             {seasons.length === 0 && <p style={{ margin: 0, color: colors.ink3 }}>No seasons yet.</p>}
             {seasons.map((s, i) => (
                 <div key={s.number} style={{ display: "grid", gap: "0.35rem" }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: colors.ink1, fontWeight: 800 }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: colors.ink1, fontWeight: 600 }}>
                         <input type="checkbox" checked={s.complete} onChange={(e) => update(i, { complete: e.target.checked })} />
                         Season {s.number}
                         <span style={{ color: colors.ink3, fontWeight: 600 }}>
@@ -185,7 +185,7 @@ export function BingeTab({ refreshKey, onUnauthorized }: { refreshKey: number; o
 
     return (
         <div style={{ display: "grid", gap: "1rem" }}>
-            {error && <p role="alert" style={{ margin: 0, color: "#fecaca", fontWeight: 700 }}>{error}</p>}
+            {error && <p role="alert" style={{ margin: 0, color: "#b91c1c", fontWeight: 700 }}>{error}</p>}
 
             <Grid min={380}>
                 <Panel title="Add a title" description="Search TVMaze for series (with seasons and episodes) or Wikidata for films.">

@@ -187,7 +187,7 @@ function VisitorProfile({ visitorId, refreshKey, onBack, onChanged, onUnauthoriz
     }, [detail]);
 
     const back = <button type="button" onClick={onBack} style={buttonStyle}>← All visitors</button>;
-    if (error) return <Panel title="Visitor" actions={back}><p role="alert" style={{ margin: 0, color: "#fecaca" }}>{error}</p></Panel>;
+    if (error) return <Panel title="Visitor" actions={back}><p role="alert" style={{ margin: 0, color: "#b91c1c" }}>{error}</p></Panel>;
     if (!detail) return <Panel title="Visitor" actions={back}><p style={{ margin: 0, color: colors.ink3 }}>Loading…</p></Panel>;
 
     const v = detail.visitor;
@@ -218,7 +218,7 @@ function VisitorProfile({ visitorId, refreshKey, onBack, onChanged, onUnauthoriz
                 <dl style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))", gap: "0.75rem 1.5rem", margin: 0 }}>
                     {facts.map(([label, value]) => (
                         <div key={label} style={{ minWidth: 0 }}>
-                            <dt style={{ color: colors.ink3, fontSize: "0.7rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</dt>
+                            <dt style={{ color: colors.ink3, fontSize: "0.7rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</dt>
                             <dd style={{ margin: "0.2rem 0 0", color: colors.ink1, overflowWrap: "anywhere" }}>{value}</dd>
                         </div>
                     ))}
@@ -259,7 +259,7 @@ function VisitorProfile({ visitorId, refreshKey, onBack, onChanged, onUnauthoriz
                     {detail.sessions.map((s) => {
                         const events = [...(eventsBySession.get(s.session_id) ?? [])].reverse();
                         return (
-                            <details key={s.session_id} style={{ border: `1px solid ${colors.line}`, borderRadius: "14px", padding: "0.8rem 1rem", background: "rgba(255,255,255,0.02)" }}>
+                            <details key={s.session_id} style={{ border: `1px solid ${colors.line}`, borderRadius: "0", padding: "0.8rem 1rem", background: "#fafaf7" }}>
                                 <summary style={{ cursor: "pointer", display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
                                     <strong>{fmtDateTime(s.started_at)}</strong>
                                     <span style={{ color: colors.ink2 }}>{s.channel}{s.referrer_host ? ` (${s.referrer_host})` : ""}</span>

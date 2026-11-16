@@ -1,503 +1,209 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { ArrowLeft, ArrowRight, CheckCircle2, CircleDashed, Clock, ExternalLink, Flag, GraduationCap, History, Lightbulb, Mountain, Target, Workflow } from 'lucide-react';
-import { projects } from '@/data/projects';
+import { ArrowLeft, ArrowRight, ArrowUpRight, CheckCircle2, CircleDashed, Clock } from 'lucide-react';
+import { projects, type ProjectMediaItem } from '@/data/projects';
 import { projectStories } from '@/data/project-stories';
 import MermaidChart from '@/components/MermaidChart';
-import Reveal, { Stagger, StaggerItem } from '@/components/motion/Reveal';
-import type { Metadata } from 'next';
+import SectionHead, { PART_NO } from '@/components/spec/SectionHead';
 import { pageMetadata } from '@/utils/seo';
 
-/**
- * Chapter accents. Used only for small marks — timeline nodes, icons, eyebrow labels,
- * step numbers — never for running text, which always stays in the ink tiers.
- */
-const ACCENT = {
-    green: '#4ADE80',
-    red: '#f87171',
-    sky: '#38bdf8',
-    amber: '#fbbf24',
-    purple: '#c084fc',
-    slate: '#94a3b8',
-} as const;
-
-const GithubIcon = ({ size = 18 }: { size?: number }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.02c3.18-.35 6.5-1.56 6.5-7.16 0-1.49-.5-2.7-1.35-3.68.14-.33.6-1.74-.15-3.63 0 0-1.12-.36-3.7 1.38a12.8 12.8 0 0 0-6.7 0c-2.58-1.74-3.7-1.38-3.7-1.38-.75 1.89-.29 3.3-.15 3.63-.85.98-1.35 2.19-1.35 3.68 0 5.6 3.32 6.81 6.5 7.16A4.8 4.8 0 0 0 3 18.28V22" />
-    </svg>
-);
-
-const stateStyle: Record<string, { icon: ReactNode; badge: string; color: string }> = {
-    done:          { icon: <CheckCircle2 size={18} aria-hidden="true" style={{ color: ACCENT.green, flexShrink: 0, marginTop: 2 }} />, badge: 'Shipped',     color: ACCENT.green },
-    'in-progress': { icon: <Clock size={18}        aria-hidden="true" style={{ color: ACCENT.sky, flexShrink: 0, marginTop: 2 }} />,   badge: 'In Progress', color: ACCENT.sky },
-    planned:       { icon: <CircleDashed size={18} aria-hidden="true" style={{ color: ACCENT.slate, flexShrink: 0, marginTop: 2 }} />, badge: 'Planned',     color: ACCENT.slate },
-};
-
 export function generateStaticParams() {
-    return projects.map((project) => ({ slug: project.slug }));
+    return projects.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
-    const project = projects.find(p => p.slug === slug);
-    if (!project) return {};
-    return pageMetadata({
-        title: `${project.title} | Trupal Patel`,
-        description: project.tagline || project.description,
-        path: `/projects/${project.slug}`,
-        image: { url: `/projects/${project.slug}/opengraph-image`, width: 1200, height: 630, alt: `${project.title} case study` },
-    });
+    const p = projects.find((x) => x.slug === slug);
+    if (!p) return {};
+    return pageMetadata({ title: `${p.title} | Trupal Patel`, description: p.tagline, path: `/projects/${p.slug}` });
 }
 
-// ── Shared type scale ────────────────────────────────────────────────────────
-/** Lead paragraph: the one sentence a skimmer should read in each chapter. */
-const leadText = 'measure m-0 text-[1.0625rem] leading-[1.8] text-ink-1';
-/** Regular body copy. */
-const bodyText = 'measure m-0 text-base leading-[1.75] text-ink-2';
-/** Small uppercase label that titles a card. */
-const cardLabel = 'text-xs font-bold uppercase tracking-[0.14em] text-ink-3 mb-4';
-/** Level-2 surface: separates from the black page. */
-const cardClass = 'card rounded-2xl p-5 sm:p-7';
+const real = (url?: string) => !!url && url !== '#';
 
-function Chapter({
-    id,
-    number,
-    eyebrow,
-    title,
-    icon,
-    accent = ACCENT.green,
-    selfRevealing = false,
-    children,
-}: {
-    id: string;
-    number: number;
-    eyebrow: string;
-    title: string;
-    icon: ReactNode;
-    accent?: string;
-    /** Set when the children animate themselves (card lists), so they aren't wrapped twice. */
-    selfRevealing?: boolean;
-    children: ReactNode;
-}) {
+const STATE: Record<string, { icon: ReactNode; label: string }> = {
+    done: { icon: <CheckCircle2 size={16} aria-hidden="true" />, label: 'Done' },
+    'in-progress': { icon: <Clock size={16} aria-hidden="true" />, label: 'In progress' },
+    planned: { icon: <CircleDashed size={16} aria-hidden="true" />, label: 'Planned' },
+};
+
+function Shots({ shots }: { shots: ProjectMediaItem[] }) {
+    const phones = shots.every((s) => s.frame === 'phone');
     return (
-        <section id={id} aria-labelledby={`${id}-title`} className="relative scroll-mt-28 pl-11 sm:pl-16">
-            {/* Timeline node — stays put; it's part of the thread, only the content reveals */}
-            <span
-                aria-hidden="true"
-                className="absolute left-0 top-0 flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full border bg-surface-0 font-mono text-xs sm:text-sm font-bold"
-                style={{
-                    borderColor: `color-mix(in srgb, ${accent} 65%, transparent)`,
-                    color: accent,
-                    boxShadow: `0 0 0 4px var(--surface-0), 0 0 20px color-mix(in srgb, ${accent} 22%, transparent)`,
-                }}
-            >
-                {String(number).padStart(2, '0')}
-            </span>
-
-            <Reveal>
-                <div className="flex items-center gap-2 mb-2.5" style={{ color: accent }}>
-                    {icon}
-                    <span className="text-xs font-bold uppercase tracking-[0.18em]">{eyebrow}</span>
-                </div>
-                <h2 id={`${id}-title`} className="text-2xl sm:text-[1.875rem] font-extrabold text-ink-1 tracking-tight leading-tight mb-6 text-balance">
-                    {title}
-                </h2>
-            </Reveal>
-
-            {selfRevealing ? children : <Reveal delay={0.06}>{children}</Reveal>}
-        </section>
+        <div className="pj-shots" data-phones={String(phones)}>
+            {shots.map((s, i) => (
+                <figure key={s.src} className="pj-shot">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={s.src} alt={`${s.title}: ${s.caption}`} loading={i === 0 ? 'eager' : 'lazy'} />
+                    <figcaption><b>{s.title}.</b> {s.caption}</figcaption>
+                </figure>
+            ))}
+        </div>
     );
 }
 
+function Bullets({ items, numbered = false }: { items: string[]; numbered?: boolean }) {
+    return (
+        <ol className="pj-bullets" data-numbered={String(numbered)}>
+            {items.map((t, i) => <li key={i}><span>{numbered ? String(i + 1).padStart(2, '0') : '›'}</span>{t}</li>)}
+        </ol>
+    );
+}
+
+/** A project case study, laid out as datasheet sections. */
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const projectIndex = projects.findIndex(p => p.slug === slug);
-    const project = projects[projectIndex];
-
-    if (!project) {
-        notFound();
-    }
+    const index = projects.findIndex((p) => p.slug === slug);
+    const project = projects[index];
+    if (!project) notFound();
 
     const story = projectStories[project.slug];
-    const nextProject = projects[(projectIndex + 1) % projects.length];
-    const hasLive = Boolean(project.links?.live) && project.links.live !== '#';
-    const hasGithub = Boolean(project.links?.github) && project.links.github !== '#';
-    // Product shots: phones sit four across; browser/desktop shots two across, with the first
-    // spanning the row when the count is odd so no shot sits alone.
+    const next = projects[(index + 1) % projects.length];
     const screens = project.media.filter((m) => m.type === 'image');
     const videos = project.media.filter((m) => m.type === 'video');
-    const phoneShots = screens.length > 0 && screens.every((s) => s.frame === 'phone');
-    const spanFirst = !phoneShots && screens.length % 2 === 1;
-
-    const chapters = [
-        { id: 'problem', label: 'Problem' },
-        { id: 'solution', label: 'Solution' },
-        ...(project.legacy ? [{ id: 'legacy', label: 'Legacy version' }] : []),
-        { id: 'build', label: 'How it’s built' },
-        ...(story?.challenges.length ? [{ id: 'challenges', label: 'Challenges' }] : []),
-        ...(story?.learnings.length ? [{ id: 'learnings', label: 'Learnings' }] : []),
-        { id: 'status', label: 'Where it stands' },
-    ];
-    let chapterNumber = 0;
-    const nextNumber = () => ++chapterNumber;
+    let n = 0;
+    const no = () => ++n;
 
     return (
-        <main className="container" style={{ paddingTop: 'calc(var(--nav-height) + 2.5rem)', paddingBottom: '6rem', minHeight: '100vh' }}>
-            <div className="mx-auto w-full max-w-[900px]">
-                <div className="mb-8">
-                    <Link href="/projects" className="btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 1.25rem', fontSize: '0.9rem' }}>
-                        <ArrowLeft size={15} aria-hidden="true" /> Back to Projects
-                    </Link>
-                </div>
+        <div className="sp-page">
+            <div className="sp-about pj">
+                <Link href="/projects" className="cx-back"><ArrowLeft size={14} aria-hidden="true" /> All projects</Link>
 
-                {/* ── COVER ───────────────────────────────────────────── */}
-                <Reveal>
-                    <header className="card relative isolate overflow-hidden rounded-3xl p-6 sm:p-10 mb-8">
-                        {/* Soft accent bloom gives the cover a lit corner without a gradient wash over text */}
-                        <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-28 -z-10 h-72 w-72 rounded-full bg-accent/10 blur-3xl" />
-
-                        <p className="eyebrow mb-4">Case study</p>
-                        <div className="flex items-center gap-4 mb-4">
-                            {project.logoIcon && (
-                                /* eslint-disable-next-line @next/next/no-img-element */
-                                <img src={project.logoIcon} alt="" className="h-11 w-auto shrink-0 rounded-[10px] object-contain" />
-                            )}
-                            <h1 className="text-3xl sm:text-[2.5rem] font-extrabold text-ink-1 leading-tight tracking-tight m-0 text-balance">{project.title}</h1>
-                        </div>
-                        <p className="measure text-lg text-ink-2 leading-[1.7] mb-7">{project.tagline}</p>
-
-                        <ul className="flex flex-wrap gap-2 mb-8" aria-label="Tech stack">
-                            {project.tech.map(t => (
-                                <li key={t.name} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-line-1 bg-surface-3 text-[0.8125rem] font-medium text-ink-2">
-                                    {t.icon && <i className={t.icon} aria-hidden="true" style={{ fontSize: '1rem' }} />}
-                                    {t.name}
-                                </li>
-                            ))}
-                        </ul>
-
-                        {(hasLive || hasGithub) && (
-                            <div className="flex flex-wrap gap-3">
-                                {hasLive && (
-                                    <a href={project.links.live} target="_blank" rel="noreferrer" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.25rem', fontSize: '0.9rem' }}>
-                                        View Live <ExternalLink size={15} aria-hidden="true" />
-                                    </a>
-                                )}
-                                {hasGithub && (
-                                    <a href={project.links.github} target="_blank" rel="noreferrer" className="btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.25rem', fontSize: '0.9rem' }}>
-                                        Source Code <GithubIcon size={15} />
-                                    </a>
-                                )}
-                            </div>
+                {/* Overview */}
+                <section className="sp-section">
+                    <SectionHead no={no()} title="Overview" page={project.title} />
+                    <p className="sp-part" style={{ marginTop: 22 }}><b>{PART_NO}</b><span>PJ-{String(index + 1).padStart(2, '0')}</span>{project.category && <span>{project.category}</span>}</p>
+                    <div className="pj-head">
+                        {project.logoIcon && (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img src={project.logoIcon} alt="" className="pj-head__logo" />
                         )}
-                    </header>
-                </Reveal>
-
-                {/* ── DEMO VIDEO ──────────────────────────────────────── */}
-                {videos.length > 0 && (
-                    <Reveal delay={0.06}>
-                        <section aria-labelledby="video-title" className="mb-12">
-                            <h2 id="video-title" className={cardLabel}>Watch it</h2>
-                            {videos.map((clip) => (
-                                <figure key={clip.src} className="m-0">
-                                    <video
-                                        src={clip.src}
-                                        poster={clip.poster}
-                                        controls
-                                        playsInline
-                                        preload="none"
-                                        aria-label={clip.title}
-                                        className="block aspect-video h-auto w-full rounded-2xl border border-line-1 bg-surface-1"
-                                    />
-                                    <figcaption className="mt-2.5 text-[0.8125rem] leading-[1.55] text-ink-3">
-                                        <span className="font-semibold text-ink-2">{clip.title}.</span> {clip.caption}
-                                    </figcaption>
-                                </figure>
-                            ))}
-                        </section>
-                    </Reveal>
-                )}
-
-                {/* ── PRODUCT SHOTS ───────────────────────────────────── */}
-                {screens.length > 0 && (
-                    <Reveal delay={0.06}>
-                        <section aria-labelledby="screens-title" className="mb-12">
-                            <h2 id="screens-title" className={cardLabel}>In the product</h2>
-                            <div className={`grid gap-5 ${phoneShots ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2'}`}>
-                                {screens.map((shot, i) => (
-                                    <figure key={shot.src} className={`m-0 ${spanFirst && i === 0 ? 'sm:col-span-2' : ''}`}>
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img
-                                            src={shot.src}
-                                            alt={`${shot.title}: ${shot.caption}`}
-                                            loading={i === 0 ? 'eager' : 'lazy'}
-                                            className="block h-auto w-full rounded-xl border border-line-1 bg-surface-1"
-                                        />
-                                        <figcaption className="mt-2.5 text-[0.8125rem] leading-[1.55] text-ink-3">
-                                            <span className="font-semibold text-ink-2">{shot.title}.</span> {shot.caption}
-                                        </figcaption>
-                                    </figure>
-                                ))}
-                            </div>
-                            <p className="mt-4 text-xs text-ink-3">{project.screensNote ?? 'Screens are recreated from the app’s real UI with fictional demo data.'}</p>
-                        </section>
-                    </Reveal>
-                )}
-
-                {/* ── CHAPTER INDEX ───────────────────────────────────── */}
-                <Reveal delay={0.08}>
-                    <nav aria-label="Case study chapters" className="mb-16 -mx-1 overflow-x-auto px-1 pb-1">
-                        <ol className="flex gap-2 min-w-max">
-                            {chapters.map((c, i) => (
-                                <li key={c.id}>
-                                    <a
-                                        href={`#${c.id}`}
-                                        className="inline-flex items-center gap-2 rounded-full border border-line-1 bg-surface-2 px-3.5 py-1.5 text-[0.8125rem] font-medium text-ink-2 transition-colors duration-200 hover:border-line-2 hover:bg-surface-3 hover:text-ink-1"
-                                    >
-                                        <span className="font-mono text-xs text-accent">{String(i + 1).padStart(2, '0')}</span>
-                                        {c.label}
-                                    </a>
-                                </li>
-                            ))}
-                        </ol>
-                    </nav>
-                </Reveal>
-
-                {/* ── STORY ───────────────────────────────────────────── */}
-                <div className="relative flex flex-col gap-20">
-                    {/* Vertical thread connecting the chapters — tints follow the chapter accents */}
-                    <div
-                        aria-hidden="true"
-                        className="absolute left-4 sm:left-5 top-2 bottom-2 w-px"
-                        style={{ background: `linear-gradient(to bottom, ${ACCENT.red}66, ${ACCENT.sky}4d 40%, ${ACCENT.purple}40 70%, ${ACCENT.green}59)` }}
-                    />
-
-                    <Chapter id="problem" number={nextNumber()} eyebrow="The core problem" title="What needed solving" icon={<Target size={16} aria-hidden="true" />} accent={ACCENT.red}>
-                        <p className={leadText}>{project.scenario}</p>
-                    </Chapter>
-
-                    <Chapter id="solution" number={nextNumber()} eyebrow="The solution" title="What I built" icon={<Lightbulb size={16} aria-hidden="true" />} accent={ACCENT.green}>
-                        <div className="flex flex-col gap-5">
-                            <p className={leadText}>{project.problemSolved}</p>
-                            <p className={bodyText}>{project.description}</p>
+                        <h1 className="sp-name">{project.title}</h1>
+                    </div>
+                    <p className="sp-role">{project.tagline}</p>
+                    <ul className="pj-tech pj-tech--lg" aria-label="Tech stack">
+                        {project.tech.map((t) => <li key={t.name}>{t.icon && <i className={t.icon} aria-hidden="true" />}{t.name}</li>)}
+                    </ul>
+                    {(real(project.links.live) || real(project.links.github)) && (
+                        <div className="pj-cta">
+                            {real(project.links.live) && <a href={project.links.live} target="_blank" rel="noreferrer" className="sp-btn">Open it <ArrowUpRight size={15} aria-hidden="true" /></a>}
+                            {real(project.links.github) && <a href={project.links.github} target="_blank" rel="noreferrer" className="sp-btn sp-btn--ghost">Source code <ArrowUpRight size={15} aria-hidden="true" /></a>}
                         </div>
-                    </Chapter>
-
-                    {project.legacy && (
-                        <Chapter id="legacy" number={nextNumber()} eyebrow="Where it started" title={`The legacy version: ${project.legacy.title}`} icon={<History size={16} aria-hidden="true" />} accent={ACCENT.amber}>
-                            <div className="flex flex-col gap-6">
-                                <p className={bodyText}>{project.legacy.summary}</p>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className={cardClass}>
-                                        <h3 className={cardLabel}>What it did</h3>
-                                        <ul className="flex flex-col gap-3">
-                                            {project.legacy.features.map((f) => (
-                                                <li key={f} className="flex gap-3 text-[0.9375rem] leading-[1.65] text-ink-2">
-                                                    <span aria-hidden="true" className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: ACCENT.amber }} />
-                                                    <span>{f}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                    <div className={cardClass}>
-                                        <h3 className={cardLabel}>What the rebuild changed</h3>
-                                        <ul className="flex flex-col gap-3">
-                                            {project.legacy.changes.map((c) => (
-                                                <li key={c} className="flex gap-3 text-[0.9375rem] leading-[1.65] text-ink-2">
-                                                    <span aria-hidden="true" className="font-bold" style={{ color: ACCENT.green }}>→</span>
-                                                    <span>{c}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                {project.legacy.screens && project.legacy.screens.length > 0 && (
-                                    <div className={`grid gap-5 ${project.legacy.screens.every((s) => s.frame === 'phone') ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2'}`}>
-                                        {project.legacy.screens.map((shot, i, all) => (
-                                            <figure key={shot.src} className={`m-0 ${all.length % 2 === 1 && i === 0 ? 'sm:col-span-2' : ''}`}>
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                <img
-                                                    src={shot.src}
-                                                    alt={`Legacy version, ${shot.title}: ${shot.caption}`}
-                                                    loading="lazy"
-                                                    className="block h-auto w-full rounded-xl border border-line-1 bg-surface-1"
-                                                />
-                                                <figcaption className="mt-2.5 text-[0.8125rem] leading-[1.55] text-ink-3">
-                                                    <span className="font-semibold text-ink-2">{shot.title}.</span> {shot.caption}
-                                                </figcaption>
-                                            </figure>
-                                        ))}
-                                        <p className="m-0 text-xs text-ink-3 sm:col-span-2">Screens are recreated from the legacy app&apos;s real UI with fictional demo data.</p>
-                                    </div>
-                                )}
-
-                                {project.legacy.github && (
-                                    <a href={project.legacy.github} target="_blank" rel="noreferrer" className="btn-outline self-start" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.25rem', fontSize: '0.9rem' }}>
-                                        Legacy source code <GithubIcon size={15} />
-                                    </a>
-                                )}
-                            </div>
-                        </Chapter>
                     )}
+                    {project.metrics && project.metrics.length > 0 && (
+                        <ul className="pj-metrics">{project.metrics.map((m) => <li key={m}>{m}</li>)}</ul>
+                    )}
+                </section>
 
-                    <Chapter id="build" number={nextNumber()} eyebrow="Integration" title="How it fits together" icon={<Workflow size={16} aria-hidden="true" />} accent={ACCENT.sky}>
-                        <div className="flex flex-col gap-6">
-                            {story?.integration && (
-                                <p className={bodyText}>{story.integration}</p>
-                            )}
+                {(videos.length > 0 || screens.length > 0) && (
+                    <section className="sp-section">
+                        <SectionHead no={no()} title="In the product" page={project.title} />
+                        {videos.map((v) => (
+                            <figure key={v.src} className="pj-video">
+                                <video src={v.src} poster={v.poster} controls playsInline preload="none" aria-label={v.title} />
+                                <figcaption><b>{v.title}.</b> {v.caption}</figcaption>
+                            </figure>
+                        ))}
+                        {screens.length > 0 && <Shots shots={screens} />}
+                        {screens.length > 0 && <p className="pj-note">{project.screensNote ?? 'Screens are recreated from the app’s real UI with fictional demo data.'}</p>}
+                    </section>
+                )}
 
-                            {(project.architectureImage || project.mermaidChart) && (
-                                <figure className="card rounded-2xl p-4 sm:p-6 m-0">
-                                    {project.architectureImage ? (
-                                        /* eslint-disable-next-line @next/next/no-img-element */
-                                        <img src={project.architectureImage} alt={`${project.title} architecture diagram`} className="block w-full h-auto rounded-lg" />
-                                    ) : (
-                                        project.mermaidChart && <MermaidChart chart={project.mermaidChart} />
-                                    )}
-                                    <figcaption className="mt-4 text-center text-xs font-medium tracking-wide text-ink-3">System architecture</figcaption>
-                                </figure>
-                            )}
-
-                            {project.howToUse.length > 0 && (
-                                <div className={cardClass}>
-                                    <h3 className={cardLabel}>The flow, step by step</h3>
-                                    <ol className="flex flex-col gap-4">
-                                        {project.howToUse.map((step, i) => (
-                                            <li key={i} className="flex gap-4">
-                                                <span
-                                                    aria-hidden="true"
-                                                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border font-mono text-xs font-bold"
-                                                    style={{ color: ACCENT.sky, borderColor: `${ACCENT.sky}4d`, background: `${ACCENT.sky}14` }}
-                                                >
-                                                    {i + 1}
-                                                </span>
-                                                <span className="text-[0.9375rem] leading-[1.7] text-ink-2">{step}</span>
-                                            </li>
-                                        ))}
-                                    </ol>
-                                </div>
-                            )}
+                <section className="sp-section">
+                    <SectionHead no={no()} title="Problem → solution" page={project.title} />
+                    <div className="pj-two">
+                        <div className="pj-panel" data-tone="problem">
+                            <p className="sp-sub">The problem</p>
+                            <p className="pj-lead">{project.scenario}</p>
                         </div>
-                    </Chapter>
+                        <div className="pj-panel" data-tone="solution">
+                            <p className="sp-sub">What I built</p>
+                            <p className="pj-lead">{project.problemSolved}</p>
+                            <p className="pj-body">{project.description}</p>
+                        </div>
+                    </div>
+                </section>
 
-                    {story?.challenges.length ? (
-                        <Chapter id="challenges" number={nextNumber()} eyebrow="Problems along the way" title="What got hard, and what I did about it" icon={<Mountain size={16} aria-hidden="true" />} accent={ACCENT.amber} selfRevealing>
-                            <div className="flex flex-col gap-4">
-                                {story.challenges.map((c) => (
-                                    // Each card reveals as it scrolls in, so long chapters unfold progressively
-                                    <Reveal key={c.title}>
-                                        <article className={cardClass}>
-                                            <h3 className="text-[1.0625rem] font-bold leading-snug text-ink-1 mb-5">{c.title}</h3>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-0">
-                                                <div className="md:pr-6">
-                                                    <p className="text-xs font-bold uppercase tracking-[0.14em] mb-2" style={{ color: ACCENT.red }}>The problem</p>
-                                                    <p className="text-[0.9375rem] leading-[1.7] text-ink-2 m-0">{c.problem}</p>
-                                                </div>
-                                                <div className="border-t border-line-1 pt-5 md:border-t-0 md:border-l md:pt-0 md:pl-6">
-                                                    <p className="text-xs font-bold uppercase tracking-[0.14em] mb-2" style={{ color: ACCENT.green }}>What I did</p>
-                                                    <p className="text-[0.9375rem] leading-[1.7] text-ink-2 m-0">{c.resolution}</p>
-                                                </div>
-                                            </div>
-                                        </article>
-                                    </Reveal>
-                                ))}
-                            </div>
-                        </Chapter>
-                    ) : null}
+                {project.legacy && (
+                    <section className="sp-section">
+                        <SectionHead no={no()} title={`Where it started: ${project.legacy.title}`} page={project.title} />
+                        <p className="sp-lede" style={{ marginTop: '1rem' }}>{project.legacy.summary}</p>
+                        <div className="pj-two">
+                            <div className="pj-panel"><p className="sp-sub">What it did</p><Bullets items={project.legacy.features} /></div>
+                            <div className="pj-panel"><p className="sp-sub">What changed</p><Bullets items={project.legacy.changes} /></div>
+                        </div>
+                        {project.legacy.screens && project.legacy.screens.length > 0 && <Shots shots={project.legacy.screens} />}
+                        {real(project.legacy.github) && <a href={project.legacy.github} target="_blank" rel="noreferrer" className="sp-btn sp-btn--ghost" style={{ marginTop: 14 }}>Legacy source <ArrowUpRight size={15} aria-hidden="true" /></a>}
+                    </section>
+                )}
 
-                    {story?.learnings.length ? (
-                        <Chapter id="learnings" number={nextNumber()} eyebrow="Takeaways" title="What I learned" icon={<GraduationCap size={16} aria-hidden="true" />} accent={ACCENT.purple}>
-                            <ul className="flex flex-col gap-3">
-                                {story.learnings.map((l, i) => (
-                                    <li
-                                        key={i}
-                                        className="card flex gap-3 rounded-xl border-l-2 px-5 py-4 text-[0.9375rem] leading-[1.7] text-ink-2"
-                                        style={{ borderLeftColor: `${ACCENT.purple}8c` }}
-                                    >
-                                        <span aria-hidden="true" className="font-bold" style={{ color: ACCENT.purple }}>→</span>
-                                        <span>{l}</span>
+                <section className="sp-section">
+                    <SectionHead no={no()} title="How it fits together" page={project.title} />
+                    {story?.integration && <p className="sp-lede" style={{ marginTop: '1rem' }}>{story.integration}</p>}
+                    {(project.architectureImage || project.mermaidChart) && (
+                        <figure className="pj-arch">
+                            {project.architectureImage
+                                // eslint-disable-next-line @next/next/no-img-element
+                                ? <img src={project.architectureImage} alt={`${project.title} architecture diagram`} />
+                                : project.mermaidChart && <MermaidChart chart={project.mermaidChart} />}
+                            <figcaption>Fig. {n} · System architecture</figcaption>
+                        </figure>
+                    )}
+                    {project.howToUse.length > 0 && (<><p className="sp-sub">How it’s used</p><Bullets items={project.howToUse} numbered /></>)}
+                </section>
+
+                {story?.challenges.length ? (
+                    <section className="sp-section">
+                        <SectionHead no={no()} title="What got hard" page={project.title} />
+                        <div className="pj-challenges">
+                            {story.challenges.map((c, i) => (
+                                <article key={c.title} className="pj-challenge">
+                                    <span className="pj-challenge__no">C{i + 1}</span>
+                                    <h3>{c.title}</h3>
+                                    <p><b>Problem.</b> {c.problem}</p>
+                                    <p><b>Fix.</b> {c.resolution}</p>
+                                </article>
+                            ))}
+                        </div>
+                    </section>
+                ) : null}
+
+                {story?.learnings.length ? (
+                    <section className="sp-section">
+                        <SectionHead no={no()} title="What I learned" page={project.title} />
+                        <Bullets items={story.learnings} numbered />
+                    </section>
+                ) : null}
+
+                <section className="sp-section">
+                    <SectionHead no={no()} title="Where it stands" page={project.title} />
+                    {project.outcomes.length > 0 && (<><p className="sp-sub">Outcomes</p><Bullets items={project.outcomes} /></>)}
+                    {project.progress.length > 0 && (
+                        <>
+                            <p className="sp-sub">Milestones</p>
+                            <ol className="pj-milestones">
+                                {project.progress.map((m) => (
+                                    <li key={m.title} data-state={m.state}>
+                                        <span className="pj-milestones__state">{STATE[m.state]?.icon}{STATE[m.state]?.label}</span>
+                                        <b>{m.title}</b>
+                                        <p>{m.detail}</p>
                                     </li>
                                 ))}
-                            </ul>
-                        </Chapter>
-                    ) : null}
+                            </ol>
+                        </>
+                    )}
+                    {project.futureGoals.length > 0 && (<><p className="sp-sub">Next</p><Bullets items={project.futureGoals} /></>)}
+                </section>
 
-                    <Chapter id="status" number={nextNumber()} eyebrow="Outcome" title="Where it stands today" icon={<Flag size={16} aria-hidden="true" />} accent={ACCENT.green} selfRevealing>
-                        <div className="flex flex-col gap-6">
-                            {project.outcomes.length > 0 && (
-                                <Stagger role="list" className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    {project.outcomes.map((o, i) => (
-                                        <StaggerItem key={i} role="listitem" className="card flex h-full gap-3 rounded-xl px-4 py-3.5 text-[0.9375rem] leading-[1.65] text-ink-2">
-                                            <CheckCircle2 size={16} aria-hidden="true" className="mt-1 shrink-0 text-accent" />
-                                            <span>{o}</span>
-                                        </StaggerItem>
-                                    ))}
-                                </Stagger>
-                            )}
-
-                            {project.progress.length > 0 && (
-                                <Reveal>
-                                    <div className={cardClass}>
-                                        <h3 className={cardLabel}>Milestones</h3>
-                                        <ul className="flex flex-col divide-y divide-line-1">
-                                            {project.progress.map((m, i) => {
-                                                const s = stateStyle[m.state] ?? stateStyle.planned;
-                                                return (
-                                                    <li key={i} className="grid grid-cols-[18px_1fr] sm:grid-cols-[18px_1fr_auto] items-start gap-x-3 gap-y-2 py-3.5 first:pt-0 last:pb-0">
-                                                        {s.icon}
-                                                        <div>
-                                                            <p className="text-[0.9375rem] font-semibold text-ink-1 m-0 mb-1">{m.title}</p>
-                                                            <p className="text-[0.9375rem] leading-[1.65] text-ink-2 m-0">{m.detail}</p>
-                                                        </div>
-                                                        <span
-                                                            className="col-start-2 sm:col-start-auto justify-self-start sm:self-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider"
-                                                            style={{ color: s.color, background: `${s.color}14`, border: `1px solid ${s.color}40` }}
-                                                        >
-                                                            {s.badge}
-                                                        </span>
-                                                    </li>
-                                                );
-                                            })}
-                                        </ul>
-                                    </div>
-                                </Reveal>
-                            )}
-
-                            {project.futureGoals.length > 0 && (
-                                <Reveal>
-                                    <h3 className="text-xs font-bold uppercase tracking-[0.14em] text-ink-3 mb-3">Next up</h3>
-                                    <ul className="flex flex-col gap-2.5">
-                                        {project.futureGoals.map((g, i) => (
-                                            <li key={i} className="flex gap-3 text-[0.9375rem] leading-[1.7] text-ink-2">
-                                                <CircleDashed size={15} aria-hidden="true" className="mt-1 shrink-0 text-ink-3" />
-                                                <span>{g}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </Reveal>
-                            )}
-                        </div>
-                    </Chapter>
-                </div>
-
-                {/* ── NEXT STORY ──────────────────────────────────────── */}
-                {nextProject && nextProject.slug !== project.slug && (
-                    <Reveal className="mt-24">
-                        <Link
-                            href={`/projects/${nextProject.slug}`}
-                            className="card spotlight group flex items-center justify-between gap-6 rounded-2xl p-6 sm:p-8 transition-colors duration-300 ease-out-expo hover:border-line-2 hover:bg-surface-3"
-                        >
-                            <div className="min-w-0">
-                                <p className="text-xs font-bold uppercase tracking-[0.18em] text-ink-3 mb-1.5">Next case study</p>
-                                <p className="text-xl font-bold text-ink-1 m-0 truncate">{nextProject.title}</p>
-                            </div>
-                            <ArrowRight size={22} aria-hidden="true" className="shrink-0 text-accent transition-transform duration-300 ease-out-expo group-hover:translate-x-1" />
-                        </Link>
-                    </Reveal>
+                {next && next.slug !== project.slug && (
+                    <Link href={`/projects/${next.slug}`} className="pj-next">
+                        <span>Next case study</span>
+                        <b>{next.title}</b>
+                        <ArrowRight size={20} aria-hidden="true" />
+                    </Link>
                 )}
             </div>
-        </main>
+        </div>
     );
 }
