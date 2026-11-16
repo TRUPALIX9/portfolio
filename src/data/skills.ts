@@ -3,7 +3,7 @@
  * `icon` is a Devicon class, `img` a brand logo in /public/brands, `mono` a lettered badge.
  * `light` puts a dark logo on a white tile so it stays readable.
  */
-export type ZoneId = 'frontend' | 'mobile' | 'edge' | 'backend' | 'integrations' | 'ai' | 'data' | 'cloud' | 'deploy' | 'devops' | 'protocol';
+export type ZoneId = 'frontend' | 'mobile' | 'edge' | 'backend' | 'integrations' | 'ai' | 'data' | 'cloud' | 'devops' | 'protocol';
 export type Skill = { name: string; zone: ZoneId; icon?: string; img?: string; mono?: string; light?: boolean; sub?: string };
 
 const d = (cls: string) => `devicon-${cls}`;
@@ -107,28 +107,28 @@ export const SKILLS: Skill[] = [
     { name: 'Google Cloud', zone: 'cloud', icon: d('googlecloud-plain colored') },
     { name: 'AWS', zone: 'cloud', icon: d('amazonwebservices-plain colored') },
     { name: 'Azure', zone: 'cloud', icon: d('azure-plain colored') },
-    { name: 'Vercel', zone: 'deploy', icon: d('vercel-original') },
+    { name: 'Vercel', zone: 'cloud', icon: d('vercel-original') },
     { name: 'Cloud Storage', zone: 'cloud', img: '/brands/googlecloudstorage.svg' },
     { name: 'Pub/Sub', zone: 'cloud', img: '/brands/googlepubsub.svg' },
-    { name: 'Docker', zone: 'deploy', icon: d('docker-plain colored') },
+    { name: 'Docker', zone: 'cloud', icon: d('docker-plain colored') },
     { name: 'GitHub Actions', zone: 'devops', icon: d('githubactions-plain colored') },
     { name: 'Git', zone: 'devops', icon: d('git-plain colored') },
     { name: 'Jest', zone: 'devops', icon: d('jest-plain colored') },
-    { name: 'Playwright', zone: 'devops', icon: d('playwright-plain colored') },
-    { name: 'ESLint', zone: 'devops', icon: d('eslint-plain colored') },
-    { name: 'Vite', zone: 'devops', icon: d('vitejs-plain colored') },
-    { name: 'Postman', zone: 'devops', icon: d('postman-plain colored') },
+    { name: 'Playwright', zone: 'frontend', sub: 'Testing', icon: d('playwright-plain colored') },
+    { name: 'ESLint', zone: 'frontend', sub: 'Tooling', icon: d('eslint-plain colored') },
+    { name: 'Vite', zone: 'frontend', sub: 'Tooling', icon: d('vitejs-plain colored') },
+    { name: 'Postman', zone: 'backend', sub: 'Tooling', icon: d('postman-plain colored') },
     { name: 'Swagger', zone: 'devops', icon: d('swagger-plain colored') },
     { name: 'Kibana', zone: 'devops', icon: d('kibana-plain colored') },
     { name: 'FFmpeg', zone: 'edge', img: '/brands/ffmpeg.svg' },
     { name: 'NSSM', zone: 'edge', mono: 'NS' },
     { name: 'Arduino', zone: 'edge', icon: d('arduino-plain colored') },
 
-    // Deploy · hosting
-    { name: 'Cloudflare Workers', zone: 'deploy', icon: d('cloudflare-plain colored') },
-    { name: 'Google Cloud Run', zone: 'deploy', icon: d('googlecloud-plain colored') },
-    { name: 'App Store Connect', zone: 'deploy', icon: d('apple-original'), light: true },
-    { name: 'Google Play Console', zone: 'deploy', img: '/brands/googleplay.svg', light: true },
+    // Cloud · deploy (hosting)
+    { name: 'Cloudflare Workers', zone: 'cloud', icon: d('cloudflare-plain colored') },
+    { name: 'Google Cloud Run', zone: 'cloud', icon: d('googlecloud-plain colored') },
+    { name: 'App Store Connect', zone: 'cloud', icon: d('apple-original'), light: true },
+    { name: 'Google Play Console', zone: 'cloud', img: '/brands/googleplay.svg', light: true },
 
     // DevOps (Linux and Bash are backed by the Coursera certificates)
     { name: 'Linux', zone: 'devops', icon: d('linux-plain') },

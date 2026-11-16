@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Cloud, Cpu, Database, GitBranch, Monitor, Plug, Rocket, Server, Smartphone, Sparkles } from 'lucide-react';
+import { Cloud, Cpu, Database, GitBranch, Monitor, Plug, Server, Smartphone, Sparkles } from 'lucide-react';
 import { PROTOCOL_NOTES, SKILLS, type Skill, type ZoneId } from '@/data/skills';
 
 const VW = 1000, VH = 600;
@@ -17,10 +17,9 @@ const ZONES: Zone[] = [
     { id: 'integrations', label: 'Integrations', icon: <Plug size={15} />, x: 385, y: 18, w: 230, h: 160, note: 'Third-party systems wired in, from accounting to POS terminals.' },
     { id: 'backend', label: 'Backend · APIs', icon: <Server size={15} />, x: 385, y: 215, w: 230, h: 170, note: 'Services and workers in the middle of everything.' },
     { id: 'ai', label: 'AI · ML', icon: <Sparkles size={15} />, x: 385, y: 422, w: 230, h: 160, note: 'Models, agents, OCR and the data work behind them.' },
-    { id: 'data', label: 'Data', icon: <Database size={15} />, x: 750, y: 10, w: 230, h: 132, note: 'Stores, search and analytics.' },
-    { id: 'cloud', label: 'Cloud', icon: <Cloud size={15} />, x: 750, y: 158, w: 230, h: 132, note: 'Providers, storage and queues.' },
-    { id: 'deploy', label: 'Deploy · Hosting', icon: <Rocket size={15} />, x: 750, y: 306, w: 230, h: 132, note: 'Where things go live: hosting, edge workers, containers and the app stores.' },
-    { id: 'devops', label: 'DevOps', icon: <GitBranch size={15} />, x: 750, y: 454, w: 230, h: 132, note: 'Build, test and watch: CI, Git, testing and monitoring.' },
+    { id: 'data', label: 'Data', icon: <Database size={15} />, x: 750, y: 18, w: 230, h: 170, note: 'Stores, search and analytics.' },
+    { id: 'cloud', label: 'Cloud · Deploy', icon: <Cloud size={15} />, x: 750, y: 215, w: 230, h: 170, note: 'Cloud providers, storage and queues, and where things go live: hosting, edge workers, containers and the app stores.' },
+    { id: 'devops', label: 'DevOps', icon: <GitBranch size={15} />, x: 750, y: 412, w: 230, h: 170, note: 'CI pipelines, version control, unit tests, API docs, monitoring and the shell.' },
 ];
 
 /** How the layers talk, and over which protocols. `label` is for links that aren't a protocol. */
@@ -34,8 +33,7 @@ const EDGES: Edge[] = [
     { a: 'backend', b: 'data', protos: [], label: 'queries' },
     { a: 'backend', b: 'cloud', protos: [], label: 'Pub/Sub · queues' },
     { a: 'ai', b: 'data', protos: [], label: 'RAG' },
-    { a: 'devops', b: 'deploy', protos: [], label: 'CI/CD' },
-    { a: 'deploy', b: 'cloud', protos: [], label: 'runs on' },
+    { a: 'devops', b: 'cloud', protos: [], label: 'CI/CD deploys' },
 ];
 
 const box = (id: string) => ZONES.find((z) => z.id === id)!;
