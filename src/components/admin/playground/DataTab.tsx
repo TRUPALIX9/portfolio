@@ -93,7 +93,7 @@ export function DataTab({ refreshKey, onUnauthorized, onDataChanged, openVisitor
 
     return (
         <div style={{ display: "grid", gap: "1rem" }}>
-            {error && <p role="alert" style={{ margin: 0, color: "#fecaca", fontWeight: 700 }}>{error}</p>}
+            {error && <p role="alert" style={{ margin: 0, color: "#b91c1c", fontWeight: 700 }}>{error}</p>}
 
             {settings && (
                 <Grid min={180}>
@@ -108,16 +108,16 @@ export function DataTab({ refreshKey, onUnauthorized, onDataChanged, openVisitor
                     title="Keep your own visits out"
                     description="Your visits are hidden from every report (switch Traffic to “Only me” to see them). Three ways a device counts as you: signing in here marks this browser automatically; “This is me” on a visitor profile marks that device; and a network below marks every device on it, such as all browsers on your Mac at home."
                 >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", padding: "0.8rem 1rem", borderRadius: "12px", border: `1px solid ${colors.line}`, marginBottom: "0.8rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", padding: "0.8rem 1rem", borderRadius: "0", border: `1px solid ${colors.line}`, marginBottom: "0.8rem" }}>
                         <div>
-                            <div style={{ color: colors.ink3, fontSize: "0.72rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>Your current IP</div>
+                            <div style={{ color: colors.ink3, fontSize: "0.72rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>Your current IP</div>
                             <code style={{ color: colors.ink1 }}>{settings.currentIp || "unknown"}</code>
                             {settings.currentIp.includes(":") && (
                                 <div style={{ color: colors.ink3, fontSize: "0.8rem", marginTop: "0.25rem" }}>This is an IPv6 address, which can change every few days. Signing in on each browser is the more reliable option.</div>
                             )}
                         </div>
                         {settings.ownerIps.includes(settings.currentIp) || settings.envOwnerIps.includes(settings.currentIp) ? (
-                            <span style={{ color: colors.good, fontWeight: 800 }}>✓ Marked as you</span>
+                            <span style={{ color: colors.good, fontWeight: 600 }}>✓ Marked as you</span>
                         ) : (
                             <button type="button" disabled={busy || !settings.currentIp} onClick={() => void run({ action: "add_owner_ip" })} style={primaryButtonStyle}>
                                 Mark this network as me
@@ -143,9 +143,9 @@ export function DataTab({ refreshKey, onUnauthorized, onDataChanged, openVisitor
             <Panel title="Tagged share links" description="Use these instead of the bare URL so each source shows up by name in Sources.">
                 <div style={{ display: "grid", gap: "0.6rem" }}>
                     {SHARE_LINKS.map((link) => (
-                        <div key={link.path} style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", gap: "0.75rem", alignItems: "center", padding: "0.7rem 0.9rem", borderRadius: "12px", border: `1px solid ${colors.line}` }}>
+                        <div key={link.path} style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", gap: "0.75rem", alignItems: "center", padding: "0.7rem 0.9rem", borderRadius: "0", border: `1px solid ${colors.line}` }}>
                             <div style={{ minWidth: 0 }}>
-                                <div style={{ color: colors.ink1, fontWeight: 800 }}>{link.label}</div>
+                                <div style={{ color: colors.ink1, fontWeight: 600 }}>{link.label}</div>
                                 <div style={{ color: colors.ink3, fontSize: "0.82rem", wordBreak: "break-all" }}>{link.path}</div>
                             </div>
                             <button type="button" onClick={() => void copy(link.path, link.label)} aria-label={`Copy ${link.label} link`} style={buttonStyle}>Copy</button>

@@ -130,23 +130,23 @@ export function fmtPlace(geo?: { city?: string; region?: string; country?: strin
 // ── Layout pieces ─────────────────────────────────────────────────────────────
 
 export const colors = {
-    ink1: "#f8fafc",
-    ink2: "#cbd5e1",
-    ink3: "#94a3b8",
-    line: "rgba(148,163,184,0.16)",
-    accent: "#38bdf8",
-    accentSoft: "rgba(56,189,248,0.22)",
-    good: "#4ade80",
-    bad: "#f87171",
-    warn: "#fbbf24",
+    ink1: "#111111",
+    ink2: "#444444",
+    ink3: "#666666",
+    line: "#d9d7cf",
+    accent: "#ea580c",
+    accentSoft: "rgba(234,88,12,0.22)",
+    good: "#16a34a",
+    bad: "#dc2626",
+    warn: "#b45309",
 };
 
 export function Panel({ title, description, actions, children }: { title: string; description?: string; actions?: ReactNode; children: ReactNode }) {
     return (
-        <section style={{ padding: "1.35rem", borderRadius: "20px", background: "linear-gradient(180deg, rgba(15,23,42,0.92), rgba(2,6,23,0.94))", color: "#e2e8f0", border: `1px solid ${colors.line}`, boxShadow: "0 18px 50px rgba(0,0,0,0.28)", minWidth: 0 }}>
+        <section style={{ padding: "1.35rem", borderRadius: "0", background: "#ffffff", color: "#111111", border: `1px solid ${colors.line}`, boxShadow: "4px 4px 0 #111111", minWidth: 0 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: "1rem", flexWrap: "wrap", marginBottom: "1rem" }}>
                 <div style={{ minWidth: 0 }}>
-                    <h2 style={{ margin: 0, fontSize: "1.02rem", fontWeight: 900, color: colors.ink1 }}>{title}</h2>
+                    <h2 style={{ margin: 0, fontSize: "1.02rem", fontWeight: 600, color: colors.ink1 }}>{title}</h2>
                     {description && <p style={{ margin: "0.35rem 0 0", color: colors.ink3, lineHeight: 1.55, fontSize: "0.9rem" }}>{description}</p>}
                 </div>
                 {actions}
@@ -185,9 +185,9 @@ export function StatCard({ title, value, hint, current, previous, invert = false
         }
     }
     return (
-        <div style={{ padding: "1.1rem 1.2rem", borderRadius: "18px", background: "linear-gradient(180deg, rgba(15,23,42,0.92), rgba(2,6,23,0.94))", border: `1px solid ${colors.line}`, minWidth: 0 }}>
-            <p style={{ margin: 0, color: colors.ink3, textTransform: "uppercase", letterSpacing: "0.1em", fontSize: "0.7rem", fontWeight: 800 }}>{title}</p>
-            <p style={{ margin: "0.45rem 0 0", fontSize: "1.75rem", fontWeight: 900, color: colors.ink1, lineHeight: 1.1, fontVariantNumeric: "tabular-nums" }}>{value}</p>
+        <div style={{ padding: "1.1rem 1.2rem", borderRadius: "0", background: "#ffffff", border: `1px solid ${colors.line}`, minWidth: 0 }}>
+            <p style={{ margin: 0, color: colors.ink3, textTransform: "uppercase", letterSpacing: "0.1em", fontSize: "0.7rem", fontWeight: 600 }}>{title}</p>
+            <p style={{ margin: "0.45rem 0 0", fontSize: "1.75rem", fontWeight: 600, color: colors.ink1, lineHeight: 1.1, fontVariantNumeric: "tabular-nums" }}>{value}</p>
             {(hint || delta) && (
                 <p style={{ margin: "0.45rem 0 0", color: colors.ink2, fontSize: "0.8rem", lineHeight: 1.5, fontVariantNumeric: "tabular-nums", display: "grid", gap: "0.15rem" }}>
                     {delta}
@@ -200,14 +200,14 @@ export function StatCard({ title, value, hint, current, previous, invert = false
 
 export function EmptyState({ label }: { label: string }) {
     return (
-        <div style={{ padding: "1.25rem", borderRadius: "14px", border: "1px dashed rgba(148,163,184,0.3)", color: colors.ink3, textAlign: "center", fontSize: "0.9rem" }}>
+        <div style={{ padding: "1.25rem", borderRadius: "0", border: "1px dashed rgba(17,17,17,0.3)", color: colors.ink3, textAlign: "center", fontSize: "0.9rem" }}>
             {label}
         </div>
     );
 }
 
 export function LoadState({ loading, error, empty, emptyLabel, children }: { loading: boolean; error: string; empty?: boolean; emptyLabel?: string; children: ReactNode }) {
-    if (error) return <p role="alert" style={{ margin: 0, color: "#fecaca", fontWeight: 700 }}>{error}</p>;
+    if (error) return <p role="alert" style={{ margin: 0, color: "#b91c1c", fontWeight: 700 }}>{error}</p>;
     if (loading && empty) return <p style={{ margin: 0, color: colors.ink3 }}>Loading…</p>;
     if (empty) return <EmptyState label={emptyLabel ?? "No data for this period yet."} />;
     return <div style={{ opacity: loading ? 0.6 : 1, transition: "opacity 150ms" }}>{children}</div>;
@@ -216,7 +216,7 @@ export function LoadState({ loading, error, empty, emptyLabel, children }: { loa
 export function Pill({ label, tone = "neutral" }: { label: string; tone?: "neutral" | "good" | "bad" | "warn" | "accent" }) {
     const toneColor = { neutral: colors.ink1, good: colors.good, bad: colors.bad, warn: colors.warn, accent: colors.accent }[tone];
     return (
-        <span style={{ display: "inline-flex", alignItems: "center", padding: "0.2rem 0.55rem", borderRadius: "999px", background: "rgba(255,255,255,0.05)", border: `1px solid ${tone === "neutral" ? colors.line : `${toneColor}55`}`, color: toneColor, fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.04em", whiteSpace: "nowrap" }}>
+        <span style={{ display: "inline-flex", alignItems: "center", padding: "0.2rem 0.55rem", borderRadius: "999px", background: "#fafaf7", border: `1px solid ${tone === "neutral" ? colors.line : `${toneColor}55`}`, color: toneColor, fontSize: "0.7rem", fontWeight: 600, letterSpacing: "0.04em", whiteSpace: "nowrap" }}>
             {label}
         </span>
     );
@@ -239,7 +239,7 @@ export function BarList({ items, format = (n: number) => fmtNumber(n), empty = "
                         {item.label}
                         {item.hint && <span style={{ color: colors.ink3 }}> · {item.hint}</span>}
                     </span>
-                    <span style={{ position: "relative", color: colors.ink2, fontSize: "0.84rem", fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>{format(item.value)}</span>
+                    <span style={{ position: "relative", color: colors.ink2, fontSize: "0.84rem", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{format(item.value)}</span>
                 </li>
             ))}
         </ul>
@@ -284,7 +284,7 @@ export function ColumnChart({ data, valueLabel }: { data: { label: string; value
                 ))}
             </div>
             {active && hover !== null && (
-                <div style={{ position: "absolute", top: "1.2rem", left: `${Math.min(Math.max(((hover + 0.5) / data.length) * 100, 12), 88)}%`, transform: "translateX(-50%)", padding: "0.45rem 0.65rem", borderRadius: "8px", background: "#0b1220", border: `1px solid ${colors.line}`, color: colors.ink1, fontSize: "0.78rem", pointerEvents: "none", whiteSpace: "nowrap", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
+                <div style={{ position: "absolute", top: "1.2rem", left: `${Math.min(Math.max(((hover + 0.5) / data.length) * 100, 12), 88)}%`, transform: "translateX(-50%)", padding: "0.45rem 0.65rem", borderRadius: "8px", background: "#111111", border: `1px solid #111111`, color: "#fafaf7", fontSize: "0.78rem", pointerEvents: "none", whiteSpace: "nowrap", boxShadow: "3px 3px 0 #ea580c" }}>
                     <strong>{active.label}</strong>
                     <div style={{ color: colors.ink2, fontVariantNumeric: "tabular-nums" }}>{fmtNumber(active.value)} {valueLabel.toLowerCase()}</div>
                     {active.sub && <div style={{ color: colors.ink3 }}>{active.sub}</div>}
@@ -312,10 +312,10 @@ export function DataTable<T>({ rows, columns, rowKey, empty = "Nothing recorded 
 }) {
     if (!rows.length) return <EmptyState label={empty} />;
     return (
-        <div style={{ overflowX: "auto", border: `1px solid ${colors.line}`, borderRadius: "14px" }}>
+        <div style={{ overflowX: "auto", border: `1px solid ${colors.line}`, borderRadius: "0" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
                 <thead>
-                    <tr style={{ background: "rgba(255,255,255,0.04)" }}>
+                    <tr style={{ background: "#fafaf7" }}>
                         {columns.map((c) => (
                             <th key={c.label} scope="col" style={{ ...th, textAlign: c.align ?? "left" }}>{c.label}</th>
                         ))}
@@ -344,7 +344,7 @@ export function DataTable<T>({ rows, columns, rowKey, empty = "Nothing recorded 
 const th: CSSProperties = {
     padding: "0.65rem 0.8rem",
     fontSize: "0.68rem",
-    fontWeight: 800,
+    fontWeight: 600,
     textTransform: "uppercase",
     letterSpacing: "0.08em",
     color: colors.ink2,
@@ -353,16 +353,16 @@ const th: CSSProperties = {
 
 const td: CSSProperties = {
     padding: "0.65rem 0.8rem",
-    color: "#e2e8f0",
+    color: "#111111",
     verticalAlign: "top",
     fontVariantNumeric: "tabular-nums",
 };
 
 export const inputStyle: CSSProperties = {
     padding: "0.7rem 0.9rem",
-    borderRadius: "12px",
+    borderRadius: "0",
     border: `1px solid ${colors.line}`,
-    background: "rgba(15,23,42,0.92)",
+    background: "#ffffff",
     color: colors.ink1,
     fontWeight: 600,
     minWidth: 0,
@@ -370,18 +370,18 @@ export const inputStyle: CSSProperties = {
 
 export const buttonStyle: CSSProperties = {
     padding: "0.6rem 0.9rem",
-    borderRadius: "10px",
+    borderRadius: "0",
     border: `1px solid ${colors.line}`,
-    background: "rgba(255,255,255,0.04)",
-    color: "#e2e8f0",
-    fontWeight: 800,
+    background: "#fafaf7",
+    color: "#111111",
+    fontWeight: 600,
     cursor: "pointer",
 };
 
 export const primaryButtonStyle: CSSProperties = {
     ...buttonStyle,
-    border: "1px solid rgba(56,189,248,0.3)",
-    background: "linear-gradient(135deg, #0f172a, #1d4ed8)",
+    border: "1px solid rgba(234,88,12,0.3)",
+    background: "#111111",
     color: "#fff",
 };
 
@@ -400,8 +400,8 @@ export function Segmented<T extends string>({ label, value, options, onChange }:
     onChange: (value: T) => void;
 }) {
     return (
-        <div role="radiogroup" aria-label={label} style={{ display: "inline-flex", alignItems: "center", gap: "0.2rem", padding: "0.2rem", borderRadius: "12px", border: `1px solid ${colors.line}`, background: "rgba(15,23,42,0.92)", flexWrap: "wrap" }}>
-            <span style={{ padding: "0 0.5rem", color: colors.ink3, fontSize: "0.7rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</span>
+        <div role="radiogroup" aria-label={label} style={{ display: "inline-flex", alignItems: "center", gap: "0.2rem", padding: "0.2rem", borderRadius: "0", border: `1px solid ${colors.line}`, background: "#ffffff", flexWrap: "wrap" }}>
+            <span style={{ padding: "0 0.5rem", color: colors.ink3, fontSize: "0.7rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</span>
             {options.map((o) => {
                 const selected = o.value === value;
                 return (
@@ -411,7 +411,7 @@ export function Segmented<T extends string>({ label, value, options, onChange }:
                         role="radio"
                         aria-checked={selected}
                         onClick={() => onChange(o.value)}
-                        style={{ padding: "0.45rem 0.75rem", borderRadius: "9px", border: "none", background: selected ? "#1d4ed8" : "transparent", color: selected ? "#fff" : colors.ink2, fontWeight: 800, fontSize: "0.82rem", cursor: "pointer", whiteSpace: "nowrap" }}
+                        style={{ padding: "0.45rem 0.75rem", borderRadius: "9px", border: "none", background: selected ? "#111111" : "transparent", color: selected ? "#fff" : colors.ink2, fontWeight: 600, fontSize: "0.82rem", cursor: "pointer", whiteSpace: "nowrap" }}
                     >
                         {o.label}
                     </button>

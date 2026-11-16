@@ -72,14 +72,14 @@ export function InboxTab({ refreshKey, onUnauthorized }: { refreshKey: number; o
                 </div>
             )}
         >
-            {error && <p role="alert" style={{ margin: "0 0 1rem", color: "#fecaca", fontWeight: 700 }}>{error}</p>}
+            {error && <p role="alert" style={{ margin: "0 0 1rem", color: "#b91c1c", fontWeight: 700 }}>{error}</p>}
             {!messages && !error && <p style={{ margin: 0, color: colors.ink3 }}>Loading…</p>}
             {messages && shown.length === 0 && <EmptyState label={filter === "new" ? "No new messages." : "No messages yet."} />}
             <div style={{ display: "grid", gap: "0.8rem" }}>
                 {shown.map((m) => {
                     const status = m.status ?? "new";
                     return (
-                        <article key={m.id} style={{ padding: "1rem", borderRadius: "14px", background: "rgba(255,255,255,0.03)", border: `1px solid ${colors.line}`, display: "grid", gap: "0.6rem" }}>
+                        <article key={m.id} style={{ padding: "1rem", borderRadius: "0", background: "#fafaf7", border: `1px solid ${colors.line}`, display: "grid", gap: "0.6rem" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
                                 <div style={{ minWidth: 0 }}>
                                     <strong style={{ color: colors.ink1, overflowWrap: "anywhere" }}>{m.name}</strong>

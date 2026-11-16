@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { NextResponse } from 'next/server';
+import { ObjectId } from 'mongodb';
 import { isAuthorizedRequest } from '@/utils/admin';
 import { bingeDb, str } from '@/utils/binge';
 
@@ -46,4 +47,15 @@ export async function GET(request: Request) {
     const db = await bingeDb();
     const docs = await db.collection(COLLECTION).find({}, { projection: { ipHash: 0 } }).sort({ createdAt: -1 }).limit(300).toArray();
     return NextResponse.json(docs.map(({ _id, ...d }) => ({ id: String(_id), ...d })));
+}
+
+/** Admin: approve, dismiss or reset a travel suggestion. Approved ones show on /travel. */
+export async function PATCH(request: Request) {
+    if (!(await isAuthorizedRequest(request))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const body = await request.json().catch(() => ({}));
+    if (typeof body.id !== 'string' || !ObjectId.isValid(body.id)) return NextResponse.json({ error: 'Bad id.' }, { status: 400 });
+    if (!['new', 'approved', 'dismissed'].includes(body.status)) return NextResponse.json({ error: 'Bad status.' }, { status: 400 });
+    const db = await bingeDb();
+    await db.collection(COLLECTION).updateOne({ _id: new ObjectId(body.id) }, { $set: { status: body.status, reviewedAt: new Date().toISOString() } });
+    return NextResponse.json({ ok: true });
 }

@@ -5,7 +5,6 @@ import { Cloud, Database, Monitor, Plug, Server, Smartphone, Sparkles } from 'lu
 import { SKILLS, type Skill, type ZoneId } from '@/data/skills';
 
 const VW = 1000, VH = 540;
-const PREVIEW = 6; // logos shown inside a box before "+N"
 
 type Zone = { id: ZoneId; label: string; icon: React.ReactNode; x: number; y: number; w: number; h: number; note: string };
 
@@ -100,10 +99,8 @@ export default function SystemMap() {
                         >
                             <span className="sp-sys__head"><span className="sp-sys__icon" aria-hidden="true">{z.icon}</span>{z.label}<b>{all.length}</b></span>
                             <span className="sp-sys__logos">
-                                {all.slice(0, PREVIEW).map((s) => <span key={s.name} title={s.name}><SkillLogo s={s} size={22} /></span>)}
-                                {all.length > PREVIEW && <span className="sp-sys__more">+{all.length - PREVIEW}</span>}
+                                {all.map((s) => <span key={s.name} title={s.name}><SkillLogo s={s} size={18} /></span>)}
                             </span>
-                            <span className="sp-sys__names">{all.slice(0, 3).map((s) => s.name).join(' · ')}</span>
                         </button>
                     );
                 })}
