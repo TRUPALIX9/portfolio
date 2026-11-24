@@ -48,7 +48,7 @@ export default function Footer() {
                     >
                         Trupal Patel
                     </span>
-                    {' '}· TP-SDE-2026 · Rev 4 · trupalpatel.com · © {new Date().getFullYear()}
+                    {' '}· trupalpatel.com · © {new Date().getFullYear()}
                 </span>
                 <nav aria-label="Footer" className="sp-footer__links">
                     <Link href="/">Datasheet</Link>

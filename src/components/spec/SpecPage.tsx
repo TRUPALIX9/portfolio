@@ -1,25 +1,24 @@
 import Image from 'next/image';
-import Link from 'next/link';
-import { ArrowUpRight, FileText, Mail, MapPin } from 'lucide-react';
+import { ArrowUpRight, FileText, Mail } from 'lucide-react';
 import Reveal from '@/components/motion/Reveal';
 import { CAREER, CURRENT_JOB } from '@/data/career';
 import { STUDIO, STUDIO_TREE } from '@/data/studio';
 import { LinkedinIcon } from '@/data/site-config';
 import ContactForm from './ContactForm';
-import CountUp from './CountUp';
 import { PageIndex, ScrollRuler } from './PageIndex';
 import SystemMap from './SystemMap';
-import AppIcon from './AppIcon';
 import RelatedDocs from './RelatedDocs';
 import Platforms from './Platforms';
 import CareerTiming from './CareerTiming';
-import { EDUCATION } from '@/data/education';
-import SectionHead, { PART_NO } from './SectionHead';
+import Education from './Education';
+import ProjectsPreview from './ProjectsPreview';
+import CertificationsPreview from './CertificationsPreview';
+import SectionHead from './SectionHead';
 
 const products = STUDIO_TREE.filter((n) => n.group === 'products');
-const others = STUDIO_TREE.filter((n) => n.group !== 'products');
-const SINCE = CURRENT_JOB.period.replace(' – now', '');
-const YEARS = Math.floor((Date.now() - Date.UTC(2022, 0, 1)) / (365.25 * 24 * 3600 * 1000));
+/** Live products and the platforms they ship on, from the same list the Platforms folder uses. */
+const LIVE_PRODUCTS = products.filter((n) => n.live);
+const SHIPPED_ON = STUDIO.platforms.filter((p) => LIVE_PRODUCTS.some((n) => n.platforms.split('·').map((s) => s.trim()).includes(p)));
 
 const GithubIcon = ({ size = 17 }: { size?: number }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -27,12 +26,6 @@ const GithubIcon = ({ size = 17 }: { size?: number }) => (
     </svg>
 );
 
-
-
-
-function ext(href: string) {
-    return href.startsWith('http') ? { target: '_blank', rel: 'noreferrer' } : {};
-}
 
 export default function SpecPage() {
     return (
@@ -45,17 +38,26 @@ export default function SpecPage() {
                     <section id="overview" data-track-section="overview" className="sp-section">
                         <SectionHead no={1} title="Overview" page="p. 1" />
                         <div className="sp-hero">
-                            <Reveal>
-                                <p className="sp-part"><b>{PART_NO}</b><span>Software engineer</span><span>Rev 4 · {SINCE}</span></p>
+                            <Reveal className="sp-hero__text">
+                                <div className="sp-hero__id">
                                 <h1 className="sp-name">Trupal Patel</h1>
-                                <p className="sp-role">{CURRENT_JOB.role} · <b className="sp-role__co"><Image src="/logos/cvs-health.png" alt="" width={20} height={20} />CVS Health</b></p>
-                                <p className="sp-status"><span className="sp-led sp-led--live" aria-hidden="true" /><MapPin size={13} aria-hidden="true" /> Georgia, USA · status: active</p>
-                                {/* Ratings: only numbers the hero doesn't already say */}
-                                <dl className="sp-ratings sp-ratings--hero">
-                                    <div><dt>Experience</dt><dd><CountUp to={YEARS} suffix="+" /><small>years</small></dd></div>
-                                    <div><dt>Live products</dt><dd>{STUDIO_TREE.filter((n) => n.live && n.group === 'products').length}</dd></div>
-                                    <div><dt>Platforms</dt><dd>{STUDIO.platforms.length}</dd></div>
-                                </dl>
+                                <p className="sp-role">{CURRENT_JOB.role}</p>
+                                <p className="sp-role sp-role--co"><b className="sp-role__co"><Image src="/logos/cvs-health.png" alt="" width={26} height={26} />CVS Health</b><span className="sp-role__sub" aria-label="(Aetna)"><span className="sp-role__paren" aria-hidden="true">(</span><Image src="/logos/aetna.png" alt="" width={22} height={22} />aetna<span className="sp-role__paren" aria-hidden="true">)</span></span></p>
+                                </div>
+                                {/* Who I am as a builder, not the day job */}
+                                <p className="sp-hero__lede">I build things end to end, from the first sketch to something people use every day: a back office for gas stations, brain games on the App Store, a family tree relatives grow together. Every idea starts false; I like shipping it true.</p>
+                                <div className="sp-hero__tags">
+                                    {/* Studio membership, in the studio's own true || false colours */}
+                                    <a href={STUDIO.url} target="_blank" rel="noreferrer" className="sp-member">
+                                        <span className="sp-member__text">
+                                            <small>Member of</small>
+                                            {/* The studio's own logo, the version made for light backgrounds */}
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img src="/studio/logo-horizontal-light.svg" alt="True || False" width={792} height={96} className="sp-member__logo" />
+                                        </span>
+                                        <ArrowUpRight size={15} aria-hidden="true" className="sp-member__go" />
+                                    </a>
+                                </div>
                             </Reveal>
                             <Reveal delay={0.1}>
                                 <figure className="sp-fig">
@@ -68,7 +70,7 @@ export default function SpecPage() {
                         </div>
 
 
-                        <h3 className="sp-sub">Platforms shipped</h3>
+                        <h3 id="platforms" className="sp-sub">Platforms shipped · <b>{LIVE_PRODUCTS.length}</b> live products on <b>{SHIPPED_ON.length}</b> platforms</h3>
                         <Platforms />
                     </section>
 
@@ -79,88 +81,28 @@ export default function SpecPage() {
                         <SystemMap />
                     </section>
 
-                    {/* 3 · Applications */}
-                    <section id="applications" data-track-section="applications" className="sp-section">
-                        <SectionHead no={3} title="Applications · trueorfalse.dev" page="p. 3" />
-                        <div className="sp-dark">
-                        <Reveal className="sp-tf">
-                            <div>
-                                <p className="sp-tf__mark" aria-label="True or False"><Image src="/studio/studio.png" alt="" width={40} height={40} className="sp-tf__logo" /><span className="t">true</span><span className="o">||</span><span className="f">false</span></p>
-                                <p>{STUDIO.motto[0]} {STUDIO.motto[1]} Trupal is a member of the studio.</p>
-                            </div>
-                            <a href={STUDIO.url} target="_blank" rel="noreferrer">trueorfalse.dev ↗</a>
-                        </Reveal>
-
-                        <div className="sp-apps">
-                            {products.map((p, i) => {
-                                return (
-                                    <Reveal key={p.id} delay={(i % 2) * 0.06}>
-                                        <article className="sp-app" style={{ height: '100%' }}>
-                                            <header className="sp-app__head">
-                                                <AppIcon id={p.id} name={p.name} size={40} />
-                                                <div>
-                                                    <h3 className="sp-app__name">{p.name}</h3>
-                                                    <span className="sp-app__pn">TF-{String(i + 1).padStart(2, '0')} · {p.links[0].label}</span>
-                                                </div>
-                                                <span className="sp-app__state"><span className="sp-led sp-led--live" aria-hidden="true" />live</span>
-                                            </header>
-                                            <div className="sp-app__body">
-                                                <p className="sp-app__tag">{p.tagline}</p>
-                                                <p className="sp-app__fn">{p.summary}</p>
-                                                <div className="sp-app__foot">
-                                                    <span className="sp-app__plat">{p.platforms}</span>
-                                                    <a href={p.links[0].href} className="sp-app__go" {...ext(p.links[0].href)}>Open<ArrowUpRight size={13} aria-hidden="true" /></a>
-                                                </div>
-                                            </div>
-                                        </article>
-                                    </Reveal>
-                                );
-                            })}
-                        </div>
-
-                        <h3 className="sp-sub">Client sites and projects</h3>
-                        <div className="sp-table-wrap">
-                            <table className="sp-table">
-                                <thead><tr><th>Name</th><th>Function</th><th>Status</th><th>Link</th></tr></thead>
-                                <tbody>
-                                    {others.map((o) => (
-                                        <tr key={o.id}>
-                                            <td>{o.name}</td>
-                                            <td>{o.tagline}</td>
-                                            <td className="sp-mono" style={{ whiteSpace: 'nowrap' }}>
-                                                <span className={`sp-led ${o.live ? '' : 'sp-led--off'}`} style={{ display: 'inline-block', marginRight: 6 }} aria-hidden="true" />
-                                                {o.live ? 'live' : 'not yet'}
-                                            </td>
-                                            <td><a className="sp-link sp-mono" style={{ fontSize: '0.8rem' }} href={o.links[0].href} {...ext(o.links[0].href)}>{o.links[0].label}</a></td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                        </div>
-                    </section>
-
-                    {/* 4 · Revision history */}
+                    {/* 3 · Revision history */}
                     <section id="revisions" data-track-section="revisions" className="sp-section">
-                        <SectionHead no={4} title="Revision history" page="p. 4" />
+                        <SectionHead no={3} title="Revision history" page="p. 3" />
+                        <h3 className="sp-sub">Education</h3>
+                        <Education />
+                        <h3 className="sp-sub" style={{ marginTop: '1.6rem' }}>Experience</h3>
                         <CareerTiming rows={CAREER} />
-                        <h3 className="sp-sub" style={{ marginTop: '1.6rem' }}>Education</h3>
-                        <CareerTiming rows={EDUCATION} tag="E" />
-                        <p className="sp-tim__links">
-                            <Link href="/projects" className="sp-btn sp-btn--ghost"><FileText size={15} aria-hidden="true" /> Project archive</Link>
-                            <Link href="/certifications" className="sp-btn sp-btn--ghost"><FileText size={15} aria-hidden="true" /> Certifications</Link>
-                        </p>
+                        <h3 className="sp-sub" style={{ marginTop: '1.6rem' }}>Project archive</h3>
+                        <ProjectsPreview />
+                        <h3 className="sp-sub" style={{ marginTop: '1.8rem' }}>Certifications</h3>
+                        <CertificationsPreview />
                     </section>
 
-                    {/* 5 · Related documents */}
+                    {/* 4 · Related documents */}
                     <section id="documents" data-track-section="documents" className="sp-section">
-                        <SectionHead no={5} title="Related documents" page="p. 5" />
+                        <SectionHead no={4} title="Related documents" page="p. 4" />
                         <RelatedDocs />
                     </section>
 
-                    {/* 6 · Ordering information */}
+                    {/* 5 · Ordering information */}
                     <section id="ordering" data-track-section="contact" className="sp-section">
-                        <SectionHead no={6} title="Ordering information" page="p. 6" />
+                        <SectionHead no={5} title="Ordering information" page="p. 5" />
                         <div className="sp-order">
                             <div className="sp-order__codes">
                                 <a href="mailto:trupal.work@gmail.com"><Mail size={18} aria-hidden="true" /><span><small>Email</small>trupal.work@gmail.com</span><ArrowUpRight size={14} aria-hidden="true" /></a>

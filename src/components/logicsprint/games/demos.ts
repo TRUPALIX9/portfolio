@@ -1,6 +1,8 @@
 import type { ComponentType } from 'react';
 import type { GameType } from '@/data/logicsprint';
+import AngleSenseDemo from './AngleSenseDemo';
 import GuessColorDemo from './GuessColorDemo';
+import LineSplitDemo from './LineSplitDemo';
 import MemoryLaneDemo from './MemoryLaneDemo';
 import QuickMathDemo from './QuickMathDemo';
 import RocketLaunchDemo from './RocketLaunchDemo';
@@ -11,6 +13,8 @@ export const DEMOS: Record<GameType, ComponentType> = {
     memoryLane: MemoryLaneDemo,
     quickMath: QuickMathDemo,
     guessColor: GuessColorDemo,
+    angleSense: AngleSenseDemo,
+    lineSplit: LineSplitDemo,
 };
 
 export const SHORT_NAME: Record<GameType, string> = {
@@ -18,4 +22,6 @@ export const SHORT_NAME: Record<GameType, string> = {
     memoryLane: 'Memory',
     quickMath: 'Math',
     guessColor: 'Color',
+    angleSense: 'Angle',
+    lineSplit: 'Line',
 };

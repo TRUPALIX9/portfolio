@@ -16,7 +16,10 @@ const GLYPH: Record<string, React.ReactNode> = {
 
 /** Store listings that really exist; everything else links to the app's own site. */
 const STORE_LINK: Record<string, Record<string, { label: string; href: string; pre?: string }>> = {
-    iOS: { logicsprint: { label: 'App Store', href: LOGICSPRINT.appStoreUrl } },
+    iOS: {
+        logicsprint: { label: 'App Store', href: LOGICSPRINT.appStoreUrl },
+        storedesk: { label: 'App Store', href: 'https://apps.apple.com/us/app/storedesk-mobile/id6835249805' },
+    },
     Android: {
         logicsprint: { label: 'Google Play', href: LOGICSPRINT.playUrl },
         'contact-convoy': { label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.ayushtech.contactconvoy' },
@@ -33,7 +36,8 @@ const Glyph = ({ p, size = 18 }: { p: Platform; size?: number }) => <svg viewBox
 /** Where the studio's live apps run: a folder with one tab per platform. */
 export default function Platforms() {
     const [tab, setTab] = useState<Platform>('iOS');
-    const live = STUDIO_TREE.filter((n) => n.live);
+    // Products only, so the tab counts add up with the hero's "Live products".
+    const live = STUDIO_TREE.filter((n) => n.live && n.group === 'products');
     const appsOn = (p: Platform) => live.filter((n) => n.platforms.split('·').map((s) => s.trim()).includes(p));
     const apps = appsOn(tab);
 

@@ -165,15 +165,24 @@ export default function AboutPage() {
                 {/* 3 · Sports */}
                 <section id="sports" className="sp-section">
                     <Head no={2} kicker={`${SPORTS.length} and counting`} title="Games I play" />
-                    <ul className="sp-sports">
-                        {SPORTS.map((sp, i) => (
-                            <li key={sp.name} style={{ ['--d' as string]: `${i * 50}ms` }}>
-                                <span className="sp-sports__icon"><SportIcon name={sp.icon} /></span>
-                                <b>{sp.name}</b>
-                                <span className="sp-sports__kind">{sp.kind}</span>
-                            </li>
-                        ))}
-                    </ul>
+                    {/* Two worlds: on a field or court, and on a screen */}
+                    {([['real', 'Real', 'on the field, the court and the track'], ['virtual', 'Virtual', 'on a screen']] as const).map(([world, label, where]) => {
+                        const list = SPORTS.filter((sp) => sp.world === world);
+                        return (
+                            <div key={world} className="ab-world" data-world={world}>
+                                <h3 className="ab-world__head"><b>{label}</b><span>{where}</span><i>{list.length}</i></h3>
+                                <ul className="sp-sports">
+                                    {list.map((sp, i) => (
+                                        <li key={sp.name} style={{ ['--d' as string]: `${i * 40}ms` }}>
+                                            <span className="sp-sports__icon"><SportIcon name={sp.icon} /></span>
+                                            <b>{sp.name}</b>
+                                            <span className="sp-sports__kind">{sp.kind}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        );
+                    })}
                 </section>
 
                 {/* 4 · Opinions */}

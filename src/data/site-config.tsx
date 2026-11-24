@@ -121,10 +121,10 @@ export const socialLinks: SocialLink[] = [
     },
     {
         name: 'Snapchat',
-        url: 'https://www.snapchat.com/add/trupal_ix9?share_id=xQdmqszwbSk&locale=en-US',
+        url: 'https://www.snapchat.com/add/trupal.life',
         icon: <SnapchatIcon size={24} />,
         color: '#FFFC00',
-        handle: '@trupal_ix9',
+        handle: '@trupal.life',
         blurb: 'Quick adds, casual moments, and story-based social updates.',
         cta: 'Add on Snapchat',
     },

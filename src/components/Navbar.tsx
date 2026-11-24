@@ -17,9 +17,8 @@ const GithubIcon = ({ size = 17 }: { size?: number }) => (
 /** Sections of the home datasheet, then the other pages. */
 const SECTIONS = [
     { href: '/#pinout', no: '2', label: 'System map' },
-    { href: '/#applications', no: '3', label: 'Applications' },
-    { href: '/#revisions', no: '4', label: 'Revisions' },
-    { href: '/#ordering', no: '6', label: 'Contact' },
+    { href: '/#revisions', no: '3', label: 'Revisions' },
+    { href: '/#ordering', no: '5', label: 'Contact' },
 ];
 const PAGES = [
     { href: '/about', label: 'About' },
@@ -68,7 +67,6 @@ function NavbarContent() {
                     </div>
 
                     <div className="sp-bar__right">
-                        <span className="sp-bar__rev">REV 4</span>
                         <a href="https://github.com/TRUPALIX9" target="_blank" rel="noreferrer" aria-label="GitHub" className="sp-iconbtn"><GithubIcon /></a>
                         <a href="https://www.linkedin.com/in/trupalix" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="sp-iconbtn"><LinkedinIcon size={17} /></a>
                         <button

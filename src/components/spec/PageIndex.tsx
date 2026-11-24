@@ -6,10 +6,9 @@ import { motion, useScroll, useSpring } from 'framer-motion';
 export const SECTIONS = [
     { id: 'overview', no: 1, label: 'Overview' },
     { id: 'pinout', no: 2, label: 'System map' },
-    { id: 'applications', no: 3, label: 'Applications' },
-    { id: 'revisions', no: 4, label: 'Revision history' },
-    { id: 'documents', no: 5, label: 'Related documents' },
-    { id: 'ordering', no: 6, label: 'Ordering information' },
+    { id: 'revisions', no: 3, label: 'Revision history' },
+    { id: 'documents', no: 4, label: 'Related documents' },
+    { id: 'ordering', no: 5, label: 'Ordering information' },
 ];
 
 /** Sticky contents list that highlights the section in view. */
@@ -42,7 +41,6 @@ export function PageIndex() {
                     </li>
                 ))}
             </ol>
-            <p className="sp-index__meta">TP-SDE-2026<br />Rev 4 · Oct 2026<br />Georgia, USA</p>
         </nav>
     );
 }

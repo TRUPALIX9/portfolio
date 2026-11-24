@@ -136,7 +136,7 @@ export default async function LogicSprintPage() {
             {/* ── Trailer: the whole app in about a minute. preload="none" so phones don't spend data on it. ── */}
             <section id="trailer" className="ls-section ls-trailer" aria-labelledby="ls-trailer-title">
                 <div className="ls-container">
-                    <SectionHeading id="ls-trailer-title" label="Trailer · 1 min" title="See it in action" lead="All four games, the daily Top 10 and your profile, from the real app." />
+                    <SectionHeading id="ls-trailer-title" label="Trailer · 1 min" title="See it in action" lead="Rocket Launch, Memory Lane, Quick Math and Guess Color, the daily Top 10 and your profile, from the real app." />
                     <video
                         className="ls-video"
                         src={APP.trailer}
@@ -193,7 +193,7 @@ export default async function LogicSprintPage() {
                         id="ls-shots-title"
                         label={`Screenshots · ${pad(SCREENSHOTS.length)}`}
                         title="Take a look"
-                        lead="The Play tab, a game sheet, all four games in action, a result screen, the global Top 10 and your profile."
+                        lead="The Play tab, all six games in action, a revive, the global Top 10 and your Profile with its Sprint Score."
                     />
                     <ScreenshotCarousel shots={SCREENSHOTS} labelledBy="ls-shots-title" />
                 </div>

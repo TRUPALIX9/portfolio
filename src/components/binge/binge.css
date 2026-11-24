@@ -1,45 +1,31 @@
 /* TruePal TV: the streaming-style watch list at /binge, the home page's TV button and its
    transition, and the Marvel comic-book view. Every class is bx-. */
 
-/* ── TV button (sits on the home page) ─────────────────────────── */
+/* ── Play button (sits on the home page's Binge card) ─────────────── */
 .bx-tvbtn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.7rem;
-  padding: 0.45rem 0.95rem 0.45rem 0.55rem;
-  min-height: 52px;
-  border-radius: 14px;
-  border: 1.5px solid #1a1712;
-  background: #1a1712;
-  color: #f3eee2;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.55rem 1rem 0.55rem 0.55rem;
+  border-radius: 999px;
+  border: 0;
+  background: linear-gradient(180deg, #ffc76a 0%, #ffb547 100%);
+  color: #17130a;
   font-family: var(--font-geist), system-ui, sans-serif;
   cursor: pointer;
-  box-shadow: 3px 3px 0 rgb(0 0 0 / 0.25);
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  box-shadow: 0 0 0 1px rgb(255 181 71 / 0.35), 0 10px 24px -10px rgb(255 181 71 / 0.6);
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 }
-.bx-tvbtn:hover { transform: translate(-1px, -2px); box-shadow: 5px 6px 0 rgb(0 0 0 / 0.25); }
-.bx-tvbtn__set { position: relative; display: grid; grid-template-rows: auto auto; justify-items: center; }
-.bx-tvbtn__ears { width: 22px; height: 8px; border-left: 2px solid #8f8a7e; border-right: 2px solid #8f8a7e; transform: perspective(20px) rotateX(-30deg); margin-bottom: -1px; }
-.bx-tvbtn__screen {
-  position: relative;
-  width: 46px;
-  height: 32px;
-  border-radius: 8px;
-  border: 3px solid #3b362d;
-  background: radial-gradient(ellipse at 50% 40%, #6fe3ff 0%, #2a7fd4 45%, #0d1d3a 100%);
-  box-shadow: 0 0 14px rgb(111 227 255 / 0.55), inset 0 0 8px rgb(0 0 0 / 0.5);
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  animation: bx-flicker 3.6s infinite;
-}
-.bx-tvbtn__screen::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.08) 0 1px, transparent 1px 3px); }
-.bx-tvbtn__play { color: #fff; font-size: 0.8rem; text-shadow: 0 0 6px #fff; }
-.bx-tvbtn__knobs { display: flex; gap: 6px; margin-top: 2px; }
-.bx-tvbtn__knobs i { width: 6px; height: 6px; border-radius: 50%; background: #8f8a7e; }
-.bx-tvbtn__label { display: grid; text-align: left; line-height: 1.1; }
-.bx-tvbtn__label b { font-size: 1.05rem; font-weight: 800; letter-spacing: 0.02em; }
-.bx-tvbtn__label small { font-size: 0.7rem; color: #b9b2a3; }
+.bx-tvbtn:hover { transform: translateY(-1px); box-shadow: 0 0 0 4px rgb(255 181 71 / 0.22), 0 14px 28px -10px rgb(255 181 71 / 0.7); }
+.bx-tvbtn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.bx-tvbtn__play { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: #0b0d13; color: #ffb547; padding-left: 2px; transition: transform 200ms cubic-bezier(.3, 1.5, .5, 1); }
+.bx-tvbtn:hover .bx-tvbtn__play { transform: scale(1.08); }
+.bx-tvbtn__label { display: grid; text-align: left; line-height: 1.15; flex: 1; }
+.bx-tvbtn__label b { font-size: 1rem; font-weight: 700; }
+.bx-tvbtn__label small { font-size: 0.72rem; color: rgb(23 19 10 / 0.65); }
+.bx-tvbtn__arrow { font-size: 1.1rem; font-weight: 700; transition: transform 160ms ease; }
+.bx-tvbtn:hover .bx-tvbtn__arrow { transform: translateX(3px); }
 @keyframes bx-flicker { 0%, 92%, 100% { filter: none; } 94% { filter: brightness(1.6); } 96% { filter: brightness(0.7); } }
 
 /* Transition: the page closes into a TV screen, the CRT switches off, the ident plays. */
@@ -72,7 +58,9 @@
 
 /* ── Logo ────────────────────────────────────────────────────────────────── */
 .bx-logo { display: inline-flex; align-items: center; gap: 0.08em; font-family: var(--font-geist), system-ui, sans-serif; font-weight: 800; font-size: 1.35rem; letter-spacing: -0.03em; color: #f5f3ee; white-space: nowrap; }
-.bx-logo__play { display: inline-grid; place-items: center; width: 1.05em; height: 1.05em; margin: 0 0.06em; border-radius: 50%; background: linear-gradient(135deg, #ffb547, #ff6b4a); color: #10121a; font-size: 0.5em; padding-left: 0.12em; }
+.bx-logo__play { display: inline-grid; place-items: center; width: 0.82em; height: 0.82em; margin: 0 0.06em; border-radius: 50%; background: linear-gradient(135deg, #ffb547, #ff6b4a); color: #10121a; flex: none; }
+/* A drawn triangle, nudged right so it looks centred in the circle */
+.bx-logo__play svg { width: 48%; height: 48%; transform: translateX(8%); }
 .bx-logo small { margin-left: 0.35em; padding: 0.12em 0.4em; border: 1.5px solid currentColor; border-radius: 6px; font-size: 0.48em; letter-spacing: 0.08em; }
 .bx-logo--xl { font-size: clamp(2.6rem, 9vw, 5rem); }
 
@@ -319,7 +307,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bx-tvbtn, .bx-tvbtn:hover, .bx-btn:hover, .bx-card:hover .bx-poster, .bx-cbtn:hover { transform: none; transition: none; }
-  .bx-tvbtn__screen, .bx-app, .bx-marvelzone--comic, .bx-modal, .bx-wipe, .bx-main--marvel { animation: none; }
+  .bx-app, .bx-marvelzone--comic, .bx-modal, .bx-wipe, .bx-main--marvel { animation: none; }
   .bx-slide { transition: none; }
 }
 
@@ -634,3 +622,11 @@
 .bx-app[data-mode='marvel'] .bx-poster { border: 3px solid #111; border-radius: 0; box-shadow: 4px 4px 0 #111; }
 .bx-filters > * { flex: none; }
 .bx-toggle, .bx-ms__trigger { white-space: nowrap; }
+
+/* Paging: "show more" under grids, and a "+N more" tile at the end of a row */
+.bx-more { display: block; margin: 1.2rem auto 0.4rem; padding: 0.6rem 1.3rem; border-radius: 999px; border: 1px solid rgb(255 255 255 / 0.22); background: rgb(255 255 255 / 0.06); color: inherit; font: inherit; font-weight: 600; cursor: pointer; transition: background-color 160ms, border-color 160ms; }
+.bx-more:hover { background: rgb(255 255 255 / 0.12); border-color: rgb(255 255 255 / 0.4); }
+.bx-more span { font-weight: 400; opacity: 0.65; }
+.bx-row__more { flex: none; align-self: stretch; min-width: 110px; display: grid; place-content: center; gap: 0.2rem; border-radius: 10px; border: 1px dashed rgb(255 255 255 / 0.28); background: rgb(255 255 255 / 0.04); color: inherit; font: inherit; font-size: 1.4rem; font-weight: 800; cursor: pointer; }
+.bx-row__more small { font-size: 0.7rem; font-weight: 500; opacity: 0.7; }
+.bx-row__more:hover { background: rgb(255 255 255 / 0.1); }

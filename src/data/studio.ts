@@ -62,13 +62,14 @@ export const STUDIO_TREE: StudioNode[] = [
         name: 'LogicSprint',
         group: 'products',
         live: true,
-        tagline: 'Four quick games. One more round.',
+        tagline: 'Six quick games. One more round.',
         summary:
-            'A free brain-training game for iPhone and Android: Rocket Launch, Memory Lane, Quick Math and Guess Color. Every run gets harder until your first mistake, and each game has a daily global Top 10. No sign-up, no login.',
+            'A free brain-training game for iPhone and Android: Rocket Launch, Memory Lane, Quick Math, Guess Color, Angle Sense and Line Split. Every run gets harder until your first mistake, each game has a daily global Top 10, and a Sprint Score ranks you across all six. No sign-up, no login.',
         points: [
             'Live on the App Store and Google Play',
             'Anonymous per-device accounts power a daily global Top 10 per game and difficulty',
             'Up to three revives per run with hearts or a short video',
+            'Sprint Score across all six games, plus calm per-game music',
             'Product site with playable in-browser demos and live stats',
         ],
         platforms: 'iOS · Android',
@@ -130,12 +131,12 @@ export const STUDIO_TREE: StudioNode[] = [
         summary:
             "Runs on the store's own PC and talks to the register directly. Track every vendor's cost, see the margin on every item, watch fuel prices, and let staff scan barcodes anywhere on the floor. Keeps working when the internet is down.",
         points: [
-            'Five modules: in-store worker, Windows app, Android scanner, web dashboard, cloud relay',
+            'Five modules: in-store worker, Windows app, iOS and Android scanner, web dashboard, cloud relay',
             'Seeds 10,000+ items straight from the Verifone Commander register',
             'Barcode price and margin lookups in under 100 ms',
             'Local-first: syncs only what changed, keeps running offline',
         ],
-        platforms: 'Windows · Android · Web',
+        platforms: 'iOS · Android · Windows · Web',
         stack: ['Electron', 'React', 'Node.js', 'Flutter', 'MongoDB', 'Google Cloud'],
         links: [
             { label: 'storedesk.net', href: 'https://storedesk.net' },

@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { LOGICSPRINT_URL, SITE_URL } from '@/data/site';
+import { LOGICSPRINT_URL, SITE_URL, SUBDOMAINS, type Subdomain } from '@/data/site';
 
 // LogicSprint moved to logicsprint.trueorfalse.dev (the True or False studio site). Every old
 // LogicSprint address redirects there permanently, keeping the path, so the App Store and Google
@@ -16,6 +16,17 @@ const PORTFOLIO_SECTIONS = new Set([
 export function proxy(request: NextRequest) {
     const host = request.headers.get('host') ?? '';
     const { pathname, search } = request.nextUrl;
+
+    // me. / binge. / travel. / link. serve one page each at their root (works on *.localhost too).
+    const sub = host.split('.')[0] as Subdomain;
+    if (sub in SUBDOMAINS && host.split('.').length > 1) {
+        const page = SUBDOMAINS[sub].path;
+        if (pathname === '/') return NextResponse.rewrite(new URL(page + search, request.url));
+        // The page's own routes (e.g. /travel/flight) stay on the subdomain.
+        if (pathname === page || pathname.startsWith(`${page}/`)) return NextResponse.next();
+        // Anything else belongs to the main site.
+        return NextResponse.redirect(new URL(pathname + search, SITE_URL), 307);
+    }
 
     if (host.startsWith('logicsprint.')) {
         if (PORTFOLIO_SECTIONS.has(pathname.split('/')[1])) {

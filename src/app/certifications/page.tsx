@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowUpRight, Award, BadgeCheck, ChevronDown } from 'lucide-react';
 import { pageMetadata } from '@/utils/seo';
 import SectionHead, { PART_NO } from '@/components/spec/SectionHead';
-import { certifications, type Certification } from '@/data/certifications';
+import { certifications, type Certification, type CourseCertificate } from '@/data/certifications';
+import CertBadge from '@/components/spec/CertBadge';
 
 export const metadata: Metadata = pageMetadata({
     title: 'Certifications | Trupal Patel',
@@ -11,33 +12,46 @@ export const metadata: Metadata = pageMetadata({
     path: '/certifications',
 });
 
-/** A two-letter badge per issuer, coloured so the grid reads at a glance. */
-const ISSUER_TINT: Record<string, string> = {
-    Meta: '#0866ff',
-    Google: '#34a853',
-    Coursera: '#0056d2',
-    'Duke University': '#00539b',
-    'Johns Hopkins University': '#002d72',
-    'Great Learning': '#e2622b',
-    'Cal Poly Digital Transformation Hub': '#154734',
-};
-const initials = (s: string) => s.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).slice(0, 2).map((w) => w[0]).join('') || s.slice(0, 2);
-
-function Badge({ issuer }: { issuer: string }) {
-    return <span className="cx-badge" style={{ background: ISSUER_TINT[issuer] ?? 'var(--sp-ink)' }} aria-hidden="true">{initials(issuer)}</span>;
-}
-
 function Verify({ c }: { c: Certification }) {
     if (!c.credentialUrl) return <span className="cx-noverify">No public record</span>;
     return <a href={c.credentialUrl} target="_blank" rel="noreferrer" className="cx-verify"><BadgeCheck size={14} aria-hidden="true" /> Verify<ArrowUpRight size={13} aria-hidden="true" /></a>;
 }
 
+/** The certificate itself, opening full size in a new tab. */
+function Shot({ src, title, className = '' }: { src: string; title: string; className?: string }) {
+    return (
+        <a href={src} target="_blank" rel="noreferrer" className={`cx-shot ${className}`} aria-label={`Open the ${title} certificate`}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={src} alt={`${title} certificate`} loading="lazy" decoding="async" />
+        </a>
+    );
+}
+
+/** Every course certificate inside a specialization, as small cards under it. */
+function Courses({ list }: { list: CourseCertificate[] }) {
+    return (
+        <>
+            <h3 className="sp-sub cx-courses__head">{list.length} course certificates in this program</h3>
+            <ol className="cx-course-grid">
+                {list.map((k, i) => (
+                    <li key={k.title} className="cx-course" style={{ ['--d' as string]: `${i * 40}ms` }}>
+                        {k.image && <Shot src={k.image} title={k.title} />}
+                        <div className="cx-course__body">
+                            <span className="cx-course__no">{String(i + 1).padStart(2, '0')}</span>
+                            <b>{k.title}</b>
+                            <span className="cx-date">{k.completed} · Grade {k.grade}</span>
+                            <a href={k.url} target="_blank" rel="noreferrer" className="cx-verify"><BadgeCheck size={14} aria-hidden="true" /> Verify<ArrowUpRight size={13} aria-hidden="true" /></a>
+                        </div>
+                    </li>
+                ))}
+            </ol>
+        </>
+    );
+}
+
 export default function CertificationsPage() {
     const featured = certifications.filter((c) => c.featured);
     const rest = certifications.filter((c) => !c.featured);
-    const issuers = new Set(certifications.map((c) => c.issuer)).size;
-    const courses = certifications.reduce((n, c) => n + (c.courses?.length ?? 0), 0);
-    const verified = certifications.filter((c) => c.credentialUrl).length;
 
     return (
         <div className="sp-page">
@@ -50,22 +64,17 @@ export default function CertificationsPage() {
                     <h1 className="sp-name">Certifications</h1>
                     <p className="sp-lede" style={{ marginTop: '0.8rem' }}>Everything I’ve been certified in. Each Verify link opens the issuer’s own record.</p>
 
-                    <dl className="sp-ratings cx-ratings">
-                        <div><dt>Credentials</dt><dd>{certifications.length}</dd></div>
-                        <div><dt>Issuers</dt><dd>{issuers}</dd></div>
-                        <div><dt>Course certificates</dt><dd>{courses}</dd></div>
-                        <div><dt>Verifiable</dt><dd>{verified}</dd></div>
-                    </dl>
                 </section>
 
                 {featured.length > 0 && (
                     <section className="sp-section">
                         <SectionHead no={2} title="Featured" page="Credentials" />
                         {featured.map((c) => (
-                            <article key={c.title} className="cx-hero">
-                                <div className="cx-hero__mark" aria-hidden="true"><Award size={34} /></div>
+                            <div key={c.title} className="cx-feature">
+                            <article className={`cx-hero ${c.image ? 'cx-hero--shot' : ''}`}>
+                                {c.image ? <Shot src={c.image} title={c.title} className="cx-shot--hero" /> : <div className="cx-hero__mark" aria-hidden="true"><Award size={34} /></div>}
                                 <div className="cx-hero__body">
-                                    <p className="cx-hero__issuer">{c.issuer}{c.platform ? ` · ${c.platform}` : ''}</p>
+                                    <p className="cx-hero__issuer"><CertBadge issuer={c.issuer} platform={c.platform} />{c.issuer}{c.platform ? ` · ${c.platform}` : ''}</p>
                                     <h2>{c.title}</h2>
                                     {c.summary && <p className="cx-hero__summary">{c.summary}</p>}
                                     <ul className="cx-skills cx-skills--dark">{c.skills.map((s) => <li key={s}>{s}</li>)}</ul>
@@ -75,6 +84,8 @@ export default function CertificationsPage() {
                                     </div>
                                 </div>
                             </article>
+                            {c.courses && c.courses.length > 0 && <Courses list={c.courses} />}
+                            </div>
                         ))}
                     </section>
                 )}
@@ -84,8 +95,9 @@ export default function CertificationsPage() {
                     <div className="cx-grid">
                         {rest.map((c, i) => (
                             <article key={c.title} className="cx-card" style={{ ['--d' as string]: `${i * 40}ms` }}>
+                                {c.image && <Shot src={c.image} title={c.title} />}
                                 <header>
-                                    <Badge issuer={c.issuer} />
+                                    <CertBadge issuer={c.issuer} platform={c.platform} />
                                     <div>
                                         <p className="cx-card__issuer">{c.issuer}{c.platform ? ` · ${c.platform}` : ''}</p>
                                         <h3>{c.title}</h3>
