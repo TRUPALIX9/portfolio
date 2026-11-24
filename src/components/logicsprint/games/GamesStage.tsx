@@ -6,7 +6,7 @@ import { DEMOS, SHORT_NAME } from './demos';
 import PhoneFrame from './PhoneFrame';
 import { useReducedMotion } from './useDemoRuntime';
 
-/* Scrollytelling for "Four ways to sprint". On wide screens the game sections scroll on the left
+/* Scrollytelling for "Six ways to sprint". On wide screens the game sections scroll on the left
    while one sticky phone on the right plays whichever game is in the middle of the viewport; a
    change of game slides the screen over like switching apps. Below 960px the rail is hidden and
    each section shows its own phone (GamePhone). */

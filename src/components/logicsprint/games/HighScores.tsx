@@ -5,8 +5,9 @@ import type { GameType } from '@/data/logicsprint';
 import type { BoardEntry, Difficulty } from '@/utils/logicsprint-stats';
 
 /* A game's top 5 from the global board, in the app's Ranks-row look: rank, NAME with its dimmed
-   #tag, run time where the app records one, score; #1 in the game's accent. Memory Lane and Quick
-   Math keep Easy / Medium / Hard boards; the other two have one board, stored as medium. */
+   #tag, run time where the app records one, score; #1 in the game's accent. Memory Lane, Quick
+   Math and Angle Sense keep Easy / Medium / Hard boards; the other three have one board, stored
+   as medium. */
 
 const SHOWN = 5;
 const LEVELS: { id: Difficulty; label: string }[] = [
@@ -14,8 +15,8 @@ const LEVELS: { id: Difficulty; label: string }[] = [
     { id: 'medium', label: 'Medium' },
     { id: 'hard', label: 'Hard' },
 ];
-/** Games with difficulty boards; they also record how long a run took. */
-const HAS_LEVELS: ReadonlySet<GameType> = new Set(['memoryLane', 'quickMath']);
+/** Games with difficulty boards. Memory Lane and Quick Math also record how long a run took. */
+const HAS_LEVELS: ReadonlySet<GameType> = new Set(['memoryLane', 'quickMath', 'angleSense']);
 
 const formatScore = new Intl.NumberFormat('en-US').format;
 const pad2 = (n: number) => String(n).padStart(2, '0');

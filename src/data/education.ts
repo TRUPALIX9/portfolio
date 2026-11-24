@@ -1,20 +1,26 @@
-import type { CareerEntry } from './career';
+export type Degree = {
+    school: string;
+    degree: string;
+    /** Month the degree was finished, e.g. "May 2026". */
+    graduated: string;
+    url: string;
+    logo: string;
+};
 
-/** Degrees, in the same shape as the career log so the timing diagram can draw them. From the résumé. */
-export const EDUCATION: CareerEntry[] = [
+/** Degrees, newest first. From the résumé. */
+export const EDUCATION: Degree[] = [
     {
-        company: 'California State University Channel Islands',
-        role: 'Master of Science, Computer Science',
-        period: 'Jan 2025 – May 2026',
+        school: 'California State University Channel Islands',
+        degree: 'Master of Science, Computer Science',
+        graduated: 'May 2026',
         url: 'https://www.csuci.edu',
-        summary: '',
         logo: '/csuci-icon.png',
     },
     {
-        company: 'Gujarat Technological University',
-        role: 'Bachelor of Engineering, Computer Engineering',
-        period: 'Aug 2019 – Jul 2023',
+        school: 'Gujarat Technological University',
+        degree: 'Bachelor of Engineering, Computer Engineering',
+        graduated: 'Jul 2023',
         url: 'https://www.gtu.ac.in',
-        summary: '',
+        logo: '/gtu-icon.png',
     },
 ];

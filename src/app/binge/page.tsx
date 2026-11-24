@@ -11,7 +11,7 @@ const marquee = Bebas_Neue({ subsets: ['latin'], weight: '400', display: 'swap',
 const comic = Comic_Neue({ subsets: ['latin'], weight: ['400', '700'], display: 'swap', variable: '--bx-comic' });
 
 export const metadata: Metadata = {
-    title: 'Binge · TruePal',
+    title: 'Binge · true TV',
     description: "Trupal Patel's watch list: series and films watched, in progress and on the list, plus every Marvel Studios release. Search any title and suggest what to watch next.",
     alternates: { canonical: '/binge' },
 };

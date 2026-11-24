@@ -49,9 +49,49 @@ function Card({ item, onOpen }: { item: Item; onOpen: (item: Item) => void }) {
     );
 }
 
+// ── Rendering a bit at a time ───────────────────────────────────────────────
+// The list runs to hundreds of titles and posters fetch their own artwork, so nothing renders
+// all at once: rows grow as you scroll them, grids page with a button, and lower sections only
+// mount when they come near the screen.
+
+const PAGE = 24;
+
+/** The first `size` items, with more on request; starts over whenever the list itself changes. */
+function usePaged<T>(items: T[], size = PAGE) {
+    const [state, setState] = useState({ src: items, n: size });
+    if (state.src !== items) setState({ src: items, n: size });
+    const n = state.src === items ? state.n : size;
+    return { shown: items.slice(0, n), left: Math.max(0, items.length - n), more: () => setState((s) => ({ ...s, n: s.n + size })) };
+}
+
+function MoreButton({ left, step = PAGE, onClick, what = 'titles' }: { left: number; step?: number; onClick: () => void; what?: string }) {
+    if (left <= 0) return null;
+    return <button type="button" className="bx-more" onClick={onClick}>Show {Math.min(step, left)} more <span>· {left} {what} left</span></button>;
+}
+
+/** Mounts its children only once they're within a screen of the viewport. */
+function Lazy({ children, minHeight = 320 }: { children: React.ReactNode; minHeight?: number }) {
+    const ref = useRef<HTMLDivElement>(null);
+    const [on, setOn] = useState(false);
+    useEffect(() => {
+        const el = ref.current;
+        if (on || !el) return;
+        const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setOn(true); io.disconnect(); } }, { rootMargin: '700px 0px' });
+        io.observe(el);
+        return () => io.disconnect();
+    }, [on]);
+    return <div ref={ref} style={on ? undefined : { minHeight }}>{on ? children : null}</div>;
+}
+
 function Row({ title, items, onOpen, sub }: { title: string; items: Item[]; onOpen: (item: Item) => void; sub?: string }) {
     const ref = useRef<HTMLDivElement>(null);
+    // Posters are added 14 at a time as the row is scrolled towards its end.
+    const paged = usePaged(items, 14);
     if (items.length === 0) return null;
+    const onScroll = () => {
+        const el = ref.current;
+        if (el && paged.left > 0 && el.scrollLeft + el.clientWidth * 2 >= el.scrollWidth) paged.more();
+    };
     const scroll = (dir: 1 | -1) => ref.current?.scrollBy({ left: dir * ref.current.clientWidth * 0.85, behavior: reduceMotion() ? 'auto' : 'smooth' });
     return (
         <section className="bx-row" aria-label={title}>
@@ -62,8 +102,9 @@ function Row({ title, items, onOpen, sub }: { title: string; items: Item[]; onOp
                     <button type="button" aria-label={`Scroll ${title} right`} onClick={() => scroll(1)}>›</button>
                 </div>
             </div>
-            <div className="bx-row__track" ref={ref}>
-                {items.map((it) => <Card key={it.id} item={it} onOpen={onOpen} />)}
+            <div className="bx-row__track" ref={ref} onScroll={onScroll}>
+                {paged.shown.map((it) => <Card key={it.id} item={it} onOpen={onOpen} />)}
+                {paged.left > 0 && <button type="button" className="bx-row__more" onClick={paged.more}>+{paged.left}<small>more</small></button>}
             </div>
         </section>
     );
@@ -279,6 +320,31 @@ function Marquee({ films, onOpen }: { films: Item[]; onOpen: (item: Item) => voi
     );
 }
 
+/** A grid of cards, a page at a time. */
+function PagedGrid<T>({ items, render, what }: { items: T[]; render: (item: T) => React.ReactNode; what?: string }) {
+    const paged = usePaged(items);
+    return (
+        <>
+            <div className="bx-grid">{paged.shown.map(render)}</div>
+            <MoreButton left={paged.left} onClick={paged.more} what={what} />
+        </>
+    );
+}
+
+/** One movie screen: its wall pages 18 posters at a time. */
+function Screen({ n, shelf, list, onOpen }: { n: number; shelf: string; list: Item[]; onOpen: (item: Item) => void }) {
+    const paged = usePaged(list, 18);
+    return (
+        <section className="bx-screen" aria-label={shelf}>
+            <h2 className="bx-screen__head"><span>Screen {n + 1}</span>{shelf}<small>{list.filter((f) => f.status === 'seen').length}/{list.length} watched</small></h2>
+            <div className="bx-wall">
+                {paged.shown.map((f) => <MovieCard key={f.id} item={f} onOpen={onOpen} />)}
+            </div>
+            <MoreButton left={paged.left} step={18} onClick={paged.more} what="films" />
+        </section>
+    );
+}
+
 function MoviesView({ films, filtered, filtering, onOpen }: { films: Item[]; filtered: Item[]; filtering: boolean; onOpen: (item: Item) => void }) {
     const featured = useMemo(() => {
         const rec = films.filter((f) => f.recommended);
@@ -295,14 +361,9 @@ function MoviesView({ films, filtered, filtering, onOpen }: { films: Item[]; fil
             {!filtering && <Marquee films={featured} onOpen={onOpen} />}
             <div className="bx-screens">
                 {filtering && <h2 className="bx-screens__count">{filtered.length} {filtered.length === 1 ? 'film' : 'films'}</h2>}
-                {screens.map(([shelf, list], n) => (
-                    <section key={shelf} className="bx-screen" aria-label={shelf}>
-                        <h2 className="bx-screen__head"><span>Screen {n + 1}</span>{shelf}<small>{list.filter((f) => f.status === 'seen').length}/{list.length} watched</small></h2>
-                        <div className="bx-wall">
-                            {list.map((f) => <MovieCard key={f.id} item={f} onOpen={onOpen} />)}
-                        </div>
-                    </section>
-                ))}
+                {screens.map(([shelf, list], n) => (n === 0
+                    ? <Screen key={shelf} n={n} shelf={shelf} list={list} onOpen={onOpen} />
+                    : <Lazy key={shelf} minHeight={420}><Screen n={n} shelf={shelf} list={list} onOpen={onOpen} /></Lazy>))}
                 {filtered.length === 0 && <p className="bx-empty">No films match these filters.</p>}
             </div>
         </>
@@ -343,19 +404,19 @@ function SearchView({ query, items, onList, onOpen, onSuggest }: { query: string
             {tvOnly.length > 0 && (
                 <section className="bx-results" aria-label="TV">
                     <h3 className="bx-group">TV <span>{tvOnly.length}</span></h3>
-                    <div className="bx-grid">{tvOnly.map((it) => <Card key={it.id} item={it} onOpen={onOpen} />)}</div>
+                    <PagedGrid items={tvOnly} what="series" render={(it) => <Card key={it.id} item={it} onOpen={onOpen} />} />
                 </section>
             )}
             {moviesOnly.length > 0 && (
                 <section className="bx-results" aria-label="Movies">
                     <h3 className="bx-group">Movies <span>{moviesOnly.length}</span></h3>
-                    <div className="bx-grid">{moviesOnly.map((it) => <Card key={it.id} item={it} onOpen={onOpen} />)}</div>
+                    <PagedGrid items={moviesOnly} what="films" render={(it) => <Card key={it.id} item={it} onOpen={onOpen} />} />
                 </section>
             )}
             {marvel.length > 0 && (
                 <section className="bx-results" aria-label="Marvel">
                     <h3 className="bx-group">Marvel <span>{marvel.length}</span></h3>
-                    <div className="bx-grid">{marvel.map((m) => <MarvelHit key={m.id} m={m} />)}</div>
+                    <PagedGrid items={marvel} render={(m) => <MarvelHit key={m.id} m={m} />} />
                 </section>
             )}
             {total === 0 && <p className="bx-empty bx-results">Nothing on his list matches.</p>}
@@ -482,8 +543,8 @@ export default function BingeApp() {
             <header className="bx-top">
                 <div className="bx-top__left">
                     <button type="button" className="bx-exit" onClick={exit}>← Back to portfolio</button>
-                    <span className="bx-logo" aria-label={`TruePal ${MODES.find((m) => m.id === mode)?.label}`}>
-                        <span className="bx-logo__word">true<b>pal</b></span>
+                    <span className="bx-logo" aria-label={`true TV · ${MODES.find((m) => m.id === mode)?.label}`}>
+                        <span className="bx-logo__word">true</span>
                         <small className="bx-logo__badge">{MODES.find((m) => m.id === mode)?.label}</small>
                     </span>
                 </div>
@@ -545,7 +606,7 @@ export default function BingeApp() {
                         <section className="bx-results" aria-label="Results" aria-live="polite">
                             <h2>{tvResults.length} {tvResults.length === 1 ? 'series' : 'series'}</h2>
                             {tvResults.length === 0 && <p className="bx-empty">No series match these filters.</p>}
-                            <div className="bx-grid">{tvResults.map((it) => <Card key={it.id} item={it} onOpen={setOpen} />)}</div>
+                            <PagedGrid items={tvResults} what="series" render={(it) => <Card key={it.id} item={it} onOpen={setOpen} />} />
                         </section>
                     ) : (
                         <>
@@ -553,10 +614,11 @@ export default function BingeApp() {
                             {!live && <p className="bx-src">Showing the saved list.</p>}
                             <Row title="Continue watching" items={rows.watching} onOpen={setOpen} />
                             <Row title="Trupal recommends" items={rows.recommended} onOpen={setOpen} />
-                            <Row title="Finished" items={rows.finished} onOpen={setOpen} />
-                            {rows.shelves.map(([name, list]) => <Row key={name} title={name} items={list} onOpen={setOpen} />)}
-                            <Row title="On the list" items={rows.watchlist} onOpen={setOpen} sub={`${rows.watchlist.length} not started`} />
-                            <Row title="Left for now" items={rows.left} onOpen={setOpen} sub={`${rows.left.length} · not planning for now`} />
+                            {/* Rows further down mount as they come near the screen */}
+                            <Lazy><Row title="Finished" items={rows.finished} onOpen={setOpen} /></Lazy>
+                            {rows.shelves.map(([name, list]) => <Lazy key={name}><Row title={name} items={list} onOpen={setOpen} /></Lazy>)}
+                            <Lazy><Row title="On the list" items={rows.watchlist} onOpen={setOpen} sub={`${rows.watchlist.length} not started`} /></Lazy>
+                            <Lazy><Row title="Left for now" items={rows.left} onOpen={setOpen} sub={`${rows.left.length} · not planning for now`} /></Lazy>
                             <section className="bx-cta" aria-label="Suggest a title">
                                 <p>Something he should watch next?</p>
                                 <button type="button" className="bx-btn bx-btn--primary" onClick={() => setSuggest('')}>Suggest a title</button>

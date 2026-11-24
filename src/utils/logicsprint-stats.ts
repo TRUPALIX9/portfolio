@@ -7,7 +7,7 @@ import type { GameType } from '@/data/logicsprint';
  */
 const REST_URL = 'https://axucnwnzuhdsiggqyjqf.supabase.co/rest/v1';
 const PUBLISHABLE_KEY = 'sb_publishable_dzJkARQ59BSHuvJIlhnoTg_4NI5kWo0';
-const GAME_TYPES: GameType[] = ['rocketLaunch', 'memoryLane', 'quickMath', 'guessColor'];
+const GAME_TYPES: GameType[] = ['rocketLaunch', 'memoryLane', 'quickMath', 'guessColor', 'angleSense', 'lineSplit'];
 
 export type GameStat = { players: number; plays: number; topScore: number };
 
@@ -64,7 +64,7 @@ export async function getLogicSprintStats(): Promise<LogicSprintStats | null> {
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
 export type BoardEntry = { rank: number; name: string; score: number; durationMs: number | null };
-/** Keyed `${game}:${difficulty}`. Rocket Launch and Guess Color have one board, stored as medium. */
+/** Keyed `${game}:${difficulty}`. Rocket Launch, Guess Color and Line Split have one board, stored as medium. */
 export type Boards = Partial<Record<`${GameType}:${Difficulty}`, BoardEntry[]>>;
 
 const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard'];

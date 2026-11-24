@@ -40,8 +40,11 @@ export default function RelatedDocs() {
                 <span className="rd-no">DOC-02 · WATCH LOG</span>
                 <div className="rd-binge__screen" aria-hidden="true">
                     <span className="rd-binge__scan" />
+                    <span className="rd-binge__live"><i />Now playing</span>
+                    <span className="rd-binge__ch">CH 02</span>
                     <b>BINGE</b>
-                    <small>now playing · season by season</small>
+                    <small>season by season</small>
+                    <span className="rd-binge__bar"><i /></span>
                 </div>
                 <p>Series and films I’ve watched, with a Marvel timeline. Suggestions welcome.</p>
                 <BingeButton />

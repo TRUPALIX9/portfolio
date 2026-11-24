@@ -88,7 +88,7 @@ export default function SocialFlow({ standalone = false }: { standalone?: boolea
                         <Image src="/social.jpeg" alt="Trupal Patel" fill sizes="120px" style={{ objectFit: 'cover', objectPosition: '50% 40%' }} priority />
                     </div>
                     <b className="so-hub__name"><Image src="/logo-penrose.png" alt="" width={18} height={18} /> Trupal Patel</b>
-                    <small>Software engineer · Georgia, USA</small>
+                    <small>Human</small>
                 </div>
 
                 {work.map((s, i) => <Card key={s.name} s={s} pos={workPos[i]} i={i} side="work" />)}

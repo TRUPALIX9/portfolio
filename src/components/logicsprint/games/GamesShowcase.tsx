@@ -6,7 +6,7 @@ import GamesStage, { GamePhone } from './GamesStage';
 import HighScores from './HighScores';
 import MotionNotice from './MotionNotice';
 
-/* "Four ways to sprint": one tall section per game (what it trains, how it plays, its modes, live
+/* "Six ways to sprint": one tall section per game (what it trains, how it plays, its modes, live
    stats and top 5), with a phone playing a scripted recording of the real app. Wide screens get one
    sticky phone that follows the scroll; phones get a phone per section. Server component; the
    stage, phones and high-score toggles are client islands. */
@@ -28,7 +28,7 @@ export default function GamesShowcase({
                     Games · {pad(GAMES.length)}
                 </p>
                 <h2 id="ls-games-title" className="ls-heading ls-h2">
-                    Four ways to sprint
+                    Six ways to sprint
                 </h2>
                 <p className="ls-lead">Each game trains one skill, and each one keeps getting harder until you slip.</p>
                 <p className="lsg-live">

@@ -40,7 +40,7 @@ test.describe('Home datasheet', () => {
     await expect(page.locator('h1')).toHaveCount(1);
     await expect(page.locator('h1')).toHaveText('Trupal Patel');
     await expect(page.getByRole('link', { name: 'Skip to content' })).toBeAttached();
-    await expect(page.locator('.sp-ratings--hero')).toContainText('Live products');
+    await expect(page.locator('#platforms')).toContainText('live products');
   });
 
   test('platform folder switches tabs and shows store badges', async ({ page }) => {
